@@ -1,16 +1,20 @@
 
 import React from 'react';
-import { Calendar, Check, CheckCircle, Clock, Copy, Eye, Home, Inbox, LayoutDashboard, Plus, Search, Tag, X } from 'lucide-react';
+import { Calendar, CheckCircle, Clock, Plus } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const DashboardPreview: React.FC = () => {
+  const isMobile = useIsMobile();
+  
   return (
     <section id="dashboard" className="py-20 bg-accent/20">
       <div className="container mx-auto px-4 md:px-6">
         <div className="grid md:grid-cols-2 gap-12 items-center">
+          {/* Left column - text content */}
           <div className="space-y-6 animate-fade-in">
             <div className="inline-flex items-center py-1 px-4 bg-accent rounded-full mb-2">
               <span className="text-xs font-medium text-primary">Intuitive Interface</span>
@@ -60,100 +64,19 @@ const DashboardPreview: React.FC = () => {
             </Button>
           </div>
           
-          {/* Dashboard Preview */}
-          <div className="relative animate-slide-in-right">
-            <div className="relative glass rounded-xl overflow-hidden shadow-elevation border border-white/40">
+          {/* Right column - illustration */}
+          <div className="relative">
+            {/* Create Schedule Card */}
+            <div className="glass rounded-xl overflow-hidden shadow-elevation border border-white/40 mx-auto max-w-md">
               <div className="bg-white/70 backdrop-blur-sm p-4 border-b border-white/20">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <h3 className="font-medium">Schedules</h3>
-                    <div className="flex text-sm gap-4 text-muted-foreground">
-                      <button className="text-primary font-medium">Upcoming</button>
-                      <button>Previous</button>
-                    </div>
-                  </div>
-                  <Button size="sm" className="bg-orange-500 hover:bg-orange-600 text-white h-9 rounded-lg">
-                    <Plus size={16} className="mr-1" /> Create Schedule
-                  </Button>
-                </div>
+                <h3 className="font-medium">Create Schedule</h3>
               </div>
               
-              <div className="p-4 space-y-4">
-                {/* Filters section */}
-                <div className="flex justify-between items-center mb-2">
-                  <div>
-                    <Button variant="outline" size="sm" className="flex gap-2 items-center h-9 text-sm">
-                      <span>Group by</span>
-                      <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                    </Button>
-                  </div>
-                  <div>
-                    <Input className="h-9 w-60" placeholder="Search" />
-                  </div>
-                </div>
-                
-                {/* Table header */}
-                <div className="grid grid-cols-4 border-b pb-2 text-sm font-medium">
-                  <div className="flex items-center gap-1">
-                    <span>Room</span>
-                    <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                  </div>
-                  <div>Meeting ID</div>
-                  <div>Topic</div>
-                  <div>Time</div>
-                </div>
-                
-                {/* Meeting rows */}
-                <div className="grid grid-cols-4 py-3 border-b text-sm items-center">
-                  <div>Room 3</div>
-                  <div>98591727859</div>
-                  <div>Team Meeting</div>
-                  <div>Mar 25, 2025 13:08 WIB</div>
-                </div>
-                
-                <div className="grid grid-cols-4 py-3 text-sm items-center">
-                  <div>Room 3</div>
-                  <div>99171675194</div>
-                  <div>Product Demo</div>
-                  <div>Mar 26, 2025 12:15 WIB</div>
-                </div>
-                
-                {/* Pagination */}
-                <div className="flex justify-between items-center pt-2 text-sm">
-                  <div className="text-muted-foreground">
-                    Showing 1 to 2 of 2 results
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span>Per page</span>
-                    <Select defaultValue="10">
-                      <SelectTrigger className="w-16 h-8">
-                        <SelectValue placeholder="10" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="10">10</SelectItem>
-                        <SelectItem value="20">20</SelectItem>
-                        <SelectItem value="50">50</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            {/* Create Schedule Form - no longer rotated */}
-            <div className="absolute top-0 right-0 glass rounded-xl overflow-hidden shadow-elevation border border-white/40 w-72 md:block">
-              <div className="bg-white/70 backdrop-blur-sm p-3 border-b border-white/20">
-                <h3 className="font-medium text-sm">Create Schedule</h3>
-              </div>
-              <div className="p-3 space-y-3">
-                <div className="space-y-1">
-                  <Label className="text-xs">Meeting Capacity*</Label>
+              <div className="p-6 space-y-4 bg-white/90">
+                <div className="space-y-2">
+                  <Label>Meeting Capacity*</Label>
                   <Select>
-                    <SelectTrigger className="h-8 text-xs">
+                    <SelectTrigger>
                       <SelectValue placeholder="Select an option" />
                     </SelectTrigger>
                     <SelectContent>
@@ -164,39 +87,38 @@ const DashboardPreview: React.FC = () => {
                     </SelectContent>
                   </Select>
                 </div>
-                <div className="space-y-1">
-                  <Label className="text-xs">Topic*</Label>
-                  <Input className="h-8 text-xs" placeholder="Input the Topic" />
+                
+                <div className="space-y-2">
+                  <Label>Topic*</Label>
+                  <Input placeholder="Input the Topic" />
                 </div>
-                <div className="flex gap-2">
-                  <div className="space-y-1 flex-1">
-                    <Label className="text-xs">Date*</Label>
-                    <Input className="h-8 text-xs" placeholder="Mar 25, 2025" />
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Date*</Label>
+                    <div className="relative">
+                      <Input placeholder="Mar 25, 2025" />
+                      <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                    </div>
                   </div>
-                  <div className="space-y-1 flex-1">
-                    <Label className="text-xs">Time*</Label>
-                    <Input className="h-8 text-xs" placeholder="14:23" />
+                  
+                  <div className="space-y-2">
+                    <Label>Time*</Label>
+                    <div className="relative">
+                      <Input placeholder="14:23" />
+                      <Clock className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                    </div>
                   </div>
                 </div>
-                <Button size="sm" className="bg-orange-500 hover:bg-orange-600 text-white w-full text-xs mt-2">
-                  Create
+                
+                <Button className="w-full bg-orange-500 hover:bg-orange-600 text-white mt-2">
+                  <Plus size={18} className="mr-2" /> Create Schedule
                 </Button>
               </div>
             </div>
             
-            {/* Status badge for "Closed" with View icon */}
-            <div className="absolute bottom-16 right-4 bg-white py-1 px-2 rounded-lg text-xs flex items-center gap-2 shadow-sm">
-              <div className="flex items-center text-red-500 gap-1">
-                <X size={14} className="stroke-2" /> 
-                <span>Closed</span>
-              </div>
-              <div className="text-amber-500 flex items-center gap-1">
-                <Eye size={14} />
-                <span>View</span>
-              </div>
-            </div>
-            
-            <div className="absolute -bottom-6 -left-6 -z-10 w-full h-full rounded-xl bg-primary/10 animate-float delay-500"></div>
+            {/* Subtle background element for depth */}
+            <div className="absolute -z-10 -bottom-4 -right-4 w-full h-full rounded-xl bg-primary/10"></div>
           </div>
         </div>
       </div>
@@ -205,4 +127,3 @@ const DashboardPreview: React.FC = () => {
 };
 
 export default DashboardPreview;
-
