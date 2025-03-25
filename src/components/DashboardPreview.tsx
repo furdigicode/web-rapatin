@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Calendar, Check, CheckCircle, Clock, Copy, Edit, Eye, Home, Inbox, LayoutDashboard, Plus, Search, Tag, Trash, Video } from 'lucide-react';
+import { Calendar, Check, CheckCircle, Clock, Copy, Eye, Home, Inbox, LayoutDashboard, Plus, Search, Tag, X } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -60,7 +60,7 @@ const DashboardPreview: React.FC = () => {
             </Button>
           </div>
           
-          {/* Dashboard Preview based on the reference images */}
+          {/* Dashboard Preview */}
           <div className="relative animate-slide-in-right">
             <div className="relative glass rounded-xl overflow-hidden shadow-elevation border border-white/40">
               <div className="bg-white/70 backdrop-blur-sm p-4 border-b border-white/20">
@@ -95,7 +95,7 @@ const DashboardPreview: React.FC = () => {
                 </div>
                 
                 {/* Table header */}
-                <div className="grid grid-cols-5 border-b pb-2 text-sm font-medium">
+                <div className="grid grid-cols-4 border-b pb-2 text-sm font-medium">
                   <div className="flex items-center gap-1">
                     <span>Room</span>
                     <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -105,64 +105,21 @@ const DashboardPreview: React.FC = () => {
                   <div>Meeting ID</div>
                   <div>Topic</div>
                   <div>Time</div>
-                  <div>Status</div>
                 </div>
                 
                 {/* Meeting rows */}
-                <div className="grid grid-cols-5 py-3 border-b text-sm items-center">
+                <div className="grid grid-cols-4 py-3 border-b text-sm items-center">
                   <div>Room 3</div>
                   <div>98591727859</div>
                   <div>Team Meeting</div>
                   <div>Mar 25, 2025 13:08 WIB</div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center text-green-500 gap-1">
-                      <Check size={14} className="stroke-2" /> 
-                      <span>Opened</span>
-                    </div>
-                    <div className="flex gap-2">
-                      <button className="text-amber-500 flex items-center gap-1">
-                        <Eye size={14} />
-                        <span>View</span>
-                      </button>
-                      <button className="text-red-500 flex items-center gap-1">
-                        <Trash size={14} />
-                        <span>Delete</span>
-                      </button>
-                      <button className="text-gray-500 flex items-center gap-1">
-                        <Edit size={14} />
-                        <span>Edit</span>
-                      </button>
-                    </div>
-                  </div>
                 </div>
                 
-                <div className="grid grid-cols-5 py-3 text-sm items-center">
+                <div className="grid grid-cols-4 py-3 text-sm items-center">
                   <div>Room 3</div>
                   <div>99171675194</div>
                   <div>Product Demo</div>
                   <div>Mar 26, 2025 12:15 WIB</div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center text-red-500 gap-1">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="stroke-2">
-                        <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                      <span>Closed</span>
-                    </div>
-                    <div className="flex gap-2">
-                      <button className="text-amber-500 flex items-center gap-1">
-                        <Eye size={14} />
-                        <span>View</span>
-                      </button>
-                      <button className="text-red-500 flex items-center gap-1">
-                        <Trash size={14} />
-                        <span>Delete</span>
-                      </button>
-                      <button className="text-gray-500 flex items-center gap-1">
-                        <Edit size={14} />
-                        <span>Edit</span>
-                      </button>
-                    </div>
-                  </div>
                 </div>
                 
                 {/* Pagination */}
@@ -187,8 +144,8 @@ const DashboardPreview: React.FC = () => {
               </div>
             </div>
             
-            {/* Create Schedule Form */}
-            <div className="absolute -top-8 -right-8 glass rounded-xl overflow-hidden shadow-elevation border border-white/40 w-64 h-64 transform rotate-6 z-10 hidden md:block">
+            {/* Create Schedule Form - no longer rotated */}
+            <div className="absolute top-0 right-0 glass rounded-xl overflow-hidden shadow-elevation border border-white/40 w-72 md:block">
               <div className="bg-white/70 backdrop-blur-sm p-3 border-b border-white/20">
                 <h3 className="font-medium text-sm">Create Schedule</h3>
               </div>
@@ -227,6 +184,18 @@ const DashboardPreview: React.FC = () => {
               </div>
             </div>
             
+            {/* Status badge for "Closed" with View icon */}
+            <div className="absolute bottom-16 right-4 bg-white py-1 px-2 rounded-lg text-xs flex items-center gap-2 shadow-sm">
+              <div className="flex items-center text-red-500 gap-1">
+                <X size={14} className="stroke-2" /> 
+                <span>Closed</span>
+              </div>
+              <div className="text-amber-500 flex items-center gap-1">
+                <Eye size={14} />
+                <span>View</span>
+              </div>
+            </div>
+            
             <div className="absolute -bottom-6 -left-6 -z-10 w-full h-full rounded-xl bg-primary/10 animate-float delay-500"></div>
           </div>
         </div>
@@ -236,3 +205,4 @@ const DashboardPreview: React.FC = () => {
 };
 
 export default DashboardPreview;
+
