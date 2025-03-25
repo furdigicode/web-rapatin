@@ -5,7 +5,7 @@ import {
   CloudLightning, 
   CreditCard, 
   Download, 
-  FileReport, 
+  FileText, 
   LayoutDashboard, 
   LifeBuoy, 
   Video
@@ -51,7 +51,7 @@ const FeatureSection: React.FC = () => {
       delay: "delay-200"
     },
     {
-      icon: <FileReport size={22} />,
+      icon: <FileText size={22} />,
       title: "Participant Reports",
       description: "Get automatic attendance reports for each meeting to track participation.",
       delay: "delay-300"
