@@ -1,7 +1,10 @@
 
 import React from 'react';
-import { CheckCircle, Copy, Edit, MoreHorizontal, Plus, Video } from 'lucide-react';
+import { Calendar, Check, CheckCircle, Clock, Copy, Edit, Eye, Home, Inbox, LayoutDashboard, Plus, Search, Tag, Trash, Video } from 'lucide-react';
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const DashboardPreview: React.FC = () => {
   return (
@@ -57,98 +60,173 @@ const DashboardPreview: React.FC = () => {
             </Button>
           </div>
           
+          {/* Dashboard Preview based on the reference images */}
           <div className="relative animate-slide-in-right">
             <div className="relative glass rounded-xl overflow-hidden shadow-elevation border border-white/40">
               <div className="bg-white/70 backdrop-blur-sm p-4 border-b border-white/20">
                 <div className="flex items-center justify-between">
-                  <h3 className="font-medium">Your Meetings</h3>
-                  <Button size="sm" className="bg-primary hover:bg-primary/90 text-white h-9">
-                    <Plus size={16} className="mr-1" /> New Meeting
+                  <div className="flex items-center gap-3">
+                    <h3 className="font-medium">Schedules</h3>
+                    <div className="flex text-sm gap-4 text-muted-foreground">
+                      <button className="text-primary font-medium">Upcoming</button>
+                      <button>Previous</button>
+                    </div>
+                  </div>
+                  <Button size="sm" className="bg-orange-500 hover:bg-orange-600 text-white h-9 rounded-lg">
+                    <Plus size={16} className="mr-1" /> Create Schedule
                   </Button>
                 </div>
               </div>
               
-              <div className="p-6 space-y-4">
-                <div className="bg-white/80 rounded-lg p-4 border border-white/40 hover:shadow-soft transition-shadow">
-                  <div className="flex justify-between items-start mb-3">
-                    <div>
-                      <h4 className="font-medium">Weekly Team Check-in</h4>
-                      <p className="text-sm text-muted-foreground">Today, 15:00 - 16:00</p>
-                    </div>
-                    <div className="flex items-center">
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
-                        <Edit size={14} />
-                      </Button>
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
-                        <MoreHorizontal size={14} />
-                      </Button>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="text-xs bg-accent/60 py-1 px-2 rounded text-primary font-medium">
-                      100 Participants
-                    </div>
-                    <Button variant="outline" size="sm" className="h-8 text-xs">
-                      <Video size={14} className="mr-1" /> Join Meeting
+              <div className="p-4 space-y-4">
+                {/* Filters section */}
+                <div className="flex justify-between items-center mb-2">
+                  <div>
+                    <Button variant="outline" size="sm" className="flex gap-2 items-center h-9 text-sm">
+                      <span>Group by</span>
+                      <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
                     </Button>
                   </div>
-                </div>
-                
-                <div className="bg-white/80 rounded-lg p-4 border border-white/40 hover:shadow-soft transition-shadow">
-                  <div className="flex justify-between items-start mb-3">
-                    <div>
-                      <h4 className="font-medium">Client Presentation</h4>
-                      <p className="text-sm text-muted-foreground">Tomorrow, 10:00 - 11:30</p>
-                    </div>
-                    <div className="flex items-center">
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
-                        <Edit size={14} />
-                      </Button>
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
-                        <MoreHorizontal size={14} />
-                      </Button>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="text-xs bg-accent/60 py-1 px-2 rounded text-primary font-medium">
-                      300 Participants
-                    </div>
-                    <div className="flex gap-2">
-                      <Button variant="outline" size="sm" className="h-8 text-xs">
-                        <Copy size={14} className="mr-1" /> Copy Link
-                      </Button>
-                    </div>
+                  <div>
+                    <Input className="h-9 w-60" placeholder="Search" />
                   </div>
                 </div>
                 
-                <div className="bg-white/80 rounded-lg p-4 border border-white/40 hover:shadow-soft transition-shadow">
-                  <div className="flex justify-between items-start mb-3">
-                    <div>
-                      <h4 className="font-medium">Product Demo</h4>
-                      <p className="text-sm text-muted-foreground">Aug 15, 14:00 - 15:00</p>
-                    </div>
-                    <div className="flex items-center">
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
-                        <Edit size={14} />
-                      </Button>
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
-                        <MoreHorizontal size={14} />
-                      </Button>
-                    </div>
+                {/* Table header */}
+                <div className="grid grid-cols-5 border-b pb-2 text-sm font-medium">
+                  <div className="flex items-center gap-1">
+                    <span>Room</span>
+                    <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
                   </div>
+                  <div>Meeting ID</div>
+                  <div>Topic</div>
+                  <div>Time</div>
+                  <div>Status</div>
+                </div>
+                
+                {/* Meeting rows */}
+                <div className="grid grid-cols-5 py-3 border-b text-sm items-center">
+                  <div>Room 3</div>
+                  <div>98591727859</div>
+                  <div>Team Meeting</div>
+                  <div>Mar 25, 2025 13:08 WIB</div>
                   <div className="flex items-center justify-between">
-                    <div className="text-xs bg-accent/60 py-1 px-2 rounded text-primary font-medium">
-                      500 Participants
+                    <div className="flex items-center text-green-500 gap-1">
+                      <Check size={14} className="stroke-2" /> 
+                      <span>Opened</span>
                     </div>
                     <div className="flex gap-2">
-                      <Button variant="outline" size="sm" className="h-8 text-xs">
-                        <Copy size={14} className="mr-1" /> Copy Link
-                      </Button>
+                      <button className="text-amber-500 flex items-center gap-1">
+                        <Eye size={14} />
+                        <span>View</span>
+                      </button>
+                      <button className="text-red-500 flex items-center gap-1">
+                        <Trash size={14} />
+                        <span>Delete</span>
+                      </button>
+                      <button className="text-gray-500 flex items-center gap-1">
+                        <Edit size={14} />
+                        <span>Edit</span>
+                      </button>
                     </div>
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-5 py-3 text-sm items-center">
+                  <div>Room 3</div>
+                  <div>99171675194</div>
+                  <div>Product Demo</div>
+                  <div>Mar 26, 2025 12:15 WIB</div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center text-red-500 gap-1">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="stroke-2">
+                        <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                      <span>Closed</span>
+                    </div>
+                    <div className="flex gap-2">
+                      <button className="text-amber-500 flex items-center gap-1">
+                        <Eye size={14} />
+                        <span>View</span>
+                      </button>
+                      <button className="text-red-500 flex items-center gap-1">
+                        <Trash size={14} />
+                        <span>Delete</span>
+                      </button>
+                      <button className="text-gray-500 flex items-center gap-1">
+                        <Edit size={14} />
+                        <span>Edit</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Pagination */}
+                <div className="flex justify-between items-center pt-2 text-sm">
+                  <div className="text-muted-foreground">
+                    Showing 1 to 2 of 2 results
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span>Per page</span>
+                    <Select defaultValue="10">
+                      <SelectTrigger className="w-16 h-8">
+                        <SelectValue placeholder="10" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="10">10</SelectItem>
+                        <SelectItem value="20">20</SelectItem>
+                        <SelectItem value="50">50</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
               </div>
             </div>
+            
+            {/* Create Schedule Form */}
+            <div className="absolute -top-8 -right-8 glass rounded-xl overflow-hidden shadow-elevation border border-white/40 w-64 h-64 transform rotate-6 z-10 hidden md:block">
+              <div className="bg-white/70 backdrop-blur-sm p-3 border-b border-white/20">
+                <h3 className="font-medium text-sm">Create Schedule</h3>
+              </div>
+              <div className="p-3 space-y-3">
+                <div className="space-y-1">
+                  <Label className="text-xs">Meeting Capacity*</Label>
+                  <Select>
+                    <SelectTrigger className="h-8 text-xs">
+                      <SelectValue placeholder="Select an option" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="100">100 Participants</SelectItem>
+                      <SelectItem value="300">300 Participants</SelectItem>
+                      <SelectItem value="500">500 Participants</SelectItem>
+                      <SelectItem value="1000">1000 Participants</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">Topic*</Label>
+                  <Input className="h-8 text-xs" placeholder="Input the Topic" />
+                </div>
+                <div className="flex gap-2">
+                  <div className="space-y-1 flex-1">
+                    <Label className="text-xs">Date*</Label>
+                    <Input className="h-8 text-xs" placeholder="Mar 25, 2025" />
+                  </div>
+                  <div className="space-y-1 flex-1">
+                    <Label className="text-xs">Time*</Label>
+                    <Input className="h-8 text-xs" placeholder="14:23" />
+                  </div>
+                </div>
+                <Button size="sm" className="bg-orange-500 hover:bg-orange-600 text-white w-full text-xs mt-2">
+                  Create
+                </Button>
+              </div>
+            </div>
+            
             <div className="absolute -bottom-6 -left-6 -z-10 w-full h-full rounded-xl bg-primary/10 animate-float delay-500"></div>
           </div>
         </div>
