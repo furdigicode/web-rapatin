@@ -35,14 +35,14 @@ const Navbar: React.FC = () => {
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center space-x-8">
-          <a href="#features" className="text-sm font-medium hover:text-primary transition-colors">Features</a>
-          <a href="#pricing" className="text-sm font-medium hover:text-primary transition-colors">Pricing</a>
+          <a href="#features" className="text-sm font-medium hover:text-primary transition-colors">Fitur</a>
+          <a href="#pricing" className="text-sm font-medium hover:text-primary transition-colors">Harga</a>
           <a href="#dashboard" className="text-sm font-medium hover:text-primary transition-colors">Dashboard</a>
           <Button asChild size="sm" variant="outline" className="ml-2">
-            <a href="https://bikinjadwal.id/login">Login</a>
+            <a href="https://bikinjadwal.id/login">Masuk</a>
           </Button>
           <Button asChild size="sm" className="bg-primary text-white hover:bg-primary/90">
-            <a href="https://bikinjadwal.id/register">Sign Up</a>
+            <a href="https://bikinjadwal.id/register">Daftar</a>
           </Button>
         </nav>
         
@@ -64,14 +64,14 @@ const Navbar: React.FC = () => {
               className="block text-sm font-medium hover:text-primary transition-colors py-2"
               onClick={() => setIsMobileMenuOpen(false)}
             >
-              Features
+              Fitur
             </a>
             <a 
               href="#pricing" 
               className="block text-sm font-medium hover:text-primary transition-colors py-2"
               onClick={() => setIsMobileMenuOpen(false)}
             >
-              Pricing
+              Harga
             </a>
             <a 
               href="#dashboard" 
@@ -82,10 +82,10 @@ const Navbar: React.FC = () => {
             </a>
             <div className="flex flex-col space-y-3 pt-2">
               <Button asChild variant="outline" size="sm">
-                <a href="https://bikinjadwal.id/login">Login</a>
+                <a href="https://bikinjadwal.id/login">Masuk</a>
               </Button>
               <Button asChild size="sm" className="bg-primary text-white hover:bg-primary/90">
-                <a href="https://bikinjadwal.id/register">Sign Up</a>
+                <a href="https://bikinjadwal.id/register">Daftar</a>
               </Button>
             </div>
           </div>
