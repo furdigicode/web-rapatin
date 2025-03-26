@@ -9,7 +9,7 @@ import {
   LayoutDashboard, 
   LifeBuoy, 
   Video,
-  Graduation,
+  GraduationCap,
   Users,
   Briefcase,
   Mic
@@ -108,7 +108,7 @@ const FeatureSection: React.FC = () => {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="flex flex-col items-center text-center p-4 rounded-lg hover:bg-accent/50 transition-colors">
               <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mb-3 text-primary">
-                <Graduation size={18} />
+                <GraduationCap size={18} />
               </div>
               <p className="font-medium text-sm">Guru & Dosen</p>
             </div>
