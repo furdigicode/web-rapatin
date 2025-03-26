@@ -12,15 +12,15 @@ interface PricingPlanProps {
 
 const PricingPlan: React.FC<PricingPlanProps> = ({ participants, price, isPrimary = false, delay }) => {
   const features = [
-    "Cloud Recording (72h access)",
-    "Unlimited meeting duration",
-    "Access for the whole day (00.00 - 23.59)",
-    "Screen sharing",
+    "Rekaman Cloud (akses 72 jam)",
+    "Durasi rapat tak terbatas",
+    "Akses untuk seluruh hari (00.00 - 23.59)",
+    "Berbagi layar",
     "AI Companion",
-    "Polling, Q&A, Surveys",
-    "Registration system",
-    "Live streaming to YouTube",
-    "Assign up to 99 Co-Hosts"
+    "Polling, Tanya Jawab, Survei",
+    "Sistem pendaftaran",
+    "Live streaming ke YouTube",
+    "Tetapkan hingga 99 Co-Host"
   ];
 
   return (
@@ -35,12 +35,12 @@ const PricingPlan: React.FC<PricingPlanProps> = ({ participants, price, isPrimar
         }`}
       >
         <div className="mb-6">
-          <h3 className="text-xl font-semibold mb-2">{participants} Participants</h3>
+          <h3 className="text-xl font-semibold mb-2">{participants}</h3>
           <div className="flex items-end mb-2">
             <span className="text-3xl font-bold">{price}</span>
-            <span className="text-muted-foreground ml-1 text-sm">/meeting</span>
+            <span className="text-muted-foreground ml-1 text-sm">/rapat</span>
           </div>
-          <p className="text-sm text-muted-foreground">One-time payment per scheduled meeting</p>
+          <p className="text-sm text-muted-foreground">Pembayaran sekali per rapat terjadwal</p>
         </div>
         
         <div className="space-y-3 mb-8">
@@ -65,7 +65,7 @@ const PricingPlan: React.FC<PricingPlanProps> = ({ participants, price, isPrimar
               : "bg-white hover:bg-white/90 text-primary border border-primary/20"
           }`}
         >
-          <a href="https://bikinjadwal.id/register">Buy Now & Schedule</a>
+          <a href="https://rapatin.id/register">Beli & Jadwalkan Sekarang</a>
         </Button>
       </div>
     </div>
@@ -74,10 +74,10 @@ const PricingPlan: React.FC<PricingPlanProps> = ({ participants, price, isPrimar
 
 const PricingSection: React.FC = () => {
   const plans = [
-    { participants: "100 Participants", price: "Rp 20.000", isPrimary: false, delay: "delay-0" },
-    { participants: "300 Participants", price: "Rp 35.000", isPrimary: true, delay: "delay-100" },
-    { participants: "500 Participants", price: "Rp 60.000", isPrimary: false, delay: "delay-200" },
-    { participants: "1000 Participants", price: "Rp 100.000", isPrimary: false, delay: "delay-300" }
+    { participants: "100 Peserta", price: "Rp 20.000", isPrimary: false, delay: "delay-0" },
+    { participants: "300 Peserta", price: "Rp 35.000", isPrimary: true, delay: "delay-100" },
+    { participants: "500 Peserta", price: "Rp 60.000", isPrimary: false, delay: "delay-200" },
+    { participants: "1000 Peserta", price: "Rp 100.000", isPrimary: false, delay: "delay-300" }
   ];
   
   return (
@@ -85,13 +85,13 @@ const PricingSection: React.FC = () => {
       <div className="container mx-auto px-4 md:px-6">
         <div className="max-w-3xl mx-auto text-center mb-16 animate-fade-in">
           <div className="inline-flex items-center py-1 px-4 bg-accent rounded-full mb-4">
-            <span className="text-xs font-medium text-primary">Transparent Pricing</span>
+            <span className="text-xs font-medium text-primary">Harga Transparan</span>
           </div>
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Pay-Per-Meeting Pricing
+            Harga Bayar-Per-Rapat
           </h2>
           <p className="text-muted-foreground text-lg">
-            No subscriptions, no commitments. Only pay for meetings you schedule, based on participant count.
+            Tanpa langganan, tanpa komitmen. Hanya bayar untuk rapat yang Anda jadwalkan, berdasarkan jumlah peserta.
           </p>
         </div>
         
@@ -109,10 +109,10 @@ const PricingSection: React.FC = () => {
         
         <div className="mt-12 text-center max-w-3xl mx-auto animate-fade-in delay-400">
           <p className="text-muted-foreground mb-6">
-            All prices include taxes and fees. Your account balance is deducted only when you schedule a meeting.
+            Semua harga sudah termasuk pajak dan biaya. Saldo akun Anda dikurangi hanya ketika Anda menjadwalkan rapat.
           </p>
           <Button asChild variant="outline" size="lg" className="rounded-full">
-            <a href="#features">See All Features</a>
+            <a href="#features">Lihat Semua Fitur</a>
           </Button>
         </div>
       </div>

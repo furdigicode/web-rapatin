@@ -8,7 +8,11 @@ import {
   FileText, 
   LayoutDashboard, 
   LifeBuoy, 
-  Video
+  Video,
+  Graduation,
+  Users,
+  Briefcase,
+  Mic
 } from 'lucide-react';
 
 interface FeatureProps {
@@ -34,38 +38,38 @@ const FeatureSection: React.FC = () => {
   const features = [
     {
       icon: <CreditCard size={22} />,
-      title: "Pay-As-You-Go Model",
-      description: "Top up your account and pay only for meetings you schedule. No monthly subscriptions or hidden fees.",
+      title: "Model Bayar Sesuai Pakai",
+      description: "Top up saldo akun Anda dan bayar hanya untuk rapat yang Anda jadwalkan. Tanpa langganan bulanan atau biaya tersembunyi.",
       delay: "delay-0"
     },
     {
       icon: <LayoutDashboard size={22} />,
-      title: "Intuitive Dashboard",
-      description: "Create or edit schedules with our clean, modern interface designed for self-service.",
+      title: "Dashboard Intuitif",
+      description: "Buat atau edit jadwal dengan antarmuka modern kami yang dirancang untuk kemudahan penggunaan.",
       delay: "delay-100"
     },
     {
       icon: <CloudLightning size={22} />,
-      title: "Cloud Recording",
-      description: "Recordings automatically saved and available for download for 72 hours via your dashboard.",
+      title: "Rekaman Cloud",
+      description: "Rekaman otomatis disimpan dan tersedia untuk diunduh selama 72 jam melalui dashboard Anda.",
       delay: "delay-200"
     },
     {
       icon: <FileText size={22} />,
-      title: "Participant Reports",
-      description: "Get automatic attendance reports for each meeting to track participation.",
+      title: "Laporan Peserta",
+      description: "Dapatkan laporan kehadiran otomatis untuk setiap rapat untuk melacak partisipasi.",
       delay: "delay-300"
     },
     {
       icon: <Video size={22} />,
-      title: "No Zoom Account Needed",
-      description: "Schedule meetings without requiring a paid Zoom account. Works instantly for everyone.",
+      title: "Tanpa Akun Zoom Berbayar",
+      description: "Jadwalkan rapat tanpa memerlukan akun Zoom berbayar. Berfungsi langsung untuk semua orang.",
       delay: "delay-400"
     },
     {
       icon: <LifeBuoy size={22} />,
-      title: "Dedicated Support",
-      description: "Our support team is ready to help with any technical issues you might encounter.",
+      title: "Dukungan Khusus",
+      description: "Tim dukungan kami siap membantu dengan masalah teknis apa pun yang mungkin Anda temui.",
       delay: "delay-500"
     },
   ];
@@ -75,13 +79,13 @@ const FeatureSection: React.FC = () => {
       <div className="container mx-auto px-4 md:px-6">
         <div className="max-w-3xl mx-auto text-center mb-16 animate-fade-in">
           <div className="inline-flex items-center py-1 px-4 bg-accent rounded-full mb-4">
-            <span className="text-xs font-medium text-primary">Powerful Features</span>
+            <span className="text-xs font-medium text-primary">Fitur Unggulan</span>
           </div>
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Everything you need for seamless <span className="text-primary">online meetings</span>
+            Semua yang Anda butuhkan untuk <span className="text-primary">rapat online</span> yang lancar
           </h2>
           <p className="text-muted-foreground text-lg">
-            Our platform combines flexibility with powerful features to make your online meetings effortless and productive.
+            Platform kami menggabungkan fleksibilitas dengan fitur canggih untuk membuat rapat online Anda mudah dan produktif.
           </p>
         </div>
 
@@ -99,32 +103,32 @@ const FeatureSection: React.FC = () => {
 
         <div className="mt-20 max-w-3xl mx-auto glass p-8 rounded-xl animate-fade-in shadow-soft">
           <h3 className="text-2xl font-bold mb-6 text-center">
-            Perfect For
+            Cocok Untuk
           </h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="flex flex-col items-center text-center p-4 rounded-lg hover:bg-accent/50 transition-colors">
               <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mb-3 text-primary">
-                <CreditCard size={18} />
+                <Graduation size={18} />
               </div>
-              <p className="font-medium text-sm">No-Subscription Users</p>
+              <p className="font-medium text-sm">Guru & Dosen</p>
             </div>
             <div className="flex flex-col items-center text-center p-4 rounded-lg hover:bg-accent/50 transition-colors">
               <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mb-3 text-primary">
-                <Calendar size={18} />
+                <Briefcase size={18} />
               </div>
-              <p className="font-medium text-sm">Heavy Meeting Users</p>
+              <p className="font-medium text-sm">Bisnis & Startup</p>
             </div>
             <div className="flex flex-col items-center text-center p-4 rounded-lg hover:bg-accent/50 transition-colors">
               <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mb-3 text-primary">
-                <Download size={18} />
+                <Mic size={18} />
               </div>
-              <p className="font-medium text-sm">Last-Minute Meetings</p>
+              <p className="font-medium text-sm">Coach & Trainer</p>
             </div>
             <div className="flex flex-col items-center text-center p-4 rounded-lg hover:bg-accent/50 transition-colors">
               <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mb-3 text-primary">
-                <Video size={18} />
+                <Users size={18} />
               </div>
-              <p className="font-medium text-sm">Educators & Teams</p>
+              <p className="font-medium text-sm">Komunitas & Organisasi</p>
             </div>
           </div>
         </div>

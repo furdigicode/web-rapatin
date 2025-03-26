@@ -10,7 +10,7 @@ const HeroSection: React.FC = () => {
         <div className="grid md:grid-cols-2 gap-12 items-center">
           <div className="space-y-8 animate-fade-in">
             <div className="inline-flex items-center py-1 px-4 bg-accent/70 rounded-full backdrop-blur-sm">
-              <span className="text-xs font-medium text-primary">Jadwalkan rapat, tanpa langganan</span>
+              <span className="text-xs font-medium text-primary">Aplikasi penjadwalan rapat premium tanpa batas waktu</span>
             </div>
             
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-foreground text-balance">
@@ -83,7 +83,7 @@ const HeroSection: React.FC = () => {
                       <span>100 Peserta - Rp 20.000</span>
                     </div>
                     
-                    <Button className="w-full bg-primary hover:bg-primary/90 text-white">
+                    <Button className="w-full bg-primary hover:bg-primary/90 text-white cursor-not-allowed opacity-90">
                       Buat Jadwal Rapat
                     </Button>
                   </div>
