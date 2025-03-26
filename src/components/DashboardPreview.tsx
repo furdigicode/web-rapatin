@@ -1,18 +1,15 @@
 
 import React from 'react';
-import { Calendar, CheckCircle, Clock, Plus } from 'lucide-react';
+import { Calendar, CheckCircle, Clock, BarChart, FileText, Users, Video, Play, Download, List, Search } from 'lucide-react';
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 const DashboardPreview: React.FC = () => {
   const isMobile = useIsMobile();
   
   return (
-    <section id="dashboard" className="py-20 bg-accent/20">
-      <div className="container mx-auto px-4 md:px-6">
+    <section id="dashboard" className="py-20 bg-accent/20 w-full">
+      <div className="container mx-auto px-4 md:px-6 max-w-full">
         <div className="grid md:grid-cols-2 gap-12 items-center">
           {/* Left column - text content */}
           <div className="space-y-6 animate-fade-in">
@@ -64,56 +61,121 @@ const DashboardPreview: React.FC = () => {
             </Button>
           </div>
           
-          {/* Right column - illustration */}
+          {/* Right column - Dashboard illustration */}
           <div className="relative">
-            {/* Create Schedule Card */}
             <div className="glass rounded-xl overflow-hidden shadow-elevation border border-white/40 mx-auto max-w-md">
               <div className="bg-white/70 backdrop-blur-sm p-4 border-b border-white/20">
-                <h3 className="font-medium">Buat Jadwal</h3>
+                <h3 className="font-medium flex items-center">
+                  <span>Dashboard Rapat</span>
+                  <div className="ml-auto flex space-x-2">
+                    <span className="text-xs px-2 py-1 bg-green-100 text-green-800 rounded-full">Aktif</span>
+                  </div>
+                </h3>
               </div>
               
-              <div className="p-6 space-y-4 bg-white/90">
-                <div className="space-y-2">
-                  <Label>Kapasitas Rapat*</Label>
-                  <Select>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Pilih opsi" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="100">100 Peserta</SelectItem>
-                      <SelectItem value="300">300 Peserta</SelectItem>
-                      <SelectItem value="500">500 Peserta</SelectItem>
-                      <SelectItem value="1000">1000 Peserta</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label>Topik*</Label>
-                  <Input placeholder="Masukkan Topik" />
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label>Tanggal*</Label>
-                    <div className="relative">
-                      <Input placeholder="25 Mar 2025" />
-                      <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+              <div className="p-6 space-y-6 bg-white/90">
+                {/* Recent Meetings List */}
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <h4 className="font-medium text-sm">Rapat Mendatang</h4>
+                    <button className="text-xs text-primary">Lihat Semua</button>
+                  </div>
+                  
+                  {/* Meeting Item */}
+                  <div className="border border-gray-100 rounded-lg p-3 bg-white shadow-sm">
+                    <div className="flex justify-between mb-2">
+                      <span className="font-medium">Rapat Tim Marketing</span>
+                      <span className="bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded-full">Hari Ini</span>
+                    </div>
+                    <div className="flex items-center text-xs text-gray-500 space-x-4">
+                      <div className="flex items-center">
+                        <Clock size={12} className="mr-1" /> 
+                        <span>14:00 - 15:00</span>
+                      </div>
+                      <div className="flex items-center">
+                        <Users size={12} className="mr-1" /> 
+                        <span>12 Peserta</span>
+                      </div>
+                    </div>
+                    <div className="flex mt-3 space-x-2">
+                      <button className="flex items-center justify-center bg-primary text-white text-xs px-3 py-1 rounded-lg">
+                        <Play size={12} className="mr-1" /> Mulai
+                      </button>
+                      <button className="flex items-center justify-center bg-gray-100 text-gray-700 text-xs px-3 py-1 rounded-lg">
+                        <List size={12} className="mr-1" /> Detail
+                      </button>
                     </div>
                   </div>
                   
-                  <div className="space-y-2">
-                    <Label>Waktu*</Label>
-                    <div className="relative">
-                      <Input placeholder="14:23" />
-                      <Clock className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                  {/* Meeting Item */}
+                  <div className="border border-gray-100 rounded-lg p-3 bg-white shadow-sm">
+                    <div className="flex justify-between mb-2">
+                      <span className="font-medium">Diskusi Proyek Baru</span>
+                      <span className="bg-gray-100 text-gray-700 text-xs px-2 py-0.5 rounded-full">Besok</span>
+                    </div>
+                    <div className="flex items-center text-xs text-gray-500 space-x-4">
+                      <div className="flex items-center">
+                        <Clock size={12} className="mr-1" /> 
+                        <span>10:00 - 11:30</span>
+                      </div>
+                      <div className="flex items-center">
+                        <Users size={12} className="mr-1" /> 
+                        <span>8 Peserta</span>
+                      </div>
                     </div>
                   </div>
                 </div>
                 
-                <Button className="w-full bg-orange-500 hover:bg-orange-600 text-white mt-2">
-                  <Plus size={18} className="mr-2" /> Buat Jadwal
-                </Button>
+                {/* Recent Recordings */}
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <h4 className="font-medium text-sm">Rekaman Terakhir</h4>
+                    <button className="text-xs text-primary">Lihat Semua</button>
+                  </div>
+                  
+                  <div className="border border-gray-100 rounded-lg p-3 bg-white shadow-sm">
+                    <div className="flex justify-between mb-2">
+                      <span className="font-medium">Rapat Mingguan</span>
+                      <span className="text-xs text-gray-500">2 jam yang lalu</span>
+                    </div>
+                    <div className="flex items-center text-xs text-gray-500 mb-3">
+                      <Calendar size={12} className="mr-1" /> 
+                      <span>25 Mar 2023</span>
+                      <span className="mx-2">•</span>
+                      <span>01:24:36</span>
+                    </div>
+                    <div className="flex space-x-2">
+                      <button className="flex items-center justify-center bg-gray-100 text-gray-700 text-xs px-3 py-1 rounded-lg">
+                        <Play size={12} className="mr-1" /> Putar
+                      </button>
+                      <button className="flex items-center justify-center bg-gray-100 text-gray-700 text-xs px-3 py-1 rounded-lg">
+                        <Download size={12} className="mr-1" /> Unduh
+                      </button>
+                      <button className="flex items-center justify-center bg-gray-100 text-gray-700 text-xs px-3 py-1 rounded-lg">
+                        <FileText size={12} className="mr-1" /> Ringkasan
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Analytics Snapshot */}
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <h4 className="font-medium text-sm">Analitik Singkat</h4>
+                    <button className="text-xs text-primary">Detail</button>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="border border-gray-100 rounded-lg p-3 bg-white shadow-sm text-center">
+                      <div className="text-2xl font-bold text-primary">24</div>
+                      <div className="text-xs text-gray-500">Rapat Bulan Ini</div>
+                    </div>
+                    <div className="border border-gray-100 rounded-lg p-3 bg-white shadow-sm text-center">
+                      <div className="text-2xl font-bold text-primary">86%</div>
+                      <div className="text-xs text-gray-500">Rata-rata Kehadiran</div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
             

@@ -33,8 +33,8 @@ const PricingSection: React.FC = () => {
   ];
   
   return (
-    <section id="pricing" className="py-20 bg-background">
-      <div className="container mx-auto px-4 md:px-6">
+    <section id="pricing" className="py-20 bg-background w-full">
+      <div className="container mx-auto px-4 md:px-6 max-w-full">
         <div className="max-w-3xl mx-auto text-center mb-16 animate-fade-in">
           <div className="inline-flex items-center py-1 px-4 bg-accent rounded-full mb-4">
             <span className="text-xs font-medium text-primary">Harga Transparan</span>
@@ -47,7 +47,7 @@ const PricingSection: React.FC = () => {
           </p>
         </div>
         
-        <Card className="max-w-6xl mx-auto p-6 md:p-8 animate-fade-in shadow-elevation">
+        <Card className="max-w-7xl mx-auto p-6 md:p-8 animate-fade-in shadow-elevation">
           <div className="grid md:grid-cols-2 gap-8">
             {/* Left side - Illustration with feature icons */}
             <div className="bg-accent/20 rounded-xl p-6 relative">
