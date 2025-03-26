@@ -2,15 +2,9 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Check } from 'lucide-react';
+import { Card } from "@/components/ui/card";
 
-interface PricingPlanProps {
-  participants: string;
-  price: string;
-  isPrimary?: boolean;
-  delay: string;
-}
-
-const PricingPlan: React.FC<PricingPlanProps> = ({ participants, price, isPrimary = false, delay }) => {
+const PricingSection: React.FC = () => {
   const features = [
     "Rekaman Cloud (akses 72 jam)",
     "Durasi rapat tak terbatas",
@@ -22,62 +16,12 @@ const PricingPlan: React.FC<PricingPlanProps> = ({ participants, price, isPrimar
     "Live streaming ke YouTube",
     "Tetapkan hingga 99 Co-Host"
   ];
-
-  return (
-    <div 
-      className={`rounded-xl p-1 animate-fade-in ${delay} ${
-        isPrimary ? "bg-gradient-to-br from-primary/80 to-primary" : "bg-white"
-      }`}
-    >
-      <div 
-        className={`h-full rounded-lg p-6 ${
-          isPrimary ? "bg-card shadow-elevation" : "glass"
-        }`}
-      >
-        <div className="mb-6">
-          <h3 className="text-xl font-semibold mb-2">{participants}</h3>
-          <div className="flex items-end mb-2">
-            <span className="text-3xl font-bold">{price}</span>
-            <span className="text-muted-foreground ml-1 text-sm">/rapat</span>
-          </div>
-          <p className="text-sm text-muted-foreground">Pembayaran sekali per rapat terjadwal</p>
-        </div>
-        
-        <div className="space-y-3 mb-8">
-          {features.map((feature, index) => (
-            <div key={index} className="flex items-start">
-              <Check 
-                size={18} 
-                className={`mr-2 mt-0.5 ${
-                  isPrimary ? "text-primary" : "text-primary/80"
-                }`} 
-              />
-              <span className="text-sm">{feature}</span>
-            </div>
-          ))}
-        </div>
-        
-        <Button 
-          asChild
-          className={`w-full rounded-lg ${
-            isPrimary 
-              ? "bg-primary hover:bg-primary/90 text-white" 
-              : "bg-white hover:bg-white/90 text-primary border border-primary/20"
-          }`}
-        >
-          <a href="https://rapatin.id/register">Beli & Jadwalkan Sekarang</a>
-        </Button>
-      </div>
-    </div>
-  );
-};
-
-const PricingSection: React.FC = () => {
+  
   const plans = [
-    { participants: "100 Peserta", price: "Rp 20.000", isPrimary: false, delay: "delay-0" },
-    { participants: "300 Peserta", price: "Rp 35.000", isPrimary: true, delay: "delay-100" },
-    { participants: "500 Peserta", price: "Rp 60.000", isPrimary: false, delay: "delay-200" },
-    { participants: "1000 Peserta", price: "Rp 100.000", isPrimary: false, delay: "delay-300" }
+    { participants: "100 Peserta", price: "Rp 20.000" },
+    { participants: "300 Peserta", price: "Rp 35.000" },
+    { participants: "500 Peserta", price: "Rp 60.000" },
+    { participants: "1000 Peserta", price: "Rp 100.000" }
   ];
   
   return (
@@ -95,26 +39,67 @@ const PricingSection: React.FC = () => {
           </p>
         </div>
         
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {plans.map((plan, index) => (
-            <PricingPlan
-              key={index}
-              participants={plan.participants}
-              price={plan.price}
-              isPrimary={plan.isPrimary}
-              delay={plan.delay}
-            />
-          ))}
-        </div>
-        
-        <div className="mt-12 text-center max-w-3xl mx-auto animate-fade-in delay-400">
-          <p className="text-muted-foreground mb-6">
-            Semua harga sudah termasuk pajak dan biaya. Saldo akun Anda dikurangi hanya ketika Anda menjadwalkan rapat.
-          </p>
-          <Button asChild variant="outline" size="lg" className="rounded-full">
-            <a href="#features">Lihat Semua Fitur</a>
-          </Button>
-        </div>
+        <Card className="max-w-4xl mx-auto p-8 animate-fade-in shadow-elevation">
+          <div className="grid md:grid-cols-2 gap-8">
+            <div>
+              <h3 className="text-2xl font-bold mb-6">
+                Semua Fitur Premium
+              </h3>
+              <div className="space-y-3">
+                {features.map((feature, index) => (
+                  <div key={index} className="flex items-start">
+                    <Check 
+                      size={18} 
+                      className="mr-2 mt-0.5 text-primary" 
+                    />
+                    <span className="text-sm">{feature}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            
+            <div>
+              <h3 className="text-2xl font-bold mb-6">
+                Pilihan Harga
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {plans.map((plan, index) => (
+                  <div 
+                    key={index} 
+                    className={`p-4 rounded-lg border ${
+                      index === 1 ? "border-primary bg-primary/5" : "border-border"
+                    }`}
+                  >
+                    <p className="font-medium text-sm mb-1">{plan.participants}</p>
+                    <p className="text-xl font-bold mb-1">{plan.price}</p>
+                    <p className="text-xs text-muted-foreground mb-4">/rapat</p>
+                    
+                    <Button 
+                      asChild
+                      className={`w-full rounded-lg ${
+                        index === 1 
+                          ? "bg-primary hover:bg-primary/90 text-white" 
+                          : "bg-white hover:bg-white/90 text-primary border border-primary/20"
+                      }`}
+                      size="sm"
+                    >
+                      <a href="https://rapatin.id/register">Beli & Jadwalkan Sekarang</a>
+                    </Button>
+                  </div>
+                ))}
+              </div>
+              
+              <div className="mt-8">
+                <Button 
+                  asChild
+                  className="w-full rounded-lg bg-primary hover:bg-primary/90 text-white"
+                >
+                  <a href="https://rapatin.id/register">Jadwalkan Rapat Sekarang</a>
+                </Button>
+              </div>
+            </div>
+          </div>
+        </Card>
       </div>
     </section>
   );
