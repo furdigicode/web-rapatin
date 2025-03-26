@@ -51,10 +51,6 @@ const PricingSection: React.FC = () => {
           <div className="grid md:grid-cols-2 gap-8">
             {/* Left side - Illustration with feature icons */}
             <div className="bg-accent/20 rounded-xl p-6 relative">
-              <div className="absolute -top-4 -left-4 bg-primary text-white p-2 rounded-lg text-sm font-medium">
-                Premium Meeting Room
-              </div>
-              
               <div className="flex items-center justify-center h-full">
                 <div className="relative w-full max-w-md aspect-video bg-gradient-to-br from-primary/10 to-primary/5 rounded-xl border border-primary/20 p-6 shadow-md">
                   {/* Meeting Room Illustration */}
@@ -109,7 +105,7 @@ const PricingSection: React.FC = () => {
               
               <div>
                 <h3 className="text-2xl font-bold mb-4">
-                  Pilihan Harga
+                  Harga Rapat
                 </h3>
                 <div className="grid grid-cols-2 gap-4 mb-6">
                   {plans.map((plan, index) => (
