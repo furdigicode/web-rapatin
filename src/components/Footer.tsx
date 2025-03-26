@@ -9,7 +9,11 @@ const Footer: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8">
           <div className="md:col-span-1">
             <a href="/" className="flex items-center mb-4">
-              <span className="text-2xl font-bold text-primary">BikinJadwal<span className="text-foreground">.id</span></span>
+              <img 
+                src="/lovable-uploads/2daea350-0851-4dd8-8f79-ee07aaaad905.png" 
+                alt="Rapatin Logo" 
+                className="h-8" 
+              />
             </a>
             <p className="text-muted-foreground mb-4 text-sm">
               Schedule meetings without needing a paid Zoom account. Pay-as-you-go, no subscriptions.
@@ -63,7 +67,7 @@ const Footer: React.FC = () => {
         
         <div className="border-t border-border mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">
           <p className="text-sm text-muted-foreground">
-            &copy; {new Date().getFullYear()} BikinJadwal.id. All rights reserved.
+            &copy; {new Date().getFullYear()} Rapatin. All rights reserved.
           </p>
           <div className="mt-4 md:mt-0">
             <select className="text-sm bg-transparent border rounded py-1 px-2">

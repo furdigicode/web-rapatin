@@ -15,7 +15,7 @@ const FinalCTA: React.FC = () => {
                 Bergabunglah dengan ribuan pengguna yang sudah menikmati fleksibilitas platform rapat bayar-sesuai-penggunaan kami.
               </p>
               <Button asChild size="lg" className="rounded-full bg-primary hover:bg-primary/90 text-white">
-                <a href="https://bikinjadwal.id/register">
+                <a href="https://rapatin.id/register">
                   Daftar & Mulai Menjadwalkan
                   <ArrowRight size={16} className="ml-2" />
                 </a>

@@ -23,7 +23,7 @@ const HeroSection: React.FC = () => {
             
             <div className="flex flex-col sm:flex-row gap-4 pt-4">
               <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-white rounded-full h-12 px-8">
-                <a href="https://bikinjadwal.id/register">Daftar & Mulai Menjadwalkan</a>
+                <a href="https://rapatin.id/register">Daftar & Mulai Menjadwalkan</a>
               </Button>
               <Button asChild variant="outline" size="lg" className="rounded-full h-12 px-8">
                 <a href="#pricing">Lihat Harga</a>
@@ -59,7 +59,7 @@ const HeroSection: React.FC = () => {
                   <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
                   <div className="w-3 h-3 rounded-full bg-green-400"></div>
                 </div>
-                <div className="mx-auto text-sm font-medium">BikinJadwal.id Dashboard</div>
+                <div className="mx-auto text-sm font-medium">Rapatin Dashboard</div>
               </div>
               
               {/* Main content */}

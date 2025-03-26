@@ -29,7 +29,11 @@ const Navbar: React.FC = () => {
       <div className="container mx-auto px-4 md:px-6 flex items-center justify-between">
         <div className="flex items-center">
           <a href="/" className="flex items-center">
-            <span className="text-2xl font-bold text-primary">BikinJadwal<span className="text-foreground">.id</span></span>
+            <img 
+              src="/lovable-uploads/2daea350-0851-4dd8-8f79-ee07aaaad905.png" 
+              alt="Rapatin Logo" 
+              className="h-8 md:h-10" 
+            />
           </a>
         </div>
 
@@ -39,10 +43,10 @@ const Navbar: React.FC = () => {
           <a href="#pricing" className="text-sm font-medium hover:text-primary transition-colors">Harga</a>
           <a href="#dashboard" className="text-sm font-medium hover:text-primary transition-colors">Dashboard</a>
           <Button asChild size="sm" variant="outline" className="ml-2">
-            <a href="https://bikinjadwal.id/login">Masuk</a>
+            <a href="https://rapatin.id/login">Masuk</a>
           </Button>
           <Button asChild size="sm" className="bg-primary text-white hover:bg-primary/90">
-            <a href="https://bikinjadwal.id/register">Daftar</a>
+            <a href="https://rapatin.id/register">Daftar</a>
           </Button>
         </nav>
         
@@ -82,10 +86,10 @@ const Navbar: React.FC = () => {
             </a>
             <div className="flex flex-col space-y-3 pt-2">
               <Button asChild variant="outline" size="sm">
-                <a href="https://bikinjadwal.id/login">Masuk</a>
+                <a href="https://rapatin.id/login">Masuk</a>
               </Button>
               <Button asChild size="sm" className="bg-primary text-white hover:bg-primary/90">
-                <a href="https://bikinjadwal.id/register">Daftar</a>
+                <a href="https://rapatin.id/register">Daftar</a>
               </Button>
             </div>
           </div>
