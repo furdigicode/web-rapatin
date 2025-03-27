@@ -9,7 +9,7 @@ const PricingSection: React.FC = () => {
     // Core features
     { name: "Rekaman Cloud (akses 72 jam)", icon: <VideoIcon size={18} /> },
     { name: "Durasi rapat tak terbatas", icon: <Clock size={18} /> },
-    { name: "Akses untuk seluruh hari (00.00 - 23.59)", icon: <Calendar size={18} /> },
+    { name: "Akses seharian (00.00 - 23.59)", icon: <Calendar size={18} /> },
     { name: "Berbagi layar", icon: <Share2 size={18} /> },
     
     // Communication features
@@ -43,7 +43,7 @@ const PricingSection: React.FC = () => {
             Harga Bayar-Per-Rapat
           </h2>
           <p className="text-muted-foreground text-lg">
-            Tanpa langganan, tanpa komitmen. Hanya bayar untuk rapat yang Anda jadwalkan, berdasarkan jumlah peserta.
+            Tanpa langganan, tanpa komitmen. Hanya bayar untuk rapat yang Anda jadwalkan, berdasarkan jumlah peserta dan jumlah hari.
           </p>
         </div>
         
