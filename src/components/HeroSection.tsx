@@ -17,7 +17,7 @@ const HeroSection: React.FC = () => {
               Jadwalkan <span className="text-primary">rapat online</span> tanpa akun Zoom berbayar
             </h1>
             
-            <p className="text-lg md:text-xl text-muted-foreground max-w-xl text-balance">
+            <p className="text-md md:text-xl text-muted-foreground max-w-xl text-balance">
               Bayar hanya untuk yang kamu gunakan, dengan harga fleksibel berdasarkan jumlah peserta. Tanpa langganan bulanan, cukup isi saldo dan jadwalkan.
             </p>
             
