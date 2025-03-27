@@ -1,8 +1,15 @@
 
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { Star, MessageSquareQuote } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
+import { Star, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { 
+  Carousel, 
+  CarouselContent, 
+  CarouselItem,
+  CarouselPrevious,
+  CarouselNext
+} from '@/components/ui/carousel';
 
 type Testimonial = {
   id: string;
@@ -16,31 +23,91 @@ type Testimonial = {
 
 const TestimonialSection = () => {
   // Example testimonials - in a real app, these would come from an API or database
-  const testimonials: Testimonial[] = [{
-    id: '1',
-    name: 'Budi Santoso',
-    position: 'CEO',
-    company: 'PT Maju Bersama',
-    content: 'Rapatin sangat membantu bisnis kami menghemat biaya rapat online. Kami hanya membayar sesuai penggunaan, tanpa perlu langganan bulanan yang mahal.',
-    rating: 5,
-    imageUrl: 'https://randomuser.me/api/portraits/men/1.jpg'
-  }, {
-    id: '2',
-    name: 'Siti Rahayu',
-    position: 'HR Manager',
-    company: 'Startup Indonesia',
-    content: 'Fitur laporan peserta sangat berguna untuk memantau kehadiran tim dalam rapat. Kualitas video dan audio juga sangat baik!',
-    rating: 5,
-    imageUrl: 'https://randomuser.me/api/portraits/women/2.jpg'
-  }, {
-    id: '3',
-    name: 'Ahmad Hidayat',
-    position: 'Konsultan Digital',
-    company: 'DigitalSpace',
-    content: 'Saya suka kemudahan menjadwalkan rapat dan tidak ada batasan waktu. Sangat cocok untuk diskusi proyek yang kadang membutuhkan waktu panjang.',
-    rating: 5,
-    imageUrl: 'https://randomuser.me/api/portraits/men/3.jpg'
-  }];
+  const testimonials: Testimonial[] = [
+    {
+      id: '1',
+      name: 'Budi Santoso',
+      position: 'CEO',
+      company: 'PT Maju Bersama',
+      content: 'Rapatin sangat membantu bisnis kami menghemat biaya rapat online. Kami hanya membayar sesuai penggunaan, tanpa perlu langganan bulanan yang mahal.',
+      rating: 5,
+      imageUrl: 'https://randomuser.me/api/portraits/men/1.jpg'
+    }, 
+    {
+      id: '2',
+      name: 'Siti Rahayu',
+      position: 'HR Manager',
+      company: 'Startup Indonesia',
+      content: 'Fitur laporan peserta sangat berguna untuk memantau kehadiran tim dalam rapat. Kualitas video dan audio juga sangat baik!',
+      rating: 5,
+      imageUrl: 'https://randomuser.me/api/portraits/women/2.jpg'
+    }, 
+    {
+      id: '3',
+      name: 'Ahmad Hidayat',
+      position: 'Konsultan Digital',
+      company: 'DigitalSpace',
+      content: 'Saya suka kemudahan menjadwalkan rapat dan tidak ada batasan waktu. Sangat cocok untuk diskusi proyek yang kadang membutuhkan waktu panjang.',
+      rating: 5,
+      imageUrl: 'https://randomuser.me/api/portraits/men/3.jpg'
+    },
+    {
+      id: '4',
+      name: 'Dewi Kusuma',
+      position: 'Marketing Director',
+      company: 'Indofood Sukses Makmur',
+      content: 'Platform Rapatin sangat stabil dan handal. Tidak pernah mengalami masalah teknis selama meeting penting dengan klien kami dari luar negeri.',
+      rating: 5,
+      imageUrl: 'https://randomuser.me/api/portraits/women/4.jpg'
+    },
+    {
+      id: '5',
+      name: 'Rudi Hartono',
+      position: 'CTO',
+      company: 'TechIndo',
+      content: 'Integrasi dengan kalender dan notifikasi otomatis sangat membantu team kami yang sibuk untuk tidak melewatkan rapat penting.',
+      rating: 4,
+      imageUrl: 'https://randomuser.me/api/portraits/men/5.jpg'
+    },
+    {
+      id: '6',
+      name: 'Lina Wijaya',
+      position: 'Project Manager',
+      company: 'Astra International',
+      content: 'Berbagi layar dan kolaborasi dokumen real-time membuat meeting produktif. Rapatin adalah solusi terbaik untuk tim yang bekerja remote.',
+      rating: 5,
+      imageUrl: 'https://randomuser.me/api/portraits/women/6.jpg'
+    }
+  ];
+
+  const renderTestimonialCard = (testimonial: Testimonial) => (
+    <Card key={testimonial.id} className="glass h-full hover:shadow-elevation transition-all duration-300 animate-fade-in delay-100">
+      <CardContent className="p-6 flex flex-col h-full">
+        <div className="flex items-center space-x-1 mb-4">
+          {[...Array(5)].map((_, i) => (
+            <Star key={i} size={16} className={i < testimonial.rating ? "fill-primary text-primary" : "text-gray-300"} />
+          ))}
+        </div>
+        
+        <p className="flex-grow mb-6">"{testimonial.content}"</p>
+        
+        <div className="flex items-center mt-auto">
+          {testimonial.imageUrl && (
+            <Avatar className="h-12 w-12 mr-4">
+              <AvatarImage src={testimonial.imageUrl} alt={testimonial.name} />
+              <AvatarFallback>{testimonial.name.charAt(0)}</AvatarFallback>
+            </Avatar>
+          )}
+          <div>
+            <h4 className="font-semibold">{testimonial.name}</h4>
+            <p className="text-sm text-muted-foreground">
+              {testimonial.position}, {testimonial.company}
+            </p>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
 
   return (
     <section className="py-20 bg-gradient-to-b from-accent/20 to-background" id="testimonials">
@@ -57,34 +124,28 @@ const TestimonialSection = () => {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-          {testimonials.map(testimonial => (
-            <Card key={testimonial.id} className="glass h-full hover:shadow-elevation transition-all duration-300 animate-fade-in delay-100">
-              <CardContent className="p-6 flex flex-col h-full">
-                <div className="flex items-center space-x-1 mb-4">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} size={16} className={i < testimonial.rating ? "fill-primary text-primary" : "text-gray-300"} />
-                  ))}
-                </div>
-                
-                <p className="flex-grow mb-6">"{testimonial.content}"</p>
-                
-                <div className="flex items-center mt-auto">
-                  {testimonial.imageUrl && (
-                    <div className="w-12 h-12 rounded-full overflow-hidden mr-4">
-                      <img src={testimonial.imageUrl} alt={testimonial.name} className="w-full h-full object-cover" />
-                    </div>
-                  )}
-                  <div>
-                    <h4 className="font-semibold">{testimonial.name}</h4>
-                    <p className="text-sm text-muted-foreground">
-                      {testimonial.position}, {testimonial.company}
-                    </p>
+        <div className="max-w-6xl mx-auto">
+          <Carousel className="w-full">
+            <CarouselContent>
+              {/* Group testimonials in sets of 3 */}
+              {Array.from({ length: Math.ceil(testimonials.length / 3) }).map((_, index) => (
+                <CarouselItem key={index}>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-1">
+                    {testimonials.slice(index * 3, index * 3 + 3).map((testimonial) => (
+                      <div key={testimonial.id} className="h-full">
+                        {renderTestimonialCard(testimonial)}
+                      </div>
+                    ))}
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            
+            <div className="flex items-center justify-center mt-8 gap-2">
+              <CarouselPrevious className="relative md:absolute left-0 md:-left-12 top-1/2 -translate-y-1/2" />
+              <CarouselNext className="relative md:absolute right-0 md:-right-12 top-1/2 -translate-y-1/2" />
+            </div>
+          </Carousel>
         </div>
       </div>
     </section>
