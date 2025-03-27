@@ -32,10 +32,10 @@ const TestimonialSection = () => {
   }, {
     id: '3',
     name: 'Ahmad Hidayat',
-    position: 'Project Manager',
-    company: 'Konsultan Digital',
+    position: 'Konsultan Digital',
+    company: 'DigitalSpace',
     content: 'Saya suka kemudahan menjadwalkan rapat dan tidak ada batasan waktu. Sangat cocok untuk diskusi proyek yang kadang membutuhkan waktu panjang.',
-    rating: 4,
+    rating: 5,
     imageUrl: 'https://randomuser.me/api/portraits/men/3.jpg'
   }];
   return <section className="py-20 bg-gradient-to-b from-accent/20 to-background" id="testimonials">
@@ -61,7 +61,7 @@ const TestimonialSection = () => {
                   {[...Array(5)].map((_, i) => <Star key={i} size={16} className={i < testimonial.rating ? "fill-primary text-primary" : "text-gray-300"} />)}
                 </div>
                 
-                <p className="flex-grow italic mb-6">"{testimonial.content}"</p>
+                <p className="flex-grow mb-6">"{testimonial.content}"</p>
                 
                 <div className="flex items-center mt-auto">
                   {testimonial.imageUrl && <div className="w-12 h-12 rounded-full overflow-hidden mr-4">
