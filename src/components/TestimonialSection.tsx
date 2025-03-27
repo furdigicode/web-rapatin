@@ -125,18 +125,11 @@ const TestimonialSection = () => {
         </div>
 
         <div className="max-w-6xl mx-auto">
-          <Carousel className="w-full">
+          <Carousel className="w-full" opts={{ align: 'start', slidesToScroll: 1 }}>
             <CarouselContent>
-              {/* Group testimonials in sets of 3 */}
-              {Array.from({ length: Math.ceil(testimonials.length / 3) }).map((_, index) => (
-                <CarouselItem key={index}>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-1">
-                    {testimonials.slice(index * 3, index * 3 + 3).map((testimonial) => (
-                      <div key={testimonial.id} className="h-full">
-                        {renderTestimonialCard(testimonial)}
-                      </div>
-                    ))}
-                  </div>
+              {testimonials.map((testimonial) => (
+                <CarouselItem key={testimonial.id} className="md:basis-1/3 lg:basis-1/3 pl-4">
+                  {renderTestimonialCard(testimonial)}
                 </CarouselItem>
               ))}
             </CarouselContent>
