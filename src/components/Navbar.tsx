@@ -1,7 +1,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { Menu, X } from 'lucide-react';
+import { Menu, X, Home } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const Navbar: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -19,6 +20,14 @@ const Navbar: React.FC = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  const scrollToSection = (sectionId: string) => {
+    const section = document.getElementById(sectionId);
+    if (section) {
+      section.scrollIntoView({ behavior: 'smooth' });
+      setIsMobileMenuOpen(false);
+    }
+  };
 
   return (
     <header 
@@ -39,6 +48,22 @@ const Navbar: React.FC = () => {
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center space-x-8">
+          <Link to="/" className="text-sm font-medium hover:text-primary transition-colors flex items-center">
+            <Home size={16} className="mr-1" />
+            Home
+          </Link>
+          <button 
+            onClick={() => scrollToSection('cara-kerja')} 
+            className="text-sm font-medium hover:text-primary transition-colors"
+          >
+            Cara Kerja
+          </button>
+          <button 
+            onClick={() => scrollToSection('testimonials')} 
+            className="text-sm font-medium hover:text-primary transition-colors"
+          >
+            Testimoni
+          </button>
           <a href="#features" className="text-sm font-medium hover:text-primary transition-colors">Fitur</a>
           <a href="#pricing" className="text-sm font-medium hover:text-primary transition-colors">Harga</a>
           <a href="#dashboard" className="text-sm font-medium hover:text-primary transition-colors">Dashboard</a>
@@ -63,6 +88,26 @@ const Navbar: React.FC = () => {
       {isMobileMenuOpen && (
         <div className="md:hidden glass animate-fade-in">
           <div className="py-4 px-6 space-y-4">
+            <Link 
+              to="/" 
+              className="flex items-center text-sm font-medium hover:text-primary transition-colors py-2"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              <Home size={16} className="mr-1" />
+              Home
+            </Link>
+            <button 
+              onClick={() => scrollToSection('cara-kerja')} 
+              className="block w-full text-left text-sm font-medium hover:text-primary transition-colors py-2"
+            >
+              Cara Kerja
+            </button>
+            <button 
+              onClick={() => scrollToSection('testimonials')} 
+              className="block w-full text-left text-sm font-medium hover:text-primary transition-colors py-2"
+            >
+              Testimoni
+            </button>
             <a 
               href="#features" 
               className="block text-sm font-medium hover:text-primary transition-colors py-2"
