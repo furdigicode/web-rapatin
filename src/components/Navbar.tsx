@@ -59,13 +59,13 @@ const Navbar: React.FC = () => {
           >
             Cara Kerja
           </button>
+          <a href="#pricing" className="text-sm font-medium hover:text-primary transition-colors">Harga</a>
           <button 
             onClick={() => scrollToSection('testimonials')} 
             className="text-sm font-medium hover:text-primary transition-colors"
           >
             Testimoni
           </button>
-          <a href="#pricing" className="text-sm font-medium hover:text-primary transition-colors">Harga</a>
           <a href="#dashboard" className="text-sm font-medium hover:text-primary transition-colors">Dashboard</a>
           <Button asChild size="sm" variant="outline" className="ml-2">
             <a href="https://rapatin.id/login">Masuk</a>
