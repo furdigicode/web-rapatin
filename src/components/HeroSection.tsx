@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { Calendar, Clock, DollarSign, Video } from 'lucide-react';
+import { Calendar, Clock, DollarSign, Video, BadgeDollarSign } from 'lucide-react';
 
 const HeroSection: React.FC = () => {
   return (
@@ -32,7 +32,7 @@ const HeroSection: React.FC = () => {
 
             <div className="grid grid-cols-2 gap-4 mt-8 max-w-md pt-2">
               <div className="flex items-center gap-2 text-sm">
-                <Coins size={18} className="text-primary" />
+                <BadgeDollarSign size={18} className="text-primary" />
                 <span>Bayar Sesuai Pemakaian</span>
               </div>
               <div className="flex items-center gap-2 text-sm">
