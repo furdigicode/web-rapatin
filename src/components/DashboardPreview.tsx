@@ -57,7 +57,7 @@ const DashboardPreview: React.FC = () => {
             </div>
             
             <Button asChild size="lg" className="mt-6 bg-primary hover:bg-primary/90 text-white rounded-full">
-              <a href="https://bikinjadwal.id/register">Coba Dashboard Sekarang</a>
+              <a href="https://bikinjadwal.id/register">Daftar Sekarang</a>
             </Button>
           </div>
           
@@ -76,16 +76,14 @@ const DashboardPreview: React.FC = () => {
               <div className="p-6 space-y-6 bg-white/90">
                 {/* Recent Meetings List */}
                 <div className="space-y-3">
-                  <div className="flex justify-between items-center">
+                  <div className="flex justify-start items-center">
                     <h4 className="font-medium text-sm">Rapat Mendatang</h4>
-                    <button className="text-xs text-primary">Lihat Semua</button>
                   </div>
                   
                   {/* Meeting Item */}
                   <div className="border border-gray-100 rounded-lg p-3 bg-white shadow-sm">
-                    <div className="flex justify-between mb-2">
+                    <div className="flex justify-start mb-2">
                       <span className="font-medium">Rapat Tim Marketing</span>
-                      <span className="bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded-full">Hari Ini</span>
                     </div>
                     <div className="flex items-center text-xs text-gray-500 space-x-4">
                       <div className="flex items-center">
