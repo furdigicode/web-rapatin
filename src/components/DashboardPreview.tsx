@@ -92,7 +92,7 @@ const DashboardPreview: React.FC = () => {
                       </div>
                       <div className="flex items-center">
                         <Clock size={12} className="mr-1" /> 
-                        <span>14:00 - 15:00</span>
+                        <span>14:00 WIB</span>
                       </div>
                       <div className="flex items-center">
                         <Users size={12} className="mr-1" /> 
@@ -100,12 +100,12 @@ const DashboardPreview: React.FC = () => {
                       </div>
                     </div>
                     <div className="flex mt-3 space-x-2">
-                      <button className="flex items-center justify-center bg-primary text-white text-xs px-3 py-1 rounded-lg">
+                      <div className="flex items-center justify-center bg-primary text-white text-xs px-3 py-1 rounded-lg">
                         <Play size={12} className="mr-1" /> Mulai
-                      </button>
-                      <button className="flex items-center justify-center bg-gray-100 text-gray-700 text-xs px-3 py-1 rounded-lg">
+                      </div>
+                      <div className="flex items-center justify-center bg-gray-100 text-gray-700 text-xs px-3 py-1 rounded-lg">
                         <List size={12} className="mr-1" /> Detail
-                      </button>
+                      </div>
                     </div>
                   </div>
                   
@@ -116,12 +116,16 @@ const DashboardPreview: React.FC = () => {
                     </div>
                     <div className="flex items-center text-xs text-gray-500 space-x-4">
                       <div className="flex items-center">
+                        <Calendar size={12} className="mr-1" /> 
+                        <span>31 Januari 2025</span>
+                      </div>
+                      <div className="flex items-center">
                         <Clock size={12} className="mr-1" /> 
-                        <span>10:00 - 11:30</span>
+                        <span>10:00 WIB</span>
                       </div>
                       <div className="flex items-center">
                         <Users size={12} className="mr-1" /> 
-                        <span>8 Peserta</span>
+                        <span>300 Peserta</span>
                       </div>
                     </div>
                   </div>
@@ -140,20 +144,20 @@ const DashboardPreview: React.FC = () => {
                     </div>
                     <div className="flex items-center text-xs text-gray-500 mb-3">
                       <Calendar size={12} className="mr-1" /> 
-                      <span>25 Mar 2023</span>
-                      <span className="mx-2">•</span>
+                      <span>25 Maret 2023</span>
+                      <Clock size={12} className="mr-1" />
                       <span>01:24:36</span>
                     </div>
                     <div className="flex space-x-2">
-                      <button className="flex items-center justify-center bg-gray-100 text-gray-700 text-xs px-3 py-1 rounded-lg">
-                        <Play size={12} className="mr-1" /> Putar
-                      </button>
-                      <button className="flex items-center justify-center bg-gray-100 text-gray-700 text-xs px-3 py-1 rounded-lg">
-                        <Download size={12} className="mr-1" /> Unduh
-                      </button>
-                      <button className="flex items-center justify-center bg-gray-100 text-gray-700 text-xs px-3 py-1 rounded-lg">
+                      <div className="flex items-center justify-center bg-gray-100 text-gray-700 text-xs px-3 py-1 rounded-lg">
+                        <Share size={12} className="mr-1" /> Bagikan
+                      </div>
+                      <div className="flex items-center justify-center bg-gray-100 text-gray-700 text-xs px-3 py-1 rounded-lg">
+                        <Eye size={12} className="mr-1" /> Lihat
+                      </div>
+                      <div className="flex items-center justify-center bg-gray-100 text-gray-700 text-xs px-3 py-1 rounded-lg">
                         <FileText size={12} className="mr-1" /> Ringkasan
-                      </button>
+                      </div>
                     </div>
                   </div>
                 </div>
