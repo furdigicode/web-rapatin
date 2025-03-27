@@ -2,7 +2,7 @@
 import React from 'react';
 import FeatureLayout from '@/components/FeatureLayout';
 import { Card, CardContent } from '@/components/ui/card';
-import { BadgeDollarSign, DollarSign, CreditCard, Wallet, Receipt, BarChart, RotateCcw } from 'lucide-react';
+import { BadgeDollarSign, DollarSign, CreditCard, Wallet, Receipt, BarChart, RotateCcw, CalendarClock } from 'lucide-react';
 
 const BayarSesuaiPakai = () => {
   const features = [
@@ -27,7 +27,7 @@ const BayarSesuaiPakai = () => {
       description: 'Pantau pengeluaran Anda dengan riwayat transaksi yang lengkap dan transparan.'
     },
     {
-      icon: <CalendarSync />,
+      icon: <CalendarClock />,
       title: 'Bebas Ganti Jadwal',
       description: 'Atur ulang jadwal rapat tanpa biaya tambahan jika belum pernah digunakan.'
     },
