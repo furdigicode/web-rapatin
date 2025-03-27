@@ -31,6 +31,11 @@ const BayarSesuaiPakai = () => {
       title: 'Analisis Penggunaan',
       description: 'Dapatkan wawasan tentang pola penggunaan Anda dan optimalkan biaya sesuai kebutuhan.'
     }
+    {
+      icon: <RotateCcw />,
+      title: 'Batal Tanpa Rugi',
+      description: 'Jika rapat yang sudah dijadwalkan tidak jadi digunakan, saldo Anda akan dikembalikan. Tanpa resiko, tanpa kerugian'
+    }
   ];
 
   return (
