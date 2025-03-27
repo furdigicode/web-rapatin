@@ -49,7 +49,6 @@ const Navbar: React.FC = () => {
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center space-x-8">
           <Link to="/" className="text-sm font-medium hover:text-primary transition-colors flex items-center">
-            <Home size={16} className="mr-1" />
             Home
           </Link>
           <a href="#features" className="text-sm font-medium hover:text-primary transition-colors">Fitur</a>
