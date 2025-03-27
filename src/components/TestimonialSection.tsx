@@ -131,7 +131,7 @@ const TestimonialSection = () => {
               {Array.from({ length: Math.ceil(testimonials.length / 3) }).map((_, index) => (
                 <CarouselItem key={index}>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-1">
-                    {testimonials.slice(index * 1, index * 1 + 3).map((testimonial) => (
+                    {testimonials.slice(index * 3, index * 3 + 3).map((testimonial) => (
                       <div key={testimonial.id} className="h-full">
                         {renderTestimonialCard(testimonial)}
                       </div>
