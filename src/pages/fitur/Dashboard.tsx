@@ -2,7 +2,7 @@
 import React from 'react';
 import FeatureLayout from '@/components/FeatureLayout';
 import { Card, CardContent } from '@/components/ui/card';
-import { LayoutDashboard, Calendar, Users, Clock, Settings, BarChart } from 'lucide-react';
+import { LayoutDashboard, Calendar, Users, Clock, Settings, BarChart, FileText, Users2, ClipboardList, Video } from 'lucide-react';
 
 const Dashboard = () => {
   const features = [
@@ -17,7 +17,7 @@ const Dashboard = () => {
       description: 'Sesuaikan pengaturan rapat seperti passcode, language interpretation, dan fitur lainnya.'
     },
     {
-      icon: <Videotape />,
+      icon: <Video />,
       title: 'Akses File Rekaman',
       description: 'Lihat dan bagikan akses file rekaman rapat dan dapat langsung diunduh.'
     },
