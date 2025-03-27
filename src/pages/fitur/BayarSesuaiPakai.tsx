@@ -2,7 +2,7 @@
 import React from 'react';
 import FeatureLayout from '@/components/FeatureLayout';
 import { Card, CardContent } from '@/components/ui/card';
-import { BadgeDollarSign, DollarSign, CreditCard, Wallet, Receipt, BarChart } from 'lucide-react';
+import { BadgeDollarSign, DollarSign, CreditCard, Wallet, Receipt, BarChart, RotateCcw } from 'lucide-react';
 
 const BayarSesuaiPakai = () => {
   const features = [
@@ -30,7 +30,7 @@ const BayarSesuaiPakai = () => {
       icon: <BarChart />,
       title: 'Analisis Penggunaan',
       description: 'Dapatkan wawasan tentang pola penggunaan Anda dan optimalkan biaya sesuai kebutuhan.'
-    }
+    },
     {
       icon: <RotateCcw />,
       title: 'Batal Tanpa Rugi',
