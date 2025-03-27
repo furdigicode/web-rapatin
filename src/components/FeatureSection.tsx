@@ -12,7 +12,11 @@ import {
   GraduationCap,
   Users,
   Briefcase,
-  Mic
+  Mic,
+  UserCheck,
+  BookOpen,
+  CalendarCheck,
+  PartyPopper
 } from 'lucide-react';
 
 interface FeatureProps {
