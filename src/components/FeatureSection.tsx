@@ -132,27 +132,27 @@ const FeatureSection: React.FC = () => {
             </div>
             <div className="flex flex-col items-center text-center p-4 rounded-lg hover:bg-accent/50 transition-colors">
               <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mb-3 text-primary">
-                <GraduationCap size={18} />
+                <UserCheck size={18} />
               </div>
-              <p className="font-medium text-sm">Guru & Dosen</p>
+              <p className="font-medium text-sm">Konsultan</p>
             </div>
             <div className="flex flex-col items-center text-center p-4 rounded-lg hover:bg-accent/50 transition-colors">
               <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mb-3 text-primary">
-                <Briefcase size={18} />
+                <BookOpen size={18} />
               </div>
-              <p className="font-medium text-sm">Bisnis & Startup</p>
+              <p className="font-medium text-sm">Mahasiswa</p>
             </div>
             <div className="flex flex-col items-center text-center p-4 rounded-lg hover:bg-accent/50 transition-colors">
               <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mb-3 text-primary">
-                <Mic size={18} />
+                <CalendarCheck size={18} />
               </div>
-              <p className="font-medium text-sm">Coach & Trainer</p>
+              <p className="font-medium text-sm">HR & Rekruter</p>
             </div>
             <div className="flex flex-col items-center text-center p-4 rounded-lg hover:bg-accent/50 transition-colors">
               <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mb-3 text-primary">
-                <Users size={18} />
+                <PartyPopper size={18} />
               </div>
-              <p className="font-medium text-sm">Komunitas & Organisasi</p>
+              <p className="font-medium text-sm">Event Organizer</p>
             </div>
           </div>
         </div>
