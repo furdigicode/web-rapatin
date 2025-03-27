@@ -65,10 +65,6 @@ const Navbar: React.FC = () => {
           >
             Testimoni
           </button>
-          <Link to="/faq" className="text-sm font-medium hover:text-primary transition-colors flex items-center">
-            <HelpCircle size={16} className="mr-1" />
-            FAQ
-          </Link>
           <Button asChild size="sm" className="bg-primary text-white hover:bg-primary/90">
             <a href="https://rapatin.id/register">Daftar</a>
           </Button>
@@ -92,7 +88,6 @@ const Navbar: React.FC = () => {
               className="flex items-center text-sm font-medium hover:text-primary transition-colors py-2"
               onClick={() => setIsMobileMenuOpen(false)}
             >
-              <Home size={16} className="mr-1" />
               Home
             </Link>
             <button 
@@ -121,14 +116,6 @@ const Navbar: React.FC = () => {
             >
               Harga
             </a>
-            <Link 
-              to="/faq" 
-              className="flex items-center text-sm font-medium hover:text-primary transition-colors py-2"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              <HelpCircle size={16} className="mr-1" />
-              FAQ
-            </Link>
             <div className="flex flex-col space-y-3 pt-2">
               <Button asChild variant="outline" size="sm">
                 <a href="https://rapatin.id/login">Masuk</a>
