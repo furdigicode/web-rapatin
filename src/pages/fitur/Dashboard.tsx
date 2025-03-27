@@ -3,7 +3,7 @@ import React from 'react';
 import FeatureLayout from '@/components/FeatureLayout';
 import FinalCTA from '@/components/FinalCTA';
 import { Card, CardContent } from '@/components/ui/card';
-import { LayoutDashboard, Calendar, Users, Clock, Settings, BarChart } from 'lucide-react';
+import { LayoutDashboard, Calendar, Users, Clock, Settings, BarChart, Video, FileText, Users2, ClipboardList } from 'lucide-react';
 
 const Dashboard = () => {
   const features = [
