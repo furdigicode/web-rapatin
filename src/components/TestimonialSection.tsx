@@ -66,7 +66,7 @@ const TestimonialSection = () => {
       position: 'CTO',
       company: 'TechIndo',
       content: 'Integrasi dengan kalender dan notifikasi otomatis sangat membantu team kami yang sibuk untuk tidak melewatkan rapat penting.',
-      rating: 4,
+      rating: 5,
       imageUrl: 'https://randomuser.me/api/portraits/men/5.jpg'
     },
     {
@@ -131,7 +131,7 @@ const TestimonialSection = () => {
               {Array.from({ length: Math.ceil(testimonials.length / 3) }).map((_, index) => (
                 <CarouselItem key={index}>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-1">
-                    {testimonials.slice(index * 3, index * 3 + 3).map((testimonial) => (
+                    {testimonials.slice(index * 3, index * 3 + 1).map((testimonial) => (
                       <div key={testimonial.id} className="h-full">
                         {renderTestimonialCard(testimonial)}
                       </div>
