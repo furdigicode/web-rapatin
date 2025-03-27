@@ -26,6 +26,7 @@ import AdminDashboard from "./pages/admin/Dashboard";
 import URLManagement from "./pages/admin/URLManagement";
 import FAQManagement from "./pages/admin/FAQManagement";
 import BlogManagement from "./pages/admin/BlogManagement";
+import TestimonialManagement from "./pages/admin/TestimonialManagement";
 
 const queryClient = new QueryClient();
 
@@ -58,6 +59,7 @@ const App = () => (
           <Route path="/admin/urls" element={<URLManagement />} />
           <Route path="/admin/faq" element={<FAQManagement />} />
           <Route path="/admin/blog" element={<BlogManagement />} />
+          <Route path="/admin/testimonials" element={<TestimonialManagement />} />
           
           {/* 404 Catch-all Route */}
           <Route path="*" element={<NotFound />} />
