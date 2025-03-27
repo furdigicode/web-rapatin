@@ -65,11 +65,8 @@ const Navbar: React.FC = () => {
           >
             Testimoni
           </button>
-          <Button asChild size="sm" className="bg-secondary text-white hover:bg-primary/90">
-            <a href="https://rapatin.id/register">Daftar</a>
-          </Button>
           <Button asChild size="sm" className="bg-primary text-white hover:bg-primary/90">
-            <a href="https://rapatin.id/register">Daftar</a>
+            <a href="https://rapatin.id/register">Daftar/Login</a>
           </Button>
         </nav>
         
