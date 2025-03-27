@@ -64,15 +64,6 @@ const DashboardPreview: React.FC = () => {
           {/* Right column - Dashboard illustration */}
           <div className="relative">
             <div className="glass rounded-xl overflow-hidden shadow-elevation border border-white/40 mx-auto max-w-md">
-              <div className="bg-white/70 backdrop-blur-sm p-4 border-b border-white/20">
-                <h3 className="font-medium flex items-center">
-                  <span>Dashboard Rapat</span>
-                  <div className="ml-auto flex space-x-2">
-                    <span className="text-xs px-2 py-1 bg-green-100 text-green-800 rounded-full">Aktif</span>
-                  </div>
-                </h3>
-              </div>
-              
               <div className="p-6 space-y-6 bg-white/90">
                 {/* Recent Meetings List */}
                 <div className="space-y-3">
