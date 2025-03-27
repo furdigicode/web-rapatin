@@ -26,7 +26,7 @@ const DashboardPreview: React.FC = () => {
             
             <div className="space-y-4">
               <div className="flex items-start">
-                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center mr-4 mt-1 text-primary">
+                <div className="w-8 h-8 flex-none shrink-0 rounded-full bg-primary/10 flex items-center justify-center mr-4 mt-1 text-primary">
                   <CheckCircle size={16} />
                 </div>
                 <div>
@@ -36,7 +36,7 @@ const DashboardPreview: React.FC = () => {
               </div>
               
               <div className="flex items-start">
-                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center mr-4 mt-1 text-primary">
+                <div className="w-8 h-8 flex-none shrink-0 rounded-full bg-primary/10 flex items-center justify-center mr-4 mt-1 text-primary">
                   <CheckCircle size={16} />
                 </div>
                 <div>
@@ -46,7 +46,7 @@ const DashboardPreview: React.FC = () => {
               </div>
               
               <div className="flex items-start">
-                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center mr-4 mt-1 text-primary">
+                <div className="w-8 h-8 flex-none shrink-0 rounded-full bg-primary/10 flex items-center justify-center mr-4 mt-1 text-primary">
                   <CheckCircle size={16} />
                 </div>
                 <div>
@@ -160,8 +160,9 @@ const DashboardPreview: React.FC = () => {
                 
                 {/* Analytics Snapshot */}
                 <div className="space-y-3">
-                  <div className="flex justify-start items-center">
-                    <h4 className="font-medium text-sm">Analitik Peserta</h4>
+                  <div className="flex justify-between items-center">
+                    <h4 className="font-medium text-sm">Analitik Singkat</h4>
+                    <button className="text-xs text-primary">Detail</button>
                   </div>
                   
                   <div className="grid grid-cols-2 gap-2">
@@ -170,8 +171,8 @@ const DashboardPreview: React.FC = () => {
                       <div className="text-xs text-gray-500">Rapat Bulan Ini</div>
                     </div>
                     <div className="border border-gray-100 rounded-lg p-3 bg-white shadow-sm text-center">
-                      <div className="text-2xl font-bold text-primary">239</div>
-                      <div className="text-xs text-gray-500">Jumlah Peserta</div>
+                      <div className="text-2xl font-bold text-primary">86%</div>
+                      <div className="text-xs text-gray-500">Rata-rata Kehadiran</div>
                     </div>
                   </div>
                 </div>
