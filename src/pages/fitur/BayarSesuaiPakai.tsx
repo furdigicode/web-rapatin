@@ -28,13 +28,13 @@ const BayarSesuaiPakai = () => {
     },
     {
       icon: <BarChart />,
-      title: 'Analisis Penggunaan',
-      description: 'Dapatkan wawasan tentang pola penggunaan Anda dan optimalkan biaya sesuai kebutuhan.'
+      title: 'Bebas Ganti Jadwal',
+      description: 'Atur ulang jadwal rapat tanpa biaya tambahan jika belum pernah digunakan.'
     },
     {
       icon: <RotateCcw />,
       title: 'Batal Tanpa Rugi',
-      description: 'Jika rapat yang sudah dijadwalkan tidak jadi digunakan, saldo Anda akan dikembalikan. Tanpa resiko, tanpa kerugian'
+      description: 'Jika rapat yang sudah dijadwalkan tidak jadi digunakan, saldo Anda akan dikembalikan.'
     }
   ];
 
