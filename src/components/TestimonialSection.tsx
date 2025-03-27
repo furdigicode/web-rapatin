@@ -1,7 +1,8 @@
 
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { Star } from 'lucide-react';
+import { Star, MessageSquareQuote } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 
 type Testimonial = {
   id: string;
@@ -46,19 +47,28 @@ const TestimonialSection = () => {
   ];
 
   return (
-    <section className="py-16 bg-gradient-to-b from-white to-secondary/5" id="testimonials">
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">Yang Mereka Katakan</h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            Pendapat pengguna Rapatin tentang pengalaman mereka menggunakan layanan kami.
+    <section className="py-20 bg-gradient-to-b from-accent/20 to-background" id="testimonials">
+      <div className="container mx-auto px-4 md:px-6">
+        <div className="max-w-3xl mx-auto text-center mb-16 animate-fade-in">
+          <div className="inline-flex items-center py-1 px-4 bg-accent rounded-full mb-4">
+            <span className="text-xs font-medium text-primary">Testimoni Pengguna</span>
+          </div>
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">
+            <span className="text-primary">Pendapat mereka</span> tentang pengalaman menggunakan Rapatin
+          </h2>
+          <p className="text-muted-foreground text-lg">
+            Lihat bagaimana Rapatin membantu berbagai bisnis dan profesional meningkatkan efektivitas rapat online mereka.
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+        <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
           {testimonials.map((testimonial) => (
-            <Card key={testimonial.id} className="h-full glass hover:shadow-lg transition-all duration-300">
+            <Card key={testimonial.id} className="glass h-full hover:shadow-elevation transition-all duration-300 animate-fade-in delay-100">
               <CardContent className="p-6 flex flex-col h-full">
+                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4 text-primary">
+                  <MessageSquareQuote size={22} />
+                </div>
+                
                 <div className="flex items-center space-x-1 mb-4">
                   {[...Array(5)].map((_, i) => (
                     <Star
