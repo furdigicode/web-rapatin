@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { Menu, X, Home } from 'lucide-react';
+import { Menu, X, Home, HelpCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const Navbar: React.FC = () => {
@@ -49,6 +49,7 @@ const Navbar: React.FC = () => {
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center space-x-8">
           <Link to="/" className="text-sm font-medium hover:text-primary transition-colors flex items-center">
+            <Home size={16} className="mr-1" />
             Home
           </Link>
           <a href="#features" className="text-sm font-medium hover:text-primary transition-colors">Fitur</a>
@@ -65,7 +66,10 @@ const Navbar: React.FC = () => {
           >
             Testimoni
           </button>
-          <a href="#dashboard" className="text-sm font-medium hover:text-primary transition-colors">Dashboard</a>
+          <Link to="/faq" className="text-sm font-medium hover:text-primary transition-colors flex items-center">
+            <HelpCircle size={16} className="mr-1" />
+            FAQ
+          </Link>
           <Button asChild size="sm" className="bg-primary text-white hover:bg-primary/90">
             <a href="https://rapatin.id/register">Daftar</a>
           </Button>
@@ -118,13 +122,14 @@ const Navbar: React.FC = () => {
             >
               Harga
             </a>
-            <a 
-              href="#dashboard" 
-              className="block text-sm font-medium hover:text-primary transition-colors py-2"
+            <Link 
+              to="/faq" 
+              className="flex items-center text-sm font-medium hover:text-primary transition-colors py-2"
               onClick={() => setIsMobileMenuOpen(false)}
             >
-              Dashboard
-            </a>
+              <HelpCircle size={16} className="mr-1" />
+              FAQ
+            </Link>
             <div className="flex flex-col space-y-3 pt-2">
               <Button asChild variant="outline" size="sm">
                 <a href="https://rapatin.id/login">Masuk</a>
