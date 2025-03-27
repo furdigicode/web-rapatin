@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { UserPlus, Calendar, Video, DollarSign } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 
 const HowItWorksSection = () => {
   const steps = [
@@ -25,30 +26,28 @@ const HowItWorksSection = () => {
   ];
 
   return (
-    <section className="py-16 bg-secondary/5" id="cara-kerja">
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">Cara Kerja</h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            Tiga langkah sederhana untuk memulai penggunaan Rapatin untuk kebutuhan rapat online Anda.
+    <section className="py-20 bg-gradient-to-b from-accent/20 to-background" id="cara-kerja">
+      <div className="container mx-auto px-4 md:px-6">
+        <div className="max-w-3xl mx-auto text-center mb-16 animate-fade-in">
+          <div className="inline-flex items-center py-1 px-4 bg-accent rounded-full mb-4">
+            <span className="text-xs font-medium text-primary">Mudah Digunakan</span>
+          </div>
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">
+            <span className="text-primary">Tiga langkah sederhana</span> menuju rapat online tanpa batas
+          </h2>
+          <p className="text-muted-foreground text-lg">
+            Mulai menggunakan Rapatin dengan cepat dan nikmati pengalaman rapat online yang lebih baik tanpa kerumitan.
           </p>
         </div>
 
-        <div className="max-w-4xl mx-auto">
+        <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
           {steps.map((step, index) => (
-            <div key={index} className="flex mb-10 last:mb-0">
-              <div className="mr-6 flex flex-col items-center">
-                <div className="flex items-center justify-center w-10 md:w-14 aspect-square rounded-full bg-primary text-white font-bold text-lg md:text-xl">
-                  {step.number}
-                </div>
-                {index < steps.length - 1 && (
-                  <div className="w-0.5 h-full bg-primary/20 mt-4"></div>
-                )}
+            <div key={index} className="glass p-6 rounded-xl transition-all duration-300 hover:shadow-elevation animate-fade-in delay-100">
+              <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center mb-4 text-white">
+                <span className="font-bold">{step.number}</span>
               </div>
-              <div className="flex-1 pt-2">
-                <h3 className="text-xl md:text-2xl font-bold mb-2">{step.title}</h3>
-                <p className="text-muted-foreground">{step.description}</p>
-              </div>
+              <h3 className="text-lg font-semibold mb-2">{step.title}</h3>
+              <p className="text-muted-foreground">{step.description}</p>
             </div>
           ))}
         </div>
