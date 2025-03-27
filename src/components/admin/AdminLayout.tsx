@@ -60,6 +60,12 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title }) => {
       active: location.pathname === '/admin/urls'
     },
     { 
+      icon: <LinkIcon size={20} />, 
+      label: 'Brands', 
+      path: '/admin/brand-logos',
+      active: location.pathname === '/admin/brand-logos'
+    },
+    { 
       icon: <FileQuestion size={20} />, 
       label: 'FAQ', 
       path: '/admin/faq',
@@ -91,9 +97,15 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title }) => {
     },
     { 
       icon: <Settings size={20} />, 
-      label: 'S&K dan Privasi', 
-      path: '/admin/terms-privacy',
-      active: location.pathname === '/admin/terms-privacy'
+      label: 'S&K', 
+      path: '/admin/terms',
+      active: location.pathname === '/admin/terms'
+    },
+    { 
+      icon: <Settings size={20} />, 
+      label: 'Kebijakan Privasi', 
+      path: '/admin/privacy',
+      active: location.pathname === '/admin/privacy'
     }
   ];
 
