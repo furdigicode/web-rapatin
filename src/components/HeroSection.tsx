@@ -83,7 +83,7 @@ const HeroSection: React.FC = () => {
                       <span>100 Peserta - Rp 20.000</span>
                     </div>
                     
-                    <div className="w-full bg-primary hover:bg-primary/90 text-white text-center py-2 rounded opacity-90 cursor-not-allowed">
+                    <div className="w-full bg-primary text-white text-center py-2 rounded-md opacity-90">
                       Buat Jadwal Rapat
                     </div>
                   </div>
