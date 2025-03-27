@@ -16,7 +16,7 @@ const Footer: React.FC = () => {
               />
             </a>
             <p className="text-muted-foreground mb-4 text-sm">
-              Schedule meetings without needing a paid Zoom account. Pay-as-you-go, no subscriptions.
+              Jadwalkan rapat tanpa memerlukan akun Zoom berbayar. Bayar sesuai penggunaan, tanpa langganan.
             </p>
             <div className="flex space-x-4">
               <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
@@ -35,44 +35,45 @@ const Footer: React.FC = () => {
           </div>
           
           <div>
-            <h3 className="text-sm font-semibold uppercase tracking-wider mb-4">Features</h3>
+            <h3 className="text-sm font-semibold uppercase tracking-wider mb-4">Fitur</h3>
             <ul className="space-y-2">
-              <li><a href="#" className="text-muted-foreground hover:text-primary text-sm transition-colors">Pay-As-You-Go</a></li>
-              <li><a href="#" className="text-muted-foreground hover:text-primary text-sm transition-colors">Dashboard</a></li>
-              <li><a href="#" className="text-muted-foreground hover:text-primary text-sm transition-colors">Cloud Recording</a></li>
-              <li><a href="#" className="text-muted-foreground hover:text-primary text-sm transition-colors">Participant Reports</a></li>
+              <li><a href="/fitur/bayar-sesuai-pakai" className="text-muted-foreground hover:text-primary text-sm transition-colors">Bayar-Sesuai-Pakai</a></li>
+              <li><a href="/fitur/dashboard" className="text-muted-foreground hover:text-primary text-sm transition-colors">Dashboard</a></li>
+              <li><a href="/fitur/rekaman-cloud" className="text-muted-foreground hover:text-primary text-sm transition-colors">Rekaman Cloud</a></li>
+              <li><a href="/fitur/laporan-peserta" className="text-muted-foreground hover:text-primary text-sm transition-colors">Laporan Peserta</a></li>
             </ul>
           </div>
           
           <div>
-            <h3 className="text-sm font-semibold uppercase tracking-wider mb-4">Resources</h3>
+            <h3 className="text-sm font-semibold uppercase tracking-wider mb-4">Sumber Daya</h3>
             <ul className="space-y-2">
-              <li><a href="#" className="text-muted-foreground hover:text-primary text-sm transition-colors">Getting Started</a></li>
-              <li><a href="#" className="text-muted-foreground hover:text-primary text-sm transition-colors">FAQ</a></li>
-              <li><a href="#" className="text-muted-foreground hover:text-primary text-sm transition-colors">Help Center</a></li>
-              <li><a href="#" className="text-muted-foreground hover:text-primary text-sm transition-colors">Tutorial Videos</a></li>
+              <li><a href="/daftar" className="text-muted-foreground hover:text-primary text-sm transition-colors">Daftar Sekarang</a></li>
+              <li><a href="/faq" className="text-muted-foreground hover:text-primary text-sm transition-colors">FAQ</a></li>
+              <li><a href="/pusat-bantuan" className="text-muted-foreground hover:text-primary text-sm transition-colors">Pusat Bantuan</a></li>
+              <li><a href="/video-tutorial" className="text-muted-foreground hover:text-primary text-sm transition-colors">Video Tutorial</a></li>
+              <li><a href="/blog" className="text-muted-foreground hover:text-primary text-sm transition-colors">Blog</a></li>
             </ul>
           </div>
           
           <div>
-            <h3 className="text-sm font-semibold uppercase tracking-wider mb-4">Company</h3>
+            <h3 className="text-sm font-semibold uppercase tracking-wider mb-4">Perusahaan</h3>
             <ul className="space-y-2">
-              <li><a href="#" className="text-muted-foreground hover:text-primary text-sm transition-colors">About Us</a></li>
-              <li><a href="#" className="text-muted-foreground hover:text-primary text-sm transition-colors">Contact</a></li>
-              <li><a href="#" className="text-muted-foreground hover:text-primary text-sm transition-colors">Terms of Service</a></li>
-              <li><a href="#" className="text-muted-foreground hover:text-primary text-sm transition-colors">Privacy Policy</a></li>
+              <li><a href="/tentang-kami" className="text-muted-foreground hover:text-primary text-sm transition-colors">Tentang Kami</a></li>
+              <li><a href="/kontak" className="text-muted-foreground hover:text-primary text-sm transition-colors">Kontak</a></li>
+              <li><a href="/syarat-ketentuan" className="text-muted-foreground hover:text-primary text-sm transition-colors">Syarat Ketentuan</a></li>
+              <li><a href="/kebijakan-privasi" className="text-muted-foreground hover:text-primary text-sm transition-colors">Kebijakan Privasi</a></li>
             </ul>
           </div>
         </div>
         
         <div className="border-t border-border mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">
           <p className="text-sm text-muted-foreground">
-            &copy; {new Date().getFullYear()} Rapatin. All rights reserved.
+            &copy; {new Date().getFullYear()} Rapatin. Seluruh hak dilindungi.
           </p>
           <div className="mt-4 md:mt-0">
             <select className="text-sm bg-transparent border rounded py-1 px-2">
-              <option value="en">English</option>
               <option value="id">Bahasa Indonesia</option>
+              <option value="en">English</option>
             </select>
           </div>
         </div>
