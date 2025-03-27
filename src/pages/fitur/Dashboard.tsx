@@ -53,14 +53,6 @@ const Dashboard = () => {
           </Card>
         ))}
       </div>
-
-      <div className="mt-16 max-w-4xl mx-auto">
-        <img 
-          src="/lovable-uploads/edbf847f-3513-412d-954a-41d6319fbaf2.png" 
-          alt="Dashboard Preview" 
-          className="w-full rounded-xl shadow-elevation border border-white/40" 
-        />
-      </div>
       <FinalCTA />
     </FeatureLayout>
   );
