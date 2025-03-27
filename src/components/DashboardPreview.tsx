@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Calendar, CheckCircle, Clock, BarChart, FileText, Users, Video, Play, Download, List, Search } from 'lucide-react';
+import { Calendar, CheckCircle, Clock, BarChart, FileText, Users, Video, Play, Download, List, Search, Share, Eye } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
 
