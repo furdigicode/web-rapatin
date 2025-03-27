@@ -127,7 +127,7 @@ const HeroSection: React.FC = () => {
         }} plugins={[autoplayPlugin]} className="w-full">
             <CarouselContent className="py-4">
               {[...Array(2)].map((_, copy) => <React.Fragment key={`copy-${copy}`}>
-                  <CarouselItem className="basis-1/2 md:basis-1/4 lg:basis-1/7 pl-4">
+                  <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
                     <div className="flex items-center justify-center h-12 grayscale hover:grayscale-0 transition-all duration-300">
                       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 30" width="100" height="30" className="opacity-70 hover:opacity-100">
                         <path d="M79.246 13.636c0 1.755-1.078 2.837-2.832 2.837-1.752 0-2.83-1.082-2.83-2.837 0-1.753 1.078-2.835 2.83-2.835 1.754 0 2.832 1.082 2.832 2.835m-8.318 0c0 3.265 2.226 5.493 5.486 5.493 3.262 0 5.488-2.228 5.488-5.493 0-3.261-2.226-5.489-5.488-5.489-3.26 0-5.486 2.228-5.486 5.489M62.6 8.8h2.5v2.3h.1c.7-1.5 2-2.6 3.9-2.6 1.4 0 2.5.5 3.2 1.6.8-1 2.1-1.6 3.6-1.6 2.9 0 4.1 1.9 4.1 4.6v6h-2.6v-5.5c0-1.4-.6-2.4-2-2.4-1.8 0-2.5 1.3-2.5 3.1v4.8h-2.6v-5.5c0-1.5-.6-2.4-2-2.4-1.8 0-2.5 1.3-2.5 3v4.9h-2.6V8.8zm-6.8.3c3.3 0 5.5 2.2 5.5 5.5s-2.2 5.5-5.5 5.5-5.5-2.2-5.5-5.5 2.2-5.5 5.5-5.5m0 8.4c1.8 0 2.8-1.1 2.8-2.9s-1-2.9-2.8-2.9-2.8 1.1-2.8 2.9 1 2.9 2.8 2.9m-8.9-8.7h2.6v10.3h-2.6V8.8zm1.3-4.7c.9 0 1.6.7 1.6 1.6s-.7 1.6-1.6 1.6-1.6-.7-1.6-1.6.7-1.6 1.6-1.6M33.5 8.8h2.5v1.7h.1c.7-1.3 2.2-2 3.6-2 3.7 0 5.1 2.8 5.1 5.8 0 2.7-1.5 5.2-4.4 5.2-1.7 0-3.1-.7-3.9-1.9H36.2v5.4h-2.6V8.8zm5.4 8c1.7 0 2.6-1.3 2.6-2.8s-.9-2.9-2.6-2.9c-1.6 0-2.6 1.4-2.6 2.9s.9 2.8 2.6 2.8m-14-8h2.6v1.5H27.6c.5-1 1.8-1.8 3.2-1.8.7 0 1.4.2 2 .5l-.9 2.2c-.4-.2-.9-.3-1.4-.3-1.9 0-2.9 1.3-2.9 3.4v4.8h-2.6V8.8zm-5.4.3c3.3 0 5.5 2.2 5.5 5.5s-2.2 5.5-5.5 5.5-5.5-2.2-5.5-5.5 2.2-5.5 5.5-5.5m0 8.4c1.8 0 2.8-1.1 2.8-2.9s-1-2.9-2.8-2.9-2.8 1.1-2.8 2.9 1 2.9 2.8 2.9" fill="#2166b0" />
@@ -135,7 +135,7 @@ const HeroSection: React.FC = () => {
                     </div>
                   </CarouselItem>
                   
-                  <CarouselItem className="basis-1/2 md:basis-1/4 lg:basis-1/7 pl-4">
+                  <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
                     <div className="flex items-center justify-center h-12 grayscale hover:grayscale-0 transition-all duration-300">
                       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 246 60" width="90" height="30" className="opacity-70 hover:opacity-100">
                         <path d="M61.3 10h19.9v5.6H67.8v7.8h11.3v5.3H67.8v7.9h13.7v5.6H61.3V10zm33.2 17.4L87 10h7.3l3.8 11.4L102 10h7l-7.5 17.4v14.8h-7V27.4zm34.9 0c0 10.4-7.4 15.7-16.4 15.7-9 0-16.3-5.3-16.3-15.7S104.9 10 112.9 10c9 0 16.4 7.4 16.4 17.4zm-7-.1c0-6.4-3.8-11.7-9.4-11.7s-9.3 5.3-9.3 11.7 3.8 10.2 9.3 10.2 9.4-3.8 9.4-10.2zm9-14.5c1.8-1.8 4.9-2.8 8.3-2.8 7.3 0 11.8 3.4 11.8 11.4v21h-5.7v-3.2c-1.9 2.5-5.1 3.8-8.5 3.8-5.2 0-9.4-2.7-9.4-8 0-5.3 4.1-7.9 9.3-8.8l8.2-1.4v-.8c0-3.9-2.3-5.4-6-5.4-2.6 0-4.9.7-7 2.8l-1 .9-3.6-3.7 3.5-4zm9.6 23c2.1 0 3.9-.7 5.2-2 1.1-1.1 1.6-2.4 1.6-4.2v-2.3l-6.5 1.2c-3.3.6-4.8 1.7-4.8 3.9 0 2.2 1.7 3.4 4.5 3.4zm14.8-14.8h7.1v4.2h.3c.9-2.8 3.4-4.8 7.4-4.8.8 0 1.5.1 2.3.3v6.2c-.9-.3-1.9-.4-2.9-.4-4.2 0-6.7 2.2-6.7 7v11.3h-7.5V21.1z" fill="#008ccf" />
@@ -143,7 +143,7 @@ const HeroSection: React.FC = () => {
                     </div>
                   </CarouselItem>
                   
-                  <CarouselItem className="basis-1/2 md:basis-1/4 lg:basis-1/7 pl-4">
+                  <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
                     <div className="flex items-center justify-center h-12 grayscale hover:grayscale-0 transition-all duration-300">
                       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 30" width="90" height="30" className="opacity-70 hover:opacity-100">
                         <path d="M15.8 8c-5.4 0-9.8 4.4-9.8 9.8s4.4 9.8 9.8 9.8 9.8-4.4 9.8-9.8S21.2 8 15.8 8zm0 16.8c-3.9 0-7-3.1-7-7s3.1-7 7-7 7 3.1 7 7-3.1 7-7 7z" fill="#006341" />
@@ -152,7 +152,7 @@ const HeroSection: React.FC = () => {
                     </div>
                   </CarouselItem>
                   
-                  <CarouselItem className="basis-1/2 md:basis-1/4 lg:basis-1/7 pl-4">
+                  <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
                     <div className="flex items-center justify-center h-12 grayscale hover:grayscale-0 transition-all duration-300">
                       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 35" width="85" height="30" className="opacity-70 hover:opacity-100">
                         <path d="M25 4.5C13.7 4.5 4.5 13.7 4.5 25s9.2 20.5 20.5 20.5S45.5 36.3 45.5 25 36.3 4.5 25 4.5zm0 38c-9.7 0-17.5-7.8-17.5-17.5S15.3 7.5 25 7.5 42.5 15.3 42.5 25 34.7 42.5 25 42.5z" fill="#FFC700" />
@@ -163,7 +163,7 @@ const HeroSection: React.FC = () => {
                     </div>
                   </CarouselItem>
                   
-                  <CarouselItem className="basis-1/2 md:basis-1/4 lg:basis-1/7 pl-4">
+                  <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
                     <div className="flex items-center justify-center h-12 grayscale hover:grayscale-0 transition-all duration-300">
                       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 35" width="100" height="30" className="opacity-70 hover:opacity-100">
                         <path d="M21.2 10c-4.2 0-7.6 3.4-7.6 7.6s3.4 7.6 7.6 7.6 7.6-3.4 7.6-7.6S25.4 10 21.2 10zm0 12.8c-2.9 0-5.2-2.3-5.2-5.2s2.3-5.2 5.2-5.2 5.2 2.3 5.2 5.2-2.3 5.2-5.2 5.2zM36.5 10.4h-3v14.3h10.1v-2.9h-7.1zM51.9 10.4l-6.6 14.3h3.2l1.3-2.8h6.2l1.3 2.8h3.2l-6.6-14.3zm-.4 8.6l1.9-4.1 1.9 4.1h-3.8zM66.3 10.4h-3v14.3h3v-5.7h6.3v-2.9h-6.3zM83.8 10.4h-11v2.9h4v11.4h3V13.3h4zM91.7 10.4h-3v14.3h10.1v-2.9h-7.1z" fill="#005BAA" />
@@ -171,7 +171,7 @@ const HeroSection: React.FC = () => {
                     </div>
                   </CarouselItem>
                   
-                  <CarouselItem className="basis-1/2 md:basis-1/4 lg:basis-1/7 pl-4">
+                  <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
                     <div className="flex items-center justify-center h-12 grayscale hover:grayscale-0 transition-all duration-300">
                       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 30" width="90" height="30" className="opacity-70 hover:opacity-100">
                         <path d="M22.5 7.9L18.2 22h-3l-3.6-9.8L7.9 22H5L.6 7.9h3l3 10.3 3.7-10.3h2.8l3.7 10.3 3-10.3zM30.7 7.9l8.4 14.1h-3.4l-1.8-3h-8.3l-1.8 3h-3.4L29 7.9h1.7zm1.7 8.1l-2.5-4.3-2.5 4.3h5zM48.9 22.3c-4.1 0-7.3-3.2-7.3-7.3s3.2-7.3 7.3-7.3c2.5 0 4.8 1.3 6.1 3.3l-2.5 1.5c-.8-1.2-2.1-2-3.6-2-2.5 0-4.5 2-4.5 4.5s2 4.5 4.5 4.5c1.5 0 2.8-.7 3.6-2l2.5 1.5c-1.3 2-3.6 3.3-6.1 3.3z" fill="#e4002b" />
@@ -179,7 +179,7 @@ const HeroSection: React.FC = () => {
                     </div>
                   </CarouselItem>
                   
-                  <CarouselItem className="basis-1/2 md:basis-1/4 lg:basis-1/7 pl-4">
+                  <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
                     <div className="flex items-center justify-center h-12 grayscale hover:grayscale-0 transition-all duration-300">
                       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 35" width="100" height="30" className="opacity-70 hover:opacity-100">
                         <path d="M30 8.7c-4.8 0-8.7 3.9-8.7 8.7s3.9 8.7 8.7 8.7 8.7-3.9 8.7-8.7-3.9-8.7-8.7-8.7zm0 14.5c-3.2 0-5.8-2.6-5.8-5.8s2.6-5.8 5.8-5.8 5.8 2.6 5.8 5.8-2.6 5.8-5.8 5.8z" fill="#00539B" />
