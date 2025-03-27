@@ -141,7 +141,7 @@ const BrandLogoManagement: React.FC = () => {
   };
 
   return (
-    <AdminLayout>
+    <AdminLayout title="Brand Logo Management">
       <div className="container py-8">
         <div className="flex justify-between items-center mb-8">
           <div>
