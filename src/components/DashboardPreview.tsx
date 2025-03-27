@@ -87,12 +87,16 @@ const DashboardPreview: React.FC = () => {
                     </div>
                     <div className="flex items-center text-xs text-gray-500 space-x-4">
                       <div className="flex items-center">
+                        <Calendar size={12} className="mr-1" /> 
+                        <span>27 Januari 2025</span>
+                      </div>
+                      <div className="flex items-center">
                         <Clock size={12} className="mr-1" /> 
                         <span>14:00 - 15:00</span>
                       </div>
                       <div className="flex items-center">
                         <Users size={12} className="mr-1" /> 
-                        <span>12 Peserta</span>
+                        <span>100 Peserta</span>
                       </div>
                     </div>
                     <div className="flex mt-3 space-x-2">
@@ -107,9 +111,8 @@ const DashboardPreview: React.FC = () => {
                   
                   {/* Meeting Item */}
                   <div className="border border-gray-100 rounded-lg p-3 bg-white shadow-sm">
-                    <div className="flex justify-between mb-2">
+                    <div className="flex justify-start mb-2">
                       <span className="font-medium">Diskusi Proyek Baru</span>
-                      <span className="bg-gray-100 text-gray-700 text-xs px-2 py-0.5 rounded-full">Besok</span>
                     </div>
                     <div className="flex items-center text-xs text-gray-500 space-x-4">
                       <div className="flex items-center">
@@ -126,9 +129,8 @@ const DashboardPreview: React.FC = () => {
                 
                 {/* Recent Recordings */}
                 <div className="space-y-3">
-                  <div className="flex justify-between items-center">
+                  <div className="flex justify-start items-center">
                     <h4 className="font-medium text-sm">Rekaman Terakhir</h4>
-                    <button className="text-xs text-primary">Lihat Semua</button>
                   </div>
                   
                   <div className="border border-gray-100 rounded-lg p-3 bg-white shadow-sm">
