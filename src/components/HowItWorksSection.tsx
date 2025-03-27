@@ -30,7 +30,7 @@ const HowItWorksSection = () => {
       <div className="container mx-auto px-4 md:px-6">
         <div className="max-w-3xl mx-auto text-center mb-16 animate-fade-in">
           <div className="inline-flex items-center py-1 px-4 bg-accent rounded-full mb-4">
-            <span className="text-xs font-medium text-primary">Mudah Digunakan</span>
+            <span className="text-xs font-medium text-primary">Cara Kerja</span>
           </div>
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
             <span className="text-primary">Tiga langkah sederhana</span> menuju rapat online tanpa batas
