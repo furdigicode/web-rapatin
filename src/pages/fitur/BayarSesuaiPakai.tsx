@@ -27,7 +27,7 @@ const BayarSesuaiPakai = () => {
       description: 'Pantau pengeluaran Anda dengan riwayat transaksi yang lengkap dan transparan.'
     },
     {
-      icon: <BarChart />,
+      icon: <CalendarSync />,
       title: 'Bebas Ganti Jadwal',
       description: 'Atur ulang jadwal rapat tanpa biaya tambahan jika belum pernah digunakan.'
     },
