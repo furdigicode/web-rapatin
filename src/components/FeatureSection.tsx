@@ -130,6 +130,30 @@ const FeatureSection: React.FC = () => {
               </div>
               <p className="font-medium text-sm">Komunitas & Organisasi</p>
             </div>
+            <div className="flex flex-col items-center text-center p-4 rounded-lg hover:bg-accent/50 transition-colors">
+              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mb-3 text-primary">
+                <GraduationCap size={18} />
+              </div>
+              <p className="font-medium text-sm">Guru & Dosen</p>
+            </div>
+            <div className="flex flex-col items-center text-center p-4 rounded-lg hover:bg-accent/50 transition-colors">
+              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mb-3 text-primary">
+                <Briefcase size={18} />
+              </div>
+              <p className="font-medium text-sm">Bisnis & Startup</p>
+            </div>
+            <div className="flex flex-col items-center text-center p-4 rounded-lg hover:bg-accent/50 transition-colors">
+              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mb-3 text-primary">
+                <Mic size={18} />
+              </div>
+              <p className="font-medium text-sm">Coach & Trainer</p>
+            </div>
+            <div className="flex flex-col items-center text-center p-4 rounded-lg hover:bg-accent/50 transition-colors">
+              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mb-3 text-primary">
+                <Users size={18} />
+              </div>
+              <p className="font-medium text-sm">Komunitas & Organisasi</p>
+            </div>
           </div>
         </div>
       </div>
