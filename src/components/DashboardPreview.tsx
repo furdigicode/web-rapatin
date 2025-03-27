@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Calendar, CheckCircle, Clock, BarChart, FileText, Users, Video, Play, Download, List, Search, Share, Eye } from 'lucide-react';
+import { Calendar, CheckCircle, Clock, BarChart, FileText, Users, Video, Play, Download, List, Search } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
 
@@ -92,7 +92,7 @@ const DashboardPreview: React.FC = () => {
                       </div>
                       <div className="flex items-center">
                         <Clock size={12} className="mr-1" /> 
-                        <span>14:00 WIB</span>
+                        <span>14:00 - 15:00</span>
                       </div>
                       <div className="flex items-center">
                         <Users size={12} className="mr-1" /> 
@@ -100,12 +100,12 @@ const DashboardPreview: React.FC = () => {
                       </div>
                     </div>
                     <div className="flex mt-3 space-x-2">
-                      <div className="flex items-center justify-center bg-primary text-white text-xs px-3 py-1 rounded-lg">
+                      <button className="flex items-center justify-center bg-primary text-white text-xs px-3 py-1 rounded-lg">
                         <Play size={12} className="mr-1" /> Mulai
-                      </div>
-                      <div className="flex items-center justify-center bg-gray-100 text-gray-700 text-xs px-3 py-1 rounded-lg">
+                      </button>
+                      <button className="flex items-center justify-center bg-gray-100 text-gray-700 text-xs px-3 py-1 rounded-lg">
                         <List size={12} className="mr-1" /> Detail
-                      </div>
+                      </button>
                     </div>
                   </div>
                   
@@ -116,16 +116,12 @@ const DashboardPreview: React.FC = () => {
                     </div>
                     <div className="flex items-center text-xs text-gray-500 space-x-4">
                       <div className="flex items-center">
-                        <Calendar size={12} className="mr-1" /> 
-                        <span>31 Januari 2025</span>
-                      </div>
-                      <div className="flex items-center">
                         <Clock size={12} className="mr-1" /> 
-                        <span>10:00 WIB</span>
+                        <span>10:00 - 11:30</span>
                       </div>
                       <div className="flex items-center">
                         <Users size={12} className="mr-1" /> 
-                        <span>300 Peserta</span>
+                        <span>8 Peserta</span>
                       </div>
                     </div>
                   </div>
@@ -144,29 +140,28 @@ const DashboardPreview: React.FC = () => {
                     </div>
                     <div className="flex items-center text-xs text-gray-500 mb-3">
                       <Calendar size={12} className="mr-1" /> 
-                      <span>25 Maret 2023</span>
-                      <Clock size={12} className="mr-1" />
+                      <span>25 Mar 2023</span>
+                      <span className="mx-2">•</span>
                       <span>01:24:36</span>
                     </div>
                     <div className="flex space-x-2">
-                      <div className="flex items-center justify-center bg-gray-100 text-gray-700 text-xs px-3 py-1 rounded-lg">
-                        <Share size={12} className="mr-1" /> Bagikan
-                      </div>
-                      <div className="flex items-center justify-center bg-gray-100 text-gray-700 text-xs px-3 py-1 rounded-lg">
-                        <Eye size={12} className="mr-1" /> Lihat
-                      </div>
-                      <div className="flex items-center justify-center bg-gray-100 text-gray-700 text-xs px-3 py-1 rounded-lg">
+                      <button className="flex items-center justify-center bg-gray-100 text-gray-700 text-xs px-3 py-1 rounded-lg">
+                        <Play size={12} className="mr-1" /> Putar
+                      </button>
+                      <button className="flex items-center justify-center bg-gray-100 text-gray-700 text-xs px-3 py-1 rounded-lg">
+                        <Download size={12} className="mr-1" /> Unduh
+                      </button>
+                      <button className="flex items-center justify-center bg-gray-100 text-gray-700 text-xs px-3 py-1 rounded-lg">
                         <FileText size={12} className="mr-1" /> Ringkasan
-                      </div>
+                      </button>
                     </div>
                   </div>
                 </div>
                 
                 {/* Analytics Snapshot */}
                 <div className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <h4 className="font-medium text-sm">Analitik Singkat</h4>
-                    <button className="text-xs text-primary">Detail</button>
+                  <div className="flex justify-start items-center">
+                    <h4 className="font-medium text-sm">Analitik Peserta</h4>
                   </div>
                   
                   <div className="grid grid-cols-2 gap-2">
@@ -175,8 +170,8 @@ const DashboardPreview: React.FC = () => {
                       <div className="text-xs text-gray-500">Rapat Bulan Ini</div>
                     </div>
                     <div className="border border-gray-100 rounded-lg p-3 bg-white shadow-sm text-center">
-                      <div className="text-2xl font-bold text-primary">86%</div>
-                      <div className="text-xs text-gray-500">Rata-rata Kehadiran</div>
+                      <div className="text-2xl font-bold text-primary">239</div>
+                      <div className="text-xs text-gray-500">Jumlah Peserta</div>
                     </div>
                   </div>
                 </div>
