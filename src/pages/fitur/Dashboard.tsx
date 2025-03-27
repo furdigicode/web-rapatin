@@ -1,8 +1,9 @@
 
 import React from 'react';
 import FeatureLayout from '@/components/FeatureLayout';
+import FinalCTA from '@/components/FinalCTA';
 import { Card, CardContent } from '@/components/ui/card';
-import { LayoutDashboard, Calendar, Users, Clock, Settings, BarChart, FileText, Users2, ClipboardList, Video } from 'lucide-react';
+import { LayoutDashboard, Calendar, Users, Clock, Settings, BarChart } from 'lucide-react';
 
 const Dashboard = () => {
   const features = [
@@ -12,29 +13,24 @@ const Dashboard = () => {
       description: 'Buat dan kelola jadwal rapat dengan antarmuka yang intuitif dan mudah digunakan.'
     },
     {
+      icon: <Users />,
+      title: 'Manajemen Peserta',
+      description: 'Undang, tambah, atau hapus peserta rapat dengan beberapa klik saja.'
+    },
+    {
+      icon: <Clock />,
+      title: 'Pengingat Otomatis',
+      description: 'Kirim pengingat otomatis kepada peserta rapat untuk memastikan kehadiran.'
+    },
+    {
       icon: <Settings />,
       title: 'Kustomisasi Lengkap',
-      description: 'Sesuaikan pengaturan rapat seperti passcode, language interpretation, dan fitur lainnya.'
+      description: 'Sesuaikan pengaturan rapat seperti password, waiting room, dan fitur lainnya.'
     },
     {
-      icon: <Video />,
-      title: 'Akses File Rekaman',
-      description: 'Lihat dan bagikan akses file rekaman rapat dan dapat langsung diunduh.'
-    },
-    {
-      icon: <FileText />,
-      title: 'Laporan Rapat',
-      description: 'Dapatkan ringkasan lengkap setiap rapat yang dijalankan, termasuk topik, waktu, dan durasi.'
-    },
-    {
-      icon: <Users2 />,
-      title: 'Laporan Peserta',
-      description: 'Pantau siapa saja yang hadir dalam rapat Anda lengkap dengan waktu masuk dan durasinya.'
-    },
-    {
-      icon: <ClipboardList />,
-      title: 'Ringkasan Rapat',
-      description: 'Lihat poin-poin penting dan kesimpulan rapat secara ringkas untuk referensi dan tindak lanjut.'
+      icon: <BarChart />,
+      title: 'Analisis Penggunaan',
+      description: 'Lihat statistik penggunaan rapat Anda dengan visualisasi yang jelas.'
     }
   ];
 
@@ -65,6 +61,7 @@ const Dashboard = () => {
           className="w-full rounded-xl shadow-elevation border border-white/40" 
         />
       </div>
+      <FinalCTA />
     </FeatureLayout>
   );
 };
