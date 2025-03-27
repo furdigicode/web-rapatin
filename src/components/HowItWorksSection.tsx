@@ -38,7 +38,7 @@ const HowItWorksSection = () => {
           {steps.map((step, index) => (
             <div key={index} className="flex mb-10 last:mb-0">
               <div className="mr-6 flex flex-col items-center">
-                <div className="flex items-center justify-center w-14 h-14 rounded-full bg-primary text-white font-bold text-xl">
+                <div className="flex items-center justify-center w-10 md:w-14 aspect-square rounded-full bg-primary text-white font-bold text-lg md:text-xl">
                   {step.number}
                 </div>
                 {index < steps.length - 1 && (
