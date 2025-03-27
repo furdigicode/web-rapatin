@@ -17,13 +17,13 @@ const HeroSection: React.FC = () => {
               Jadwalkan <span className="text-primary">rapat online</span> tanpa akun Zoom berbayar
             </h1>
             
-            <p className="text-md md:text-xl text-muted-foreground max-w-xl text-balance">
+            <p className="text-lg md:text-xl text-muted-foreground max-w-xl text-balance">
               Bayar hanya untuk yang kamu gunakan, dengan harga fleksibel berdasarkan jumlah peserta. Tanpa langganan bulanan, cukup isi saldo dan jadwalkan.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 pt-4">
               <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-white rounded-full h-12 px-8">
-                <a href="https://rapatin.id/register">Daftar & Mulai Menjadwalkan</a>
+                <a href="https://rapatin.id/register">Mulai Menjadwalkan</a>
               </Button>
               <Button asChild variant="outline" size="lg" className="rounded-full h-12 px-8">
                 <a href="#pricing">Lihat Harga</a>
@@ -32,7 +32,7 @@ const HeroSection: React.FC = () => {
 
             <div className="grid grid-cols-2 gap-4 mt-8 max-w-md pt-2">
               <div className="flex items-center gap-2 text-sm">
-                <DollarSign size={18} className="text-primary" />
+                <Coins size={18} className="text-primary" />
                 <span>Bayar Sesuai Pemakaian</span>
               </div>
               <div className="flex items-center gap-2 text-sm">
@@ -59,7 +59,7 @@ const HeroSection: React.FC = () => {
                   <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
                   <div className="w-3 h-3 rounded-full bg-green-400"></div>
                 </div>
-                <div className="mx-auto text-sm font-medium">Rapatin Dashboard</div>
+                <div className="mx-auto text-sm font-medium">Rapatin</div>
               </div>
               
               {/* Main content */}
@@ -83,9 +83,9 @@ const HeroSection: React.FC = () => {
                       <span>100 Peserta - Rp 20.000</span>
                     </div>
                     
-                    <Button className="w-full bg-primary hover:bg-primary/90 text-white cursor-not-allowed opacity-90">
+                    <div className="w-full bg-primary hover:bg-primary/90 text-white opacity-90">
                       Buat Jadwal Rapat
-                    </Button>
+                    </div>
                   </div>
                 </div>
                 
