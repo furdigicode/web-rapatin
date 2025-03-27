@@ -14,7 +14,7 @@ const FinalCTA: React.FC = () => {
               <p className="text-muted-foreground mb-6">
                 Bergabunglah dengan ribuan pengguna yang sudah menikmati fleksibilitas platform rapat bayar-sesuai-penggunaan kami.
               </p>
-              <Button asChild size="lg" className="rounded-full bg-primary hover:bg-primary/90 text-white">
+              <Button asChild size="lg" className="rounded-lg bg-primary hover:bg-primary/90 text-white">
                 <a href="https://rapatin.id/register">
                   Daftar & Mulai Menjadwalkan
                   <ArrowRight size={16} className="ml-2" />
