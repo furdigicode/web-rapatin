@@ -9,7 +9,7 @@ const DashboardPreview: React.FC = () => {
   
   return (
     <section id="dashboard" className="py-20 bg-accent/20 w-full">
-      <div className="container mx-auto px-4 md:px-6 max-w-full">
+      <div className="container mx-auto px-4 md:px-6">
         <div className="grid md:grid-cols-2 gap-12 items-center">
           {/* Left column - text content */}
           <div className="space-y-6 animate-fade-in">
@@ -26,7 +26,7 @@ const DashboardPreview: React.FC = () => {
             
             <div className="space-y-4">
               <div className="flex items-start">
-                <div className="w-8 h-8 flex-none shrink-0 rounded-full bg-primary/10 flex items-center justify-center mr-4 mt-1 text-primary">
+                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center mr-4 mt-1 text-primary">
                   <CheckCircle size={16} />
                 </div>
                 <div>
@@ -36,7 +36,7 @@ const DashboardPreview: React.FC = () => {
               </div>
               
               <div className="flex items-start">
-                <div className="w-8 h-8 flex-none shrink-0 rounded-full bg-primary/10 flex items-center justify-center mr-4 mt-1 text-primary">
+                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center mr-4 mt-1 text-primary">
                   <CheckCircle size={16} />
                 </div>
                 <div>
@@ -46,7 +46,7 @@ const DashboardPreview: React.FC = () => {
               </div>
               
               <div className="flex items-start">
-                <div className="w-8 h-8 flex-none shrink-0 rounded-full bg-primary/10 flex items-center justify-center mr-4 mt-1 text-primary">
+                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center mr-4 mt-1 text-primary">
                   <CheckCircle size={16} />
                 </div>
                 <div>
