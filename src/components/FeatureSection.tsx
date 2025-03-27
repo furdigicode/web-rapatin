@@ -103,7 +103,7 @@ const FeatureSection: React.FC = () => {
 
         <div className="mt-20 max-w-3xl mx-auto glass p-8 rounded-xl animate-fade-in shadow-soft">
           <h3 className="text-2xl font-bold mb-6 text-center">
-            Cocok Untuk
+            <span className="text-primary">Rapatin</span>Cocok Untuk
           </h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="flex flex-col items-center text-center p-4 rounded-lg hover:bg-accent/50 transition-colors">
