@@ -25,31 +25,31 @@ const FinalCTA: React.FC = () => {
               <h3 className="font-medium text-lg">Yang akan Anda dapatkan:</h3>
               <ul className="space-y-3">
                 <li className="flex items-start">
-                  <div className="w-5 h-5 rounded-full bg-primary/20 flex items-center justify-center mr-3 mt-0.5">
+                  <div className="w-5 h-5 flex-none shrink-0 rounded-full bg-primary/20 flex items-center justify-center mr-3 mt-0.5">
                     <span className="text-xs font-bold text-primary">✓</span>
                   </div>
                   <span className="text-sm">Pengaturan rapat instan tanpa akun Zoom berbayar</span>
                 </li>
                 <li className="flex items-start">
-                  <div className="w-5 h-5 rounded-full bg-primary/20 flex items-center justify-center mr-3 mt-0.5">
+                  <div className="w-5 h-5 flex-none shrink-0 rounded-full bg-primary/20 flex items-center justify-center mr-3 mt-0.5">
                     <span className="text-xs font-bold text-primary">✓</span>
                   </div>
                   <span className="text-sm">Bayar hanya untuk rapat yang benar-benar Anda jadwalkan</span>
                 </li>
                 <li className="flex items-start">
-                  <div className="w-5 h-5 rounded-full bg-primary/20 flex items-center justify-center mr-3 mt-0.5">
+                  <div className="w-5 h-5 flex-none shrink-0 rounded-full bg-primary/20 flex items-center justify-center mr-3 mt-0.5">
                     <span className="text-xs font-bold text-primary">✓</span>
                   </div>
                   <span className="text-sm">Rekaman cloud dan laporan peserta</span>
                 </li>
                 <li className="flex items-start">
-                  <div className="w-5 h-5 rounded-full bg-primary/20 flex items-center justify-center mr-3 mt-0.5">
+                  <div className="w-5 h-5 flex-none shrink-0 rounded-full bg-primary/20 flex items-center justify-center mr-3 mt-0.5">
                     <span className="text-xs font-bold text-primary">✓</span>
                   </div>
                   <span className="text-sm">Akses penuh ke fitur rapat premium</span>
                 </li>
                 <li className="flex items-start">
-                  <div className="w-5 h-5 rounded-full bg-primary/20 flex items-center justify-center mr-3 mt-0.5">
+                  <div className="w-5 h-5 flex-none shrink-0 rounded-full bg-primary/20 flex items-center justify-center mr-3 mt-0.5">
                     <span className="text-xs font-bold text-primary">✓</span>
                   </div>
                   <span className="text-sm">Dukungan khusus untuk semua pertanyaan Anda</span>
