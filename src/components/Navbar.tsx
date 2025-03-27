@@ -52,6 +52,7 @@ const Navbar: React.FC = () => {
             <Home size={16} className="mr-1" />
             Home
           </Link>
+          <a href="#features" className="text-sm font-medium hover:text-primary transition-colors">Fitur</a>
           <button 
             onClick={() => scrollToSection('cara-kerja')} 
             className="text-sm font-medium hover:text-primary transition-colors"
@@ -64,7 +65,6 @@ const Navbar: React.FC = () => {
           >
             Testimoni
           </button>
-          <a href="#features" className="text-sm font-medium hover:text-primary transition-colors">Fitur</a>
           <a href="#pricing" className="text-sm font-medium hover:text-primary transition-colors">Harga</a>
           <a href="#dashboard" className="text-sm font-medium hover:text-primary transition-colors">Dashboard</a>
           <Button asChild size="sm" variant="outline" className="ml-2">
