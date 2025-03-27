@@ -12,24 +12,29 @@ const Dashboard = () => {
       description: 'Buat dan kelola jadwal rapat dengan antarmuka yang intuitif dan mudah digunakan.'
     },
     {
-      icon: <Users />,
-      title: 'Manajemen Peserta',
-      description: 'Undang, tambah, atau hapus peserta rapat dengan beberapa klik saja.'
-    },
-    {
-      icon: <Clock />,
-      title: 'Pengingat Otomatis',
-      description: 'Kirim pengingat otomatis kepada peserta rapat untuk memastikan kehadiran.'
-    },
-    {
       icon: <Settings />,
       title: 'Kustomisasi Lengkap',
-      description: 'Sesuaikan pengaturan rapat seperti password, waiting room, dan fitur lainnya.'
+      description: 'Sesuaikan pengaturan rapat seperti passcode, language interpretation, dan fitur lainnya.'
     },
     {
-      icon: <BarChart />,
-      title: 'Analisis Penggunaan',
-      description: 'Lihat statistik penggunaan rapat Anda dengan visualisasi yang jelas.'
+      icon: <Videotape />,
+      title: 'Akses File Rekaman',
+      description: 'Lihat dan bagikan akses file rekaman rapat dan dapat langsung diunduh.'
+    },
+    {
+      icon: <FileText />,
+      title: 'Laporan Rapat',
+      description: 'Dapatkan ringkasan lengkap setiap rapat yang dijalankan, termasuk topik, waktu, dan durasi.'
+    },
+    {
+      icon: <Users2 />,
+      title: 'Laporan Peserta',
+      description: 'Pantau siapa saja yang hadir dalam rapat Anda lengkap dengan waktu masuk dan durasinya.'
+    },
+    {
+      icon: <ClipboardList />,
+      title: 'Ringkasan Rapat',
+      description: 'Lihat poin-poin penting dan kesimpulan rapat secara ringkas untuk referensi dan tindak lanjut.'
     }
   ];
 
