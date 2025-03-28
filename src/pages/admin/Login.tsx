@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,7 +7,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Lock, User } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -16,59 +15,31 @@ const Login = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Check if already authenticated
-  useEffect(() => {
-    const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        navigate('/admin/dashboard');
-      }
-    };
-    
-    checkSession();
-  }, [navigate]);
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     
-    try {
-      // First, query the admin_users table to verify this is an admin account
-      const { data: adminUser, error: adminCheckError } = await supabase
-        .from('admin_users')
-        .select('email')
-        .eq('email', email)
-        .single();
-      
-      if (adminCheckError || !adminUser) {
-        throw new Error('Email tidak terdaftar sebagai admin');
+    // Simple mock login - in real app, this would validate against a backend
+    setTimeout(() => {
+      if (email === 'admin@rapatin.id' && password === 'admin123') {
+        // Store auth token in localStorage
+        localStorage.setItem('adminAuth', 'true');
+        
+        toast({
+          title: "Login berhasil",
+          description: "Selamat datang di Admin Dashboard",
+        });
+        
+        navigate('/admin/dashboard');
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Login gagal",
+          description: "Email atau password salah",
+        });
       }
-      
-      // If it's an admin account, try to sign in
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-      
-      if (signInError) {
-        throw new Error(signInError.message);
-      }
-      
-      toast({
-        title: "Login berhasil",
-        description: "Selamat datang di Admin Dashboard",
-      });
-      
-      navigate('/admin/dashboard');
-    } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: "Login gagal",
-        description: error.message || "Email atau password salah",
-      });
-    } finally {
       setIsLoading(false);
-    }
+    }, 1000);
   };
 
   return (
