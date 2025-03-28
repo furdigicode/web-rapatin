@@ -34,9 +34,29 @@ import ContactManagement from "./pages/admin/ContactManagement";
 import TermsManagement from "./pages/admin/TermsManagement";
 import PrivacyManagement from "./pages/admin/PrivacyManagement";
 
+// Crisp
+import { useEffect } from "react";
+import { useLocation, BrowserRouter, Routes, Route } from "react-router-dom";
+
 const queryClient = new QueryClient();
 
 const App = () => (
+  const location = useLocation();
+
+  useEffect(() => {
+    const isAdminPage = location.pathname.startsWith("/admin");
+    if (!isAdminPage) {
+      window.$crisp = [];
+      window.CRISP_WEBSITE_ID = "c876efde-7b19-4dc0-affd-2efcdc34ba2c";
+
+      const d = document;
+      const s = d.createElement("script");
+      s.src = "https://client.crisp.chat/l.js";
+      s.async = true;
+      d.getElementsByTagName("head")[0].appendChild(s);
+    }
+  }, [location.pathname]);
+
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
