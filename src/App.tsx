@@ -30,6 +30,9 @@ import BlogManagement from "./pages/admin/BlogManagement";
 import TestimonialManagement from "./pages/admin/TestimonialManagement";
 import BrandLogoManagement from "./pages/admin/BrandLogoManagement";
 import AboutManagement from "./pages/admin/AboutManagement";
+import ContactManagement from "./pages/admin/ContactManagement";
+import TermsManagement from "./pages/admin/TermsManagement";
+import PrivacyManagement from "./pages/admin/PrivacyManagement";
 
 const queryClient = new QueryClient();
 
@@ -66,6 +69,9 @@ const App = () => (
           <Route path="/admin/testimonials" element={<TestimonialManagement />} />
           <Route path="/admin/brand-logos" element={<BrandLogoManagement />} />
           <Route path="/admin/about" element={<AboutManagement />} />
+          <Route path="/admin/contact" element={<ContactManagement />} />
+          <Route path="/admin/terms" element={<TermsManagement />} />
+          <Route path="/admin/privacy" element={<PrivacyManagement />} />
           
           {/* 404 Catch-all Route */}
           <Route path="*" element={<NotFound />} />

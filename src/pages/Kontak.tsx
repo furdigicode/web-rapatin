@@ -1,12 +1,77 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Mail, Phone, MapPin, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { useToast } from '@/hooks/use-toast';
+
+// Default contact information
+const defaultContactData = {
+  email: "hello@rapatin.id",
+  phone: "+62 812 3456 7890",
+  address: "Jl. Sudirman No. 123, Jakarta Selatan, 12190, Indonesia",
+  officeHours: "Senin - Jumat, 9:00 - 17:00 WIB",
+  formTitle: "Kirim Pesan",
+  formSubtitle: "Isi formulir di bawah ini dan kami akan segera menghubungi Anda"
+};
 
 const Kontak = () => {
+  const { toast } = useToast();
+  const [contactData, setContactData] = useState(defaultContactData);
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    subject: '',
+    message: ''
+  });
+
+  // Load contact data from localStorage
+  useEffect(() => {
+    const savedData = localStorage.getItem("contactData");
+    if (savedData) {
+      setContactData(JSON.parse(savedData));
+    }
+  }, []);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { id, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [id]: value
+    }));
+  };
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    
+    // Basic validation
+    if (!formData.name || !formData.email || !formData.message) {
+      toast({
+        title: "Error",
+        description: "Mohon isi semua field yang wajib diisi",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    // Here you would typically send the data to a backend API
+    // For demo purposes, just show a success message
+    toast({
+      title: "Pesan Terkirim",
+      description: "Terima kasih atas pesan Anda. Kami akan segera menghubungi Anda.",
+    });
+    
+    // Reset form
+    setFormData({
+      name: '',
+      email: '',
+      subject: '',
+      message: ''
+    });
+  };
+
   return (
     <div className="min-h-screen">
       <Navbar />
@@ -33,7 +98,9 @@ const Kontak = () => {
                     </div>
                     <h3 className="text-lg font-semibold mb-2">Email</h3>
                     <p className="text-muted-foreground mb-3">Kami akan merespons dalam 24 jam</p>
-                    <a href="mailto:hello@rapatin.id" className="text-primary font-medium">hello@rapatin.id</a>
+                    <a href={`mailto:${contactData.email}`} className="text-primary font-medium">
+                      {contactData.email}
+                    </a>
                   </CardContent>
                 </Card>
                 
@@ -43,8 +110,10 @@ const Kontak = () => {
                       <Phone size={22} />
                     </div>
                     <h3 className="text-lg font-semibold mb-2">Telepon</h3>
-                    <p className="text-muted-foreground mb-3">Senin - Jumat, 9:00 - 17:00 WIB</p>
-                    <a href="tel:+6281234567890" className="text-primary font-medium">+62 812 3456 7890</a>
+                    <p className="text-muted-foreground mb-3">{contactData.officeHours}</p>
+                    <a href={`tel:${contactData.phone}`} className="text-primary font-medium">
+                      {contactData.phone}
+                    </a>
                   </CardContent>
                 </Card>
                 
@@ -55,10 +124,8 @@ const Kontak = () => {
                     </div>
                     <h3 className="text-lg font-semibold mb-2">Kantor</h3>
                     <p className="text-muted-foreground mb-3">Kunjungi kami di:</p>
-                    <address className="not-italic text-primary font-medium">
-                      Jl. Sudirman No. 123<br />
-                      Jakarta Selatan, 12190<br />
-                      Indonesia
+                    <address className="not-italic text-primary font-medium whitespace-pre-line">
+                      {contactData.address}
                     </address>
                   </CardContent>
                 </Card>
@@ -73,12 +140,12 @@ const Kontak = () => {
                         <MessageSquare size={22} />
                       </div>
                       <div>
-                        <h3 className="text-xl font-semibold">Kirim Pesan</h3>
-                        <p className="text-muted-foreground">Isi formulir di bawah ini dan kami akan segera menghubungi Anda</p>
+                        <h3 className="text-xl font-semibold">{contactData.formTitle}</h3>
+                        <p className="text-muted-foreground">{contactData.formSubtitle}</p>
                       </div>
                     </div>
                     
-                    <form className="space-y-4">
+                    <form className="space-y-4" onSubmit={handleSubmit}>
                       <div className="grid md:grid-cols-2 gap-4">
                         <div>
                           <label htmlFor="name" className="block text-sm font-medium mb-1">Nama</label>
@@ -87,6 +154,8 @@ const Kontak = () => {
                             id="name" 
                             className="w-full px-4 py-2 rounded-md border focus:outline-none focus:ring-2 focus:ring-primary/50" 
                             placeholder="Nama Anda"
+                            value={formData.name}
+                            onChange={handleInputChange}
                           />
                         </div>
                         <div>
@@ -96,6 +165,8 @@ const Kontak = () => {
                             id="email" 
                             className="w-full px-4 py-2 rounded-md border focus:outline-none focus:ring-2 focus:ring-primary/50" 
                             placeholder="email@anda.com"
+                            value={formData.email}
+                            onChange={handleInputChange}
                           />
                         </div>
                       </div>
@@ -107,6 +178,8 @@ const Kontak = () => {
                           id="subject" 
                           className="w-full px-4 py-2 rounded-md border focus:outline-none focus:ring-2 focus:ring-primary/50" 
                           placeholder="Subjek pesan"
+                          value={formData.subject}
+                          onChange={handleInputChange}
                         />
                       </div>
                       
@@ -117,6 +190,8 @@ const Kontak = () => {
                           rows={5}
                           className="w-full px-4 py-2 rounded-md border focus:outline-none focus:ring-2 focus:ring-primary/50" 
                           placeholder="Tulis pesan Anda di sini..."
+                          value={formData.message}
+                          onChange={handleInputChange}
                         ></textarea>
                       </div>
                       
