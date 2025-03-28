@@ -1,6 +1,7 @@
 
 import React from 'react';
 import FeatureLayout from '@/components/FeatureLayout';
+import FinalCTA from '@/components/FinalCTA';
 import { Card, CardContent } from '@/components/ui/card';
 import { BadgeDollarSign, DollarSign, CreditCard, Wallet, Receipt, BarChart, RotateCcw, CalendarClock } from 'lucide-react';
 
@@ -57,33 +58,7 @@ const BayarSesuaiPakai = () => {
           </Card>
         ))}
       </div>
-      
-      <div className="mt-16 glass p-8 rounded-xl max-w-4xl mx-auto">
-        <h2 className="text-2xl font-bold mb-6">Cara Kerja</h2>
-        <ol className="space-y-6">
-          <li className="flex gap-4">
-            <span className="flex-none w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center font-bold">1</span>
-            <div>
-              <h3 className="font-semibold text-lg">Daftar dan Isi Saldo</h3>
-              <p className="text-muted-foreground">Buat akun dan isi saldo Anda dengan metode pembayaran yang tersedia.</p>
-            </div>
-          </li>
-          <li className="flex gap-4">
-            <span className="flex-none w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center font-bold">2</span>
-            <div>
-              <h3 className="font-semibold text-lg">Jadwalkan Rapat</h3>
-              <p className="text-muted-foreground">Buat jadwal rapat Anda dengan detail seperti jumlah peserta dan durasi.</p>
-            </div>
-          </li>
-          <li className="flex gap-4">
-            <span className="flex-none w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center font-bold">3</span>
-            <div>
-              <h3 className="font-semibold text-lg">Biaya Sesuai Penggunaan</h3>
-              <p className="text-muted-foreground">Biaya akan dipotong dari saldo Anda sesuai dengan penggunaan aktual Anda.</p>
-            </div>
-          </li>
-        </ol>
-      </div>
+      <FinalCTA />
     </FeatureLayout>
   );
 };
