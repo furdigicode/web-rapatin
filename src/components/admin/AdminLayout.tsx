@@ -1,5 +1,4 @@
-
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { 
   LayoutDashboard, 
@@ -17,6 +16,7 @@ import {
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -24,21 +24,44 @@ interface AdminLayoutProps {
 }
 
 const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title }) => {
-  const [isSidebarOpen, setIsSidebarOpen] = React.useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
 
   // Check auth on mount
   useEffect(() => {
-    const isAuthenticated = localStorage.getItem('adminAuth') === 'true';
-    if (!isAuthenticated && location.pathname !== '/admin/login') {
-      navigate('/admin/login');
-    }
+    const checkAuth = async () => {
+      setIsLoading(true);
+      
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session && location.pathname !== '/admin/login') {
+        navigate('/admin/login');
+      }
+      
+      setIsLoading(false);
+    };
+    
+    checkAuth();
+    
+    // Set up auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        if (event === 'SIGNED_OUT' && location.pathname !== '/admin/login') {
+          navigate('/admin/login');
+        }
+      }
+    );
+    
+    return () => {
+      subscription.unsubscribe();
+    };
   }, [navigate, location.pathname]);
 
-  const handleLogout = () => {
-    localStorage.removeItem('adminAuth');
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
     toast({
       title: "Logout berhasil",
       description: "Anda telah keluar dari sistem",
@@ -108,6 +131,12 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title }) => {
       active: location.pathname === '/admin/privacy'
     }
   ];
+
+  if (isLoading) {
+    return <div className="min-h-screen flex items-center justify-center">
+      <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></div>
+    </div>;
+  }
 
   return (
     <div className="min-h-screen flex">
