@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import AdminLayout from '@/components/admin/AdminLayout';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,7 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { Book, Users, Award, Heart, Plus, Trash, Save, Upload } from 'lucide-react';
+import { Book, Users, Award, Heart, Plus, Trash, Save, Upload, Edit, TrendingUp } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
@@ -124,8 +123,10 @@ const AboutManagement = () => {
   const [aboutData, setAboutData] = useState(initialAboutData);
   const [isAddValueDialogOpen, setIsAddValueDialogOpen] = useState(false);
   const [isAddTeamMemberDialogOpen, setIsAddTeamMemberDialogOpen] = useState(false);
+  const [isEditTeamMemberDialogOpen, setIsEditTeamMemberDialogOpen] = useState(false);
   const [newValue, setNewValue] = useState({ icon: "trending-up", title: "", description: "" });
   const [newTeamMember, setNewTeamMember] = useState({ name: "", position: "", bio: "", avatarUrl: "" });
+  const [editingTeamMember, setEditingTeamMember] = useState({ id: 0, name: "", position: "", bio: "", avatarUrl: "" });
   const [selectedIconIndex, setSelectedIconIndex] = useState(0);
 
   const iconOptions = [
@@ -303,6 +304,41 @@ const AboutManagement = () => {
     toast({
       title: "Nilai dihapus",
       description: "Nilai telah dihapus dari daftar"
+    });
+  };
+
+  // Handle editing a team member
+  const handleEditTeamMember = (member) => {
+    setEditingTeamMember({
+      id: member.id,
+      name: member.name,
+      position: member.position,
+      bio: member.bio,
+      avatarUrl: member.avatarUrl || ""
+    });
+    setIsEditTeamMemberDialogOpen(true);
+  };
+
+  // Handle saving edited team member
+  const handleSaveEditedTeamMember = () => {
+    const updatedMembers = aboutData.team.members.map(member => 
+      member.id === editingTeamMember.id ? editingTeamMember : member
+    );
+    
+    setAboutData(prev => ({
+      ...prev,
+      team: {
+        ...prev.team,
+        members: updatedMembers
+      }
+    }));
+    
+    teamForm.setValue('members', updatedMembers);
+    setIsEditTeamMemberDialogOpen(false);
+    
+    toast({
+      title: "Anggota tim diperbarui",
+      description: `Data ${editingTeamMember.name} telah diperbarui`
     });
   };
 
@@ -725,7 +761,25 @@ const AboutManagement = () => {
                     ) : (
                       <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
                         {aboutData.team.members.map((member) => (
-                          <Card key={member.id} className="overflow-hidden">
+                          <Card key={member.id} className="overflow-hidden relative">
+                            <div className="absolute top-2 right-2 flex gap-1 z-10">
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => handleEditTeamMember(member)}
+                                className="h-8 w-8 text-primary hover:text-primary-dark"
+                              >
+                                <Edit size={16} />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => handleRemoveTeamMember(member.id)}
+                                className="h-8 w-8 text-destructive hover:text-destructive/90"
+                              >
+                                <Trash size={16} />
+                              </Button>
+                            </div>
                             <CardHeader className="p-4 flex flex-col items-center text-center space-y-2">
                               <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center">
                                 {member.avatarUrl ? (
@@ -740,14 +794,6 @@ const AboutManagement = () => {
                                 <h4 className="font-semibold text-lg">{member.name}</h4>
                                 <p className="text-sm text-primary">{member.position}</p>
                               </div>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => handleRemoveTeamMember(member.id)}
-                                className="absolute top-2 right-2 h-8 w-8 text-destructive"
-                              >
-                                <Trash size={16} />
-                              </Button>
                             </CardHeader>
                             <CardContent className="p-4 pt-0 text-center">
                               <p className="text-sm text-muted-foreground">{member.bio}</p>
@@ -767,6 +813,80 @@ const AboutManagement = () => {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Edit Team Member Dialog */}
+      <Dialog open={isEditTeamMemberDialogOpen} onOpenChange={setIsEditTeamMemberDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Anggota Tim</DialogTitle>
+            <DialogDescription>
+              Perbarui informasi anggota tim.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="edit-member-name">Nama</Label>
+              <Input
+                id="edit-member-name"
+                placeholder="Masukkan nama anggota tim"
+                value={editingTeamMember.name}
+                onChange={(e) => setEditingTeamMember(prev => ({ ...prev, name: e.target.value }))}
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="edit-member-position">Jabatan</Label>
+              <Input
+                id="edit-member-position"
+                placeholder="Masukkan jabatan anggota tim"
+                value={editingTeamMember.position}
+                onChange={(e) => setEditingTeamMember(prev => ({ ...prev, position: e.target.value }))}
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="edit-member-bio">Bio</Label>
+              <Textarea
+                id="edit-member-bio"
+                placeholder="Masukkan bio anggota tim"
+                value={editingTeamMember.bio}
+                onChange={(e) => setEditingTeamMember(prev => ({ ...prev, bio: e.target.value }))}
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="edit-member-avatar">Avatar URL (Opsional)</Label>
+              <div className="flex gap-2">
+                <Input
+                  id="edit-member-avatar"
+                  placeholder="Masukkan URL avatar (opsional)"
+                  value={editingTeamMember.avatarUrl}
+                  onChange={(e) => setEditingTeamMember(prev => ({ ...prev, avatarUrl: e.target.value }))}
+                />
+                <Button type="button" variant="outline" size="icon" className="flex-shrink-0">
+                  <Upload size={16} />
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Gunakan URL gambar atau kosongkan untuk avatar default.
+              </p>
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsEditTeamMemberDialogOpen(false)}>
+              Batal
+            </Button>
+            <Button 
+              onClick={handleSaveEditedTeamMember} 
+              disabled={!editingTeamMember.name || !editingTeamMember.position || !editingTeamMember.bio}
+            >
+              Simpan Perubahan
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </AdminLayout>
   );
 };
