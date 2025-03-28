@@ -165,7 +165,7 @@ const TestimonialManagement = () => {
               </div>
             </CardHeader>
             <CardContent>
-              <p className="italic mb-4">"{testimonial.content}"</p>
+              <p className="mb-4">"{testimonial.content}"</p>
               <div className="flex items-center mt-4">
                 {testimonial.imageUrl && (
                   <div className="w-10 h-10 rounded-full overflow-hidden mr-3">
