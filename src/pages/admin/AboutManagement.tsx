@@ -10,7 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { Book, Users, Award, Heart, Plus, Trash, Save, Upload, Edit, TrendingUp } from 'lucide-react';
+import { Book, Users, Award, Heart, Plus, Trash, Save, Upload, Edit, TrendingUp as TrendingUpIcon } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
@@ -130,7 +130,7 @@ const AboutManagement = () => {
   const [selectedIconIndex, setSelectedIconIndex] = useState(0);
 
   const iconOptions = [
-    { value: "trending-up", label: "Trending Up", component: <TrendingUp size={20} /> },
+    { value: "trending-up", label: "Trending Up", component: <TrendingUpIcon size={20} /> },
     { value: "award", label: "Award", component: <Award size={20} /> },
     { value: "users", label: "Users", component: <Users size={20} /> },
     { value: "heart", label: "Heart", component: <Heart size={20} /> },
@@ -401,7 +401,7 @@ const AboutManagement = () => {
   // Get icon component by name
   const getIconComponent = (iconName) => {
     const icon = iconOptions.find(i => i.value === iconName);
-    return icon ? icon.component : <TrendingUp size={20} />;
+    return icon ? icon.component : <TrendingUpIcon size={20} />;
   };
 
   return (
@@ -891,8 +891,8 @@ const AboutManagement = () => {
   );
 };
 
-// Helper components for the icons
-const TrendingUp = ({ size = 24, ...props }) => (
+// Helper component for custom SVG icons - renamed to avoid conflict
+const CustomTrendingUpIcon = ({ size = 24, ...props }) => (
   <svg 
     xmlns="http://www.w3.org/2000/svg" 
     width={size} 
