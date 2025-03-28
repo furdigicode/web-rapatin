@@ -266,7 +266,7 @@ const TermsManagement = () => {
                   <TableRow key={section.id}>
                     <TableCell className="font-medium">{section.title}</TableCell>
                     <TableCell className="max-w-md">
-                      <div className="line-clamp-2">{section.content}</div>
+                      <div className="line-clamp-2">{section.content.split("\n\n")[0]}</div>
                     </TableCell>
                     <TableCell className="text-right space-x-2">
                       <Button 
