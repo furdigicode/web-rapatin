@@ -8,6 +8,11 @@ import { CloudLightning, Download, Video, Clock, Lock, Share } from 'lucide-reac
 const RekamanCloud = () => {
   const features = [
     {
+      icon: <LayoutDashboard />,
+      title: 'Integrasi Dashboard',
+      description: 'Lihat semua rekaman langsung di dashboard.'
+    },
+    {
       icon: <Video />,
       title: 'Rekaman Otomatis',
       description: 'Rekam rapat Anda secara otomatis tanpa perlu mengklik tombol rekam.'
