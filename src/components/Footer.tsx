@@ -65,16 +65,10 @@ const Footer: React.FC = () => {
           </div>
         </div>
         
-        <div className="border-t border-border mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">
+        <div className="border-t border-border mt-12 pt-8 flex flex-col md:flex-row justify-first items-center">
           <p className="text-sm text-muted-foreground">
             &copy; {new Date().getFullYear()} Rapatin. Seluruh hak dilindungi.
           </p>
-          <div className="mt-4 md:mt-0">
-            <select className="text-sm bg-transparent border rounded py-1 px-2">
-              <option value="id">Bahasa Indonesia</option>
-              <option value="en">English</option>
-            </select>
-          </div>
         </div>
       </div>
     </footer>
