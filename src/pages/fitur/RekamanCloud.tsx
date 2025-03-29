@@ -3,7 +3,7 @@ import React from 'react';
 import FeatureLayout from '@/components/FeatureLayout';
 import FinalCTA from '@/components/FinalCTA';
 import { Card, CardContent } from '@/components/ui/card';
-import { CloudLightning, Download, Video, Clock, Lock, Share } from 'lucide-react';
+import { CloudLightning, Download, Video, Clock, Lock, Share, LayoutDashboard, Mail } from 'lucide-react';
 
 const RekamanCloud = () => {
   const features = [
