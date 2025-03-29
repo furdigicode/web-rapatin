@@ -3,7 +3,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { useEffect } from "react";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import FAQ from "./pages/FAQ";
@@ -36,49 +37,75 @@ import PrivacyManagement from "./pages/admin/PrivacyManagement";
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          {/* Public Routes */}
-          <Route path="/" element={<Index />} />
-          <Route path="/faq" element={<FAQ />} />
-          
-          {/* Feature Pages */}
-          <Route path="/fitur/bayar-sesuai-pakai" element={<BayarSesuaiPakai />} />
-          <Route path="/fitur/dashboard" element={<Dashboard />} />
-          <Route path="/fitur/rekaman-cloud" element={<RekamanCloud />} />
-          <Route path="/fitur/laporan-peserta" element={<LaporanPeserta />} />
-          
-          {/* Company Pages */}
-          <Route path="/tentang-kami" element={<TentangKami />} />
-          <Route path="/kontak" element={<Kontak />} />
-          <Route path="/syarat-ketentuan" element={<SyaratKetentuan />} />
-          <Route path="/kebijakan-privasi" element={<KebijakanPrivasi />} />
-          <Route path="/blog" element={<Blog />} />
-          
-          {/* Admin Routes */}
-          <Route path="/admin/login" element={<AdminLogin />} />
-          <Route path="/admin/dashboard" element={<AdminDashboard />} />
-          <Route path="/admin/urls" element={<URLManagement />} />
-          <Route path="/admin/faq" element={<FAQManagement />} />
-          <Route path="/admin/blog" element={<BlogManagement />} />
-          <Route path="/admin/testimonials" element={<TestimonialManagement />} />
-          <Route path="/admin/brand-logos" element={<BrandLogoManagement />} />
-          <Route path="/admin/about" element={<AboutManagement />} />
-          <Route path="/admin/contact" element={<ContactManagement />} />
-          <Route path="/admin/terms" element={<TermsManagement />} />
-          <Route path="/admin/privacy" element={<PrivacyManagement />} />
-          
-          {/* 404 Catch-all Route */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+// Create a separate component for the routes that can use hooks
+const AppRoutes = () => {
+  const location = useLocation();
+
+  useEffect(() => {
+    const isAdminPage = location.pathname.startsWith("/admin");
+    if (!isAdminPage) {
+      window.$crisp = [];
+      window.CRISP_WEBSITE_ID = "c876efde-7b19-4dc0-affd-2efcdc34ba2c";
+
+      const d = document;
+      const s = d.createElement("script");
+      s.src = "https://client.crisp.chat/l.js";
+      s.async = true;
+      d.getElementsByTagName("head")[0].appendChild(s);
+    }
+  }, [location.pathname]);
+
+  return (
+    <Routes>
+      {/* Public Routes */}
+      <Route path="/" element={<Index />} />
+      <Route path="/faq" element={<FAQ />} />
+      
+      {/* Feature Pages */}
+      <Route path="/fitur/bayar-sesuai-pakai" element={<BayarSesuaiPakai />} />
+      <Route path="/fitur/dashboard" element={<Dashboard />} />
+      <Route path="/fitur/rekaman-cloud" element={<RekamanCloud />} />
+      <Route path="/fitur/laporan-peserta" element={<LaporanPeserta />} />
+      
+      {/* Company Pages */}
+      <Route path="/tentang-kami" element={<TentangKami />} />
+      <Route path="/kontak" element={<Kontak />} />
+      <Route path="/syarat-ketentuan" element={<SyaratKetentuan />} />
+      <Route path="/kebijakan-privasi" element={<KebijakanPrivasi />} />
+      <Route path="/blog" element={<Blog />} />
+      
+      {/* Admin Routes */}
+      <Route path="/admin/login" element={<AdminLogin />} />
+      <Route path="/admin/dashboard" element={<AdminDashboard />} />
+      <Route path="/admin/urls" element={<URLManagement />} />
+      <Route path="/admin/faq" element={<FAQManagement />} />
+      <Route path="/admin/blog" element={<BlogManagement />} />
+      <Route path="/admin/testimonials" element={<TestimonialManagement />} />
+      <Route path="/admin/brand-logos" element={<BrandLogoManagement />} />
+      <Route path="/admin/about" element={<AboutManagement />} />
+      <Route path="/admin/contact" element={<ContactManagement />} />
+      <Route path="/admin/terms" element={<TermsManagement />} />
+      <Route path="/admin/privacy" element={<PrivacyManagement />} />
+      
+      {/* 404 Catch-all Route */}
+      <Route path="*" element={<NotFound />} />
+    </Routes>
+  );
+};
+
+// Main App component
+const App = () => {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <AppRoutes />
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+};
 
 export default App;
