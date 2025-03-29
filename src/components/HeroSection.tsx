@@ -34,7 +34,7 @@ const HeroSection: React.FC = () => {
             
             <div className="flex flex-col sm:flex-row gap-4 pt-4">
               <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-white rounded-lg h-12 px-8">
-                <a href="https://rapatin.id/register" target="_blank" rel="noopener noreferrer">Mulai Menjadwalkan</a>
+                <a href="https://app.rapatin.id/register" target="_blank" rel="noopener noreferrer">Mulai Menjadwalkan</a>
               </Button>
               <Button asChild variant="outline" size="lg" className="rounded-lg h-12 px-8">
                 <a href="#pricing">Lihat Harga</a>

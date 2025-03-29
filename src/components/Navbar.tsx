@@ -73,7 +73,7 @@ const Navbar: React.FC = () => {
             Testimoni
           </button>
           <Button asChild size="sm" className="bg-primary text-white hover:bg-primary/90">
-            <a href="https://rapatin.id/register" onClick={handleRegistration}>Daftar/Login</a>
+            <a href="https://app.rapatin.id/register" onClick={handleRegistration}>Daftar/Login</a>
           </Button>
         </nav>
         
@@ -125,10 +125,10 @@ const Navbar: React.FC = () => {
             </a>
             <div className="flex flex-col space-y-3 pt-2">
               <Button asChild variant="outline" size="sm">
-                <a href="https://rapatin.id/login">Masuk</a>
+                <a href="https://app.rapatin.id/login">Masuk</a>
               </Button>
               <Button asChild size="sm" className="bg-primary text-white hover:bg-primary/90">
-                <a href="https://rapatin.id/register" onClick={handleRegistration}>Daftar</a>
+                <a href="https://app.rapatin.id/register" onClick={handleRegistration}>Daftar</a>
               </Button>
             </div>
           </div>
