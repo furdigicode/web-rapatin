@@ -44,6 +44,7 @@ const AppRoutes = () => {
   useEffect(() => {
     const isAdminPage = location.pathname.startsWith("/admin");
     if (!isAdminPage) {
+      // Initialize CRISP chat
       window.$crisp = [];
       window.CRISP_WEBSITE_ID = "c876efde-7b19-4dc0-affd-2efcdc34ba2c";
 
@@ -52,6 +53,14 @@ const AppRoutes = () => {
       s.src = "https://client.crisp.chat/l.js";
       s.async = true;
       d.getElementsByTagName("head")[0].appendChild(s);
+    } else {
+      // Remove CRISP chat if it exists when navigating to admin pages
+      if (window.$crisp) {
+        // Hide the chat widget if it's already loaded
+        if (typeof window.$crisp.push === 'function') {
+          window.$crisp.push(["do", "chat:hide"]);
+        }
+      }
     }
   }, [location.pathname]);
 
