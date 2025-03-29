@@ -107,6 +107,10 @@ const DashboardPreview: React.FC = () => {
                     </div>
                     <div className="flex items-center text-xs text-gray-500 space-x-4">
                       <div className="flex items-center">
+                        <Calendar size={12} className="mr-1" /> 
+                        <span>11 Feb 2025</span>
+                      </div>
+                      <div className="flex items-center">
                         <Clock size={12} className="mr-1" /> 
                         <span>10:00 WIB</span>
                       </div>
