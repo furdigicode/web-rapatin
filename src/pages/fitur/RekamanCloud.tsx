@@ -18,9 +18,9 @@ const RekamanCloud = () => {
       description: 'Unduh rekaman rapat Anda selama 72 jam setelah rapat selesai.'
     },
     {
-      icon: <Clock />,
-      title: 'Penyimpanan 72 Jam',
-      description: 'Semua rekaman tersimpan di cloud selama 72 jam untuk kemudahan akses.'
+      icon: <Mail />,
+      title: 'Notifikasi Email',
+      description: 'Dapatkan pemberitahuan ke email Anda saat file rekaman tersedia.'
     },
     {
       icon: <Lock />,
@@ -30,7 +30,7 @@ const RekamanCloud = () => {
     {
       icon: <Share />,
       title: 'Berbagi Mudah',
-      description: 'Bagikan rekaman rapat dengan peserta atau tim Anda dengan cepat.'
+      description: 'Bagikan link rekaman rapat dengan peserta atau tim Anda dengan cepat.'
     }
   ];
 
