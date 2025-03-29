@@ -29,6 +29,13 @@ const Navbar: React.FC = () => {
     }
   };
 
+  const handleRegistration = () => {
+    // Track registration click with Facebook Pixel
+    if (typeof window.fbq === 'function') {
+      window.fbq('track', 'CompleteRegistration');
+    }
+  };
+
   return (
     <header 
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
@@ -66,7 +73,7 @@ const Navbar: React.FC = () => {
             Testimoni
           </button>
           <Button asChild size="sm" className="bg-primary text-white hover:bg-primary/90">
-            <a href="https://rapatin.id/register">Daftar/Login</a>
+            <a href="https://rapatin.id/register" onClick={handleRegistration}>Daftar/Login</a>
           </Button>
         </nav>
         
@@ -121,7 +128,7 @@ const Navbar: React.FC = () => {
                 <a href="https://rapatin.id/login">Masuk</a>
               </Button>
               <Button asChild size="sm" className="bg-primary text-white hover:bg-primary/90">
-                <a href="https://rapatin.id/register">Daftar</a>
+                <a href="https://rapatin.id/register" onClick={handleRegistration}>Daftar</a>
               </Button>
             </div>
           </div>

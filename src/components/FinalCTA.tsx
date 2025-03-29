@@ -4,6 +4,13 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight } from 'lucide-react';
 
 const FinalCTA: React.FC = () => {
+  const handleRegistration = () => {
+    // Track registration click with Facebook Pixel
+    if (typeof window.fbq === 'function') {
+      window.fbq('track', 'CompleteRegistration');
+    }
+  };
+
   return (
     <section className="py-20 bg-gradient-to-b from-background to-accent/30">
       <div className="container mx-auto px-4 md:px-6">
@@ -15,7 +22,7 @@ const FinalCTA: React.FC = () => {
                 Bergabunglah dengan ribuan pengguna yang sudah menikmati fleksibilitas platform rapat bayar-sesuai-penggunaan kami.
               </p>
               <Button asChild size="lg" className="rounded-lg bg-primary hover:bg-primary/90 text-white">
-                <a href="https://rapatin.id/register">
+                <a href="https://rapatin.id/register" onClick={handleRegistration}>
                   Daftar & Mulai Menjadwalkan
                   <ArrowRight size={16} className="ml-2" />
                 </a>

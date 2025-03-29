@@ -43,6 +43,8 @@ const AppRoutes = () => {
 
   useEffect(() => {
     const isAdminPage = location.pathname.startsWith("/admin");
+    
+    // Handle CRISP chat
     if (!isAdminPage) {
       // Initialize CRISP chat
       window.$crisp = [];
@@ -53,6 +55,11 @@ const AppRoutes = () => {
       s.src = "https://client.crisp.chat/l.js";
       s.async = true;
       d.getElementsByTagName("head")[0].appendChild(s);
+      
+      // Track page view with Meta Pixel for non-admin pages
+      if (typeof window.fbq === 'function') {
+        window.fbq('track', 'PageView');
+      }
     } else {
       // Remove CRISP chat if it exists when navigating to admin pages
       if (window.$crisp) {

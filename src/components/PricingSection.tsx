@@ -32,6 +32,13 @@ const PricingSection: React.FC = () => {
     { participants: "1000 Peserta", price: "Rp 100.000" }
   ];
   
+  const handleRegistration = () => {
+    // Track registration click with Facebook Pixel
+    if (typeof window.fbq === 'function') {
+      window.fbq('track', 'CompleteRegistration');
+    }
+  };
+  
   return (
     <section id="pricing" className="py-20 bg-background w-full">
       <div className="container mx-auto px-4 md:px-6 max-w-full">
@@ -127,7 +134,7 @@ const PricingSection: React.FC = () => {
                     asChild
                     className="w-full rounded-lg bg-primary hover:bg-primary/90 text-white"
                   >
-                    <a href="https://rapatin.id/register">Jadwalkan Rapat Sekarang</a>
+                    <a href="https://rapatin.id/register" onClick={handleRegistration}>Jadwalkan Rapat Sekarang</a>
                   </Button>
                 </div>
               </div>
