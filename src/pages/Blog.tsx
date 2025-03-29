@@ -89,6 +89,7 @@ const Blog = () => {
           
           {/* Categories */}
           <div className="mb-10 overflow-x-auto">
+            <div className="flex justify-center">
             <div className="flex space-x-2 min-w-max">
               {categories.map((category, index) => (
                 <button
@@ -102,6 +103,7 @@ const Blog = () => {
                   {category}
                 </button>
               ))}
+            </div>
             </div>
           </div>
           
