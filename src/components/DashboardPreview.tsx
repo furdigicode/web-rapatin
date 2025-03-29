@@ -83,11 +83,11 @@ const DashboardPreview: React.FC = () => {
                       </div>
                       <div className="flex items-center">
                         <Clock size={12} className="mr-1" /> 
-                        <span>14:00 - 15:00</span>
+                        <span>14:00 WIB</span>
                       </div>
                       <div className="flex items-center">
                         <Users size={12} className="mr-1" /> 
-                        <span>100 Peserta</span>
+                        <span>300 Peserta</span>
                       </div>
                     </div>
                     <div className="flex mt-3 space-x-2">
@@ -108,11 +108,11 @@ const DashboardPreview: React.FC = () => {
                     <div className="flex items-center text-xs text-gray-500 space-x-4">
                       <div className="flex items-center">
                         <Clock size={12} className="mr-1" /> 
-                        <span>10:00 - 11:30</span>
+                        <span>10:00 WIB</span>
                       </div>
                       <div className="flex items-center">
                         <Users size={12} className="mr-1" /> 
-                        <span>8 Peserta</span>
+                        <span>500 Peserta</span>
                       </div>
                     </div>
                   </div>
@@ -153,7 +153,6 @@ const DashboardPreview: React.FC = () => {
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
                     <h4 className="font-medium text-sm">Analitik Singkat</h4>
-                    <button className="text-xs text-primary">Detail</button>
                   </div>
                   
                   <div className="grid grid-cols-2 gap-2">
@@ -162,8 +161,8 @@ const DashboardPreview: React.FC = () => {
                       <div className="text-xs text-gray-500">Rapat Bulan Ini</div>
                     </div>
                     <div className="border border-gray-100 rounded-lg p-3 bg-white shadow-sm text-center">
-                      <div className="text-2xl font-bold text-primary">86%</div>
-                      <div className="text-xs text-gray-500">Rata-rata Kehadiran</div>
+                      <div className="text-2xl font-bold text-primary">275</div>
+                      <div className="text-xs text-gray-500">Total Peserta</div>
                     </div>
                   </div>
                 </div>
