@@ -1,6 +1,7 @@
 
 import React from 'react';
 import FeatureLayout from '@/components/FeatureLayout';
+import FinalCTA from '@/components/FinalCTA';
 import { Card, CardContent } from '@/components/ui/card';
 import { FileText, Users, Clock, Download, BarChart, Filter } from 'lucide-react';
 
@@ -92,6 +93,7 @@ const LaporanPeserta = () => {
           </table>
         </div>
       </div>
+      <FinalCTA />
     </FeatureLayout>
   );
 };

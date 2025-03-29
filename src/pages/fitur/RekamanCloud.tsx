@@ -1,6 +1,7 @@
 
 import React from 'react';
 import FeatureLayout from '@/components/FeatureLayout';
+import FinalCTA from '@/components/FinalCTA';
 import { Card, CardContent } from '@/components/ui/card';
 import { CloudLightning, Download, Video, Clock, Lock, Share } from 'lucide-react';
 
@@ -52,42 +53,7 @@ const RekamanCloud = () => {
           </Card>
         ))}
       </div>
-      
-      <div className="mt-16 glass p-8 rounded-xl max-w-4xl mx-auto">
-        <h2 className="text-2xl font-bold mb-6">Keunggulan Rekaman Cloud</h2>
-        <div className="space-y-4">
-          <div className="flex items-start gap-3">
-            <div className="w-5 h-5 rounded-full bg-primary/20 flex items-center justify-center mt-1">
-              <span className="text-xs font-bold text-primary">✓</span>
-            </div>
-            <p>Tidak perlu menginstal software tambahan untuk merekam</p>
-          </div>
-          <div className="flex items-start gap-3">
-            <div className="w-5 h-5 rounded-full bg-primary/20 flex items-center justify-center mt-1">
-              <span className="text-xs font-bold text-primary">✓</span>
-            </div>
-            <p>Hemat penyimpanan di perangkat Anda dengan cloud storage</p>
-          </div>
-          <div className="flex items-start gap-3">
-            <div className="w-5 h-5 rounded-full bg-primary/20 flex items-center justify-center mt-1">
-              <span className="text-xs font-bold text-primary">✓</span>
-            </div>
-            <p>Akses rekaman dari perangkat mana saja melalui dashboard</p>
-          </div>
-          <div className="flex items-start gap-3">
-            <div className="w-5 h-5 rounded-full bg-primary/20 flex items-center justify-center mt-1">
-              <span className="text-xs font-bold text-primary">✓</span>
-            </div>
-            <p>Pembagian hak akses untuk keamanan rekaman</p>
-          </div>
-          <div className="flex items-start gap-3">
-            <div className="w-5 h-5 rounded-full bg-primary/20 flex items-center justify-center mt-1">
-              <span className="text-xs font-bold text-primary">✓</span>
-            </div>
-            <p>Dapatkan notifikasi saat rekaman siap diunduh</p>
-          </div>
-        </div>
-      </div>
+      <FinalCTA />
     </FeatureLayout>
   );
 };
