@@ -123,14 +123,14 @@ const MenjadiReseller = () => {
                 <span className="text-xs font-medium text-primary">Program Reseller</span>
               </div>
               <h1 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">
-                Dapatkan Penghasilan Lebih dengan Program Reseller Rapatin
+                Dapatkan Penghasilan dari <span className="text-primary">Program Reseller</span> Rapatin
               </h1>
               <p className="text-xl text-muted-foreground mb-8">
-                Jual kembali kredit rapat online Pay-As-You-Go untuk Zoom, Google Meet, Microsoft Teams dengan harga yang Anda tentukan sendiri — tanpa biaya bulanan atau langganan.
+                Jual kembali akses rapat online Pay-As-You-Go untuk Zoom, Google Meet, Microsoft Teams dengan harga yang Anda tentukan sendiri — tanpa biaya bulanan atau langganan.
               </p>
               <Button asChild size="lg" className="rounded-lg bg-primary hover:bg-primary/90 text-white">
                 <a href="https://app.rapatin.id/register" onClick={handleRegistration} target="_blank" rel="noopener noreferrer">
-                  Gabung Program Reseller Sekarang
+                  Gabung Reseller Sekarang
                   <ArrowRight size={16} className="ml-2" />
                 </a>
               </Button>
@@ -152,7 +152,7 @@ const MenjadiReseller = () => {
           <div className="max-w-3xl mx-auto text-center mb-12">
             <h2 className="text-3xl font-bold mb-6">Mengapa Menjadi Reseller?</h2>
             <p className="text-lg text-muted-foreground">
-              Rapat online kini menjadi kebutuhan penting bagi bisnis, komunitas, dan acara. Rapatin menyediakan platform rapat berbasis top-up yang fleksibel. Sebagai reseller, Anda bebas menawarkan kredit rapat kepada pelanggan dengan harga yang Anda tentukan sendiri. Rapatin hanya bertugas menerbitkan link meeting yang kemudian Anda distribusikan ke klien Anda.
+              Rapat online kini menjadi kebutuhan penting bagi bisnis, komunitas, dan acara. Rapatin menyediakan platform rapat berbasis top-up yang fleksibel. Sebagai reseller, Anda bebas menawarkan akses rapat kepada pelanggan dengan harga yang Anda tentukan sendiri. Rapatin hanya bertugas menerbitkan link meeting yang kemudian Anda distribusikan ke klien Anda.
             </p>
           </div>
         </div>
@@ -165,7 +165,7 @@ const MenjadiReseller = () => {
             <div className="inline-flex items-center py-1 px-4 bg-primary/10 rounded-full mb-4">
               <span className="text-xs font-medium text-primary">Keuntungan</span>
             </div>
-            <h2 className="text-3xl font-bold mb-4">6 Keuntungan Utama Menjadi Reseller Rapatin</h2>
+            <h2 className="text-3xl font-bold mb-4">6 Keuntungan Menjadi Reseller Rapatin</h2>
             <p className="text-muted-foreground">Bergabung dengan jaringan reseller kami yang terus berkembang dan nikmati keuntungan ini</p>
           </div>
 
@@ -273,7 +273,7 @@ const MenjadiReseller = () => {
                 <ul className="space-y-3">
                   <li className="flex items-start">
                     <CheckCircle2 className="h-5 w-5 text-primary mr-3 shrink-0 mt-0.5" />
-                    <span className="text-sm">Solusi rapat dengan merek Anda sendiri</span>
+                    <span className="text-sm">Solusi rapat instan tanpa berlangganan</span>
                   </li>
                   <li className="flex items-start">
                     <CheckCircle2 className="h-5 w-5 text-primary mr-3 shrink-0 mt-0.5" />
