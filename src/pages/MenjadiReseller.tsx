@@ -126,7 +126,7 @@ const MenjadiReseller = () => {
                 Dapatkan Penghasilan Lebih dengan Program Reseller Rapatin
               </h1>
               <p className="text-xl text-muted-foreground mb-8">
-                Jual kembali kredit rapat online Pay-As-You-Go untuk Zoom, Google Meet, Microsoft Teams — tanpa biaya bulanan atau langganan.
+                Jual kembali kredit rapat online Pay-As-You-Go untuk Zoom, Google Meet, Microsoft Teams dengan harga yang Anda tentukan sendiri — tanpa biaya bulanan atau langganan.
               </p>
               <Button asChild size="lg" className="rounded-lg bg-primary hover:bg-primary/90 text-white">
                 <a href="https://app.rapatin.id/register" onClick={handleRegistration} target="_blank" rel="noopener noreferrer">
@@ -152,7 +152,7 @@ const MenjadiReseller = () => {
           <div className="max-w-3xl mx-auto text-center mb-12">
             <h2 className="text-3xl font-bold mb-6">Mengapa Menjadi Reseller?</h2>
             <p className="text-lg text-muted-foreground">
-              Rapat online kini menjadi kebutuhan penting bagi bisnis, komunitas, dan acara. Rapatin menyediakan platform rapat berbasis top-up yang fleksibel. Sebagai reseller, Anda dapat menawarkan kredit rapat kepada pelanggan yang membutuhkan solusi rapat spontan, fleksibel, dan terjangkau.
+              Rapat online kini menjadi kebutuhan penting bagi bisnis, komunitas, dan acara. Rapatin menyediakan platform rapat berbasis top-up yang fleksibel. Sebagai reseller, Anda bebas menawarkan kredit rapat kepada pelanggan dengan harga yang Anda tentukan sendiri. Rapatin hanya bertugas menerbitkan link meeting yang kemudian Anda distribusikan ke klien Anda.
             </p>
           </div>
         </div>
@@ -259,7 +259,7 @@ const MenjadiReseller = () => {
               <div>
                 <h2 className="text-3xl font-bold mb-4">Jadilah Reseller Rapatin Hari Ini dan Mulai Mendapatkan Penghasilan!</h2>
                 <p className="text-muted-foreground mb-6">
-                  Bergabunglah dengan jaringan reseller sukses kami dan mulai tawarkan solusi rapat fleksibel kepada pelanggan Anda.
+                  Bergabunglah dengan jaringan reseller sukses kami dan mulai tawarkan solusi rapat fleksibel kepada pelanggan Anda dengan harga yang Anda tentukan sendiri.
                 </p>
                 <Button asChild size="lg" className="rounded-lg bg-primary hover:bg-primary/90 text-white">
                   <a href="https://app.rapatin.id/register" onClick={handleRegistration} target="_blank" rel="noopener noreferrer">
