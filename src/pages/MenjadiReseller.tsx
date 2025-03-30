@@ -1,11 +1,9 @@
-
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import {
   DollarSign,
   Shield,
   BarChart as ChartBar,
-  Percent as BadgePercent,
   Users,
   Headphones,
   ArrowRight,
@@ -32,33 +30,33 @@ const MenjadiReseller = () => {
   const benefits = [
     {
       icon: <DollarSign className="h-6 w-6" />,
-      title: "Kontrol Harga Fleksibel",
-      description: "Tetapkan harga jual & margin keuntungan Anda sendiri."
+      title: "Harga Spesial & Bebas Atur Margin",
+      description: "Dapatkan harga khusus reseller (75% lebih murah dari harga publik) dan bebas menentukan harga jual sendiri di channel pemasaran Anda."
     },
     {
       icon: <Shield className="h-6 w-6" />,
       title: "Tanpa Komitmen Bulanan",
-      description: "Tanpa langganan, tanpa biaya di muka — Bayar Sesuai Penggunaan."
+      description: "Tidak perlu langganan, tanpa biaya tetap. Hanya bayar saat top-up saldo reseller."
     },
     {
       icon: <ChartBar className="h-6 w-6" />,
       title: "Akses Dashboard Real-Time",
-      description: "Kelola saldo, penjualan, dan pelanggan dengan mudah melalui dashboard."
-    },
-    {
-      icon: <BadgePercent className="h-6 w-6" />,
-      title: "Komisi Menarik",
-      description: "Dapatkan komisi kompetitif dari setiap kredit rapat yang terjual."
+      description: "Kelola saldo, pelanggan, dan distribusi link meeting secara mandiri dari dashboard."
     },
     {
       icon: <Users className="h-6 w-6" />,
-      title: "Pasar Dengan Permintaan Tinggi",
-      description: "Ideal untuk bisnis, freelancer, komunitas yang membutuhkan solusi rapat fleksibel."
+      title: "Permintaan Pasar Tinggi",
+      description: "Solusi meeting online yang cocok untuk bisnis, freelancer, event organizer, hingga komunitas."
+    },
+    {
+      icon: <Users className="h-6 w-6" />,
+      title: "Kendalikan Distribusi Meeting",
+      description: "Rapatin hanya menerbitkan Join Meeting Link — Anda yang mengelola & mendistribusikan kepada klien Anda."
     },
     {
       icon: <Headphones className="h-6 w-6" />,
-      title: "Dukungan Reseller Khusus",
-      description: "Akses prioritas ke tim dukungan Rapatin untuk membantu bisnis reseller Anda."
+      title: "Dukungan Reseller Prioritas",
+      description: "Dapatkan bantuan teknis & bisnis dari tim support Rapatin khusus untuk reseller."
     }
   ];
 
