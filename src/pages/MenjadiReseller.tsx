@@ -32,83 +32,83 @@ const MenjadiReseller = () => {
   const benefits = [
     {
       icon: <DollarSign className="h-6 w-6" />,
-      title: "Flexible Pricing Control",
-      description: "Set your own selling price & profit margin."
+      title: "Kontrol Harga Fleksibel",
+      description: "Tetapkan harga jual & margin keuntungan Anda sendiri."
     },
     {
       icon: <Shield className="h-6 w-6" />,
-      title: "Zero Monthly Commitment",
-      description: "No subscription, no upfront fee — Pay-As-You-Go."
+      title: "Tanpa Komitmen Bulanan",
+      description: "Tanpa langganan, tanpa biaya di muka — Bayar Sesuai Penggunaan."
     },
     {
       icon: <ChartBar className="h-6 w-6" />,
-      title: "Real-Time Dashboard Access",
-      description: "Manage balance, sales, and customers easily via dashboard."
+      title: "Akses Dashboard Real-Time",
+      description: "Kelola saldo, penjualan, dan pelanggan dengan mudah melalui dashboard."
     },
     {
       icon: <BadgePercent className="h-6 w-6" />,
-      title: "Attractive Commissions",
-      description: "Get a competitive commission from every meeting credit sold."
+      title: "Komisi Menarik",
+      description: "Dapatkan komisi kompetitif dari setiap kredit rapat yang terjual."
     },
     {
       icon: <Users className="h-6 w-6" />,
-      title: "High Demand Market",
-      description: "Ideal for businesses, freelancers, communities needing flexible meeting solutions."
+      title: "Pasar Dengan Permintaan Tinggi",
+      description: "Ideal untuk bisnis, freelancer, komunitas yang membutuhkan solusi rapat fleksibel."
     },
     {
       icon: <Headphones className="h-6 w-6" />,
-      title: "Dedicated Reseller Support",
-      description: "Priority access to Rapatin's support team to help your reseller business."
+      title: "Dukungan Reseller Khusus",
+      description: "Akses prioritas ke tim dukungan Rapatin untuk membantu bisnis reseller Anda."
     }
   ];
 
   const howItWorksSteps = [
     {
       number: 1,
-      title: "Register as Rapatin Reseller",
-      description: "Create your reseller account in minutes."
+      title: "Daftar sebagai Reseller Rapatin",
+      description: "Buat akun reseller Anda dalam hitungan menit."
     },
     {
       number: 2,
-      title: "Top-up your reseller balance",
-      description: "Add credit to your reseller account to start selling."
+      title: "Top-up saldo reseller Anda",
+      description: "Tambahkan kredit ke akun reseller Anda untuk mulai menjual."
     },
     {
       number: 3,
-      title: "Sell meeting credits to your customers",
-      description: "Offer flexible meeting solutions with your own pricing."
+      title: "Jual kredit rapat ke pelanggan Anda",
+      description: "Tawarkan solusi rapat fleksibel dengan harga Anda sendiri."
     },
     {
       number: 4,
-      title: "Track sales & commission in dashboard",
-      description: "Monitor your earnings and customer activity in real-time."
+      title: "Pantau penjualan & komisi di dashboard",
+      description: "Monitor pendapatan dan aktivitas pelanggan secara real-time."
     }
   ];
 
   const faqs = [
     {
-      question: "How much commission will I get?",
-      answer: "As a Rapatin reseller, you'll earn a competitive commission rate that depends on your sales volume. The more you sell, the higher your commission percentage can grow. Contact our team for specific commission rates based on your business needs."
+      question: "Berapa banyak komisi yang akan saya dapatkan?",
+      answer: "Sebagai reseller Rapatin, Anda akan mendapatkan tarif komisi kompetitif yang bergantung pada volume penjualan Anda. Semakin banyak Anda menjual, semakin tinggi persentase komisi Anda. Hubungi tim kami untuk tarif komisi spesifik berdasarkan kebutuhan bisnis Anda."
     },
     {
-      question: "How to top-up reseller balance?",
-      answer: "You can top-up your reseller balance through various payment methods including bank transfer, e-wallet, and credit/debit card. Simply log in to your reseller dashboard, select the top-up option, choose your preferred payment method, and follow the instructions."
+      question: "Bagaimana cara top-up saldo reseller?",
+      answer: "Anda dapat mengisi saldo reseller Anda melalui berbagai metode pembayaran termasuk transfer bank, e-wallet, dan kartu kredit/debit. Cukup masuk ke dashboard reseller Anda, pilih opsi top-up, pilih metode pembayaran yang Anda sukai, dan ikuti petunjuknya."
     },
     {
-      question: "Is there a minimum top-up amount?",
-      answer: "Yes, there is a minimum top-up amount to ensure you have sufficient credit to resell. The current minimum top-up amount can be found in your reseller dashboard. This requirement helps maintain efficiency in the reselling process."
+      question: "Apakah ada jumlah minimum top-up?",
+      answer: "Ya, ada jumlah minimum top-up untuk memastikan Anda memiliki kredit yang cukup untuk dijual kembali. Jumlah minimum top-up saat ini dapat ditemukan di dashboard reseller Anda. Persyaratan ini membantu menjaga efisiensi dalam proses penjualan kembali."
     },
     {
-      question: "Can I set my own selling price?",
-      answer: "Absolutely! As a Rapatin reseller, you have complete freedom to set your own selling prices. This flexibility allows you to determine your profit margins and implement pricing strategies that work best for your target market."
+      question: "Bisakah saya menetapkan harga jual sendiri?",
+      answer: "Tentu saja! Sebagai reseller Rapatin, Anda memiliki kebebasan penuh untuk menetapkan harga jual Anda sendiri. Fleksibilitas ini memungkinkan Anda menentukan margin keuntungan dan menerapkan strategi harga yang paling cocok untuk target pasar Anda."
     },
     {
-      question: "How do I manage sales & customers?",
-      answer: "You can manage all your sales and customers through your dedicated reseller dashboard. The dashboard provides real-time data on sales, customer activity, balance, commission earnings, and more, making it easy to track and grow your reseller business."
+      question: "Bagaimana saya mengelola penjualan & pelanggan?",
+      answer: "Anda dapat mengelola semua penjualan dan pelanggan Anda melalui dashboard reseller khusus. Dashboard menyediakan data real-time tentang penjualan, aktivitas pelanggan, saldo, pendapatan komisi, dan lainnya, sehingga memudahkan untuk melacak dan mengembangkan bisnis reseller Anda."
     },
     {
-      question: "What kind of support will I get?",
-      answer: "As a Rapatin reseller, you'll receive priority support from our dedicated team. This includes technical assistance, marketing materials, sales guidance, and regular updates about new features and promotions. We're committed to helping you succeed in your reseller business."
+      question: "Dukungan apa yang akan saya dapatkan?",
+      answer: "Sebagai reseller Rapatin, Anda akan menerima dukungan prioritas dari tim khusus kami. Ini termasuk bantuan teknis, materi pemasaran, panduan penjualan, dan pembaruan rutin tentang fitur baru dan promosi. Kami berkomitmen untuk membantu Anda sukses dalam bisnis reseller Anda."
     }
   ];
 
@@ -125,14 +125,14 @@ const MenjadiReseller = () => {
                 <span className="text-xs font-medium text-primary">Program Reseller</span>
               </div>
               <h1 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">
-                Earn More with Rapatin Reseller Program
+                Dapatkan Penghasilan Lebih dengan Program Reseller Rapatin
               </h1>
               <p className="text-xl text-muted-foreground mb-8">
-                Resell Pay-As-You-Go online meeting credits for Zoom, Google Meet, Microsoft Teams — without monthly fees or subscriptions.
+                Jual kembali kredit rapat online Pay-As-You-Go untuk Zoom, Google Meet, Microsoft Teams — tanpa biaya bulanan atau langganan.
               </p>
               <Button asChild size="lg" className="rounded-lg bg-primary hover:bg-primary/90 text-white">
                 <a href="https://app.rapatin.id/register" onClick={handleRegistration} target="_blank" rel="noopener noreferrer">
-                  Join Reseller Program Now
+                  Gabung Program Reseller Sekarang
                   <ArrowRight size={16} className="ml-2" />
                 </a>
               </Button>
@@ -140,7 +140,7 @@ const MenjadiReseller = () => {
             <div className="flex-1 animate-float">
               <img 
                 src="/lovable-uploads/edbf847f-3513-412d-954a-41d6319fbaf2.png" 
-                alt="Rapatin Reseller Program" 
+                alt="Program Reseller Rapatin" 
                 className="rounded-2xl shadow-elevation" 
               />
             </div>
@@ -152,9 +152,9 @@ const MenjadiReseller = () => {
       <section className="py-16 bg-white">
         <div className="container mx-auto px-4 md:px-6">
           <div className="max-w-3xl mx-auto text-center mb-12">
-            <h2 className="text-3xl font-bold mb-6">Why Become a Reseller?</h2>
+            <h2 className="text-3xl font-bold mb-6">Mengapa Menjadi Reseller?</h2>
             <p className="text-lg text-muted-foreground">
-              Online meetings are now essential for businesses, communities, and events. Rapatin provides a flexible, top-up based meeting platform. As a reseller, you can offer meeting credits to customers who need spontaneous, flexible, and affordable meeting solutions.
+              Rapat online kini menjadi kebutuhan penting bagi bisnis, komunitas, dan acara. Rapatin menyediakan platform rapat berbasis top-up yang fleksibel. Sebagai reseller, Anda dapat menawarkan kredit rapat kepada pelanggan yang membutuhkan solusi rapat spontan, fleksibel, dan terjangkau.
             </p>
           </div>
         </div>
@@ -165,10 +165,10 @@ const MenjadiReseller = () => {
         <div className="container mx-auto px-4 md:px-6">
           <div className="max-w-3xl mx-auto text-center mb-12">
             <div className="inline-flex items-center py-1 px-4 bg-primary/10 rounded-full mb-4">
-              <span className="text-xs font-medium text-primary">Benefits</span>
+              <span className="text-xs font-medium text-primary">Keuntungan</span>
             </div>
-            <h2 className="text-3xl font-bold mb-4">6 Key Benefits of Becoming a Rapatin Reseller</h2>
-            <p className="text-muted-foreground">Join our growing network of resellers and enjoy these advantages</p>
+            <h2 className="text-3xl font-bold mb-4">6 Keuntungan Utama Menjadi Reseller Rapatin</h2>
+            <p className="text-muted-foreground">Bergabung dengan jaringan reseller kami yang terus berkembang dan nikmati keuntungan ini</p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
@@ -192,10 +192,10 @@ const MenjadiReseller = () => {
         <div className="container mx-auto px-4 md:px-6">
           <div className="max-w-3xl mx-auto text-center mb-12">
             <div className="inline-flex items-center py-1 px-4 bg-primary/10 rounded-full mb-4">
-              <span className="text-xs font-medium text-primary">Process</span>
+              <span className="text-xs font-medium text-primary">Proses</span>
             </div>
-            <h2 className="text-3xl font-bold mb-4">How It Works</h2>
-            <p className="text-muted-foreground">Get started with these simple steps</p>
+            <h2 className="text-3xl font-bold mb-4">Bagaimana Cara Kerjanya</h2>
+            <p className="text-muted-foreground">Mulai dengan langkah-langkah sederhana ini</p>
           </div>
 
           <div className="max-w-5xl mx-auto">
@@ -216,7 +216,7 @@ const MenjadiReseller = () => {
             <div className="mt-12 text-center">
               <Button asChild size="lg" className="rounded-lg bg-primary hover:bg-primary/90 text-white">
                 <a href="https://app.rapatin.id/register" onClick={handleRegistration} target="_blank" rel="noopener noreferrer">
-                  Start Your Reseller Journey
+                  Mulai Perjalanan Reseller Anda
                   <ArrowRight size={16} className="ml-2" />
                 </a>
               </Button>
@@ -230,10 +230,10 @@ const MenjadiReseller = () => {
         <div className="container mx-auto px-4 md:px-6">
           <div className="max-w-3xl mx-auto text-center mb-12">
             <div className="inline-flex items-center py-1 px-4 bg-primary/10 rounded-full mb-4">
-              <span className="text-xs font-medium text-primary">Questions</span>
+              <span className="text-xs font-medium text-primary">Pertanyaan</span>
             </div>
-            <h2 className="text-3xl font-bold mb-4">Frequently Asked Questions</h2>
-            <p className="text-muted-foreground">Find answers to common questions about our reseller program</p>
+            <h2 className="text-3xl font-bold mb-4">Pertanyaan yang Sering Diajukan</h2>
+            <p className="text-muted-foreground">Temukan jawaban untuk pertanyaan umum tentang program reseller kami</p>
           </div>
 
           <div className="max-w-3xl mx-auto">
@@ -259,39 +259,39 @@ const MenjadiReseller = () => {
           <div className="max-w-4xl mx-auto glass rounded-2xl p-8 md:p-12 shadow-elevation border border-white/40 animate-scale-in">
             <div className="grid md:grid-cols-2 gap-8 items-center">
               <div>
-                <h2 className="text-3xl font-bold mb-4">Become a Rapatin Reseller Today and Start Earning!</h2>
+                <h2 className="text-3xl font-bold mb-4">Jadilah Reseller Rapatin Hari Ini dan Mulai Mendapatkan Penghasilan!</h2>
                 <p className="text-muted-foreground mb-6">
-                  Join our network of successful resellers and start offering flexible meeting solutions to your customers.
+                  Bergabunglah dengan jaringan reseller sukses kami dan mulai tawarkan solusi rapat fleksibel kepada pelanggan Anda.
                 </p>
                 <Button asChild size="lg" className="rounded-lg bg-primary hover:bg-primary/90 text-white">
                   <a href="https://app.rapatin.id/register" onClick={handleRegistration} target="_blank" rel="noopener noreferrer">
-                    Register as Reseller
+                    Daftar sebagai Reseller
                     <ArrowRight size={16} className="ml-2" />
                   </a>
                 </Button>
               </div>
               <div className="rounded-xl bg-primary/5 p-6 space-y-4">
-                <h3 className="font-medium text-lg">What you'll get:</h3>
+                <h3 className="font-medium text-lg">Yang akan Anda dapatkan:</h3>
                 <ul className="space-y-3">
                   <li className="flex items-start">
                     <CheckCircle2 className="h-5 w-5 text-primary mr-3 shrink-0 mt-0.5" />
-                    <span className="text-sm">Your own branded meeting solution</span>
+                    <span className="text-sm">Solusi rapat dengan merek Anda sendiri</span>
                   </li>
                   <li className="flex items-start">
                     <CheckCircle2 className="h-5 w-5 text-primary mr-3 shrink-0 mt-0.5" />
-                    <span className="text-sm">Complete control over pricing and margins</span>
+                    <span className="text-sm">Kontrol penuh atas harga dan margin</span>
                   </li>
                   <li className="flex items-start">
                     <CheckCircle2 className="h-5 w-5 text-primary mr-3 shrink-0 mt-0.5" />
-                    <span className="text-sm">Comprehensive reseller dashboard</span>
+                    <span className="text-sm">Dashboard reseller lengkap</span>
                   </li>
                   <li className="flex items-start">
                     <CheckCircle2 className="h-5 w-5 text-primary mr-3 shrink-0 mt-0.5" />
-                    <span className="text-sm">Marketing materials and sales support</span>
+                    <span className="text-sm">Materi pemasaran dan dukungan penjualan</span>
                   </li>
                   <li className="flex items-start">
                     <CheckCircle2 className="h-5 w-5 text-primary mr-3 shrink-0 mt-0.5" />
-                    <span className="text-sm">Priority technical support</span>
+                    <span className="text-sm">Dukungan teknis prioritas</span>
                   </li>
                 </ul>
               </div>
