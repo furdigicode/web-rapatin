@@ -123,7 +123,7 @@ const MenjadiReseller = () => {
             <div className="inline-flex items-center py-1 px-4 bg-primary/10 rounded-full mb-4">
               <span className="text-xs font-medium text-primary">Keuntungan</span>
             </div>
-            <h2 className="text-3xl font-bold mb-4">6 Keuntungan Menjadi Reseller Rapatin</h2>
+            <h2 className="text-3xl font-bold mb-4"><span className="text-primary">Keuntungan</span> Menjadi Reseller Rapatin</h2>
             <p className="text-muted-foreground">Bergabung dengan jaringan reseller kami yang terus berkembang dan nikmati keuntungan ini</p>
           </div>
 
