@@ -53,7 +53,7 @@ const MenjadiReseller = () => {
     description: "Tawarkan solusi rapat fleksibel dengan harga Anda sendiri."
   }, {
     number: 4,
-    title: "Kelola Jadwal Rapat Mandiri",
+    title: "Kelola jadwal rapat pelanggan dengan mandiri",
     description: "Monitor jadwal, laporan, dan rekaman real-time."
   }];
   const faqs = [{
