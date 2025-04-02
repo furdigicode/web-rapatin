@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { DollarSign, Shield, BarChart as ChartBar, Users, Headphones, ArrowRight, CheckCircle2, Calendar, Video, Calculator, CreditCard, TrendingUp, Wallet, CreditCard as CardIcon, Link, Share2 } from 'lucide-react';
@@ -155,10 +156,10 @@ const MenjadiReseller = () => {
                             </div>
                           </div>
                           <div className="flex space-x-2">
-                            <button className="p-1 rounded-md bg-primary/10 text-primary">
+                            <button className="p-1 rounded-md bg-primary/10 text-primary cursor-default">
                               <Link size={14} />
                             </button>
-                            <button className="p-1 rounded-md bg-primary/10 text-primary">
+                            <button className="p-1 rounded-md bg-primary/10 text-primary cursor-default">
                               <Share2 size={14} />
                             </button>
                           </div>
@@ -177,10 +178,10 @@ const MenjadiReseller = () => {
                             </div>
                           </div>
                           <div className="flex space-x-2">
-                            <button className="p-1 rounded-md bg-primary/10 text-primary">
+                            <button className="p-1 rounded-md bg-primary/10 text-primary cursor-default">
                               <Link size={14} />
                             </button>
-                            <button className="p-1 rounded-md bg-primary/10 text-primary">
+                            <button className="p-1 rounded-md bg-primary/10 text-primary cursor-default">
                               <Share2 size={14} />
                             </button>
                           </div>
@@ -197,39 +198,39 @@ const MenjadiReseller = () => {
                             type="text" 
                             value="https://meet.rapatin.id/join/abc123" 
                             readOnly
-                            className="text-xs p-2 rounded bg-white border flex-1 text-gray-600"
+                            className="text-xs p-2 rounded bg-white border flex-1 text-gray-600 cursor-default"
                           />
-                          <button className="bg-primary text-white text-xs py-1 px-2 rounded">
+                          <button className="bg-primary text-white text-xs py-1 px-2 rounded cursor-default">
                             Salin
                           </button>
                         </div>
                         <div className="flex justify-between">
                           <div className="flex gap-1">
-                            <button className="bg-primary/10 p-1 rounded">
+                            <button className="bg-primary/10 p-1 rounded cursor-default">
                               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" stroke="#9b87f5" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                               </svg>
                             </button>
-                            <button className="bg-primary/10 p-1 rounded">
+                            <button className="bg-primary/10 p-1 rounded cursor-default">
                               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M22 4s-2.5 1.4-4 1.8c-1.5-1.6-4-2-5.5-.5-1.5 1.5-1.1 4-.5 5.5-3.5 0-7-2-9.5-4.5 0 0-2 3.5 1 6.5-1 .4-2-.5-2-.5 0 1 .5 3 3 4-1 .5-2 0-2 0 .5 1.5 2 3 4.5 3C6 20.5 2 21 0 20c14-2 14-12 14-12h2c.5-1 1.8-3 2-4z" stroke="#9b87f5" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                               </svg>
                             </button>
-                            <button className="bg-primary/10 p-1 rounded">
+                            <button className="bg-primary/10 p-1 rounded cursor-default">
                               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z" stroke="#9b87f5" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                                 <path d="M6 9H2v12h4V9z" stroke="#9b87f5" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                                 <path d="M4 6a2 2 0 1 0 0-4 2 2 0 0 0 0 4z" stroke="#9b87f5" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                               </svg>
                             </button>
-                            <button className="bg-primary/10 p-1 rounded">
+                            <button className="bg-primary/10 p-1 rounded cursor-default">
                               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z" stroke="#9b87f5" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                                 <path d="m9.75 15.02 5.75-3.27-5.75-3.27v6.54z" stroke="#9b87f5" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                               </svg>
                             </button>
                           </div>
-                          <button className="text-xs text-primary">
+                          <button className="text-xs text-primary cursor-default">
                             Kirim Email
                           </button>
                         </div>
@@ -239,7 +240,7 @@ const MenjadiReseller = () => {
                     <div className="space-y-4">
                       <div className="flex justify-between items-center">
                         <h3 className="font-medium">Jadwal Mendatang</h3>
-                        <span className="text-xs text-primary cursor-pointer">Lihat semua</span>
+                        <span className="text-xs text-primary cursor-default">Lihat semua</span>
                       </div>
                       
                       <div className="border rounded-lg p-3 bg-white">
@@ -254,7 +255,7 @@ const MenjadiReseller = () => {
                             </div>
                           </div>
                           <div className="text-right">
-                            <button className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
+                            <button className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full cursor-default">
                               Recurring
                             </button>
                           </div>
@@ -264,13 +265,13 @@ const MenjadiReseller = () => {
                     
                     <div className="mt-6 flex justify-between items-center gap-4">
                       <div className="flex-1">
-                        <button className="w-full flex items-center justify-center gap-2 bg-primary text-white py-2 rounded-lg text-sm">
+                        <button className="w-full flex items-center justify-center gap-2 bg-primary text-white py-2 rounded-lg text-sm cursor-default">
                           <CreditCard size={16} />
                           <span>Buat Meeting</span>
                         </button>
                       </div>
                       <div className="flex-1">
-                        <button className="w-full flex items-center justify-center gap-2 border border-primary text-primary py-2 rounded-lg text-sm">
+                        <button className="w-full flex items-center justify-center gap-2 border border-primary text-primary py-2 rounded-lg text-sm cursor-default">
                           <Link size={16} />
                           <span>Distribusi</span>
                         </button>
@@ -309,7 +310,7 @@ const MenjadiReseller = () => {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
             {benefits.map((benefit, index) => <Card key={index} className="glass hover:shadow-elevation transition-all duration-300 animate-fade-in">
-                <CardContent className="p-6">
+                <CardContent className="p-6 cursor-default">
                   <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4 text-primary">
                     {benefit.icon}
                   </div>
@@ -340,21 +341,21 @@ const MenjadiReseller = () => {
                   <p className="text-muted-foreground">Berdasarkan rata-rata penjualan akses meeting</p>
                 </div>
                 <div className="flex gap-4 flex-wrap justify-center">
-                  <div className="flex items-center gap-2 bg-primary/10 px-4 py-2 rounded-lg">
+                  <div className="flex items-center gap-2 bg-primary/10 px-4 py-2 rounded-lg cursor-default">
                     <CardIcon size={16} className="text-primary" />
                     <div>
                       <p className="text-xs text-muted-foreground">Harga Reseller</p>
                       <p className="font-medium">Rp {meetingPriceReseller.toLocaleString()}</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 bg-primary/10 px-4 py-2 rounded-lg">
+                  <div className="flex items-center gap-2 bg-primary/10 px-4 py-2 rounded-lg cursor-default">
                     <Wallet size={16} className="text-primary" />
                     <div>
                       <p className="text-xs text-muted-foreground">Harga Jual</p>
                       <p className="font-medium">Rp {meetingPriceEndUser.toLocaleString()}</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 bg-primary/10 px-4 py-2 rounded-lg">
+                  <div className="flex items-center gap-2 bg-primary/10 px-4 py-2 rounded-lg cursor-default">
                     <TrendingUp size={16} className="text-primary" />
                     <div>
                       <p className="text-xs text-muted-foreground">Profit/Meeting</p>
@@ -367,7 +368,7 @@ const MenjadiReseller = () => {
               <div className="grid md:grid-cols-3 gap-6">
                 {salesCalculations.map((calc, index) => (
                   <Card key={index} className="border border-primary/10">
-                    <CardContent className="p-6">
+                    <CardContent className="p-6 cursor-default">
                       <div className="flex flex-col items-center">
                         <div className="mb-2">
                           <span className="text-4xl font-bold text-primary">{calc.meetings}</span>
@@ -390,7 +391,7 @@ const MenjadiReseller = () => {
                 ))}
               </div>
               
-              <div className="mt-8 p-4 bg-primary/5 rounded-lg">
+              <div className="mt-8 p-4 bg-primary/5 rounded-lg cursor-default">
                 <div className="flex gap-2 items-center mb-1">
                   <CheckCircle2 size={16} className="text-primary" />
                   <p className="font-medium">Anda bebas menentukan harga jual sendiri</p>
@@ -426,7 +427,7 @@ const MenjadiReseller = () => {
 
           <div className="max-w-5xl mx-auto">
             <div className="grid md:grid-cols-2 gap-8">
-              {howItWorksSteps.map((step, index) => <div key={index} className="flex gap-4 items-start animate-fade-in delay-100">
+              {howItWorksSteps.map((step, index) => <div key={index} className="flex gap-4 items-start animate-fade-in delay-100 cursor-default">
                   <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center shrink-0 text-white font-bold">
                     {step.number}
                   </div>
@@ -461,9 +462,9 @@ const MenjadiReseller = () => {
           </div>
 
           <div className="max-w-3xl mx-auto">
-            <Accordion type="single" collapsible className="w-full">
+            <Accordion type="single" collapsible className="w-full cursor-default">
               {faqs.map((faq, index) => <AccordionItem key={index} value={`item-${index}`}>
-                  <AccordionTrigger className="text-left font-medium">
+                  <AccordionTrigger className="text-left font-medium cursor-default">
                     {faq.question}
                   </AccordionTrigger>
                   <AccordionContent className="text-muted-foreground">
@@ -492,7 +493,7 @@ const MenjadiReseller = () => {
                   </a>
                 </Button>
               </div>
-              <div className="rounded-xl bg-primary/5 p-6 space-y-4">
+              <div className="rounded-xl bg-primary/5 p-6 space-y-4 cursor-default">
                 <h3 className="font-medium text-lg">Yang akan Anda dapatkan:</h3>
                 <ul className="space-y-3">
                   <li className="flex items-start">
