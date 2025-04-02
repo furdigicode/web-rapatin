@@ -18,8 +18,8 @@ const MenjadiReseller = () => {
   
   const benefits = [{
     icon: <DollarSign className="h-6 w-6" />,
-    title: "Harga Spesial & Bebas Atur Margin",
-    description: "Dapatkan harga khusus reseller (75% lebih murah dari harga publik) dan bebas menentukan harga jual sendiri di channel pemasaran Anda."
+    title: "Harga Spesial",
+    description: "Dapatkan harga khusus reseller, yaitu 75% lebih murah dari harga publik."
   }, {
     icon: <Shield className="h-6 w-6" />,
     title: "Tanpa Komitmen Bulanan",
@@ -27,7 +27,7 @@ const MenjadiReseller = () => {
   }, {
     icon: <ChartBar className="h-6 w-6" />,
     title: "Akses Dashboard Real-Time",
-    description: "Kelola saldo, pelanggan, dan distribusi link meeting secara mandiri dari dashboard."
+    description: "Kelola saldo, laoran, dan distribusi link meeting secara mandiri dari dashboard."
   }, {
     icon: <Users className="h-6 w-6" />,
     title: "Permintaan Pasar Tinggi",
@@ -56,7 +56,7 @@ const MenjadiReseller = () => {
     description: "Tawarkan solusi rapat fleksibel dengan harga Anda sendiri."
   }, {
     number: 4,
-    title: "Kelola jadwal rapat pelanggan dengan mandiri",
+    title: "Kelola jadwal rapat mandiri",
     description: "Monitor jadwal, laporan, dan rekaman real-time."
   }];
   
@@ -88,14 +88,14 @@ const MenjadiReseller = () => {
       total: 3 * profitPerMeeting,
     },
     {
-      meetings: 15,
+      meetings: 21,
       period: 'minggu',
-      total: 15 * profitPerMeeting,
+      total: 21 * profitPerMeeting,
     },
     {
-      meetings: 60,
+      meetings: 90,
       period: 'bulan',
-      total: 60 * profitPerMeeting,
+      total: 90 * profitPerMeeting,
     }
   ];
   
