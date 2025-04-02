@@ -191,12 +191,12 @@ const MenjadiReseller = () => {
                       <div className="bg-gray-50 rounded-lg p-4 border mb-4">
                         <h4 className="text-sm font-medium mb-2 flex items-center">
                           <Share2 className="h-4 w-4 mr-1 text-primary" />
-                          Distribusi Link Meeting
+                          Bagikan Link Meeting
                         </h4>
                         <div className="flex gap-2 mb-2">
                           <input 
                             type="text" 
-                            value="https://meet.rapatin.id/join/abc123" 
+                            value="https://us06web.zoom.us/j/88899997777" 
                             readOnly
                             className="text-xs p-2 rounded bg-white border flex-1 text-gray-600 cursor-default"
                           />
@@ -236,33 +236,6 @@ const MenjadiReseller = () => {
                         </div>
                       </div>
                     </div>
-                    
-                    <div className="space-y-4">
-                      <div className="flex justify-between items-center">
-                        <h3 className="font-medium">Jadwal Mendatang</h3>
-                        <span className="text-xs text-primary cursor-default">Lihat semua</span>
-                      </div>
-                      
-                      <div className="border rounded-lg p-3 bg-white">
-                        <div className="flex justify-between items-center">
-                          <div className="flex gap-3 items-center">
-                            <div className="p-2 bg-primary/10 rounded-full">
-                              <Calendar size={16} className="text-primary" />
-                            </div>
-                            <div>
-                              <p className="text-sm font-medium">Weekly Meeting</p>
-                              <p className="text-xs text-muted-foreground">Setiap Senin, 15:00</p>
-                            </div>
-                          </div>
-                          <div className="text-right">
-                            <button className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full cursor-default">
-                              Recurring
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    
                     <div className="mt-6 flex justify-between items-center gap-4">
                       <div className="flex-1">
                         <button className="w-full flex items-center justify-center gap-2 bg-primary text-white py-2 rounded-lg text-sm cursor-default">
