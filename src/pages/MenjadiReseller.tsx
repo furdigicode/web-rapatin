@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { DollarSign, Shield, BarChart as ChartBar, Users, Headphones, ArrowRight, CheckCircle2, Calendar, Video, Calculator, CreditCard, TrendingUp, Wallet, CreditCard as CardIcon } from 'lucide-react';
+import { DollarSign, Shield, BarChart as ChartBar, Users, Headphones, ArrowRight, CheckCircle2, Calendar, Video, Calculator, CreditCard, TrendingUp, Wallet, CreditCard as CardIcon, Link, Share2 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Card, CardContent } from '@/components/ui/card';
@@ -106,7 +106,7 @@ const MenjadiReseller = () => {
       <section className="pt-28 pb-20 bg-gradient-to-b from-background to-accent/30">
         <div className="container mx-auto px-4 md:px-6">
           <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center gap-12">
-            <div className="flex-1 animate-fade-in">
+            <div className="flex-1">
               <div className="inline-flex items-center py-1 px-4 bg-primary/10 rounded-full mb-4">
                 <span className="text-xs font-medium text-primary">Program Reseller</span>
               </div>
@@ -123,7 +123,7 @@ const MenjadiReseller = () => {
                 </a>
               </Button>
             </div>
-            <div className="flex-1 animate-float">
+            <div className="flex-1">
               <div className="relative w-full max-w-md mx-auto">
                 <div className="rounded-2xl overflow-hidden shadow-elevation border border-white/40 bg-white/90">
                   <div className="bg-white/90 p-3 flex items-center border-b">
@@ -138,21 +138,107 @@ const MenjadiReseller = () => {
                   <div className="p-6">
                     <div className="mb-6">
                       <div className="flex justify-between mb-3">
-                        <h3 className="text-lg font-semibold">Pendapatan Bulan Ini</h3>
-                        <span className="text-lg font-bold text-primary">Rp 1.250.000</span>
+                        <h3 className="text-lg font-semibold flex items-center">
+                          <Calendar className="h-5 w-5 mr-2 text-primary" />
+                          Jadwal Meeting
+                        </h3>
                       </div>
-                      <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-                        <div className="h-full bg-primary rounded-full" style={{width: '75%'}}></div>
+                      <div className="border rounded-lg p-3 bg-white mb-4">
+                        <div className="flex justify-between items-center">
+                          <div className="flex gap-2 items-center">
+                            <div className="p-2 bg-primary/10 rounded-full">
+                              <Video size={16} className="text-primary" />
+                            </div>
+                            <div>
+                              <p className="text-sm font-medium">Presentasi Produk</p>
+                              <p className="text-xs text-muted-foreground">10 Juni, 13:00</p>
+                            </div>
+                          </div>
+                          <div className="flex space-x-2">
+                            <button className="p-1 rounded-md bg-primary/10 text-primary">
+                              <Link size={14} />
+                            </button>
+                            <button className="p-1 rounded-md bg-primary/10 text-primary">
+                              <Share2 size={14} />
+                            </button>
+                          </div>
+                        </div>
                       </div>
-                      <div className="flex justify-between mt-1 text-xs text-muted-foreground">
-                        <span>Target: Rp 1.500.000</span>
-                        <span>75% tercapai</span>
+                      
+                      <div className="border rounded-lg p-3 bg-white mb-4">
+                        <div className="flex justify-between items-center">
+                          <div className="flex gap-2 items-center">
+                            <div className="p-2 bg-primary/10 rounded-full">
+                              <Video size={16} className="text-primary" />
+                            </div>
+                            <div>
+                              <p className="text-sm font-medium">Training Tim Bisnis</p>
+                              <p className="text-xs text-muted-foreground">12 Juni, 09:00</p>
+                            </div>
+                          </div>
+                          <div className="flex space-x-2">
+                            <button className="p-1 rounded-md bg-primary/10 text-primary">
+                              <Link size={14} />
+                            </button>
+                            <button className="p-1 rounded-md bg-primary/10 text-primary">
+                              <Share2 size={14} />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="bg-gray-50 rounded-lg p-4 border mb-4">
+                        <h4 className="text-sm font-medium mb-2 flex items-center">
+                          <Share2 className="h-4 w-4 mr-1 text-primary" />
+                          Distribusi Link Meeting
+                        </h4>
+                        <div className="flex gap-2 mb-2">
+                          <input 
+                            type="text" 
+                            value="https://meet.rapatin.id/join/abc123" 
+                            readOnly
+                            className="text-xs p-2 rounded bg-white border flex-1 text-gray-600"
+                          />
+                          <button className="bg-primary text-white text-xs py-1 px-2 rounded">
+                            Salin
+                          </button>
+                        </div>
+                        <div className="flex justify-between">
+                          <div className="flex gap-1">
+                            <button className="bg-primary/10 p-1 rounded">
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" stroke="#9b87f5" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                              </svg>
+                            </button>
+                            <button className="bg-primary/10 p-1 rounded">
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M22 4s-2.5 1.4-4 1.8c-1.5-1.6-4-2-5.5-.5-1.5 1.5-1.1 4-.5 5.5-3.5 0-7-2-9.5-4.5 0 0-2 3.5 1 6.5-1 .4-2-.5-2-.5 0 1 .5 3 3 4-1 .5-2 0-2 0 .5 1.5 2 3 4.5 3C6 20.5 2 21 0 20c14-2 14-12 14-12h2c.5-1 1.8-3 2-4z" stroke="#9b87f5" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                              </svg>
+                            </button>
+                            <button className="bg-primary/10 p-1 rounded">
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z" stroke="#9b87f5" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                <path d="M6 9H2v12h4V9z" stroke="#9b87f5" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                <path d="M4 6a2 2 0 1 0 0-4 2 2 0 0 0 0 4z" stroke="#9b87f5" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                              </svg>
+                            </button>
+                            <button className="bg-primary/10 p-1 rounded">
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z" stroke="#9b87f5" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                <path d="m9.75 15.02 5.75-3.27-5.75-3.27v6.54z" stroke="#9b87f5" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                              </svg>
+                            </button>
+                          </div>
+                          <button className="text-xs text-primary">
+                            Kirim Email
+                          </button>
+                        </div>
                       </div>
                     </div>
                     
                     <div className="space-y-4">
                       <div className="flex justify-between items-center">
-                        <h3 className="font-medium">Transaksi Terbaru</h3>
+                        <h3 className="font-medium">Jadwal Mendatang</h3>
                         <span className="text-xs text-primary cursor-pointer">Lihat semua</span>
                       </div>
                       
@@ -160,34 +246,17 @@ const MenjadiReseller = () => {
                         <div className="flex justify-between items-center">
                           <div className="flex gap-3 items-center">
                             <div className="p-2 bg-primary/10 rounded-full">
-                              <Video size={16} className="text-primary" />
+                              <Calendar size={16} className="text-primary" />
                             </div>
                             <div>
-                              <p className="text-sm font-medium">Zoom Meeting</p>
-                              <p className="text-xs text-muted-foreground">PT Maju Bersama</p>
+                              <p className="text-sm font-medium">Weekly Meeting</p>
+                              <p className="text-xs text-muted-foreground">Setiap Senin, 15:00</p>
                             </div>
                           </div>
                           <div className="text-right">
-                            <p className="text-sm font-medium">+ Rp 150.000</p>
-                            <p className="text-xs text-muted-foreground">Hari ini</p>
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <div className="border rounded-lg p-3 bg-white">
-                        <div className="flex justify-between items-center">
-                          <div className="flex gap-3 items-center">
-                            <div className="p-2 bg-primary/10 rounded-full">
-                              <Video size={16} className="text-primary" />
-                            </div>
-                            <div>
-                              <p className="text-sm font-medium">Google Meet</p>
-                              <p className="text-xs text-muted-foreground">Seminar Online</p>
-                            </div>
-                          </div>
-                          <div className="text-right">
-                            <p className="text-sm font-medium">+ Rp 250.000</p>
-                            <p className="text-xs text-muted-foreground">Kemarin</p>
+                            <button className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
+                              Recurring
+                            </button>
                           </div>
                         </div>
                       </div>
@@ -197,13 +266,13 @@ const MenjadiReseller = () => {
                       <div className="flex-1">
                         <button className="w-full flex items-center justify-center gap-2 bg-primary text-white py-2 rounded-lg text-sm">
                           <CreditCard size={16} />
-                          <span>Top Up</span>
+                          <span>Buat Meeting</span>
                         </button>
                       </div>
                       <div className="flex-1">
                         <button className="w-full flex items-center justify-center gap-2 border border-primary text-primary py-2 rounded-lg text-sm">
-                          <Calculator size={16} />
-                          <span>Kalkulator</span>
+                          <Link size={16} />
+                          <span>Distribusi</span>
                         </button>
                       </div>
                     </div>
@@ -211,28 +280,6 @@ const MenjadiReseller = () => {
                 </div>
                 
                 <div className="absolute -bottom-4 -right-4 -z-10 w-full h-full rounded-2xl bg-primary/10"></div>
-                
-                <div className="absolute -top-10 -right-10 bg-white rounded-lg p-4 shadow-elevation border border-white/40 w-48 transform rotate-3 z-10">
-                  <h3 className="text-sm font-medium mb-2">Potensi Keuntungan</h3>
-                  <div className="space-y-2 text-xs">
-                    <div className="flex justify-between">
-                      <span>Harga Reseller:</span>
-                      <span className="font-medium">Rp 5.000</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Harga Jual:</span>
-                      <span className="font-medium">Rp 20.000</span>
-                    </div>
-                    <div className="h-px bg-gray-200 my-1"></div>
-                    <div className="flex justify-between text-primary">
-                      <span>Profit:</span>
-                      <span className="font-bold">Rp 15.000</span>
-                    </div>
-                    <div className="text-center text-primary/60 font-medium mt-1">
-                      300% Margin!
-                    </div>
-                  </div>
-                </div>
               </div>
             </div>
           </div>
