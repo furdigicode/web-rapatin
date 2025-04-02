@@ -236,20 +236,7 @@ const MenjadiReseller = () => {
                         </div>
                       </div>
                     </div>
-                    <div className="mt-6 flex justify-between items-center gap-4">
-                      <div className="flex-1">
-                        <button className="w-full flex items-center justify-center gap-2 bg-primary text-white py-2 rounded-lg text-sm cursor-default">
-                          <CreditCard size={16} />
-                          <span>Buat Meeting</span>
-                        </button>
-                      </div>
-                      <div className="flex-1">
-                        <button className="w-full flex items-center justify-center gap-2 border border-primary text-primary py-2 rounded-lg text-sm cursor-default">
-                          <Link size={16} />
-                          <span>Distribusi</span>
-                        </button>
-                      </div>
-                    </div>
+                    
                   </div>
                 </div>
                 
