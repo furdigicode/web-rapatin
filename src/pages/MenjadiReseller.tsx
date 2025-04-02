@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { DollarSign, Shield, BarChart as ChartBar, Users, Headphones, ArrowRight, CheckCircle2 } from 'lucide-react';
@@ -5,6 +6,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Card, CardContent } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+
 const MenjadiReseller = () => {
   // Track registration click with Facebook Pixel
   const handleRegistration = () => {
@@ -14,10 +16,11 @@ const MenjadiReseller = () => {
       });
     }
   };
+  
   const benefits = [{
     icon: <DollarSign className="h-6 w-6" />,
-    title: "Harga Khusus",
-    description: "Dapatkan harga khusus reseller (75% lebih murah dari harga publik) dan bebas menentukan harga jual sendiri."
+    title: "Harga Spesial & Bebas Atur Margin",
+    description: "Dapatkan harga khusus reseller (75% lebih murah dari harga publik) dan bebas menentukan harga jual sendiri di channel pemasaran Anda."
   }, {
     icon: <Shield className="h-6 w-6" />,
     title: "Tanpa Komitmen Bulanan",
@@ -25,7 +28,7 @@ const MenjadiReseller = () => {
   }, {
     icon: <ChartBar className="h-6 w-6" />,
     title: "Akses Dashboard Real-Time",
-    description: "Kelola saldo, jadwal, laporan, dan rekaman secara mandiri dari dashboard."
+    description: "Kelola saldo, pelanggan, dan distribusi link meeting secara mandiri dari dashboard."
   }, {
     icon: <Users className="h-6 w-6" />,
     title: "Permintaan Pasar Tinggi",
@@ -39,6 +42,7 @@ const MenjadiReseller = () => {
     title: "Dukungan Reseller Prioritas",
     description: "Dapatkan bantuan teknis & bisnis dari tim support Rapatin khusus untuk reseller."
   }];
+  
   const howItWorksSteps = [{
     number: 1,
     title: "Daftar sebagai Reseller Rapatin",
@@ -56,6 +60,7 @@ const MenjadiReseller = () => {
     title: "Kelola jadwal rapat pelanggan dengan mandiri",
     description: "Monitor jadwal, laporan, dan rekaman real-time."
   }];
+  
   const faqs = [{
     question: "Berapa harga khusus reseller?",
     answer: "Sebagai reseller Rapatin, Anda akan mendapatkan harga yang lebih murah 75% dari harga jual end-user. Misalnya harga akses rapat Zoom berkapasitas 100 peserta adalah Rp 20.000, maka harga reseller adalah Rp 5.000"
@@ -72,6 +77,7 @@ const MenjadiReseller = () => {
     question: "Dukungan apa yang akan saya dapatkan?",
     answer: "Sebagai reseller Rapatin, Anda akan menerima dukungan prioritas dari tim khusus kami. Ini termasuk bantuan teknis, materi pemasaran, panduan penjualan, dan pembaruan rutin tentang fitur baru dan promosi. Kami berkomitmen untuk membantu Anda sukses dalam bisnis reseller Anda."
   }];
+  
   return <div className="min-h-screen">
       <Navbar />
       
@@ -97,7 +103,11 @@ const MenjadiReseller = () => {
               </Button>
             </div>
             <div className="flex-1 animate-float">
-              <img src="/lovable-uploads/edbf847f-3513-412d-954a-41d6319fbaf2.png" alt="Program Reseller Rapatin" className="rounded-2xl shadow-elevation" />
+              <img 
+                src="/lovable-uploads/54aa59cb-5574-4e7e-b296-cfd84c43473b.png" 
+                alt="Peluang Penghasilan dari Program Reseller Rapatin" 
+                className="rounded-2xl shadow-elevation" 
+              />
             </div>
           </div>
         </div>
@@ -250,4 +260,5 @@ const MenjadiReseller = () => {
       <Footer />
     </div>;
 };
+
 export default MenjadiReseller;
