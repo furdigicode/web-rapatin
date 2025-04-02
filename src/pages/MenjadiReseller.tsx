@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { DollarSign, Shield, BarChart as ChartBar, Users, Headphones, ArrowRight, CheckCircle2, Calendar, Video, Calculator, CreditCard } from 'lucide-react';
+import { DollarSign, Shield, BarChart as ChartBar, Users, Headphones, ArrowRight, CheckCircle2, Calendar, Video, Calculator, CreditCard, TrendingUp, Wallet, CreditCard as CardIcon } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Card, CardContent } from '@/components/ui/card';
@@ -76,6 +76,28 @@ const MenjadiReseller = () => {
     question: "Dukungan apa yang akan saya dapatkan?",
     answer: "Sebagai reseller Rapatin, Anda akan menerima dukungan prioritas dari tim khusus kami. Ini termasuk bantuan teknis, materi pemasaran, panduan penjualan, dan pembaruan rutin tentang fitur baru dan promosi. Kami berkomitmen untuk membantu Anda sukses dalam bisnis reseller Anda."
   }];
+  
+  const meetingPriceReseller = 5000; // Price per meeting for reseller
+  const meetingPriceEndUser = 20000; // Price per meeting for end user
+  const profitPerMeeting = meetingPriceEndUser - meetingPriceReseller;
+  
+  const salesCalculations = [
+    {
+      meetings: 3,
+      period: 'hari',
+      total: 3 * profitPerMeeting,
+    },
+    {
+      meetings: 15,
+      period: 'minggu',
+      total: 15 * profitPerMeeting,
+    },
+    {
+      meetings: 60,
+      period: 'bulan',
+      total: 60 * profitPerMeeting,
+    }
+  ];
   
   return <div className="min-h-screen">
       <Navbar />
@@ -248,6 +270,98 @@ const MenjadiReseller = () => {
                   <p className="text-muted-foreground">{benefit.description}</p>
                 </CardContent>
               </Card>)}
+          </div>
+        </div>
+      </section>
+
+      {/* Potential Income Section */}
+      <section className="py-16 bg-white">
+        <div className="container mx-auto px-4 md:px-6">
+          <div className="max-w-3xl mx-auto text-center mb-12">
+            <div className="inline-flex items-center py-1 px-4 bg-primary/10 rounded-full mb-4">
+              <span className="text-xs font-medium text-primary">Potensi Penghasilan</span>
+            </div>
+            <h2 className="text-3xl font-bold mb-4">Berapa <span className="text-primary">Penghasilan</span> yang Bisa Anda Dapatkan?</h2>
+            <p className="text-muted-foreground">Lihat potensi pendapatan yang bisa Anda raih dengan menjadi Reseller Rapatin</p>
+          </div>
+
+          <div className="max-w-4xl mx-auto">
+            <div className="glass rounded-xl p-6 border border-white/40 shadow-elevation mb-8">
+              <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-6">
+                <div className="text-center md:text-left">
+                  <h3 className="text-lg font-medium mb-2">Contoh Perhitungan Penghasilan</h3>
+                  <p className="text-muted-foreground">Berdasarkan rata-rata penjualan akses meeting</p>
+                </div>
+                <div className="flex gap-4 flex-wrap justify-center">
+                  <div className="flex items-center gap-2 bg-primary/10 px-4 py-2 rounded-lg">
+                    <CardIcon size={16} className="text-primary" />
+                    <div>
+                      <p className="text-xs text-muted-foreground">Harga Reseller</p>
+                      <p className="font-medium">Rp {meetingPriceReseller.toLocaleString()}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 bg-primary/10 px-4 py-2 rounded-lg">
+                    <Wallet size={16} className="text-primary" />
+                    <div>
+                      <p className="text-xs text-muted-foreground">Harga Jual</p>
+                      <p className="font-medium">Rp {meetingPriceEndUser.toLocaleString()}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 bg-primary/10 px-4 py-2 rounded-lg">
+                    <TrendingUp size={16} className="text-primary" />
+                    <div>
+                      <p className="text-xs text-muted-foreground">Profit/Meeting</p>
+                      <p className="font-medium">Rp {profitPerMeeting.toLocaleString()}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid md:grid-cols-3 gap-6">
+                {salesCalculations.map((calc, index) => (
+                  <Card key={index} className="border border-primary/10">
+                    <CardContent className="p-6">
+                      <div className="flex flex-col items-center">
+                        <div className="mb-2">
+                          <span className="text-4xl font-bold text-primary">{calc.meetings}</span>
+                          <span className="text-lg ml-1">meeting</span>
+                        </div>
+                        <p className="text-sm text-muted-foreground mb-4">per {calc.period}</p>
+                        <div className="w-full h-px bg-gray-100 my-3"></div>
+                        <div className="mb-1">
+                          <span className="font-medium">Pendapatan:</span>
+                        </div>
+                        <div className="text-2xl font-bold text-primary">
+                          Rp {calc.total.toLocaleString()}
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          per {calc.period}
+                        </p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+              
+              <div className="mt-8 p-4 bg-primary/5 rounded-lg">
+                <div className="flex gap-2 items-center mb-1">
+                  <CheckCircle2 size={16} className="text-primary" />
+                  <p className="font-medium">Anda bebas menentukan harga jual sendiri</p>
+                </div>
+                <p className="text-sm text-muted-foreground pl-6">
+                  Estimasi penghasilan di atas hanya contoh. Anda bisa menetapkan harga yang lebih tinggi sesuai pasar Anda.
+                </p>
+              </div>
+            </div>
+            
+            <div className="text-center">
+              <Button asChild size="lg" className="rounded-lg bg-primary hover:bg-primary/90 text-white">
+                <a href="https://app.rapatin.id/register" onClick={handleRegistration} target="_blank" rel="noopener noreferrer">
+                  Gabung Reseller & Mulai Menghasilkan
+                  <ArrowRight size={16} className="ml-2" />
+                </a>
+              </Button>
+            </div>
           </div>
         </div>
       </section>
