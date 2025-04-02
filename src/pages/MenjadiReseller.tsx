@@ -1,7 +1,6 @@
-
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { DollarSign, Shield, BarChart as ChartBar, Users, Headphones, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { DollarSign, Shield, BarChart as ChartBar, Users, Headphones, ArrowRight, CheckCircle2, Calendar, Video, Calculator, CreditCard } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Card, CardContent } from '@/components/ui/card';
@@ -103,11 +102,116 @@ const MenjadiReseller = () => {
               </Button>
             </div>
             <div className="flex-1 animate-float">
-              <img 
-                src="/lovable-uploads/54aa59cb-5574-4e7e-b296-cfd84c43473b.png" 
-                alt="Peluang Penghasilan dari Program Reseller Rapatin" 
-                className="rounded-2xl shadow-elevation" 
-              />
+              <div className="relative w-full max-w-md mx-auto">
+                <div className="rounded-2xl overflow-hidden shadow-elevation border border-white/40 bg-white/90">
+                  <div className="bg-white/90 p-3 flex items-center border-b">
+                    <div className="flex space-x-2">
+                      <div className="w-3 h-3 rounded-full bg-red-400"></div>
+                      <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
+                      <div className="w-3 h-3 rounded-full bg-green-400"></div>
+                    </div>
+                    <div className="mx-auto text-sm font-medium">Dashboard Reseller</div>
+                  </div>
+                  
+                  <div className="p-6">
+                    <div className="mb-6">
+                      <div className="flex justify-between mb-3">
+                        <h3 className="text-lg font-semibold">Pendapatan Bulan Ini</h3>
+                        <span className="text-lg font-bold text-primary">Rp 1.250.000</span>
+                      </div>
+                      <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                        <div className="h-full bg-primary rounded-full" style={{width: '75%'}}></div>
+                      </div>
+                      <div className="flex justify-between mt-1 text-xs text-muted-foreground">
+                        <span>Target: Rp 1.500.000</span>
+                        <span>75% tercapai</span>
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-4">
+                      <div className="flex justify-between items-center">
+                        <h3 className="font-medium">Transaksi Terbaru</h3>
+                        <span className="text-xs text-primary cursor-pointer">Lihat semua</span>
+                      </div>
+                      
+                      <div className="border rounded-lg p-3 bg-white">
+                        <div className="flex justify-between items-center">
+                          <div className="flex gap-3 items-center">
+                            <div className="p-2 bg-primary/10 rounded-full">
+                              <Video size={16} className="text-primary" />
+                            </div>
+                            <div>
+                              <p className="text-sm font-medium">Zoom Meeting</p>
+                              <p className="text-xs text-muted-foreground">PT Maju Bersama</p>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-sm font-medium">+ Rp 150.000</p>
+                            <p className="text-xs text-muted-foreground">Hari ini</p>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="border rounded-lg p-3 bg-white">
+                        <div className="flex justify-between items-center">
+                          <div className="flex gap-3 items-center">
+                            <div className="p-2 bg-primary/10 rounded-full">
+                              <Video size={16} className="text-primary" />
+                            </div>
+                            <div>
+                              <p className="text-sm font-medium">Google Meet</p>
+                              <p className="text-xs text-muted-foreground">Seminar Online</p>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-sm font-medium">+ Rp 250.000</p>
+                            <p className="text-xs text-muted-foreground">Kemarin</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="mt-6 flex justify-between items-center gap-4">
+                      <div className="flex-1">
+                        <button className="w-full flex items-center justify-center gap-2 bg-primary text-white py-2 rounded-lg text-sm">
+                          <CreditCard size={16} />
+                          <span>Top Up</span>
+                        </button>
+                      </div>
+                      <div className="flex-1">
+                        <button className="w-full flex items-center justify-center gap-2 border border-primary text-primary py-2 rounded-lg text-sm">
+                          <Calculator size={16} />
+                          <span>Kalkulator</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="absolute -bottom-4 -right-4 -z-10 w-full h-full rounded-2xl bg-primary/10"></div>
+                
+                <div className="absolute -top-10 -right-10 bg-white rounded-lg p-4 shadow-elevation border border-white/40 w-48 transform rotate-3 z-10">
+                  <h3 className="text-sm font-medium mb-2">Potensi Keuntungan</h3>
+                  <div className="space-y-2 text-xs">
+                    <div className="flex justify-between">
+                      <span>Harga Reseller:</span>
+                      <span className="font-medium">Rp 5.000</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Harga Jual:</span>
+                      <span className="font-medium">Rp 20.000</span>
+                    </div>
+                    <div className="h-px bg-gray-200 my-1"></div>
+                    <div className="flex justify-between text-primary">
+                      <span>Profit:</span>
+                      <span className="font-bold">Rp 15.000</span>
+                    </div>
+                    <div className="text-center text-primary/60 font-medium mt-1">
+                      300% Margin!
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
