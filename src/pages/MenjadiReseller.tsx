@@ -45,32 +45,29 @@ const MenjadiReseller = () => {
     description: "Buat akun reseller Anda dalam hitungan menit."
   }, {
     number: 2,
-    title: "Top-up saldo reseller Anda",
-    description: "Tambahkan kredit ke akun reseller Anda untuk mulai menjual."
+    title: "Top-up saldo akun Anda",
+    description: "Tambahkan saldo ke akun reseller Anda untuk mulai menjual."
   }, {
     number: 3,
-    title: "Jual kredit rapat ke pelanggan Anda",
+    title: "Jual akses rapat ke pelanggan Anda",
     description: "Tawarkan solusi rapat fleksibel dengan harga Anda sendiri."
   }, {
     number: 4,
-    title: "Pantau penjualan & komisi di dashboard",
-    description: "Monitor pendapatan dan aktivitas pelanggan secara real-time."
+    title: "Kelola Jadwal Rapat Mandiri",
+    description: "Monitor jadwal, laporan, dan rekaman real-time."
   }];
   const faqs = [{
-    question: "Berapa banyak komisi yang akan saya dapatkan?",
-    answer: "Sebagai reseller Rapatin, Anda akan mendapatkan tarif komisi kompetitif yang bergantung pada volume penjualan Anda. Semakin banyak Anda menjual, semakin tinggi persentase komisi Anda. Hubungi tim kami untuk tarif komisi spesifik berdasarkan kebutuhan bisnis Anda."
+    question: "Berapa harga khusus reseller?",
+    answer: "Sebagai reseller Rapatin, Anda akan mendapatkan harga yang lebih murah 75% dari harga jual end-user. Misalnya harga akses rapat Zoom berkapasitas 100 peserta adalah Rp 20.000, maka harga reseller adalah Rp 5.000"
   }, {
     question: "Bagaimana cara top-up saldo reseller?",
     answer: "Anda dapat mengisi saldo reseller Anda melalui berbagai metode pembayaran termasuk transfer bank, e-wallet, dan kartu kredit/debit. Cukup masuk ke dashboard reseller Anda, pilih opsi top-up, pilih metode pembayaran yang Anda sukai, dan ikuti petunjuknya."
   }, {
     question: "Apakah ada jumlah minimum top-up?",
-    answer: "Ya, ada jumlah minimum top-up untuk memastikan Anda memiliki kredit yang cukup untuk dijual kembali. Jumlah minimum top-up saat ini dapat ditemukan di dashboard reseller Anda. Persyaratan ini membantu menjaga efisiensi dalam proses penjualan kembali."
+    answer: "Ya, ada jumlah minimum top-up yaitu Rp 200.000 untuk memastikan Anda memiliki kredit yang cukup untuk dijual kembali. Jumlah minimum top-up saat ini dapat ditemukan di dashboard reseller Anda. Persyaratan ini membantu menjaga komitmen dan efisiensi dalam proses penjualan kembali."
   }, {
     question: "Bisakah saya menetapkan harga jual sendiri?",
     answer: "Tentu saja! Sebagai reseller Rapatin, Anda memiliki kebebasan penuh untuk menetapkan harga jual Anda sendiri. Fleksibilitas ini memungkinkan Anda menentukan margin keuntungan dan menerapkan strategi harga yang paling cocok untuk target pasar Anda."
-  }, {
-    question: "Bagaimana saya mengelola penjualan & pelanggan?",
-    answer: "Anda dapat mengelola semua penjualan dan pelanggan Anda melalui dashboard reseller khusus. Dashboard menyediakan data real-time tentang penjualan, aktivitas pelanggan, saldo, pendapatan komisi, dan lainnya, sehingga memudahkan untuk melacak dan mengembangkan bisnis reseller Anda."
   }, {
     question: "Dukungan apa yang akan saya dapatkan?",
     answer: "Sebagai reseller Rapatin, Anda akan menerima dukungan prioritas dari tim khusus kami. Ini termasuk bantuan teknis, materi pemasaran, panduan penjualan, dan pembaruan rutin tentang fitur baru dan promosi. Kami berkomitmen untuk membantu Anda sukses dalam bisnis reseller Anda."
