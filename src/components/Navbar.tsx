@@ -2,11 +2,13 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Menu, X, Home, HelpCircle } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 const Navbar: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const location = useLocation();
+  const isHomePage = location.pathname === '/';
 
   useEffect(() => {
     const handleScroll = () => {
@@ -58,28 +60,57 @@ const Navbar: React.FC = () => {
           <Link to="/" className="text-sm font-medium hover:text-primary transition-colors flex items-center">
             Home
           </Link>
-          <a href="#features" className="text-sm font-medium hover:text-primary transition-colors">Fitur</a>
-          <button 
-            onClick={() => scrollToSection('cara-kerja')} 
-            className="text-sm font-medium hover:text-primary transition-colors"
-          >
-            Cara Kerja
-          </button>
-          <a href="#pricing" className="text-sm font-medium hover:text-primary transition-colors">Harga</a>
-          <button 
-            onClick={() => scrollToSection('testimonials')} 
-            className="text-sm font-medium hover:text-primary transition-colors"
-          >
-            Testimoni
-          </button>
+          
+          {isHomePage ? (
+            // Navigation links for Home page with scroll functionality
+            <>
+              <a href="#features" className="text-sm font-medium hover:text-primary transition-colors">Fitur</a>
+              <button 
+                onClick={() => scrollToSection('cara-kerja')} 
+                className="text-sm font-medium hover:text-primary transition-colors cursor-default"
+              >
+                Cara Kerja
+              </button>
+              <a href="#pricing" className="text-sm font-medium hover:text-primary transition-colors">Harga</a>
+              <button 
+                onClick={() => scrollToSection('testimonials')} 
+                className="text-sm font-medium hover:text-primary transition-colors cursor-default"
+              >
+                Testimoni
+              </button>
+            </>
+          ) : (
+            // Navigation links for other pages
+            <>
+              <Link to="/#features" className="text-sm font-medium hover:text-primary transition-colors">
+                Fitur
+              </Link>
+              <Link to="/#cara-kerja" className="text-sm font-medium hover:text-primary transition-colors">
+                Cara Kerja
+              </Link>
+              <Link to="/#pricing" className="text-sm font-medium hover:text-primary transition-colors">
+                Harga
+              </Link>
+              <Link to="/#testimonials" className="text-sm font-medium hover:text-primary transition-colors">
+                Testimoni
+              </Link>
+            </>
+          )}
+          
+          <Link to="/blog" className="text-sm font-medium hover:text-primary transition-colors">
+            Blog
+          </Link>
+          <Link to="/tentang-kami" className="text-sm font-medium hover:text-primary transition-colors">
+            Tentang Kami
+          </Link>
           <Button asChild size="sm" className="bg-primary text-white hover:bg-primary/90">
-            <a href="https://app.rapatin.id/register" onClick={handleRegistration}>Daftar/Login</a>
+            <a href="https://app.rapatin.id/register" onClick={handleRegistration} className="cursor-default">Daftar/Login</a>
           </Button>
         </nav>
         
         {/* Mobile Menu Button */}
         <button 
-          className="md:hidden text-foreground"
+          className="md:hidden text-foreground cursor-default"
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
         >
           {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
@@ -97,38 +128,92 @@ const Navbar: React.FC = () => {
             >
               Home
             </Link>
-            <button 
-              onClick={() => scrollToSection('cara-kerja')} 
-              className="block w-full text-left text-sm font-medium hover:text-primary transition-colors py-2"
-            >
-              Cara Kerja
-            </button>
-            <button 
-              onClick={() => scrollToSection('testimonials')} 
-              className="block w-full text-left text-sm font-medium hover:text-primary transition-colors py-2"
-            >
-              Testimoni
-            </button>
-            <a 
-              href="#features" 
+            
+            {isHomePage ? (
+              // Mobile menu items for home page
+              <>
+                <button 
+                  onClick={() => scrollToSection('cara-kerja')} 
+                  className="block w-full text-left text-sm font-medium hover:text-primary transition-colors py-2 cursor-default"
+                >
+                  Cara Kerja
+                </button>
+                <button 
+                  onClick={() => scrollToSection('testimonials')} 
+                  className="block w-full text-left text-sm font-medium hover:text-primary transition-colors py-2 cursor-default"
+                >
+                  Testimoni
+                </button>
+                <a 
+                  href="#features" 
+                  className="block text-sm font-medium hover:text-primary transition-colors py-2"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Fitur
+                </a>
+                <a 
+                  href="#pricing" 
+                  className="block text-sm font-medium hover:text-primary transition-colors py-2"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Harga
+                </a>
+              </>
+            ) : (
+              // Mobile menu items for other pages
+              <>
+                <Link 
+                  to="/#features" 
+                  className="block text-sm font-medium hover:text-primary transition-colors py-2"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Fitur
+                </Link>
+                <Link 
+                  to="/#cara-kerja" 
+                  className="block text-sm font-medium hover:text-primary transition-colors py-2"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Cara Kerja
+                </Link>
+                <Link 
+                  to="/#pricing" 
+                  className="block text-sm font-medium hover:text-primary transition-colors py-2"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Harga
+                </Link>
+                <Link 
+                  to="/#testimonials" 
+                  className="block text-sm font-medium hover:text-primary transition-colors py-2"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Testimoni
+                </Link>
+              </>
+            )}
+            
+            <Link 
+              to="/blog" 
               className="block text-sm font-medium hover:text-primary transition-colors py-2"
               onClick={() => setIsMobileMenuOpen(false)}
             >
-              Fitur
-            </a>
-            <a 
-              href="#pricing" 
+              Blog
+            </Link>
+            <Link 
+              to="/tentang-kami" 
               className="block text-sm font-medium hover:text-primary transition-colors py-2"
               onClick={() => setIsMobileMenuOpen(false)}
             >
-              Harga
-            </a>
+              Tentang Kami
+            </Link>
+            
             <div className="flex flex-col space-y-3 pt-2">
               <Button asChild variant="outline" size="sm">
-                <a href="https://app.rapatin.id/login">Masuk</a>
+                <a href="https://app.rapatin.id/login" className="cursor-default">Masuk</a>
               </Button>
               <Button asChild size="sm" className="bg-primary text-white hover:bg-primary/90">
-                <a href="https://app.rapatin.id/register" onClick={handleRegistration}>Daftar</a>
+                <a href="https://app.rapatin.id/register" onClick={handleRegistration} className="cursor-default">Daftar</a>
               </Button>
             </div>
           </div>
