@@ -1,10 +1,8 @@
-
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Calendar, Clock, DollarSign, Video, BadgeDollarSign } from 'lucide-react';
 import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
-
 const HeroSection: React.FC = () => {
   const autoplayPlugin = React.useMemo(() => Autoplay({
     delay: 5000,
@@ -15,7 +13,6 @@ const HeroSection: React.FC = () => {
     // Required for proper functioning
     stopOnMouseEnter: true // Pause on mouse hover
   }), []);
-  
   return <section className="pt-28 pb-12 md:pt-32 md:pb-24 overflow-hidden bg-hero-pattern">
       <div className="container mx-auto px-4 md:px-6">
         <div className="grid md:grid-cols-2 gap-12 items-center">
@@ -48,7 +45,7 @@ const HeroSection: React.FC = () => {
               </div>
               <div className="flex items-center gap-2 text-sm">
                 <Video size={18} className="text-primary" />
-                <span>Zoom, Meet, Teams</span>
+                <span>Fitur Zoom Business</span>
               </div>
               <div className="flex items-center gap-2 text-sm">
                 <Calendar size={18} className="text-primary" />
@@ -198,5 +195,4 @@ const HeroSection: React.FC = () => {
       </div>
     </section>;
 };
-
 export default HeroSection;
