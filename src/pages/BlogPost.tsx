@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
@@ -63,7 +62,7 @@ const blogPosts = [
     author: 'Siti Rahayu',
     readTime: '6 menit',
     category: 'Keamanan',
-    image: 'https://images.unsplash.com/photo-1560264280-88b68371db39?q=80&w=2070'
+    image: 'https://images.unsplash.com/photo-1560264292089-90a7e086ee0c?q=80&w=2070'
   },
   {
     id: 5,
@@ -106,7 +105,7 @@ const BlogPost: React.FC = () => {
   // Get recommended articles (excluding current article)
   const recommendedPosts = blogPosts
     .filter(recommendedPost => recommendedPost.id !== blogId)
-    .slice(0, 3);
+    .slice(0, 5);
 
   return (
     <div className="min-h-screen">
@@ -136,41 +135,27 @@ const BlogPost: React.FC = () => {
                 </div>
               </div>
               
-              {/* Recommended Articles */}
+              {/* Recommended Articles - Title List Only */}
               <div className="glass rounded-lg p-6">
-                <h3 className="text-lg font-semibold mb-4">Artikel Terkait</h3>
+                <h3 className="text-lg font-semibold mb-4 flex items-center border-b pb-2">
+                  Artikel Terpopuler
+                </h3>
                 <div className="space-y-4">
                   {recommendedPosts.map((recommendedPost) => (
-                    <Card key={recommendedPost.id} className="border-0 shadow-sm hover:shadow-md transition-shadow">
-                      <CardContent className="p-4">
-                        <div className="aspect-video w-full bg-primary/10 rounded-md mb-3 overflow-hidden">
-                          <img 
-                            src={recommendedPost.image} 
-                            alt={recommendedPost.title} 
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                        <Badge className="mb-2">{recommendedPost.category}</Badge>
-                        <h4 className="font-medium mb-2 line-clamp-2">
-                          <a 
-                            href={`/blog/${recommendedPost.id}`} 
-                            className="hover:text-primary transition-colors"
-                          >
-                            {recommendedPost.title}
-                          </a>
-                        </h4>
-                        <div className="flex items-center justify-between text-xs text-muted-foreground">
-                          <div className="flex items-center">
-                            <Calendar size={12} className="mr-1" />
-                            <span>{recommendedPost.date}</span>
-                          </div>
-                          <div className="flex items-center">
-                            <Clock size={12} className="mr-1" />
-                            <span>{recommendedPost.readTime}</span>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
+                    <div key={recommendedPost.id} className="border-b border-border/50 pb-4 last:border-0 last:pb-0">
+                      <div className="flex items-center text-muted-foreground text-xs mb-1.5">
+                        <Calendar size={12} className="mr-1" />
+                        <span>{recommendedPost.date}</span>
+                      </div>
+                      <h4 className="font-medium line-clamp-2 hover:text-primary transition-colors">
+                        <a 
+                          href={`/blog/${recommendedPost.id}`} 
+                          className="cursor-default"
+                        >
+                          {recommendedPost.title}
+                        </a>
+                      </h4>
+                    </div>
                   ))}
                   
                   <a 
