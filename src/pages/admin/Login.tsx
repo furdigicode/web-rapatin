@@ -7,39 +7,26 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Lock, User } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
+import { useAdminAuth } from '@/contexts/AdminAuthContext';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const { signIn, loading } = useAdminAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
-    
-    // Simple mock login - in real app, this would validate against a backend
-    setTimeout(() => {
-      if (email === 'admin@rapatin.id' && password === 'admin123') {
-        // Store auth token in localStorage
-        localStorage.setItem('adminAuth', 'true');
-        
-        toast({
-          title: "Login berhasil",
-          description: "Selamat datang di Admin Dashboard",
-        });
-        
-        navigate('/admin/dashboard');
-      } else {
-        toast({
-          variant: "destructive",
-          title: "Login gagal",
-          description: "Email atau password salah",
-        });
-      }
-      setIsLoading(false);
-    }, 1000);
+    try {
+      await signIn(email, password);
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Login gagal",
+        description: error.message || "Email atau password salah",
+      });
+    }
   };
 
   return (
@@ -104,8 +91,8 @@ const Login = () => {
               </div>
             </CardContent>
             <CardFooter>
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? 'Memproses...' : 'Masuk'}
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading ? 'Memproses...' : 'Masuk'}
               </Button>
             </CardFooter>
           </form>
