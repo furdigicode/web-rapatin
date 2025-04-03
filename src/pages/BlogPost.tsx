@@ -236,8 +236,8 @@ const BlogPost: React.FC = () => {
                 </div>
               </div>
             </div>
-            <FinalCTA />
           </div>
+          <FinalCTA />
         </div>
       </main>
       
