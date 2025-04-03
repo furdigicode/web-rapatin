@@ -2,6 +2,7 @@ import React from 'react';
 import { useParams } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import FinalCTA from '@/components/FinalCTA';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Calendar, User, Clock, ArrowRight, Tag } from 'lucide-react';
@@ -235,6 +236,7 @@ const BlogPost: React.FC = () => {
                 </div>
               </div>
             </div>
+            <FinalCTA />
           </div>
         </div>
       </main>
