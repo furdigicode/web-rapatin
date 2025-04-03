@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { Link } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Card, CardContent } from '@/components/ui/card';
@@ -14,7 +15,8 @@ const Blog = () => {
       date: '10 Juni 2023',
       author: 'Budi Setiawan',
       readTime: '5 menit',
-      category: 'Tips & Trik'
+      category: 'Tips & Trik',
+      image: 'https://images.unsplash.com/photo-1553877522-43269d4ea984?q=80&w=2070'
     },
     {
       id: 2,
@@ -23,7 +25,8 @@ const Blog = () => {
       date: '28 Mei 2023',
       author: 'Dewi Lestari',
       readTime: '7 menit',
-      category: 'Bisnis'
+      category: 'Bisnis',
+      image: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?q=80&w=2070'
     },
     {
       id: 3,
@@ -32,7 +35,8 @@ const Blog = () => {
       date: '15 Mei 2023',
       author: 'Adi Nugroho',
       readTime: '4 menit',
-      category: 'Fitur Baru'
+      category: 'Fitur Baru',
+      image: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?q=80&w=2070'
     },
     {
       id: 4,
@@ -41,7 +45,8 @@ const Blog = () => {
       date: '5 Mei 2023',
       author: 'Siti Rahayu',
       readTime: '6 menit',
-      category: 'Keamanan'
+      category: 'Keamanan',
+      image: 'https://images.unsplash.com/photo-1560264280-88b68371db39?q=80&w=2070'
     },
     {
       id: 5,
@@ -50,7 +55,8 @@ const Blog = () => {
       date: '22 April 2023',
       author: 'Budi Setiawan',
       readTime: '8 menit',
-      category: 'Studi Kasus'
+      category: 'Studi Kasus',
+      image: 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?q=80&w=2070'
     },
     {
       id: 6,
@@ -59,7 +65,8 @@ const Blog = () => {
       date: '10 April 2023',
       author: 'Dewi Lestari',
       readTime: '5 menit',
-      category: 'Produktivitas'
+      category: 'Produktivitas',
+      image: 'https://images.unsplash.com/photo-1600880292089-90a7e086ee0c?q=80&w=2070'
     }
   ];
 
@@ -98,7 +105,7 @@ const Blog = () => {
                     index === 0
                       ? 'bg-primary text-white'
                       : 'bg-accent/50 text-foreground hover:bg-accent'
-                  }`}
+                  } cursor-default`}
                 >
                   {category}
                 </button>
@@ -111,7 +118,15 @@ const Blog = () => {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
             {blogPosts.map((post) => (
               <Card key={post.id} className="glass hover:shadow-elevation transition-all duration-300 overflow-hidden">
-                <div className="aspect-video w-full bg-primary/10"></div>
+                <Link to={`/blog/${post.id}`} className="cursor-default">
+                  <div className="aspect-video w-full bg-primary/10 overflow-hidden">
+                    <img 
+                      src={post.image} 
+                      alt={post.title} 
+                      className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                    />
+                  </div>
+                </Link>
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between mb-3 text-xs text-muted-foreground">
                     <span className="px-2 py-1 rounded-full bg-primary/10 text-primary font-medium">
@@ -124,9 +139,9 @@ const Blog = () => {
                   </div>
                   
                   <h3 className="text-xl font-semibold mb-2">
-                    <a href={`/blog/${post.id}`} className="hover:text-primary transition-colors">
+                    <Link to={`/blog/${post.id}`} className="hover:text-primary transition-colors cursor-default">
                       {post.title}
-                    </a>
+                    </Link>
                   </h3>
                   
                   <p className="text-muted-foreground mb-4">

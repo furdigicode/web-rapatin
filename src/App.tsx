@@ -21,6 +21,7 @@ import Kontak from "./pages/Kontak";
 import SyaratKetentuan from "./pages/SyaratKetentuan";
 import KebijakanPrivasi from "./pages/KebijakanPrivasi";
 import Blog from "./pages/Blog";
+import BlogPost from "./pages/BlogPost";
 import MenjadiReseller from "./pages/MenjadiReseller";
 
 // Admin Pages
@@ -90,6 +91,7 @@ const AppRoutes = () => {
       <Route path="/syarat-ketentuan" element={<SyaratKetentuan />} />
       <Route path="/kebijakan-privasi" element={<KebijakanPrivasi />} />
       <Route path="/blog" element={<Blog />} />
+      <Route path="/blog/:id" element={<BlogPost />} />
       <Route path="/menjadi-reseller" element={<MenjadiReseller />} />
       
       {/* Admin Routes */}
