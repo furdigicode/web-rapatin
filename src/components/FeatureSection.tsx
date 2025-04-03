@@ -1,5 +1,6 @@
+
 import React from 'react';
-import { Calendar, CloudLightning, CreditCard, Download, FileText, LayoutDashboard, LifeBuoy, Video, GraduationCap, Users, Briefcase, Mic, UserCheck, BookOpen, CalendarCheck, PartyPopper } from 'lucide-react';
+import { Calendar, CloudLightning, CreditCard, Download, FileText, LayoutDashboard, LifeBuoy, Video, GraduationCap, Users, Briefcase, Mic, UserCheck, BookOpen, CalendarCheck, PartyPopper, Sparkles } from 'lucide-react';
 interface FeatureProps {
   icon: React.ReactNode;
   title: string;
@@ -47,9 +48,9 @@ const FeatureSection: React.FC = () => {
     description: "Jadwalkan rapat tanpa memerlukan akun Zoom berbayar. Berfungsi langsung untuk semua orang.",
     delay: "delay-400"
   }, {
-    icon: <LifeBuoy size={22} />,
-    title: "Dukungan Khusus",
-    description: "Tim dukungan kami siap membantu dengan masalah teknis apa pun yang mungkin Anda temui.",
+    icon: <Sparkles size={22} />,
+    title: "Akses Semua Fitur",
+    description: "Nikmati akses penuh ke semua fitur premium seperti polling, ruang diskusi, tanya jawab, dan berbagi layar tanpa batasan.",
     delay: "delay-500"
   }];
   return <section id="features" className="py-20 bg-gradient-to-b from-background to-accent/20">
