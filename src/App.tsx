@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -36,10 +37,6 @@ import ContactManagement from "./pages/admin/ContactManagement";
 import TermsManagement from "./pages/admin/TermsManagement";
 import PrivacyManagement from "./pages/admin/PrivacyManagement";
 
-// Auth Components
-import { AdminAuthProvider } from "./contexts/AdminAuthContext";
-import ProtectedRoute from "./components/admin/ProtectedRoute";
-
 const queryClient = new QueryClient();
 
 // Create a separate component for the routes that can use hooks
@@ -76,13 +73,6 @@ const AppRoutes = () => {
     }
   }, [location.pathname]);
 
-  // Render admin routes with protection
-  const renderProtectedRoute = (element: JSX.Element) => (
-    <ProtectedRoute>
-      {element}
-    </ProtectedRoute>
-  );
-
   return (
     <Routes>
       {/* Public Routes */}
@@ -106,16 +96,16 @@ const AppRoutes = () => {
       
       {/* Admin Routes */}
       <Route path="/admin/login" element={<AdminLogin />} />
-      <Route path="/admin/dashboard" element={renderProtectedRoute(<AdminDashboard />)} />
-      <Route path="/admin/urls" element={renderProtectedRoute(<URLManagement />)} />
-      <Route path="/admin/faq" element={renderProtectedRoute(<FAQManagement />)} />
-      <Route path="/admin/blog" element={renderProtectedRoute(<BlogManagement />)} />
-      <Route path="/admin/testimonials" element={renderProtectedRoute(<TestimonialManagement />)} />
-      <Route path="/admin/brand-logos" element={renderProtectedRoute(<BrandLogoManagement />)} />
-      <Route path="/admin/about" element={renderProtectedRoute(<AboutManagement />)} />
-      <Route path="/admin/contact" element={renderProtectedRoute(<ContactManagement />)} />
-      <Route path="/admin/terms" element={renderProtectedRoute(<TermsManagement />)} />
-      <Route path="/admin/privacy" element={renderProtectedRoute(<PrivacyManagement />)} />
+      <Route path="/admin/dashboard" element={<AdminDashboard />} />
+      <Route path="/admin/urls" element={<URLManagement />} />
+      <Route path="/admin/faq" element={<FAQManagement />} />
+      <Route path="/admin/blog" element={<BlogManagement />} />
+      <Route path="/admin/testimonials" element={<TestimonialManagement />} />
+      <Route path="/admin/brand-logos" element={<BrandLogoManagement />} />
+      <Route path="/admin/about" element={<AboutManagement />} />
+      <Route path="/admin/contact" element={<ContactManagement />} />
+      <Route path="/admin/terms" element={<TermsManagement />} />
+      <Route path="/admin/privacy" element={<PrivacyManagement />} />
       
       {/* 404 Catch-all Route */}
       <Route path="*" element={<NotFound />} />
@@ -131,9 +121,7 @@ const App = () => {
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <AdminAuthProvider>
-            <AppRoutes />
-          </AdminAuthProvider>
+          <AppRoutes />
         </BrowserRouter>
       </TooltipProvider>
     </QueryClientProvider>
