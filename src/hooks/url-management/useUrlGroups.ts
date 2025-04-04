@@ -155,7 +155,7 @@ export const useUrlGroups = () => {
         toast({
           title: "Data tersimpan di localStorage",
           description: "Terjadi kesalahan saat menyimpan ke database. Data disimpan di localStorage saja.",
-          variant: "warning"
+          variant: "default" // Changed from "warning" to "default"
         });
       } else {
         toast({
@@ -168,7 +168,7 @@ export const useUrlGroups = () => {
       toast({
         title: "Data tersimpan di localStorage",
         description: "Terjadi kesalahan saat menyimpan URL. Data disimpan di localStorage saja.",
-        variant: "warning"
+        variant: "default" // Changed from "warning" to "default"
       });
     } finally {
       setSaving(false);

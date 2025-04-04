@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Calendar, Clock, DollarSign, Video, BadgeDollarSign } from 'lucide-react';
@@ -35,7 +34,7 @@ const HeroSection: React.FC = () => {
           if (savedData) {
             const parsedData = JSON.parse(savedData);
             const heroSection = parsedData.find((group: any) => group.title === 'Hero Section');
-            if (heroSection && heroSection.items) {
+            if (heroSection && heroSection.items && Array.isArray(heroSection.items)) {
               const startBtn = heroSection.items.find((item: any) => item.label === 'Mulai Menjadwalkan');
               const pricingBtn = heroSection.items.find((item: any) => item.label === 'Lihat Harga');
               
@@ -45,7 +44,7 @@ const HeroSection: React.FC = () => {
               });
             }
           }
-        } else if (data && data.items) {
+        } else if (data && data.items && Array.isArray(data.items)) {
           const startBtn = data.items.find((item: any) => item.label === 'Mulai Menjadwalkan');
           const pricingBtn = data.items.find((item: any) => item.label === 'Lihat Harga');
           

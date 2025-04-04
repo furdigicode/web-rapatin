@@ -50,7 +50,7 @@ const URLManagement = () => {
         </div>
 
         {dbAccessible === false && (
-          <Alert variant="warning" className="mb-4">
+          <Alert variant="default" className="mb-4 border-amber-500">
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>
               Database tidak dapat diakses karena masalah akses. Perubahan akan disimpan hanya di localStorage.

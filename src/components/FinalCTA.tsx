@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from 'lucide-react';
@@ -22,11 +23,11 @@ const FinalCTA: React.FC = () => {
           if (savedData) {
             const parsedData = JSON.parse(savedData);
             const ctaSection = parsedData.find((group: any) => group.title === 'Call to Action');
-            if (ctaSection && ctaSection.items && ctaSection.items.length > 0) {
+            if (ctaSection && ctaSection.items && Array.isArray(ctaSection.items) && ctaSection.items.length > 0) {
               setCtaUrl(ctaSection.items[0].url || "https://app.rapatin.id/register");
             }
           }
-        } else if (data && data.items && data.items.length > 0) {
+        } else if (data && data.items && Array.isArray(data.items) && data.items.length > 0) {
           setCtaUrl(data.items[0].url || "https://app.rapatin.id/register");
         }
       } catch (err) {
