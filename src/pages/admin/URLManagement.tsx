@@ -16,120 +16,84 @@ const URLManagement = () => {
   const [saving, setSaving] = useState(false);
   const [urlGroups, setUrlGroups] = useState<Urls[]>([]);
 
-  // Load URL data from localStorage or use default data
+  // Default URL data if nothing is loaded
+  const defaultUrlData = [
+    {
+      id: "1",
+      title: "Hero Section",
+      items: [
+        {
+          label: "Mulai Menjadwalkan",
+          description: "Tombol CTA utama di hero section",
+          url: "https://rapatin.id/register"
+        },
+        {
+          label: "Lihat Harga",
+          description: "Tombol ke bagian pricing",
+          url: "#pricing"
+        }
+      ]
+    },
+    {
+      id: "2",
+      title: "Call to Action",
+      items: [
+        {
+          label: "Daftar & Mulai Menjadwalkan",
+          description: "Tombol CTA di bagian akhir halaman",
+          url: "https://rapatin.id/register"
+        }
+      ]
+    },
+    {
+      id: "3",
+      title: "Navbar",
+      items: [
+        {
+          label: "Masuk",
+          description: "Tombol login di navbar",
+          url: "https://rapatin.id/login"
+        },
+        {
+          label: "Daftar",
+          description: "Tombol register di navbar",
+          url: "https://rapatin.id/register"
+        }
+      ]
+    }
+  ];
+
+  // Load URL data
   useEffect(() => {
     const loadUrlData = async () => {
       setLoading(true);
       try {
-        // First try to fetch from Supabase
+        // Fetch from Supabase
         const { data, error } = await supabase
           .from('urls')
           .select('*');
         
         if (error) {
           console.error('Error fetching URLs from Supabase:', error);
-          // Fall back to localStorage if Supabase fails
+          // Fall back to localStorage
           const savedData = localStorage.getItem('urlData');
           if (savedData) {
             setUrlGroups(JSON.parse(savedData));
           } else {
             // Use default data if nothing is saved
-            setUrlGroups([
-              {
-                id: "1",
-                title: "Hero Section",
-                items: [
-                  {
-                    label: "Mulai Menjadwalkan",
-                    description: "Tombol CTA utama di hero section",
-                    url: "https://rapatin.id/register"
-                  },
-                  {
-                    label: "Lihat Harga",
-                    description: "Tombol ke bagian pricing",
-                    url: "#pricing"
-                  }
-                ]
-              },
-              {
-                id: "2",
-                title: "Call to Action",
-                items: [
-                  {
-                    label: "Daftar & Mulai Menjadwalkan",
-                    description: "Tombol CTA di bagian akhir halaman",
-                    url: "https://rapatin.id/register"
-                  }
-                ]
-              },
-              {
-                id: "3",
-                title: "Navbar",
-                items: [
-                  {
-                    label: "Masuk",
-                    description: "Tombol login di navbar",
-                    url: "https://rapatin.id/login"
-                  },
-                  {
-                    label: "Daftar",
-                    description: "Tombol register di navbar",
-                    url: "https://rapatin.id/register"
-                  }
-                ]
-              }
-            ]);
+            setUrlGroups(defaultUrlData);
           }
         } else if (data && data.length > 0) {
-          // Transform Supabase data to our format if needed
-          setUrlGroups(data);
+          setUrlGroups(data as Urls[]);
         } else {
-          // Use default data if no data in Supabase
-          setUrlGroups([
-            {
-              id: "1",
-              title: "Hero Section",
-              items: [
-                {
-                  label: "Mulai Menjadwalkan",
-                  description: "Tombol CTA utama di hero section",
-                  url: "https://rapatin.id/register"
-                },
-                {
-                  label: "Lihat Harga",
-                  description: "Tombol ke bagian pricing",
-                  url: "#pricing"
-                }
-              ]
-            },
-            {
-              id: "2",
-              title: "Call to Action",
-              items: [
-                {
-                  label: "Daftar & Mulai Menjadwalkan",
-                  description: "Tombol CTA di bagian akhir halaman",
-                  url: "https://rapatin.id/register"
-                }
-              ]
-            },
-            {
-              id: "3",
-              title: "Navbar",
-              items: [
-                {
-                  label: "Masuk",
-                  description: "Tombol login di navbar",
-                  url: "https://rapatin.id/login"
-                },
-                {
-                  label: "Daftar",
-                  description: "Tombol register di navbar",
-                  url: "https://rapatin.id/register"
-                }
-              ]
-            }
-          ]);
+          // If no data in Supabase, initialize with default data
+          setUrlGroups(defaultUrlData);
+          // Save the default data to Supabase for future use
+          for (const group of defaultUrlData) {
+            await supabase
+              .from('urls')
+              .upsert(group);
+          }
         }
       } catch (err) {
         console.error('Error loading URL data:', err);
@@ -138,6 +102,7 @@ const URLManagement = () => {
           description: "Could not load URL data. Using default values.",
           variant: "destructive"
         });
+        setUrlGroups(defaultUrlData);
       } finally {
         setLoading(false);
       }
@@ -159,17 +124,11 @@ const URLManagement = () => {
       // First save to localStorage as a backup
       localStorage.setItem('urlData', JSON.stringify(urlGroups));
       
-      // Then save to Supabase if available
+      // Then save to Supabase
       for (const group of urlGroups) {
         const { error } = await supabase
           .from('urls')
-          .upsert({ 
-            id: group.id, 
-            title: group.title, 
-            items: group.items 
-          }, { 
-            onConflict: 'id' 
-          });
+          .upsert(group);
           
         if (error) {
           console.error('Error saving to Supabase:', error);
