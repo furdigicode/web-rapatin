@@ -14,12 +14,12 @@ const BrandLogosSection = () => {
           .from('brand_logos')
           .select('*')
           .eq('active', true)
-          .order('order_position', { ascending: true }) as { data: BrandLogo[] | null; error: Error | null };
+          .order('order_position', { ascending: true });
 
         if (error) {
           console.error('Error fetching brand logos:', error);
         } else if (data) {
-          setLogos(data);
+          setLogos(data as BrandLogo[]);
         }
       } catch (err) {
         console.error('Error in brand logos fetch:', err);
@@ -58,7 +58,7 @@ const BrandLogosSection = () => {
             style={{ width: logo.width }}
           >
             <svg 
-              viewBox="0 0 100 30" 
+              viewBox={`0 0 ${logo.width} ${logo.height}`} 
               width={logo.width} 
               height={logo.height}
               className="fill-current text-gray-600 hover:text-primary transition-colors"
