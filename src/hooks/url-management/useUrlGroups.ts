@@ -65,7 +65,7 @@ export const useUrlGroups = () => {
   const loadUrlData = async () => {
     setLoading(true);
     try {
-      // Fetch from Supabase
+      // First try fetching from Supabase
       const { data, error } = await supabase
         .from('urls')
         .select('*');
@@ -76,20 +76,38 @@ export const useUrlGroups = () => {
         const savedData = localStorage.getItem('urlData');
         if (savedData) {
           setUrlGroups(JSON.parse(savedData));
+          toast({
+            title: "Loaded from local storage",
+            description: "URL data loaded from local storage as database access is restricted.",
+          });
         } else {
           // Use default data if nothing is saved
           setUrlGroups(defaultUrlData);
+          // Save default data to localStorage
+          localStorage.setItem('urlData', JSON.stringify(defaultUrlData));
+          toast({
+            title: "Using default URLs",
+            description: "Default URL settings loaded. Changes will be saved locally.",
+          });
         }
       } else if (data && data.length > 0) {
         setUrlGroups(data as Urls[]);
+        // Also update localStorage with latest data
+        localStorage.setItem('urlData', JSON.stringify(data));
       } else {
         // If no data in Supabase, initialize with default data
         setUrlGroups(defaultUrlData);
-        // Save the default data to Supabase for future use
-        for (const group of defaultUrlData) {
-          await supabase
-            .from('urls')
-            .upsert(group);
+        localStorage.setItem('urlData', JSON.stringify(defaultUrlData));
+        
+        // Try to initialize Supabase with default data (may fail due to RLS)
+        try {
+          for (const group of defaultUrlData) {
+            await supabase
+              .from('urls')
+              .upsert(group);
+          }
+        } catch (initError) {
+          console.error('Error initializing default URL data:', initError);
         }
       }
     } catch (err) {
@@ -100,6 +118,7 @@ export const useUrlGroups = () => {
         variant: "destructive"
       });
       setUrlGroups(defaultUrlData);
+      localStorage.setItem('urlData', JSON.stringify(defaultUrlData));
     } finally {
       setLoading(false);
     }
@@ -115,10 +134,12 @@ export const useUrlGroups = () => {
     setSaving(true);
     
     try {
-      // First save to localStorage as a backup
+      // First save to localStorage as a reliable backup
       localStorage.setItem('urlData', JSON.stringify(urlGroups));
       
-      // Then save to Supabase
+      // Then try to save to Supabase
+      let hasSupabaseError = false;
+      
       for (const group of urlGroups) {
         const { error } = await supabase
           .from('urls')
@@ -126,20 +147,28 @@ export const useUrlGroups = () => {
           
         if (error) {
           console.error('Error saving to Supabase:', error);
-          throw error;
+          hasSupabaseError = true;
         }
       }
       
-      toast({
-        title: "URL berhasil disimpan",
-        description: "Perubahan URL telah berhasil disimpan",
-      });
+      if (hasSupabaseError) {
+        toast({
+          title: "Data tersimpan di localStorage",
+          description: "Terjadi kesalahan saat menyimpan ke database. Data disimpan di localStorage saja.",
+          variant: "warning"
+        });
+      } else {
+        toast({
+          title: "URL berhasil disimpan",
+          description: "Perubahan URL telah berhasil disimpan ke database",
+        });
+      }
     } catch (err) {
       console.error('Error saving URLs:', err);
       toast({
-        title: "Error menyimpan data",
+        title: "Data tersimpan di localStorage",
         description: "Terjadi kesalahan saat menyimpan URL. Data disimpan di localStorage saja.",
-        variant: "destructive"
+        variant: "warning"
       });
     } finally {
       setSaving(false);

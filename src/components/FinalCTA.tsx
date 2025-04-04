@@ -1,9 +1,42 @@
-
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from 'lucide-react';
+import { supabase } from "@/integrations/supabase/client";
 
 const FinalCTA: React.FC = () => {
+  const [ctaUrl, setCtaUrl] = useState("https://app.rapatin.id/register");
+  
+  useEffect(() => {
+    const loadUrls = async () => {
+      try {
+        // Try to fetch from Supabase first
+        const { data, error } = await supabase
+          .from('urls')
+          .select('*')
+          .eq('title', 'Call to Action')
+          .single();
+          
+        if (error) {
+          // If Supabase fails, try localStorage
+          const savedData = localStorage.getItem('urlData');
+          if (savedData) {
+            const parsedData = JSON.parse(savedData);
+            const ctaSection = parsedData.find((group: any) => group.title === 'Call to Action');
+            if (ctaSection && ctaSection.items && ctaSection.items.length > 0) {
+              setCtaUrl(ctaSection.items[0].url || "https://app.rapatin.id/register");
+            }
+          }
+        } else if (data && data.items && data.items.length > 0) {
+          setCtaUrl(data.items[0].url || "https://app.rapatin.id/register");
+        }
+      } catch (err) {
+        console.error('Error loading CTA URL:', err);
+      }
+    };
+    
+    loadUrls();
+  }, []);
+
   const handleRegistration = () => {
     // Track registration click with Facebook Pixel
     if (typeof window.fbq === 'function') {
@@ -22,12 +55,13 @@ const FinalCTA: React.FC = () => {
                 Bergabunglah dengan ribuan pengguna yang sudah menikmati fleksibilitas platform rapat bayar-sesuai-penggunaan kami.
               </p>
               <Button asChild size="lg" className="rounded-lg bg-primary hover:bg-primary/90 text-white">
-                <a href="https://app.rapatin.id/register" onClick={handleRegistration} target="_blank" rel="noopener noreferrer">
+                <a href={ctaUrl} onClick={handleRegistration} target="_blank" rel="noopener noreferrer">
                   Daftar & Mulai Menjadwalkan
                   <ArrowRight size={16} className="ml-2" />
                 </a>
               </Button>
             </div>
+            
             <div className="rounded-xl bg-primary/5 p-6 space-y-4">
               <h3 className="font-medium text-lg">Yang akan Anda dapatkan:</h3>
               <ul className="space-y-3">
