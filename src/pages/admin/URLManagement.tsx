@@ -71,7 +71,7 @@ const URLManagement = () => {
         // Fetch from Supabase
         const { data, error } = await supabase
           .from('urls')
-          .select('*');
+          .select('*') as { data: Urls[] | null; error: Error | null };
         
         if (error) {
           console.error('Error fetching URLs from Supabase:', error);
@@ -84,7 +84,7 @@ const URLManagement = () => {
             setUrlGroups(defaultUrlData);
           }
         } else if (data && data.length > 0) {
-          setUrlGroups(data as Urls[]);
+          setUrlGroups(data);
         } else {
           // If no data in Supabase, initialize with default data
           setUrlGroups(defaultUrlData);
@@ -92,7 +92,7 @@ const URLManagement = () => {
           for (const group of defaultUrlData) {
             await supabase
               .from('urls')
-              .upsert(group);
+              .upsert(group as any);
           }
         }
       } catch (err) {
@@ -128,7 +128,7 @@ const URLManagement = () => {
       for (const group of urlGroups) {
         const { error } = await supabase
           .from('urls')
-          .upsert(group);
+          .upsert(group as any);
           
         if (error) {
           console.error('Error saving to Supabase:', error);
