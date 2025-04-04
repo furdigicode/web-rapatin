@@ -2,6 +2,7 @@
 import React from 'react';
 import Navbar from '@/components/Navbar';
 import HeroSection from '@/components/HeroSection';
+import BrandLogosSection from '@/components/BrandLogosSection';
 import FeatureSection from '@/components/FeatureSection';
 import HowItWorksSection from '@/components/HowItWorksSection';
 import PricingSection from '@/components/PricingSection';
@@ -15,6 +16,7 @@ const Index = () => {
     <div className="min-h-screen">
       <Navbar />
       <HeroSection />
+      <BrandLogosSection />
       <FeatureSection />
       <HowItWorksSection />
       <PricingSection />
