@@ -27,7 +27,7 @@ const URLManagement = () => {
         {
           label: "Mulai Menjadwalkan",
           description: "Tombol CTA utama di hero section",
-          url: "https://rapatin.id/register"
+          url: "https://rapatin.id/admin/register"
         },
         {
           label: "Lihat Harga",
