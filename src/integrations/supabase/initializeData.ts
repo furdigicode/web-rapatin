@@ -64,21 +64,80 @@ export const initializeUrlData = async () => {
     if ((!data || data.length === 0) || error) {
       console.log('Initializing URL data with defaults...');
       
-      // Insert default URL data
+      // Try to insert default URL data
       for (const group of defaultUrlData) {
-        await supabase
+        const { error: insertError } = await supabase
           .from('urls')
           .upsert(group, {
             onConflict: 'id'
           });
+          
+        if (insertError) {
+          console.error('Error inserting URL data:', insertError);
+          // If we can't insert to Supabase, save to localStorage as fallback
+          localStorage.setItem('urlData', JSON.stringify(defaultUrlData));
+          return { 
+            success: false, 
+            message: 'Failed to initialize URL data in database. Using localStorage as fallback.' 
+          };
+        }
       }
       
-      return { success: true, message: 'Default URL data initialized successfully' };
+      return { 
+        success: true, 
+        message: 'Default URL data initialized successfully in database' 
+      };
     }
     
     return { success: true, message: 'URL data already exists' };
   } catch (err) {
     console.error('Error initializing URL data:', err);
-    return { success: false, message: 'Failed to initialize URL data' };
+    // Save to localStorage as fallback
+    localStorage.setItem('urlData', JSON.stringify(defaultUrlData));
+    return { 
+      success: false, 
+      message: 'Failed to initialize URL data in database. Using localStorage as fallback.' 
+    };
+  }
+};
+
+/**
+ * Force initialization of URL data in Supabase from localStorage
+ */
+export const forceInitializeUrlData = async () => {
+  try {
+    // Get data from localStorage
+    const savedData = localStorage.getItem('urlData');
+    if (!savedData) {
+      return { success: false, message: 'No URL data found in localStorage to initialize with' };
+    }
+    
+    const parsedData = JSON.parse(savedData);
+    let successCount = 0;
+    
+    // Insert data from localStorage to Supabase
+    for (const group of parsedData) {
+      const { error } = await supabase
+        .from('urls')
+        .upsert(group, {
+          onConflict: 'id'
+        });
+        
+      if (!error) {
+        successCount++;
+      }
+    }
+    
+    if (successCount === parsedData.length) {
+      return { success: true, message: 'Successfully initialized Supabase with localStorage data' };
+    } else {
+      return { 
+        success: true, 
+        message: `Partially initialized data: ${successCount}/${parsedData.length} groups` 
+      };
+    }
+  } catch (err) {
+    console.error('Error forcing URL data initialization:', err);
+    return { success: false, message: 'Failed to force initialize URL data' };
   }
 };
