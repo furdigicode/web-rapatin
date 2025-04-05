@@ -1,68 +1,18 @@
-
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Calendar, Clock, DollarSign, Video, BadgeDollarSign } from 'lucide-react';
-import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
+import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
-import { supabase } from "@/integrations/supabase/client";
-import { UrlItem } from "@/types/supabase";
-
 const HeroSection: React.FC = () => {
-  const [heroUrls, setHeroUrls] = useState({
-    startScheduling: "https://app.rapatin.id/register",
-    viewPricing: "#pricing" 
-  });
-  
   const autoplayPlugin = React.useMemo(() => Autoplay({
     delay: 5000,
+    // 5 seconds between slides
     stopOnInteraction: false,
+    // Continues auto-sliding even after user interaction
     rootNode: emblaRoot => emblaRoot.parentElement,
-    stopOnMouseEnter: true
+    // Required for proper functioning
+    stopOnMouseEnter: true // Pause on mouse hover
   }), []);
-  
-  useEffect(() => {
-    const loadUrls = async () => {
-      try {
-        // Try to fetch from Supabase first
-        const { data, error } = await supabase
-          .from('urls')
-          .select('*')
-          .eq('title', 'Hero Section')
-          .single();
-          
-        if (error) {
-          // If Supabase fails, try localStorage
-          const savedData = localStorage.getItem('urlData');
-          if (savedData) {
-            const parsedData = JSON.parse(savedData);
-            const heroSection = parsedData.find((group: any) => group.title === 'Hero Section');
-            if (heroSection && heroSection.items && Array.isArray(heroSection.items)) {
-              const startBtn = heroSection.items.find((item: any) => item.label === 'Mulai Menjadwalkan') as UrlItem | undefined;
-              const pricingBtn = heroSection.items.find((item: any) => item.label === 'Lihat Harga') as UrlItem | undefined;
-              
-              setHeroUrls({
-                startScheduling: startBtn?.url || "https://app.rapatin.id/register",
-                viewPricing: pricingBtn?.url || "#pricing"
-              });
-            }
-          }
-        } else if (data && data.items && Array.isArray(data.items)) {
-          const startBtn = data.items.find((item: any) => item.label === 'Mulai Menjadwalkan') as UrlItem | undefined;
-          const pricingBtn = data.items.find((item: any) => item.label === 'Lihat Harga') as UrlItem | undefined;
-          
-          setHeroUrls({
-            startScheduling: startBtn?.url || "https://app.rapatin.id/register",
-            viewPricing: pricingBtn?.url || "#pricing"
-          });
-        }
-      } catch (err) {
-        console.error('Error loading hero URLs:', err);
-      }
-    };
-    
-    loadUrls();
-  }, []);
-
   return <section className="pt-28 pb-12 md:pt-32 md:pb-24 overflow-hidden bg-hero-pattern">
       <div className="container mx-auto px-4 md:px-6">
         <div className="grid md:grid-cols-2 gap-12 items-center">
@@ -81,10 +31,10 @@ const HeroSection: React.FC = () => {
             
             <div className="flex flex-col sm:flex-row gap-4 pt-4">
               <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-white rounded-lg h-12 px-8">
-                <a href={heroUrls.startScheduling} target="_blank" rel="noopener noreferrer">Mulai Menjadwalkan</a>
+                <a href="https://app.rapatin.id/register" target="_blank" rel="noopener noreferrer">Mulai Menjadwalkan</a>
               </Button>
               <Button asChild variant="outline" size="lg" className="rounded-lg h-12 px-8">
-                <a href={heroUrls.viewPricing}>Lihat Harga</a>
+                <a href="#pricing">Lihat Harga</a>
               </Button>
             </div>
 
@@ -245,5 +195,4 @@ const HeroSection: React.FC = () => {
       </div>
     </section>;
 };
-
 export default HeroSection;

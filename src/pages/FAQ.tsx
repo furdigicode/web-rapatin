@@ -4,7 +4,15 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { supabase } from '@/integrations/supabase/client';
-import { FAQItem } from '@/types/supabase';
+
+type FAQItem = {
+  id: string;
+  question: string;
+  answer: string;
+  category: string;
+  active: boolean;
+  order_position: number;
+};
 
 const FAQ = () => {
   const [faqItems, setFaqItems] = useState<FAQItem[]>([]);
@@ -18,12 +26,12 @@ const FAQ = () => {
           .from('faq_items')
           .select('*')
           .eq('active', true)
-          .order('order_position', { ascending: true });
+          .order('order_position', { ascending: true }) as { data: FAQItem[] | null; error: Error | null };
 
         if (error) {
           console.error('Error fetching FAQs:', error);
         } else if (data) {
-          setFaqItems(data as FAQItem[]);
+          setFaqItems(data);
           
           // Extract unique categories
           const uniqueCategories = Array.from(new Set(data.map(item => item.category)));

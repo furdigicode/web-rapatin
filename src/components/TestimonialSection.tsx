@@ -1,8 +1,20 @@
 
 import React, { useEffect, useState } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent } from "@/components/ui/card";
+import { Star } from "lucide-react";
 import { supabase } from '@/integrations/supabase/client';
-import { Testimonial } from '@/types/supabase';
+
+type Testimonial = {
+  id: string;
+  name: string;
+  position: string;
+  company: string;
+  content: string;
+  rating: number;
+  avatar_url?: string;
+  active: boolean;
+  order_position: number;
+};
 
 const TestimonialSection = () => {
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
@@ -15,12 +27,12 @@ const TestimonialSection = () => {
           .from('testimonials')
           .select('*')
           .eq('active', true)
-          .order('order_position', { ascending: true });
+          .order('order_position', { ascending: true }) as { data: Testimonial[] | null; error: Error | null };
 
         if (error) {
           console.error('Error fetching testimonials:', error);
         } else if (data) {
-          setTestimonials(data as Testimonial[]);
+          setTestimonials(data);
         }
       } catch (err) {
         console.error('Error in testimonials fetch:', err);
@@ -34,16 +46,10 @@ const TestimonialSection = () => {
 
   if (loading) {
     return (
-      <section id="testimonials" className="py-16 bg-gray-50">
+      <section id="testimonials" className="py-16 bg-muted/50">
         <div className="container px-4 md:px-6">
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold tracking-tight">Apa Kata Mereka</h2>
-            <p className="text-xl text-muted-foreground mt-4">
-              Mendengar langsung dari pengguna Rapatin
-            </p>
-          </div>
-          <div className="text-center">
-            <p>Loading testimonials...</p>
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold tracking-tight">Loading testimonials...</h2>
           </div>
         </div>
       </section>
@@ -55,53 +61,43 @@ const TestimonialSection = () => {
   }
 
   return (
-    <section id="testimonials" className="py-16 bg-gray-50">
+    <section id="testimonials" className="py-16 bg-muted/50">
       <div className="container px-4 md:px-6">
-        <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold tracking-tight">Apa Kata Mereka</h2>
+        <div className="text-center mb-12">
+          <h2 className="text-3xl font-bold tracking-tight">Apa Kata Pengguna Kami</h2>
           <p className="text-xl text-muted-foreground mt-4">
-            Mendengar langsung dari pengguna Rapatin
+            Ratusan bisnis telah menggunakan Rapatin untuk meeting online mereka
           </p>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid md:grid-cols-3 gap-6">
           {testimonials.map((testimonial) => (
-            <Card key={testimonial.id} className="overflow-hidden border-0 shadow-md">
+            <Card key={testimonial.id} className="border-none shadow-md">
               <CardContent className="p-6">
-                <div className="flex items-center gap-4 mb-4">
-                  {testimonial.avatar_url ? (
-                    <img
-                      src={testimonial.avatar_url}
-                      alt={testimonial.name}
-                      className="h-12 w-12 rounded-full object-cover"
+                <div className="flex mb-4">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <Star
+                      key={i}
+                      className={`w-5 h-5 ${i < testimonial.rating ? "text-yellow-400 fill-yellow-400" : "text-gray-300"}`}
                     />
-                  ) : (
-                    <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold">
-                      {testimonial.name.charAt(0)}
+                  ))}
+                </div>
+                <p className="mb-6 italic">"{testimonial.content}"</p>
+                <div className="flex items-center">
+                  {testimonial.avatar_url && (
+                    <div className="w-12 h-12 rounded-full overflow-hidden mr-4">
+                      <img
+                        src={testimonial.avatar_url}
+                        alt={testimonial.name}
+                        className="w-full h-full object-cover"
+                      />
                     </div>
                   )}
                   <div>
-                    <h3 className="text-lg font-semibold">{testimonial.name}</h3>
+                    <h4 className="font-semibold">{testimonial.name}</h4>
                     <p className="text-sm text-muted-foreground">
                       {testimonial.position}, {testimonial.company}
                     </p>
                   </div>
-                </div>
-                <div className="space-y-2">
-                  <div className="flex">
-                    {Array.from({ length: 5 }).map((_, i) => (
-                      <svg
-                        key={i}
-                        className={`h-5 w-5 ${
-                          i < testimonial.rating ? 'text-yellow-400' : 'text-gray-300'
-                        }`}
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                      >
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                      </svg>
-                    ))}
-                  </div>
-                  <p className="text-gray-700">{testimonial.content}</p>
                 </div>
               </CardContent>
             </Card>
