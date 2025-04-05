@@ -111,10 +111,14 @@ const URLManagement = () => {
       } else if (data && data.length > 0) {
         console.log("Data loaded from Supabase:", data);
         
-        // Transform the data to ensure items is correctly typed
+        // Transform the data by properly converting JSON to UrlItem[]
         const typedData = data.map(item => ({
           ...item,
-          items: Array.isArray(item.items) ? item.items as UrlItem[] : []
+          items: Array.isArray(item.items) 
+            ? item.items as UrlItem[] 
+            : typeof item.items === 'string' 
+              ? JSON.parse(item.items) as UrlItem[]
+              : (item.items as unknown as UrlItem[])
         })) as Urls[];
         
         // Check if we have data for all sections
@@ -215,6 +219,9 @@ const URLManagement = () => {
           title: "URL berhasil disimpan",
           description: "Perubahan URL telah berhasil disimpan ke database",
         });
+        
+        // Also update localStorage for offline access
+        localStorage.setItem('urlData', JSON.stringify(urlGroups));
       }
     } catch (err) {
       console.error('Error saving URLs:', err);
@@ -271,6 +278,9 @@ const URLManagement = () => {
           title: "URL direset ke default",
           description: "Semua URL telah direset ke nilai default",
         });
+        
+        // Also update localStorage
+        localStorage.setItem('urlData', JSON.stringify(defaultUrlData));
       }
     } catch (err) {
       console.error('Error resetting URLs:', err);

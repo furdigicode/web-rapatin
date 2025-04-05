@@ -55,13 +55,21 @@ export function useUrlData() {
         
         if (data && data.length > 0) {
           console.log('URLs fetched from Supabase:', data);
-          // Transform the data to ensure items is correctly typed
+          
+          // Transform the data by properly converting JSON to UrlItem[]
           const typedData = data.map(item => ({
             ...item,
-            items: Array.isArray(item.items) ? item.items as UrlItem[] : []
+            items: Array.isArray(item.items) 
+              ? item.items as UrlItem[] 
+              : typeof item.items === 'string' 
+                ? JSON.parse(item.items) as UrlItem[]
+                : (item.items as unknown as UrlItem[])
           })) as Urls[];
           
           mapUrlsToState(typedData);
+          
+          // Also save to localStorage for offline access
+          localStorage.setItem('urlData', JSON.stringify(typedData));
         } else {
           console.warn('No URL data found in Supabase, using defaults');
         }
