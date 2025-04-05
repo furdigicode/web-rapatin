@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from 'lucide-react';
 import { supabase } from "@/integrations/supabase/client";
+import { UrlItem } from "@/types/supabase";
 
 const FinalCTA: React.FC = () => {
   const [ctaUrl, setCtaUrl] = useState("https://app.rapatin.id/register");
@@ -24,11 +25,13 @@ const FinalCTA: React.FC = () => {
             const parsedData = JSON.parse(savedData);
             const ctaSection = parsedData.find((group: any) => group.title === 'Call to Action');
             if (ctaSection && ctaSection.items && Array.isArray(ctaSection.items) && ctaSection.items.length > 0) {
-              setCtaUrl(ctaSection.items[0].url || "https://app.rapatin.id/register");
+              const item = ctaSection.items[0] as UrlItem;
+              setCtaUrl(item.url || "https://app.rapatin.id/register");
             }
           }
         } else if (data && data.items && Array.isArray(data.items) && data.items.length > 0) {
-          setCtaUrl(data.items[0].url || "https://app.rapatin.id/register");
+          const item = data.items[0] as UrlItem;
+          setCtaUrl(item.url || "https://app.rapatin.id/register");
         }
       } catch (err) {
         console.error('Error loading CTA URL:', err);

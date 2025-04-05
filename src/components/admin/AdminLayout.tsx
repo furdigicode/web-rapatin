@@ -4,8 +4,8 @@ import { Link, useLocation } from 'react-router-dom';
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from '@/components/ui/button';
-import { Home, LogOut, Database, Book, Users, MessageSquare, Files, Image, HelpCircle, Settings } from 'lucide-react';
-import { useMobile } from '@/hooks/use-mobile';
+import { Home, LogOut, Database, Book, Users, MessageSquare, Files, Image, HelpCircle, Settings, Link as LinkIcon } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
 import AdminInitializer from './AdminInitializer';
 
 interface AdminLayoutProps {
@@ -15,11 +15,11 @@ interface AdminLayoutProps {
 
 const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title }) => {
   const location = useLocation();
-  const isMobile = useMobile();
+  const isMobile = useIsMobile();
   
   const adminNavItems = [
     { title: 'Dashboard', href: '/admin', icon: <Home size={20} /> },
-    { title: 'Pengaturan URL', href: '/admin/url-management', icon: <Link size={20} /> },
+    { title: 'Pengaturan URL', href: '/admin/url-management', icon: <LinkIcon size={20} /> },
     { title: 'Blog', href: '/admin/blog-management', icon: <Book size={20} /> },
     { title: 'FAQ', href: '/admin/faq-management', icon: <HelpCircle size={20} /> },
     { title: 'Testimonial', href: '/admin/testimonial-management', icon: <MessageSquare size={20} /> },

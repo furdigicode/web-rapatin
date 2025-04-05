@@ -1,9 +1,11 @@
+
 import React, { useEffect, useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Calendar, Clock, DollarSign, Video, BadgeDollarSign } from 'lucide-react';
 import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
 import { supabase } from "@/integrations/supabase/client";
+import { UrlItem } from "@/types/supabase";
 
 const HeroSection: React.FC = () => {
   const [heroUrls, setHeroUrls] = useState({
@@ -35,8 +37,8 @@ const HeroSection: React.FC = () => {
             const parsedData = JSON.parse(savedData);
             const heroSection = parsedData.find((group: any) => group.title === 'Hero Section');
             if (heroSection && heroSection.items && Array.isArray(heroSection.items)) {
-              const startBtn = heroSection.items.find((item: any) => item.label === 'Mulai Menjadwalkan');
-              const pricingBtn = heroSection.items.find((item: any) => item.label === 'Lihat Harga');
+              const startBtn = heroSection.items.find((item: any) => item.label === 'Mulai Menjadwalkan') as UrlItem | undefined;
+              const pricingBtn = heroSection.items.find((item: any) => item.label === 'Lihat Harga') as UrlItem | undefined;
               
               setHeroUrls({
                 startScheduling: startBtn?.url || "https://app.rapatin.id/register",
@@ -45,8 +47,8 @@ const HeroSection: React.FC = () => {
             }
           }
         } else if (data && data.items && Array.isArray(data.items)) {
-          const startBtn = data.items.find((item: any) => item.label === 'Mulai Menjadwalkan');
-          const pricingBtn = data.items.find((item: any) => item.label === 'Lihat Harga');
+          const startBtn = data.items.find((item: any) => item.label === 'Mulai Menjadwalkan') as UrlItem | undefined;
+          const pricingBtn = data.items.find((item: any) => item.label === 'Lihat Harga') as UrlItem | undefined;
           
           setHeroUrls({
             startScheduling: startBtn?.url || "https://app.rapatin.id/register",
