@@ -60,6 +60,28 @@ const URLManagement = () => {
           url: "https://rapatin.id/register"
         }
       ]
+    },
+    {
+      id: "4",
+      title: "Pricing Section",
+      items: [
+        {
+          label: "Jadwalkan Rapat Sekarang",
+          description: "Tombol CTA di bagian pricing",
+          url: "https://app.rapatin.id/register"
+        }
+      ]
+    },
+    {
+      id: "5",
+      title: "Dashboard Preview",
+      items: [
+        {
+          label: "Daftar Sekarang",
+          description: "Tombol CTA di bagian dashboard preview",
+          url: "https://app.rapatin.id/register"
+        }
+      ]
     }
   ];
 
@@ -84,7 +106,24 @@ const URLManagement = () => {
             setUrlGroups(defaultUrlData);
           }
         } else if (data && data.length > 0) {
-          setUrlGroups(data);
+          // Check if the data includes the new sections
+          let updatedData = [...data];
+          const hasPricingSection = data.some(group => group.id === "4");
+          const hasDashboardSection = data.some(group => group.id === "5");
+          
+          if (!hasPricingSection) {
+            updatedData.push(defaultUrlData[3]);
+          }
+          
+          if (!hasDashboardSection) {
+            updatedData.push(defaultUrlData[4]);
+          }
+          
+          if (!hasPricingSection || !hasDashboardSection) {
+            setUrlGroups(updatedData);
+          } else {
+            setUrlGroups(data);
+          }
         } else {
           // If no data in Supabase, initialize with default data
           setUrlGroups(defaultUrlData);
