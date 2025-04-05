@@ -33,42 +33,30 @@ export function useUrlData() {
     const fetchUrls = async () => {
       try {
         setLoading(true);
+        // Try to get data from Supabase
         const { data, error } = await supabase
           .from('urls')
           .select('*');
           
         if (error) {
-          console.error('Error fetching URLs:', error);
+          console.error('Error fetching URLs from Supabase:', error);
           setError(error);
+          
+          // Try to get data from localStorage as fallback
+          const localData = localStorage.getItem('urlData');
+          if (localData) {
+            const parsedData = JSON.parse(localData);
+            mapUrlsToState(parsedData);
+            console.log('Using URLs from localStorage:', parsedData);
+          }
           return;
         }
         
         if (data && data.length > 0) {
-          const newUrls = { ...defaultUrls };
-          
-          // Map the data from Supabase to our structure
-          data.forEach((group: Urls) => {
-            if (group.id === '1' && group.items && group.items.length >= 2) {
-              // Hero section
-              newUrls.hero.ctaButton = group.items[0].url;
-              newUrls.hero.pricingButton = group.items[1].url;
-            } else if (group.id === '2' && group.items && group.items.length >= 1) {
-              // CTA section
-              newUrls.cta.registerButton = group.items[0].url;
-            } else if (group.id === '3' && group.items && group.items.length >= 2) {
-              // Navbar
-              newUrls.navbar.loginButton = group.items[0].url;
-              newUrls.navbar.registerButton = group.items[1].url;
-            } else if (group.id === '4' && group.items && group.items.length >= 1) {
-              // Pricing section
-              newUrls.pricing.scheduleButton = group.items[0].url;
-            } else if (group.id === '5' && group.items && group.items.length >= 1) {
-              // Dashboard preview
-              newUrls.dashboard.registerButton = group.items[0].url;
-            }
-          });
-          
-          setUrls(newUrls);
+          console.log('URLs fetched from Supabase:', data);
+          mapUrlsToState(data);
+        } else {
+          console.warn('No URL data found in Supabase, using defaults');
         }
       } catch (err) {
         console.error('Error in useUrlData:', err);
@@ -80,6 +68,35 @@ export function useUrlData() {
     
     fetchUrls();
   }, []);
+  
+  // Helper function to map data from Supabase to our state structure
+  const mapUrlsToState = (data: Urls[]) => {
+    const newUrls = { ...defaultUrls };
+    
+    // Map the data from Supabase to our structure
+    data.forEach((group: Urls) => {
+      if (group.id === '1' && group.items && group.items.length >= 2) {
+        // Hero section
+        newUrls.hero.ctaButton = group.items[0].url;
+        newUrls.hero.pricingButton = group.items[1].url;
+      } else if (group.id === '2' && group.items && group.items.length >= 1) {
+        // CTA section
+        newUrls.cta.registerButton = group.items[0].url;
+      } else if (group.id === '3' && group.items && group.items.length >= 2) {
+        // Navbar
+        newUrls.navbar.loginButton = group.items[0].url;
+        newUrls.navbar.registerButton = group.items[1].url;
+      } else if (group.id === '4' && group.items && group.items.length >= 1) {
+        // Pricing section
+        newUrls.pricing.scheduleButton = group.items[0].url;
+      } else if (group.id === '5' && group.items && group.items.length >= 1) {
+        // Dashboard preview
+        newUrls.dashboard.registerButton = group.items[0].url;
+      }
+    });
+    
+    setUrls(newUrls);
+  };
   
   return { urls, loading, error };
 }

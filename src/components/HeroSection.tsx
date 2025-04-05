@@ -1,9 +1,13 @@
+
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Calendar, Clock, DollarSign, Video, BadgeDollarSign } from 'lucide-react';
 import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
+import { useUrlData } from "@/hooks/use-url-data";
+
 const HeroSection: React.FC = () => {
+  const { urls, loading } = useUrlData();
   const autoplayPlugin = React.useMemo(() => Autoplay({
     delay: 5000,
     // 5 seconds between slides
@@ -13,6 +17,7 @@ const HeroSection: React.FC = () => {
     // Required for proper functioning
     stopOnMouseEnter: true // Pause on mouse hover
   }), []);
+  
   return <section className="pt-28 pb-12 md:pt-32 md:pb-24 overflow-hidden bg-hero-pattern">
       <div className="container mx-auto px-4 md:px-6">
         <div className="grid md:grid-cols-2 gap-12 items-center">
@@ -31,10 +36,10 @@ const HeroSection: React.FC = () => {
             
             <div className="flex flex-col sm:flex-row gap-4 pt-4">
               <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-white rounded-lg h-12 px-8">
-                <a href="https://app.rapatin.id/register" target="_blank" rel="noopener noreferrer">Mulai Menjadwalkan</a>
+                <a href={urls.hero.ctaButton} target="_blank" rel="noopener noreferrer">Mulai Menjadwalkan</a>
               </Button>
               <Button asChild variant="outline" size="lg" className="rounded-lg h-12 px-8">
-                <a href="#pricing">Lihat Harga</a>
+                <a href={urls.hero.pricingButton}>Lihat Harga</a>
               </Button>
             </div>
 
@@ -195,4 +200,5 @@ const HeroSection: React.FC = () => {
       </div>
     </section>;
 };
+
 export default HeroSection;

@@ -97,7 +97,7 @@ const URLManagement = () => {
       // Fetch from Supabase
       const { data, error } = await supabase
         .from('urls')
-        .select('*') as { data: Urls[] | null; error: Error | null };
+        .select('*');
       
       if (error) {
         console.error('Error fetching URLs from Supabase:', error);
@@ -108,9 +108,9 @@ const URLManagement = () => {
         });
         setUrlGroups(defaultUrlData);
       } else if (data && data.length > 0) {
+        console.log("Data loaded from Supabase:", data);
         // Check if we have data for all sections
         const missingGroups = [];
-        const defaultIds = defaultUrlData.map(group => group.id);
         
         for (const defaultGroup of defaultUrlData) {
           if (!data.some(group => group.id === defaultGroup.id)) {
@@ -140,14 +140,17 @@ const URLManagement = () => {
         // If no data in Supabase, initialize with default data
         setUrlGroups(defaultUrlData);
         // Save the default data to Supabase
-        for (const group of defaultUrlData) {
-          const { error: insertError } = await supabase
-            .from('urls')
-            .upsert(group);
-            
-          if (insertError) {
-            console.error('Error saving default data to Supabase:', insertError);
-          }
+        const { error: bulkError } = await supabase
+          .from('urls')
+          .upsert(defaultUrlData);
+          
+        if (bulkError) {
+          console.error('Error saving default data to Supabase:', bulkError);
+          toast({
+            title: "Error initializing data",
+            description: "Could not save default URL data to database.",
+            variant: "destructive"
+          });
         }
       }
     } catch (err) {
@@ -173,14 +176,13 @@ const URLManagement = () => {
     setSaving(true);
     
     try {
-      // First save to localStorage as a backup
-      localStorage.setItem('urlData', JSON.stringify(urlGroups));
+      console.log("Saving to Supabase:", urlGroups);
       
-      // Then save to Supabase
+      // Save to Supabase using upsert
       for (const group of urlGroups) {
         const { error } = await supabase
           .from('urls')
-          .upsert(group);
+          .upsert(group, { onConflict: 'id' });
           
         if (error) {
           console.error('Error saving to Supabase:', error);
@@ -190,15 +192,26 @@ const URLManagement = () => {
       
       toast({
         title: "URL berhasil disimpan",
-        description: "Perubahan URL telah berhasil disimpan",
+        description: "Perubahan URL telah berhasil disimpan ke database",
       });
     } catch (err) {
       console.error('Error saving URLs:', err);
-      toast({
-        title: "Error menyimpan data",
-        description: "Terjadi kesalahan saat menyimpan URL. Data disimpan di localStorage saja.",
-        variant: "destructive"
-      });
+      
+      // Try to save to localStorage as fallback
+      try {
+        localStorage.setItem('urlData', JSON.stringify(urlGroups));
+        toast({
+          title: "Error menyimpan data",
+          description: "Terjadi kesalahan saat menyimpan URL. Data disimpan di localStorage saja.",
+          variant: "destructive"
+        });
+      } catch (localErr) {
+        toast({
+          title: "Error menyimpan data",
+          description: "Gagal menyimpan URL ke database dan localStorage.",
+          variant: "destructive"
+        });
+      }
     } finally {
       setSaving(false);
     }
@@ -207,14 +220,14 @@ const URLManagement = () => {
   const handleRefresh = async () => {
     setRefreshing(true);
     try {
-      // Reset to default values
+      // Reset to default values in state
       setUrlGroups(defaultUrlData);
       
-      // Save default values to Supabase
+      // Save default values to Supabase with upsert
       for (const group of defaultUrlData) {
         const { error } = await supabase
           .from('urls')
-          .upsert(group);
+          .upsert(group, { onConflict: 'id' });
           
         if (error) {
           console.error('Error saving default values to Supabase:', error);
