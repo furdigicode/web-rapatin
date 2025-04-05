@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Save, Loader2, RefreshCw } from 'lucide-react';
 import { supabase } from "@/integrations/supabase/client";
 import { Urls, UrlItem } from '@/types/supabase';
+import { Json } from '@/integrations/supabase/types';
 
 const URLManagement = () => {
   const { toast } = useToast();
@@ -18,7 +19,7 @@ const URLManagement = () => {
   const [refreshing, setRefreshing] = useState(false);
 
   // Default URL data - comprehensive list of all buttons in the app
-  const defaultUrlData = [
+  const defaultUrlData: Urls[] = [
     {
       id: "1",
       title: "Hero Section",
@@ -109,18 +110,25 @@ const URLManagement = () => {
         setUrlGroups(defaultUrlData);
       } else if (data && data.length > 0) {
         console.log("Data loaded from Supabase:", data);
+        
+        // Transform the data to ensure items is correctly typed
+        const typedData = data.map(item => ({
+          ...item,
+          items: Array.isArray(item.items) ? item.items as UrlItem[] : []
+        })) as Urls[];
+        
         // Check if we have data for all sections
         const missingGroups = [];
         
         for (const defaultGroup of defaultUrlData) {
-          if (!data.some(group => group.id === defaultGroup.id)) {
+          if (!typedData.some(group => group.id === defaultGroup.id)) {
             missingGroups.push(defaultGroup);
           }
         }
         
         // If any sections are missing, add them
         if (missingGroups.length > 0) {
-          const updatedData = [...data, ...missingGroups];
+          const updatedData = [...typedData, ...missingGroups];
           setUrlGroups(updatedData);
           
           // Also save missing groups to Supabase
@@ -134,24 +142,27 @@ const URLManagement = () => {
             }
           }
         } else {
-          setUrlGroups(data);
+          setUrlGroups(typedData);
         }
       } else {
         // If no data in Supabase, initialize with default data
         setUrlGroups(defaultUrlData);
         // Save the default data to Supabase
-        const { error: bulkError } = await supabase
-          .from('urls')
-          .upsert(defaultUrlData);
-          
-        if (bulkError) {
-          console.error('Error saving default data to Supabase:', bulkError);
-          toast({
-            title: "Error initializing data",
-            description: "Could not save default URL data to database.",
-            variant: "destructive"
-          });
+        for (const group of defaultUrlData) {
+          const { error: insertError } = await supabase
+            .from('urls')
+            .upsert(group);
+            
+          if (insertError) {
+            console.error('Error saving default group to Supabase:', insertError);
+          }
         }
+        
+        // If there were errors with individual inserts, show a toast
+        toast({
+          title: "URL data initialized",
+          description: "Default URL data has been loaded.",
+        });
       }
     } catch (err) {
       console.error('Error loading URL data:', err);
@@ -178,7 +189,8 @@ const URLManagement = () => {
     try {
       console.log("Saving to Supabase:", urlGroups);
       
-      // Save to Supabase using upsert
+      // Save to Supabase using upsert for each item individually
+      let hasError = false;
       for (const group of urlGroups) {
         const { error } = await supabase
           .from('urls')
@@ -186,14 +198,24 @@ const URLManagement = () => {
           
         if (error) {
           console.error('Error saving to Supabase:', error);
-          throw error;
+          hasError = true;
         }
       }
       
-      toast({
-        title: "URL berhasil disimpan",
-        description: "Perubahan URL telah berhasil disimpan ke database",
-      });
+      if (hasError) {
+        // Try to save to localStorage as fallback
+        localStorage.setItem('urlData', JSON.stringify(urlGroups));
+        toast({
+          title: "Error menyimpan data ke database",
+          description: "Terjadi kesalahan saat menyimpan URL ke database. Data disimpan di localStorage sebagai cadangan.",
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "URL berhasil disimpan",
+          description: "Perubahan URL telah berhasil disimpan ke database",
+        });
+      }
     } catch (err) {
       console.error('Error saving URLs:', err);
       
@@ -223,7 +245,8 @@ const URLManagement = () => {
       // Reset to default values in state
       setUrlGroups(defaultUrlData);
       
-      // Save default values to Supabase with upsert
+      // Save default values to Supabase with upsert for each item individually
+      let hasError = false;
       for (const group of defaultUrlData) {
         const { error } = await supabase
           .from('urls')
@@ -231,21 +254,42 @@ const URLManagement = () => {
           
         if (error) {
           console.error('Error saving default values to Supabase:', error);
-          throw error;
+          hasError = true;
         }
       }
       
-      toast({
-        title: "URL direset ke default",
-        description: "Semua URL telah direset ke nilai default",
-      });
+      if (hasError) {
+        // Try to save to localStorage as fallback
+        localStorage.setItem('urlData', JSON.stringify(defaultUrlData));
+        toast({
+          title: "Error mereset data di database",
+          description: "Terjadi kesalahan saat mereset URL di database. Data disimpan di localStorage sebagai cadangan.",
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "URL direset ke default",
+          description: "Semua URL telah direset ke nilai default",
+        });
+      }
     } catch (err) {
       console.error('Error resetting URLs:', err);
-      toast({
-        title: "Error mereset data",
-        description: "Terjadi kesalahan saat mereset URL.",
-        variant: "destructive"
-      });
+      
+      // Try to save to localStorage as fallback
+      try {
+        localStorage.setItem('urlData', JSON.stringify(defaultUrlData));
+        toast({
+          title: "Error mereset data",
+          description: "Terjadi kesalahan saat mereset URL. Data disimpan di localStorage saja.",
+          variant: "destructive"
+        });
+      } catch (localErr) {
+        toast({
+          title: "Error mereset data",
+          description: "Gagal mereset URL ke database dan localStorage.",
+          variant: "destructive"
+        });
+      }
     } finally {
       setRefreshing(false);
     }

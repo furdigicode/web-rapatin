@@ -1,7 +1,8 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from "@/integrations/supabase/client";
-import { Urls } from '@/types/supabase';
+import { Urls, UrlItem } from '@/types/supabase';
+import { Json } from '@/integrations/supabase/types';
 
 // Default URL values to use as fallback
 const defaultUrls = {
@@ -54,7 +55,13 @@ export function useUrlData() {
         
         if (data && data.length > 0) {
           console.log('URLs fetched from Supabase:', data);
-          mapUrlsToState(data);
+          // Transform the data to ensure items is correctly typed
+          const typedData = data.map(item => ({
+            ...item,
+            items: Array.isArray(item.items) ? item.items as UrlItem[] : []
+          })) as Urls[];
+          
+          mapUrlsToState(typedData);
         } else {
           console.warn('No URL data found in Supabase, using defaults');
         }
