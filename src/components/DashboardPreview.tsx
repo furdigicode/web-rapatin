@@ -1,35 +1,13 @@
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Calendar, CheckCircle, Clock, BarChart, FileText, Users, Video, Play, Download, List, Search, Share, Eye } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { supabase } from "@/integrations/supabase/client";
+import { useUrlData } from "@/hooks/use-url-data";
 
 const DashboardPreview: React.FC = () => {
   const isMobile = useIsMobile();
-  const [dashboardUrl, setDashboardUrl] = useState("https://app.rapatin.id/register");
-  
-  useEffect(() => {
-    const fetchUrls = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('urls')
-          .select('*')
-          .eq('id', '5')
-          .single();
-          
-        if (error) {
-          console.error('Error fetching dashboard URL:', error);
-        } else if (data && data.items && data.items[0]) {
-          setDashboardUrl(data.items[0].url);
-        }
-      } catch (err) {
-        console.error('Error in dashboard URL fetch:', err);
-      }
-    };
-    
-    fetchUrls();
-  }, []);
+  const { urls, loading } = useUrlData();
   
   return (
     <section id="dashboard" className="py-20 bg-accent/20 w-full">
@@ -81,7 +59,7 @@ const DashboardPreview: React.FC = () => {
             </div>
             
             <Button asChild size="lg" className="mt-6 bg-primary hover:bg-primary/90 text-white rounded-lg">
-              <a href={dashboardUrl}>Daftar Sekarang</a>
+              <a href={urls.dashboard.registerButton}>Daftar Sekarang</a>
             </Button>
           </div>
           

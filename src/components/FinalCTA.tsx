@@ -2,8 +2,11 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from 'lucide-react';
+import { useUrlData } from "@/hooks/use-url-data";
 
 const FinalCTA: React.FC = () => {
+  const { urls, loading } = useUrlData();
+  
   const handleRegistration = () => {
     // Track registration click with Facebook Pixel
     if (typeof window.fbq === 'function') {
@@ -22,7 +25,7 @@ const FinalCTA: React.FC = () => {
                 Bergabunglah dengan ribuan pengguna yang sudah menikmati fleksibilitas platform rapat bayar-sesuai-penggunaan kami.
               </p>
               <Button asChild size="lg" className="rounded-lg bg-primary hover:bg-primary/90 text-white">
-                <a href="https://app.rapatin.id/register" onClick={handleRegistration} target="_blank" rel="noopener noreferrer">
+                <a href={urls.cta.registerButton} onClick={handleRegistration} target="_blank" rel="noopener noreferrer">
                   Daftar & Mulai Menjadwalkan
                   <ArrowRight size={16} className="ml-2" />
                 </a>

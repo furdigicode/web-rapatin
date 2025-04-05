@@ -1,36 +1,13 @@
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Check, Video, Mic, Users, Globe, Clock, Calendar, BarChart, MessageSquare, Share2, UserPlus, Zap, FileText, Languages, VideoIcon } from 'lucide-react';
 import { Card } from "@/components/ui/card";
-import { supabase } from "@/integrations/supabase/client";
-import { Urls } from '@/types/supabase';
+import { useUrlData } from "@/hooks/use-url-data";
 
 const PricingSection: React.FC = () => {
-  const [pricingUrl, setPricingUrl] = useState("https://app.rapatin.id/register");
+  const { urls, loading } = useUrlData();
   
-  useEffect(() => {
-    const fetchUrls = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('urls')
-          .select('*')
-          .eq('id', '4')
-          .single();
-          
-        if (error) {
-          console.error('Error fetching pricing URL:', error);
-        } else if (data && data.items && data.items[0]) {
-          setPricingUrl(data.items[0].url);
-        }
-      } catch (err) {
-        console.error('Error in pricing URL fetch:', err);
-      }
-    };
-    
-    fetchUrls();
-  }, []);
-
   const features = [
     // Core features
     { name: "Rekaman Cloud (akses 72 jam)", icon: <VideoIcon size={18} /> },
@@ -160,7 +137,14 @@ const PricingSection: React.FC = () => {
                     asChild
                     className="w-full rounded-lg bg-primary hover:bg-primary/90 text-white"
                   >
-                    <a href={pricingUrl} onClick={handleRegistration} target="_blank" rel="noopener noreferrer">Jadwalkan Rapat Sekarang</a>
+                    <a 
+                      href={urls.pricing.scheduleButton} 
+                      onClick={handleRegistration} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                    >
+                      Jadwalkan Rapat Sekarang
+                    </a>
                   </Button>
                 </div>
               </div>

@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { Save, Loader2 } from 'lucide-react';
+import { Save, Loader2, RefreshCw } from 'lucide-react';
 import { supabase } from "@/integrations/supabase/client";
 import { Urls, UrlItem } from '@/types/supabase';
 
@@ -15,8 +15,9 @@ const URLManagement = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [urlGroups, setUrlGroups] = useState<Urls[]>([]);
+  const [refreshing, setRefreshing] = useState(false);
 
-  // Default URL data if nothing is loaded
+  // Default URL data - comprehensive list of all buttons in the app
   const defaultUrlData = [
     {
       id: "1",
@@ -87,68 +88,80 @@ const URLManagement = () => {
 
   // Load URL data
   useEffect(() => {
-    const loadUrlData = async () => {
-      setLoading(true);
-      try {
-        // Fetch from Supabase
-        const { data, error } = await supabase
-          .from('urls')
-          .select('*') as { data: Urls[] | null; error: Error | null };
-        
-        if (error) {
-          console.error('Error fetching URLs from Supabase:', error);
-          // Fall back to localStorage
-          const savedData = localStorage.getItem('urlData');
-          if (savedData) {
-            setUrlGroups(JSON.parse(savedData));
-          } else {
-            // Use default data if nothing is saved
-            setUrlGroups(defaultUrlData);
-          }
-        } else if (data && data.length > 0) {
-          // Check if the data includes the new sections
-          let updatedData = [...data];
-          const hasPricingSection = data.some(group => group.id === "4");
-          const hasDashboardSection = data.some(group => group.id === "5");
-          
-          if (!hasPricingSection) {
-            updatedData.push(defaultUrlData[3]);
-          }
-          
-          if (!hasDashboardSection) {
-            updatedData.push(defaultUrlData[4]);
-          }
-          
-          if (!hasPricingSection || !hasDashboardSection) {
-            setUrlGroups(updatedData);
-          } else {
-            setUrlGroups(data);
-          }
-        } else {
-          // If no data in Supabase, initialize with default data
-          setUrlGroups(defaultUrlData);
-          // Save the default data to Supabase for future use
-          for (const group of defaultUrlData) {
-            await supabase
-              .from('urls')
-              .upsert(group as any);
-          }
-        }
-      } catch (err) {
-        console.error('Error loading URL data:', err);
+    loadUrlData();
+  }, []);
+
+  const loadUrlData = async () => {
+    setLoading(true);
+    try {
+      // Fetch from Supabase
+      const { data, error } = await supabase
+        .from('urls')
+        .select('*') as { data: Urls[] | null; error: Error | null };
+      
+      if (error) {
+        console.error('Error fetching URLs from Supabase:', error);
         toast({
           title: "Error loading data",
-          description: "Could not load URL data. Using default values.",
+          description: "Could not load URL data from database. Using default values.",
           variant: "destructive"
         });
         setUrlGroups(defaultUrlData);
-      } finally {
-        setLoading(false);
+      } else if (data && data.length > 0) {
+        // Check if we have data for all sections
+        const missingGroups = [];
+        const defaultIds = defaultUrlData.map(group => group.id);
+        
+        for (const defaultGroup of defaultUrlData) {
+          if (!data.some(group => group.id === defaultGroup.id)) {
+            missingGroups.push(defaultGroup);
+          }
+        }
+        
+        // If any sections are missing, add them
+        if (missingGroups.length > 0) {
+          const updatedData = [...data, ...missingGroups];
+          setUrlGroups(updatedData);
+          
+          // Also save missing groups to Supabase
+          for (const group of missingGroups) {
+            const { error: insertError } = await supabase
+              .from('urls')
+              .upsert(group);
+              
+            if (insertError) {
+              console.error('Error saving missing group to Supabase:', insertError);
+            }
+          }
+        } else {
+          setUrlGroups(data);
+        }
+      } else {
+        // If no data in Supabase, initialize with default data
+        setUrlGroups(defaultUrlData);
+        // Save the default data to Supabase
+        for (const group of defaultUrlData) {
+          const { error: insertError } = await supabase
+            .from('urls')
+            .upsert(group);
+            
+          if (insertError) {
+            console.error('Error saving default data to Supabase:', insertError);
+          }
+        }
       }
-    };
-
-    loadUrlData();
-  }, [toast]);
+    } catch (err) {
+      console.error('Error loading URL data:', err);
+      toast({
+        title: "Error loading data",
+        description: "Could not load URL data. Using default values.",
+        variant: "destructive"
+      });
+      setUrlGroups(defaultUrlData);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleUrlChange = (groupIndex: number, itemIndex: number, value: string) => {
     const newGroups = [...urlGroups];
@@ -167,7 +180,7 @@ const URLManagement = () => {
       for (const group of urlGroups) {
         const { error } = await supabase
           .from('urls')
-          .upsert(group as any);
+          .upsert(group);
           
         if (error) {
           console.error('Error saving to Supabase:', error);
@@ -191,6 +204,40 @@ const URLManagement = () => {
     }
   };
 
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    try {
+      // Reset to default values
+      setUrlGroups(defaultUrlData);
+      
+      // Save default values to Supabase
+      for (const group of defaultUrlData) {
+        const { error } = await supabase
+          .from('urls')
+          .upsert(group);
+          
+        if (error) {
+          console.error('Error saving default values to Supabase:', error);
+          throw error;
+        }
+      }
+      
+      toast({
+        title: "URL direset ke default",
+        description: "Semua URL telah direset ke nilai default",
+      });
+    } catch (err) {
+      console.error('Error resetting URLs:', err);
+      toast({
+        title: "Error mereset data",
+        description: "Terjadi kesalahan saat mereset URL.",
+        variant: "destructive"
+      });
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
   return (
     <AdminLayout title="Manajemen URL">
       <div className="grid gap-6">
@@ -199,14 +246,33 @@ const URLManagement = () => {
             <h2 className="text-lg font-semibold">Pengaturan URL</h2>
             <p className="text-sm text-muted-foreground">Kelola URL untuk tombol-tombol di website</p>
           </div>
-          <Button onClick={handleSave} className="gap-2" disabled={saving}>
-            {saving ? (
-              <Loader2 size={16} className="animate-spin" />
-            ) : (
-              <Save size={16} />
-            )}
-            Simpan Perubahan
-          </Button>
+          <div className="flex gap-2">
+            <Button 
+              onClick={handleRefresh} 
+              variant="outline" 
+              className="gap-2" 
+              disabled={refreshing || saving || loading}
+            >
+              {refreshing ? (
+                <Loader2 size={16} className="animate-spin" />
+              ) : (
+                <RefreshCw size={16} />
+              )}
+              Reset ke Default
+            </Button>
+            <Button 
+              onClick={handleSave} 
+              className="gap-2" 
+              disabled={saving || loading}
+            >
+              {saving ? (
+                <Loader2 size={16} className="animate-spin" />
+              ) : (
+                <Save size={16} />
+              )}
+              Simpan Perubahan
+            </Button>
+          </div>
         </div>
         
         {loading ? (
