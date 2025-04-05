@@ -155,7 +155,7 @@ export const useUrlGroups = () => {
         toast({
           title: "Data tersimpan di localStorage",
           description: "Terjadi kesalahan saat menyimpan ke database. Data disimpan di localStorage saja.",
-          variant: "default"
+          variant: "default" // Changed from "warning" to "default"
         });
       } else {
         toast({
@@ -168,16 +168,11 @@ export const useUrlGroups = () => {
       toast({
         title: "Data tersimpan di localStorage",
         description: "Terjadi kesalahan saat menyimpan URL. Data disimpan di localStorage saja.",
-        variant: "default"
+        variant: "default" // Changed from "warning" to "default"
       });
     } finally {
       setSaving(false);
     }
-  };
-
-  // Function to reload data from Supabase and localStorage
-  const reloadData = async () => {
-    await loadUrlData();
   };
 
   return {
@@ -185,7 +180,6 @@ export const useUrlGroups = () => {
     loading,
     saving,
     handleUrlChange,
-    saveUrlGroups,
-    reloadData
+    saveUrlGroups
   };
 };
