@@ -8,6 +8,7 @@ import { useEffect } from "react";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import FAQ from "./pages/FAQ";
+import Sitemap from "./pages/Sitemap";
 
 // Feature Pages
 import BayarSesuaiPakai from "./pages/fitur/BayarSesuaiPakai";
@@ -78,6 +79,7 @@ const AppRoutes = () => {
       {/* Public Routes */}
       <Route path="/" element={<Index />} />
       <Route path="/faq" element={<FAQ />} />
+      <Route path="/sitemap" element={<Sitemap />} />
       
       {/* Feature Pages */}
       <Route path="/fitur/bayar-sesuai-pakai" element={<BayarSesuaiPakai />} />
