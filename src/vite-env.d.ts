@@ -7,4 +7,5 @@ interface Window {
   dataLayer: any[];
   fbq: Function;
   _fbq: any;
+  gtag: Function;
 }
