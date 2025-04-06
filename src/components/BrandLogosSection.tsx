@@ -2,10 +2,17 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { BrandLogo } from '@/types/supabase';
+import { 
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+} from '@/components/ui/carousel';
+import Autoplay from 'embla-carousel-autoplay';
 
 const BrandLogosSection = () => {
   const [logos, setLogos] = useState<BrandLogo[]>([]);
   const [loading, setLoading] = useState(true);
+  const [plugin] = useState(() => Autoplay({ delay: 2000, stopOnInteraction: false }));
 
   useEffect(() => {
     const fetchLogos = async () => {
@@ -48,25 +55,35 @@ const BrandLogosSection = () => {
   return (
     <div className="py-10 px-4 max-w-7xl mx-auto">
       <div className="text-center mb-8">
-        <p className="text-lg text-muted-foreground">Dipercaya oleh perusahaan terkemuka</p>
+        <p className="text-lg text-muted-foreground">Dipercaya oleh 120+ brand</p>
       </div>
-      <div className="flex flex-wrap justify-center items-center gap-8 md:gap-12">
-        {logos.map((logo) => (
-          <div 
-            key={logo.id} 
-            className="grayscale hover:grayscale-0 transition-all duration-200 flex items-center justify-center"
-            style={{ width: logo.width }}
-          >
-            <svg 
-              viewBox="0 0 100 30" 
-              width={logo.width} 
-              height={logo.height}
-              className="fill-current text-gray-600 hover:text-primary transition-colors"
-              dangerouslySetInnerHTML={{ __html: logo.svg_content }}
-            />
-          </div>
-        ))}
-      </div>
+      <Carousel 
+        className="w-full" 
+        plugins={[plugin]}
+        opts={{
+          align: "start",
+          loop: true,
+        }}
+      >
+        <CarouselContent className="-ml-1">
+          {logos.map((logo) => (
+            <CarouselItem 
+              key={logo.id} 
+              className="pl-1 md:basis-1/4 lg:basis-1/5"
+            >
+              <div className="flex items-center justify-center h-full p-2">
+                <svg 
+                  viewBox="0 0 100 30" 
+                  width={logo.width} 
+                  height={logo.height}
+                  className="fill-current text-gray-600 hover:text-primary transition-colors grayscale hover:grayscale-0 transition-all duration-200"
+                  dangerouslySetInnerHTML={{ __html: logo.svg_content }}
+                />
+              </div>
+            </CarouselItem>
+          ))}
+        </CarouselContent>
+      </Carousel>
     </div>
   );
 };
