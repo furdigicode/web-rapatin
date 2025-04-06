@@ -124,7 +124,7 @@ const MenjadiReseller = () => {
                 </a>
               </Button>
             </div>
-            <div className="flex-1">
+            <div className="flex-1 relative animate-slide-in-right">
               <div className="relative w-full max-w-md mx-auto">
                 <div className="rounded-2xl overflow-hidden shadow-elevation border border-white/40 bg-white/90">
                   <div className="bg-white/90 p-3 flex items-center border-b">
@@ -240,7 +240,7 @@ const MenjadiReseller = () => {
                   </div>
                 </div>
                 
-                <div className="absolute -bottom-4 -right-4 -z-10 w-full h-full rounded-2xl bg-primary/10"></div>
+                <div className="absolute -bottom-4 -right-4 -z-10 w-full h-full rounded-2xl bg-primary/10 animate-float"></div>
               </div>
             </div>
           </div>
