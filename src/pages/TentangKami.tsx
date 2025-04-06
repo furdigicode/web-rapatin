@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -16,64 +15,53 @@ const defaultAboutData = {
   },
   values: {
     title: "Nilai-Nilai Kami",
-    values: [
-      { 
-        id: 1, 
-        icon: "trending-up", 
-        title: "Inovasi", 
-        description: "Kami terus berinovasi untuk memberikan solusi terbaik bagi pengguna kami."
-      },
-      { 
-        id: 2, 
-        icon: "award", 
-        title: "Kualitas", 
-        description: "Kami berkomitmen untuk menyediakan layanan berkualitas tinggi dengan harga terjangkau."
-      },
-      { 
-        id: 3, 
-        icon: "users", 
-        title: "Komunitas", 
-        description: "Kami membangun komunitas yang inklusif dan mendukung semua pengguna kami."
-      },
-      { 
-        id: 4, 
-        icon: "heart", 
-        title: "Kepedulian", 
-        description: "Kami peduli dengan kebutuhan pengguna dan selalu mendengarkan masukan mereka."
-      }
-    ]
+    values: [{
+      id: 1,
+      icon: "trending-up",
+      title: "Inovasi",
+      description: "Kami terus berinovasi untuk memberikan solusi terbaik bagi pengguna kami."
+    }, {
+      id: 2,
+      icon: "award",
+      title: "Kualitas",
+      description: "Kami berkomitmen untuk menyediakan layanan berkualitas tinggi dengan harga terjangkau."
+    }, {
+      id: 3,
+      icon: "users",
+      title: "Komunitas",
+      description: "Kami membangun komunitas yang inklusif dan mendukung semua pengguna kami."
+    }, {
+      id: 4,
+      icon: "heart",
+      title: "Kepedulian",
+      description: "Kami peduli dengan kebutuhan pengguna dan selalu mendengarkan masukan mereka."
+    }]
   },
   team: {
     title: "Tim Kami",
-    members: [
-      { 
-        id: 1, 
-        name: "Budi Setiawan", 
-        position: "CEO & Founder", 
-        bio: "Berpengalaman 10+ tahun di industri teknologi dan telekomunikasi.",
-        avatarUrl: ""
-      },
-      { 
-        id: 2, 
-        name: "Dewi Lestari", 
-        position: "CTO", 
-        bio: "Insinyur perangkat lunak dengan pengalaman di perusahaan teknologi global.",
-        avatarUrl: ""
-      },
-      { 
-        id: 3, 
-        name: "Adi Nugroho", 
-        position: "CPO", 
-        bio: "Pakar UX/UI dengan fokus pada pengembangan produk yang berpusat pada pengguna.",
-        avatarUrl: ""
-      }
-    ]
+    members: [{
+      id: 1,
+      name: "Budi Setiawan",
+      position: "CEO & Founder",
+      bio: "Berpengalaman 10+ tahun di industri teknologi dan telekomunikasi.",
+      avatarUrl: ""
+    }, {
+      id: 2,
+      name: "Dewi Lestari",
+      position: "CTO",
+      bio: "Insinyur perangkat lunak dengan pengalaman di perusahaan teknologi global.",
+      avatarUrl: ""
+    }, {
+      id: 3,
+      name: "Adi Nugroho",
+      position: "CPO",
+      bio: "Pakar UX/UI dengan fokus pada pengembangan produk yang berpusat pada pengguna.",
+      avatarUrl: ""
+    }]
   }
 };
-
 const TentangKami = () => {
   const [aboutData, setAboutData] = useState(defaultAboutData);
-
   useEffect(() => {
     // Load data from localStorage
     const savedData = localStorage.getItem('aboutPageData');
@@ -87,12 +75,10 @@ const TentangKami = () => {
   }, []);
 
   // Function to render paragraphs with line breaks
-  const renderParagraphs = (text) => {
-    return text.split('\n\n').map((paragraph, index) => (
-      <p key={index} className={index > 0 ? "mb-4" : ""}>
+  const renderParagraphs = text => {
+    return text.split('\n\n').map((paragraph, index) => <p key={index} className="">
         {paragraph}
-      </p>
-    ));
+      </p>);
   };
 
   // Get icon component by name
@@ -112,9 +98,7 @@ const TentangKami = () => {
         return <TrendingUp size={size} />;
     }
   };
-
-  return (
-    <div className="min-h-screen">
+  return <div className="min-h-screen">
       <Navbar />
       
       <main className="pt-28 pb-20">
@@ -139,8 +123,7 @@ const TentangKami = () => {
           <div className="max-w-4xl mx-auto mb-16">
             <h2 className="text-2xl font-bold mb-6">{aboutData.values.title}</h2>
             <div className="grid md:grid-cols-2 gap-6">
-              {aboutData.values.values.map((value) => (
-                <div key={value.id} className="glass p-6 rounded-xl">
+              {aboutData.values.values.map(value => <div key={value.id} className="glass p-6 rounded-xl">
                   <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4 text-primary">
                     {getIconComponent(value.icon)}
                   </div>
@@ -148,8 +131,7 @@ const TentangKami = () => {
                   <p className="text-muted-foreground">
                     {value.description}
                   </p>
-                </div>
-              ))}
+                </div>)}
             </div>
           </div>
           
@@ -157,32 +139,22 @@ const TentangKami = () => {
           <div className="max-w-4xl mx-auto">
             <h2 className="text-2xl font-bold mb-6">{aboutData.team.title}</h2>
             <div className="grid md:grid-cols-3 gap-6">
-              {aboutData.team.members.map((member) => (
-                <div key={member.id} className="glass p-6 rounded-xl text-center">
+              {aboutData.team.members.map(member => <div key={member.id} className="glass p-6 rounded-xl text-center">
                   <div className="w-24 h-24 rounded-full bg-primary/10 mx-auto mb-4">
-                    {member.avatarUrl && (
-                      <img 
-                        src={member.avatarUrl} 
-                        alt={member.name} 
-                        className="w-full h-full rounded-full object-cover"
-                      />
-                    )}
+                    {member.avatarUrl && <img src={member.avatarUrl} alt={member.name} className="w-full h-full rounded-full object-cover" />}
                   </div>
                   <h3 className="text-xl font-semibold mb-1">{member.name}</h3>
                   <p className="text-sm text-primary mb-2">{member.position}</p>
                   <p className="text-muted-foreground text-sm">
                     {member.bio}
                   </p>
-                </div>
-              ))}
+                </div>)}
             </div>
           </div>
         </div>
       </main>
       
       <Footer />
-    </div>
-  );
+    </div>;
 };
-
 export default TentangKami;
