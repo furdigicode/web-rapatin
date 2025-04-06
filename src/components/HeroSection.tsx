@@ -9,8 +9,8 @@ import { useUrlData } from "@/hooks/use-url-data";
 const HeroSection: React.FC = () => {
   const { urls, loading } = useUrlData();
   const autoplayPlugin = React.useMemo(() => Autoplay({
-    delay: 5000,
-    // 5 seconds between slides
+    delay: 2000,
+    // 2 seconds between slides
     stopOnInteraction: false,
     // Continues auto-sliding even after user interaction
     rootNode: emblaRoot => emblaRoot.parentElement,
