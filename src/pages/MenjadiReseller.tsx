@@ -115,7 +115,7 @@ const MenjadiReseller = () => {
                 Dapatkan Penghasilan dari <span className="text-primary">Program Reseller</span> Rapatin
               </h1>
               <p className="text-xl text-muted-foreground mb-8">
-                Jual kembali akses rapat online Pay-As-You-Go untuk Zoom, Google Meet, Microsoft Teams dengan harga yang Anda tentukan sendiri — tanpa biaya bulanan atau langganan.
+                Jual kembali akses rapat online Pay-As-You-Go untuk Zoom dengan harga yang Anda tentukan sendiri — tanpa biaya bulanan atau langganan.
               </p>
               <Button asChild size="lg" className="rounded-lg bg-primary hover:bg-primary/90 text-white">
                 <a href="https://app.rapatin.id/register" onClick={handleRegistration} target="_blank" rel="noopener noreferrer">
