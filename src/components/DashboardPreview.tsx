@@ -57,7 +57,7 @@ const DashboardPreview: React.FC = () => {
             </div>
             
             <Button asChild size="lg" className="mt-6 bg-primary hover:bg-primary/90 text-white rounded-lg">
-              <a href="https://app.rapatin.id/register">Daftar Sekarang</a>
+              <a href="https://app.rapatin.id/dashboard/register">Daftar Sekarang</a>
             </Button>
           </div>
           

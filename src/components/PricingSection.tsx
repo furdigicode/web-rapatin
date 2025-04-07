@@ -134,7 +134,7 @@ const PricingSection: React.FC = () => {
                     asChild
                     className="w-full rounded-lg bg-primary hover:bg-primary/90 text-white"
                   >
-                    <a href="https://app.rapatin.id/register" onClick={handleRegistration} target="_blank" rel="noopener noreferrer">Jadwalkan Rapat Sekarang</a>
+                    <a href="https://app.rapatin.id/dashboard/register" onClick={handleRegistration} target="_blank" rel="noopener noreferrer">Jadwalkan Rapat Sekarang</a>
                   </Button>
                 </div>
               </div>
