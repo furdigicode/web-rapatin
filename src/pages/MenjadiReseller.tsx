@@ -118,7 +118,7 @@ const MenjadiReseller = () => {
                 Jual kembali akses rapat online Pay-As-You-Go untuk Zoom, Google Meet, Microsoft Teams dengan harga yang Anda tentukan sendiri — tanpa biaya bulanan atau langganan.
               </p>
               <Button asChild size="lg" className="rounded-lg bg-primary hover:bg-primary/90 text-white">
-                <a href="https://app.rapatin.id/register" onClick={handleRegistration} target="_blank" rel="noopener noreferrer">
+                <a href="https://app.rapatin.id/dashboard/register" onClick={handleRegistration} target="_blank" rel="noopener noreferrer">
                   Gabung Reseller Sekarang
                   <ArrowRight size={16} className="ml-2" />
                 </a>
@@ -364,7 +364,7 @@ const MenjadiReseller = () => {
             
             <div className="text-center">
               <Button asChild size="lg" className="rounded-lg bg-primary hover:bg-primary/90 text-white">
-                <a href="https://app.rapatin.id/register" onClick={handleRegistration} target="_blank" rel="noopener noreferrer">
+                <a href="https://app.rapatin.id/dashboard/register" onClick={handleRegistration} target="_blank" rel="noopener noreferrer">
                   Gabung Reseller & Mulai Menghasilkan
                   <ArrowRight size={16} className="ml-2" />
                 </a>
@@ -400,7 +400,7 @@ const MenjadiReseller = () => {
 
             <div className="mt-12 text-center">
               <Button asChild size="lg" className="rounded-lg bg-primary hover:bg-primary/90 text-white">
-                <a href="https://app.rapatin.id/register" onClick={handleRegistration} target="_blank" rel="noopener noreferrer">
+                <a href="https://app.rapatin.id/dashboard/register" onClick={handleRegistration} target="_blank" rel="noopener noreferrer">
                   Mulai Perjalanan Reseller Anda
                   <ArrowRight size={16} className="ml-2" />
                 </a>
@@ -447,7 +447,7 @@ const MenjadiReseller = () => {
                   Bergabunglah dengan jaringan reseller sukses kami dan mulai tawarkan solusi rapat fleksibel kepada pelanggan Anda dengan harga yang Anda tentukan sendiri.
                 </p>
                 <Button asChild size="lg" className="rounded-lg bg-primary hover:bg-primary/90 text-white">
-                  <a href="https://app.rapatin.id/register" onClick={handleRegistration} target="_blank" rel="noopener noreferrer">
+                  <a href="https://app.rapatin.id/dashboard/register" onClick={handleRegistration} target="_blank" rel="noopener noreferrer">
                     Daftar sebagai Reseller
                     <ArrowRight size={16} className="ml-2" />
                   </a>
