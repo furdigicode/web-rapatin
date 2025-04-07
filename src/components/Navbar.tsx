@@ -97,7 +97,7 @@ const Navbar: React.FC = () => {
             </>
           )}
           <Button asChild size="sm" className="bg-primary text-white hover:bg-primary/90">
-            <a href="https://app.rapatin.id/register" onClick={handleRegistration} className="cursor-default">Daftar/Login</a>
+            <a href="https://app.rapatin.id/dashboard/register" onClick={handleRegistration} className="cursor-default">Daftar/Login</a>
           </Button>
         </nav>
         
@@ -188,10 +188,10 @@ const Navbar: React.FC = () => {
             
             <div className="flex flex-col space-y-3 pt-2">
               <Button asChild variant="outline" size="sm">
-                <a href="https://app.rapatin.id/login" className="cursor-default">Masuk</a>
+                <a href="https://app.rapatin.id/dashboard/login" className="cursor-default">Masuk</a>
               </Button>
               <Button asChild size="sm" className="bg-primary text-white hover:bg-primary/90">
-                <a href="https://app.rapatin.id/register" onClick={handleRegistration} className="cursor-default">Daftar</a>
+                <a href="https://app.rapatin.id/dashboard/register" onClick={handleRegistration} className="cursor-default">Daftar</a>
               </Button>
             </div>
           </div>

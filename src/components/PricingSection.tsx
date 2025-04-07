@@ -138,7 +138,7 @@ const PricingSection: React.FC = () => {
                     className="w-full rounded-lg bg-primary hover:bg-primary/90 text-white"
                   >
                     <a 
-                      href={urls.pricing.scheduleButton} 
+                      href="https://app.rapatin.id/dashboard/register" 
                       onClick={handleRegistration} 
                       target="_blank" 
                       rel="noopener noreferrer"
