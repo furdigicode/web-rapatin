@@ -96,13 +96,6 @@ const Navbar: React.FC = () => {
               </Link>
             </>
           )}
-          
-          <Link to="/blog" className="text-sm font-medium hover:text-primary transition-colors">
-            Blog
-          </Link>
-          <Link to="/tentang-kami" className="text-sm font-medium hover:text-primary transition-colors">
-            Tentang Kami
-          </Link>
           <Button asChild size="sm" className="bg-primary text-white hover:bg-primary/90">
             <a href="https://app.rapatin.id/register" onClick={handleRegistration} className="cursor-default">Daftar/Login</a>
           </Button>
