@@ -186,21 +186,6 @@ const Navbar: React.FC = () => {
               </>
             )}
             
-            <Link 
-              to="/blog" 
-              className="block text-sm font-medium hover:text-primary transition-colors py-2"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              Blog
-            </Link>
-            <Link 
-              to="/tentang-kami" 
-              className="block text-sm font-medium hover:text-primary transition-colors py-2"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              Tentang Kami
-            </Link>
-            
             <div className="flex flex-col space-y-3 pt-2">
               <Button asChild variant="outline" size="sm">
                 <a href="https://app.rapatin.id/login" className="cursor-default">Masuk</a>
