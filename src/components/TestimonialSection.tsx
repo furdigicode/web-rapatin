@@ -1,8 +1,9 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Star } from "lucide-react";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import Autoplay from 'embla-carousel-autoplay';
 
 type Testimonial = {
   id: string;
@@ -41,10 +42,47 @@ const testimonials: Testimonial[] = [
     content: 'Saya suka kemudahan menjadwalkan rapat dan tidak ada batasan waktu. Sangat cocok untuk diskusi proyek yang kadang membutuhkan waktu panjang.',
     rating: 5,
     avatar_url: 'https://randomuser.me/api/portraits/men/3.jpg'
+  },
+  // Adding three new testimonials
+  {
+    id: '4',
+    name: 'Dewi Kusuma',
+    position: 'Marketing Director',
+    company: 'Indofood Sukses Makmur',
+    content: 'Platform Rapatin sangat stabil dan handal. Tidak pernah mengalami masalah teknis selama meeting penting dengan klien kami dari luar negeri.',
+    rating: 5,
+    avatar_url: 'https://randomuser.me/api/portraits/women/4.jpg'
+  },
+  {
+    id: '5',
+    name: 'Rudi Hartono',
+    position: 'CTO',
+    company: 'TechIndo',
+    content: 'Integrasi dengan kalender dan notifikasi otomatis sangat membantu team kami yang sibuk untuk tidak melewatkan rapat penting.',
+    rating: 5,
+    avatar_url: 'https://randomuser.me/api/portraits/men/5.jpg'
+  },
+  {
+    id: '6',
+    name: 'Lina Wijaya',
+    position: 'Project Manager',
+    company: 'Astra International',
+    content: 'Berbagi layar dan kolaborasi dokumen real-time membuat meeting produktif. Rapatin adalah solusi terbaik untuk tim yang bekerja remote.',
+    rating: 5,
+    avatar_url: 'https://randomuser.me/api/portraits/women/6.jpg'
   }
 ];
 
 const TestimonialSection = () => {
+  const autoplayPlugin = React.useMemo(() => 
+    Autoplay({
+      delay: 2000, // 2 seconds between slides
+      stopOnInteraction: true, // stop auto-sliding when user interacts
+      rootNode: (emblaRoot) => emblaRoot.parentElement,
+    }), 
+    []
+  );
+
   return (
     <section id="testimonials" className="py-16 bg-muted/30">
       <div className="container px-4 md:px-6">
@@ -59,7 +97,7 @@ const TestimonialSection = () => {
         </div>
         
         <div className="mt-12 relative">
-          <Carousel className="w-full">
+          <Carousel className="w-full" plugins={[autoplayPlugin]} opts={{ loop: true }}>
             <CarouselContent>
               {testimonials.map((testimonial) => (
                 <CarouselItem key={testimonial.id} className="md:basis-1/1 lg:basis-1/3">
