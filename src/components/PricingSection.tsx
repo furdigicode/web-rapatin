@@ -3,11 +3,8 @@ import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Check, Video, Mic, Users, Globe, Clock, Calendar, BarChart, MessageSquare, Share2, UserPlus, Zap, FileText, Languages, VideoIcon } from 'lucide-react';
 import { Card } from "@/components/ui/card";
-import { useUrlData } from "@/hooks/use-url-data";
 
 const PricingSection: React.FC = () => {
-  const { urls, loading } = useUrlData();
-  
   const features = [
     // Core features
     { name: "Rekaman Cloud (akses 72 jam)", icon: <VideoIcon size={18} /> },
@@ -137,14 +134,7 @@ const PricingSection: React.FC = () => {
                     asChild
                     className="w-full rounded-lg bg-primary hover:bg-primary/90 text-white"
                   >
-                    <a 
-                      href="https://app.rapatin.id/dashboard/register" 
-                      onClick={handleRegistration} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                    >
-                      Jadwalkan Rapat Sekarang
-                    </a>
+                    <a href="https://app.rapatin.id/register" onClick={handleRegistration} target="_blank" rel="noopener noreferrer">Jadwalkan Rapat Sekarang</a>
                   </Button>
                 </div>
               </div>

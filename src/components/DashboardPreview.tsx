@@ -3,11 +3,9 @@ import React from 'react';
 import { Calendar, CheckCircle, Clock, BarChart, FileText, Users, Video, Play, Download, List, Search, Share, Eye } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { useUrlData } from "@/hooks/use-url-data";
 
 const DashboardPreview: React.FC = () => {
   const isMobile = useIsMobile();
-  const { urls, loading } = useUrlData();
   
   return (
     <section id="dashboard" className="py-20 bg-accent/20 w-full">
@@ -59,7 +57,7 @@ const DashboardPreview: React.FC = () => {
             </div>
             
             <Button asChild size="lg" className="mt-6 bg-primary hover:bg-primary/90 text-white rounded-lg">
-              <a href="https://app.rapatin.id/dashboard/register">Daftar Sekarang</a>
+              <a href="https://app.rapatin.id/register">Daftar Sekarang</a>
             </Button>
           </div>
           

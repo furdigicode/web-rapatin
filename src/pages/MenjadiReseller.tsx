@@ -115,7 +115,7 @@ const MenjadiReseller = () => {
                 Dapatkan Penghasilan dari <span className="text-primary">Program Reseller</span> Rapatin
               </h1>
               <p className="text-xl text-muted-foreground mb-8">
-                Jual kembali akses rapat online Pay-As-You-Go untuk Zoom dengan harga yang Anda tentukan sendiri — tanpa biaya bulanan atau langganan.
+                Jual kembali akses rapat online Pay-As-You-Go untuk Zoom, Google Meet, Microsoft Teams dengan harga yang Anda tentukan sendiri — tanpa biaya bulanan atau langganan.
               </p>
               <Button asChild size="lg" className="rounded-lg bg-primary hover:bg-primary/90 text-white">
                 <a href="https://app.rapatin.id/register" onClick={handleRegistration} target="_blank" rel="noopener noreferrer">
@@ -124,7 +124,7 @@ const MenjadiReseller = () => {
                 </a>
               </Button>
             </div>
-            <div className="flex-1 relative animate-slide-in-right">
+            <div className="flex-1">
               <div className="relative w-full max-w-md mx-auto">
                 <div className="rounded-2xl overflow-hidden shadow-elevation border border-white/40 bg-white/90">
                   <div className="bg-white/90 p-3 flex items-center border-b">
@@ -240,7 +240,7 @@ const MenjadiReseller = () => {
                   </div>
                 </div>
                 
-                <div className="absolute -bottom-4 -right-4 -z-10 w-full h-full rounded-2xl bg-primary/10 animate-float"></div>
+                <div className="absolute -bottom-4 -right-4 -z-10 w-full h-full rounded-2xl bg-primary/10"></div>
               </div>
             </div>
           </div>
