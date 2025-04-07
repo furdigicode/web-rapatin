@@ -123,6 +123,17 @@ const TestimonialSection = () => {
             Lihat bagaimana Rapatin membantu berbagai bisnis dan profesional meningkatkan efektivitas rapat online mereka.
           </p>
         </div>
+        <div className="max-w-3xl mx-auto text-center mb-16 animate-fade-in">
+          <div className="inline-flex items-center py-1 px-4 bg-accent rounded-full mb-4">
+            <span className="text-xs font-medium text-primary">Harga Transparan</span>
+          </div>
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">
+            Harga Bayar-Per-Rapat
+          </h2>
+          <p className="text-muted-foreground text-lg">
+            Tanpa langganan, tanpa komitmen. Hanya bayar untuk rapat yang Anda jadwalkan, berdasarkan jumlah peserta dan jumlah hari.
+          </p>
+        </div>
 
         <div className="max-w-6xl mx-auto">
           <Carousel className="w-full" opts={{ align: 'start', slidesToScroll: 1 }}>
