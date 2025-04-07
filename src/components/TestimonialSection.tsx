@@ -113,7 +113,7 @@ const TestimonialSection = () => {
     <section className="py-20 bg-gradient-to-b from-accent/20 to-background" id="testimonials">
       <div className="container mx-auto px-4 md:px-6">
         <div className="max-w-3xl mx-auto text-center mb-16 animate-fade-in">
-          <div className="inline-flex items-center py-1 px-4 bg-accent rounded-full mb-2">
+          <div className="inline-flex items-center py-1 px-4 bg-accent rounded-full mb-4">
             <span className="text-xs font-medium text-primary">Testimoni Pengguna</span>
           </div>
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
@@ -121,17 +121,6 @@ const TestimonialSection = () => {
           </h2>
           <p className="text-muted-foreground text-lg">
             Lihat bagaimana Rapatin membantu berbagai bisnis dan profesional meningkatkan efektivitas rapat online mereka.
-          </p>
-        </div>
-        <div className="max-w-3xl mx-auto text-center mb-16 animate-fade-in">
-          <div className="inline-flex items-center py-1 px-4 bg-accent rounded-full mb-4">
-            <span className="text-xs font-medium text-primary">Harga Transparan</span>
-          </div>
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Harga Bayar-Per-Rapat
-          </h2>
-          <p className="text-muted-foreground text-lg">
-            Tanpa langganan, tanpa komitmen. Hanya bayar untuk rapat yang Anda jadwalkan, berdasarkan jumlah peserta dan jumlah hari.
           </p>
         </div>
 
