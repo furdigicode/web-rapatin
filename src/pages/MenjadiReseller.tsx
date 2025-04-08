@@ -119,7 +119,7 @@ const MenjadiReseller = () => {
               </p>
               <Button asChild size="lg" className="rounded-lg bg-primary hover:bg-primary/90 text-white">
                 <a href="https://app.rapatin.id/dashboard/register" onClick={handleRegistration} target="_blank" rel="noopener noreferrer">
-                  Gabung Reseller Sekarang
+                  Gabung Reseller
                   <ArrowRight size={16} className="ml-2" />
                 </a>
               </Button>
