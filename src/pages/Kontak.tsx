@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -12,19 +13,12 @@ const defaultContactData = {
   phone: "+62 8788 8898 0084",
   address: "Jl. Sudirman No. 123, Jakarta Selatan, 12190, Indonesia",
   officeHours: "Senin - Jumat, 9:00 - 17:00 WIB",
-  formTitle: "Kirim Pesan",
-  formSubtitle: "Isi formulir di bawah ini untuk menghubungi Kami"
+  livechat: "Dukungan langsung melalui livechat kami"
 };
 
 const Kontak = () => {
   const { toast } = useToast();
   const [contactData, setContactData] = useState(defaultContactData);
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    subject: '',
-    message: ''
-  });
 
   // Load contact data from localStorage
   useEffect(() => {
@@ -34,41 +28,21 @@ const Kontak = () => {
     }
   }, []);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { id, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [id]: value
-    }));
-  };
-
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    
-    // Basic validation
-    if (!formData.name || !formData.email || !formData.message) {
+  const openLiveChat = () => {
+    // Functionality to open CRISP chat
+    if (window.$crisp) {
+      window.$crisp.push(['do', 'chat:open']);
+      toast({
+        title: "Live Chat",
+        description: "Live chat telah dibuka, silakan mulai percakapan.",
+      });
+    } else {
       toast({
         title: "Error",
-        description: "Mohon isi semua field yang wajib diisi",
+        description: "Live chat tidak tersedia saat ini. Silakan coba lagi nanti.",
         variant: "destructive"
       });
-      return;
     }
-    
-    // Here you would typically send the data to a backend API
-    // For demo purposes, just show a success message
-    toast({
-      title: "Pesan Terkirim",
-      description: "Terima kasih atas pesan Anda. Kami akan segera menghubungi Anda.",
-    });
-    
-    // Reset form
-    setFormData({
-      name: '',
-      email: '',
-      subject: '',
-      message: ''
-    });
   };
 
   return (
@@ -85,120 +59,62 @@ const Kontak = () => {
             </p>
           </div>
           
-          {/* Contact Info & Form */}
-          <div className="max-w-5xl mx-auto">
-            <div className="grid md:grid-cols-3 gap-8">
-              {/* Contact Info Cards */}
-              <div className="space-y-4">
-                <Card className="glass hover:shadow-elevation transition-all duration-300">
-                  <CardContent className="p-6">
-                    <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4 text-primary">
-                      <Mail size={22} />
-                    </div>
-                    <h3 className="text-lg font-semibold mb-2">Email</h3>
-                    <a href={`mailto:${contactData.email}`} className="text-primary font-medium">
-                      {contactData.email}
-                    </a>
-                  </CardContent>
-                </Card>
-                
-                <Card className="glass hover:shadow-elevation transition-all duration-300">
-                  <CardContent className="p-6">
-                    <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4 text-primary">
-                      <MessageCircle size={22} />
-                    </div>
-                    <h3 className="text-lg font-semibold mb-2">Whatsapp</h3>
-                    <p className="text-muted-foreground mb-3">{contactData.officeHours}</p>
-                    <a href={`https://wa.me/${contactData.phone.replace(/\D/g,'')}`} className="text-primary font-medium">
-                      {contactData.phone}
-                    </a>
-                  </CardContent>
-                </Card>
-                
-                <Card className="glass hover:shadow-elevation transition-all duration-300">
-                  <CardContent className="p-6">
-                    <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4 text-primary">
-                      <MapPin size={22} />
-                    </div>
-                    <h3 className="text-lg font-semibold mb-2">Kantor</h3>
-                    <address className="not-italic text-primary font-medium whitespace-pre-line">
-                      {contactData.address}
-                    </address>
-                  </CardContent>
-                </Card>
-              </div>
+          {/* Contact Info Cards */}
+          <div className="max-w-6xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {/* Email Card */}
+              <Card className="glass hover:shadow-elevation transition-all duration-300">
+                <CardContent className="p-6">
+                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4 text-primary">
+                    <Mail size={22} />
+                  </div>
+                  <h3 className="text-lg font-semibold mb-2">Email</h3>
+                  <a href={`mailto:${contactData.email}`} className="text-primary font-medium">
+                    {contactData.email}
+                  </a>
+                </CardContent>
+              </Card>
               
-              {/* Contact Form */}
-              <div className="md:col-span-2">
-                <Card className="glass overflow-hidden">
-                  <CardContent className="p-6">
-                    <div className="flex items-center mb-6">
-                      <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mr-4 text-primary">
-                        <MessageSquare size={22} />
-                      </div>
-                      <div>
-                        <h3 className="text-xl font-semibold">{contactData.formTitle}</h3>
-                        <p className="text-muted-foreground">{contactData.formSubtitle}</p>
-                      </div>
-                    </div>
-                    
-                    <form className="space-y-4" onSubmit={handleSubmit}>
-                      <div className="grid md:grid-cols-2 gap-4">
-                        <div>
-                          <label htmlFor="name" className="block text-sm font-medium mb-1">Nama</label>
-                          <input 
-                            type="text" 
-                            id="name" 
-                            className="w-full px-4 py-2 rounded-md border focus:outline-none focus:ring-2 focus:ring-primary/50" 
-                            placeholder="Nama Anda"
-                            value={formData.name}
-                            onChange={handleInputChange}
-                          />
-                        </div>
-                        <div>
-                          <label htmlFor="email" className="block text-sm font-medium mb-1">Email</label>
-                          <input 
-                            type="email" 
-                            id="email" 
-                            className="w-full px-4 py-2 rounded-md border focus:outline-none focus:ring-2 focus:ring-primary/50" 
-                            placeholder="email@anda.com"
-                            value={formData.email}
-                            onChange={handleInputChange}
-                          />
-                        </div>
-                      </div>
-                      
-                      <div>
-                        <label htmlFor="subject" className="block text-sm font-medium mb-1">Subjek</label>
-                        <input 
-                          type="text" 
-                          id="subject" 
-                          className="w-full px-4 py-2 rounded-md border focus:outline-none focus:ring-2 focus:ring-primary/50" 
-                          placeholder="Subjek pesan"
-                          value={formData.subject}
-                          onChange={handleInputChange}
-                        />
-                      </div>
-                      
-                      <div>
-                        <label htmlFor="message" className="block text-sm font-medium mb-1">Pesan</label>
-                        <textarea 
-                          id="message" 
-                          rows={5}
-                          className="w-full px-4 py-2 rounded-md border focus:outline-none focus:ring-2 focus:ring-primary/50" 
-                          placeholder="Tulis pesan Anda di sini..."
-                          value={formData.message}
-                          onChange={handleInputChange}
-                        ></textarea>
-                      </div>
-                      
-                      <Button type="submit" className="w-full md:w-auto">
-                        Kirim Pesan
-                      </Button>
-                    </form>
-                  </CardContent>
-                </Card>
-              </div>
+              {/* WhatsApp Card */}
+              <Card className="glass hover:shadow-elevation transition-all duration-300">
+                <CardContent className="p-6">
+                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4 text-primary">
+                    <MessageCircle size={22} />
+                  </div>
+                  <h3 className="text-lg font-semibold mb-2">Whatsapp</h3>
+                  <p className="text-muted-foreground mb-3">{contactData.officeHours}</p>
+                  <a href={`https://wa.me/${contactData.phone.replace(/\D/g,'')}`} className="text-primary font-medium">
+                    {contactData.phone}
+                  </a>
+                </CardContent>
+              </Card>
+              
+              {/* Office Card */}
+              <Card className="glass hover:shadow-elevation transition-all duration-300">
+                <CardContent className="p-6">
+                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4 text-primary">
+                    <MapPin size={22} />
+                  </div>
+                  <h3 className="text-lg font-semibold mb-2">Kantor</h3>
+                  <address className="not-italic text-primary font-medium whitespace-pre-line">
+                    {contactData.address}
+                  </address>
+                </CardContent>
+              </Card>
+              
+              {/* Live Chat Card */}
+              <Card className="glass hover:shadow-elevation transition-all duration-300">
+                <CardContent className="p-6">
+                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4 text-primary">
+                    <MessageSquare size={22} />
+                  </div>
+                  <h3 className="text-lg font-semibold mb-2">Live Chat</h3>
+                  <p className="text-muted-foreground mb-3">{contactData.livechat}</p>
+                  <Button onClick={openLiveChat} className="w-full">
+                    Mulai Chat
+                  </Button>
+                </CardContent>
+              </Card>
             </div>
           </div>
         </div>
