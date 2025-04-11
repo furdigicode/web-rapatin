@@ -9,12 +9,12 @@ import { useToast } from '@/hooks/use-toast';
 
 // Default contact information
 const defaultContactData = {
-  email: "hello@rapatin.id",
-  phone: "+62 812 3456 7890",
+  email: "halo@rapatin.id",
+  phone: "+62 8788 8898 0084",
   address: "Jl. Sudirman No. 123, Jakarta Selatan, 12190, Indonesia",
   officeHours: "Senin - Jumat, 9:00 - 17:00 WIB",
   formTitle: "Kirim Pesan",
-  formSubtitle: "Isi formulir di bawah ini dan kami akan segera menghubungi Anda"
+  formSubtitle: "Isi formulir di bawah ini untuk menghubungi Kami"
 };
 
 const Kontak = () => {
@@ -97,7 +97,6 @@ const Kontak = () => {
                       <Mail size={22} />
                     </div>
                     <h3 className="text-lg font-semibold mb-2">Email</h3>
-                    <p className="text-muted-foreground mb-3">Kami akan merespons dalam 24 jam</p>
                     <a href={`mailto:${contactData.email}`} className="text-primary font-medium">
                       {contactData.email}
                     </a>
@@ -109,7 +108,7 @@ const Kontak = () => {
                     <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4 text-primary">
                       <Phone size={22} />
                     </div>
-                    <h3 className="text-lg font-semibold mb-2">Telepon</h3>
+                    <h3 className="text-lg font-semibold mb-2">Whatsapp</h3>
                     <p className="text-muted-foreground mb-3">{contactData.officeHours}</p>
                     <a href={`tel:${contactData.phone}`} className="text-primary font-medium">
                       {contactData.phone}
@@ -123,7 +122,6 @@ const Kontak = () => {
                       <MapPin size={22} />
                     </div>
                     <h3 className="text-lg font-semibold mb-2">Kantor</h3>
-                    <p className="text-muted-foreground mb-3">Kunjungi kami di:</p>
                     <address className="not-italic text-primary font-medium whitespace-pre-line">
                       {contactData.address}
                     </address>
