@@ -8,6 +8,8 @@ import { useEffect } from "react";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import FAQ from "./pages/FAQ";
+import TentangKami from "./pages/TentangKami";
+import Kontak from "./pages/Kontak";
 
 // Feature Pages
 import BayarSesuaiPakai from "./pages/fitur/BayarSesuaiPakai";
@@ -60,6 +62,8 @@ const AppRoutes = () => {
       <Route path="/syarat-ketentuan" element={<SyaratKetentuan />} />
       <Route path="/kebijakan-privasi" element={<KebijakanPrivasi />} />
       <Route path="/menjadi-reseller" element={<MenjadiReseller />} />
+      <Route path="/tentang-kami" element={<TentangKami />} />
+      <Route path="/kontak" element={<Kontak />} />
       
       {/* 404 Catch-all Route */}
       <Route path="*" element={<NotFound />} />
