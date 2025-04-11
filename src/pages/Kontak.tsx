@@ -55,7 +55,7 @@ const Kontak = () => {
           <div className="max-w-3xl mx-auto text-center mb-16 animate-fade-in">
             <h1 className="text-3xl md:text-4xl font-bold mb-4">Hubungi Kami</h1>
             <p className="text-lg text-muted-foreground">
-              Ada pertanyaan atau masukan? Jangan ragu untuk menghubungi kami.
+              Ada pertanyaan atau masukan? Jangan ragu untuk menghubungi kami. Jam kerja: {contactData.officeHours}
             </p>
           </div>
           
@@ -82,7 +82,6 @@ const Kontak = () => {
                     <MessageCircle size={22} />
                   </div>
                   <h3 className="text-lg font-semibold mb-2">Whatsapp</h3>
-                  <p className="text-muted-foreground mb-3">{contactData.officeHours}</p>
                   <a href={`https://wa.me/${contactData.phone.replace(/\D/g,'')}`} className="text-primary font-medium">
                     {contactData.phone}
                   </a>
