@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { Mail, Phone, MapPin, MessageSquare } from 'lucide-react';
+import { Mail, MapPin, MessageSquare, Whatsapp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
@@ -106,11 +106,11 @@ const Kontak = () => {
                 <Card className="glass hover:shadow-elevation transition-all duration-300">
                   <CardContent className="p-6">
                     <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4 text-primary">
-                      <Phone size={22} />
+                      <Whatsapp size={22} />
                     </div>
                     <h3 className="text-lg font-semibold mb-2">Whatsapp</h3>
                     <p className="text-muted-foreground mb-3">{contactData.officeHours}</p>
-                    <a href={`tel:${contactData.phone}`} className="text-primary font-medium">
+                    <a href={`https://wa.me/${contactData.phone.replace(/\D/g,'')}`} className="text-primary font-medium">
                       {contactData.phone}
                     </a>
                   </CardContent>
