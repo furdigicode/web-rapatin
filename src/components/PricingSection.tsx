@@ -85,10 +85,10 @@ const PricingSection: React.FC = () => {
                   </div>
                   
                   <div className="absolute bottom-2 left-2 right-2 flex items-center justify-center gap-4 bg-primary/10 rounded-b-lg p-2">
-                    <Mic size={16} className="text-primary" />
-                    <Video size={16} className="text-primary" />
-                    <Share2 size={16} className="text-primary" />
-                    <Users size={16} className="text-primary" />
+                    <Mic size={16} className="text-primary cursor-pointer" />
+                    <Video size={16} className="text-primary cursor-pointer" />
+                    <Share2 size={16} className="text-primary cursor-pointer" />
+                    <Users size={16} className="text-primary cursor-pointer" />
                   </div>
                 </div>
               </div>
@@ -118,7 +118,7 @@ const PricingSection: React.FC = () => {
                   {plans.map((plan, index) => (
                     <div 
                       key={index} 
-                      className={`p-4 rounded-lg border ${
+                      className={`p-4 rounded-lg border cursor-pointer ${
                         index === 1 ? "border-primary bg-primary/5" : "border-border"
                       }`}
                     >

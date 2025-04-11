@@ -83,6 +83,22 @@
   }
 }
 
+@layer components {
+  /* Add a global style for interactive elements */
+  button, 
+  a[href],
+  input[type="submit"],
+  input[type="button"],
+  input[type="reset"],
+  .interactive,
+  [role="button"],
+  [role="link"],
+  .clickable,
+  .cursor-interactive {
+    @apply cursor-pointer;
+  }
+}
+
 @layer utilities {
   .glass {
     @apply bg-white/70 backdrop-blur-md border border-white/20 shadow-sm;
