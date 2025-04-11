@@ -12,7 +12,7 @@ const defaultAboutData = {
   },
   story: {
     title: "Kisah Kami",
-    content: "Rapatin didirikan pada tahun 2023 oleh sekelompok profesional teknologi yang frustrasi dengan biaya langganan bulanan layanan rapat online yang mahal.\n\nKami percaya bahwa teknologi rapat online seharusnya tersedia untuk semua orang tanpa perlu membayar langganan bulanan yang mahal. Itulah mengapa kami menciptakan model bayar-sesuai-pakai yang inovatif, memungkinkan pengguna untuk membayar hanya untuk rapat yang benar-benar mereka jadwalkan.\n\nSejak itu, misi kami adalah membuat rapat online lebih terjangkau dan fleksibel untuk bisnis dari semua ukuran, pengajar, dan profesional di seluruh Indonesia."
+    content: "Rapatin hadir sebagai solusi modern untuk layanan rapat online yang ekonomis, praktis, dan terpusat. Dibangun dengan model pay-as-you-go, Rapatin memungkinkan pengguna hanya membayar saat mereka benar-benar membutuhkan rapat—tanpa langganan bulanan yang mahal.\n\nMeski layanan sejenis seperti sewa Zoom harian sudah ada, kebanyakan prosesnya masih manual. Dengan Rapatin, pengguna bisa langsung membuat jadwal dan mendapatkan akses ke ruang meeting secara mandiri. Kami percaya bahwa teknologi seharusnya memudahkan, bukan mempersulit. Itulah mengapa kami membangun Rapatin: agar siapa pun bisa mengadakan rapat online dengan cara yang paling efisien dan hemat."
   },
   values: {
     title: "Nilai-Nilai Kami",
