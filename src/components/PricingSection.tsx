@@ -27,9 +27,9 @@ const PricingSection: React.FC = () => {
   
   const plans = [
     { participants: "100 Peserta", price: "Rp 20.000" },
-    { participants: "300 Peserta", price: "Rp 35.000" },
-    { participants: "500 Peserta", price: "Rp 60.000" },
-    { participants: "1000 Peserta", price: "Rp 100.000" }
+    { participants: "300 Peserta", price: "Rp 40.000" },
+    { participants: "500 Peserta", price: "Rp 70.000" },
+    { participants: "1000 Peserta", price: "Rp 130.000" }
   ];
   
   const handleRegistration = () => {
