@@ -12,7 +12,7 @@ const defaultAboutData = {
   },
   story: {
     title: "Kisah Kami",
-    content: "Rapatin hadir sebagai solusi modern untuk layanan rapat online yang ekonomis, praktis, dan terpusat. Dibangun dengan model pay-as-you-go, Rapatin memungkinkan pengguna hanya membayar saat mereka benar-benar membutuhkan rapat—tanpa langganan bulanan yang mahal.\n\nMeski layanan sejenis seperti sewa Zoom harian sudah ada, kebanyakan prosesnya masih manual. Dengan Rapatin, pengguna bisa langsung membuat jadwal dan mendapatkan akses ke ruang meeting secara mandiri. Kami percaya bahwa teknologi seharusnya memudahkan, bukan mempersulit. Itulah mengapa kami membangun Rapatin: agar siapa pun bisa mengadakan rapat online dengan cara yang paling efisien dan hemat."
+    content: "Rapatin hadir sebagai solusi modern untuk layanan rapat online yang ekonomis, praktis, dan terpusat. Dibangun dengan model pay-as-you-go, Rapatin memungkinkan pengguna hanya membayar saat mereka benar-benar membutuhkan rapat—tanpa langganan bulanan yang mahal.\n\n\nMeski layanan sejenis seperti sewa Zoom harian sudah ada, kebanyakan prosesnya masih manual. Dengan Rapatin, pengguna bisa langsung membuat jadwal dan mendapatkan akses ke ruang meeting secara mandiri. Kami percaya bahwa teknologi seharusnya memudahkan, bukan mempersulit. Itulah mengapa kami membangun Rapatin: agar siapa pun bisa mengadakan rapat online dengan cara yang paling efisien dan hemat."
   },
   values: {
     title: "Nilai-Nilai Kami",
