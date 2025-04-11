@@ -83,17 +83,11 @@ const TestimonialSection = () => {
   ];
 
   // Setup autoplay plugin with 3-second interval
-  const [emblaRef, emblaApi] = useEmblaCarousel({ 
-    align: 'start', 
-    slidesToScroll: 1,
-    loop: true 
-  }, [
-    Autoplay({
-      delay: 3000,
-      stopOnInteraction: false,
-      stopOnMouseEnter: true,
-    })
-  ]);
+  const autoplayPlugin = React.useMemo(() => Autoplay({
+    delay: 3000,
+    stopOnInteraction: false,
+    stopOnMouseEnter: true,
+  }), []);
 
   const renderTestimonialCard = (testimonial: Testimonial) => (
     <Card key={testimonial.id} className="glass h-full hover:shadow-elevation transition-all duration-300 animate-fade-in delay-100">
@@ -140,20 +134,28 @@ const TestimonialSection = () => {
         </div>
 
         <div className="max-w-6xl mx-auto">
-          <div className="w-full overflow-hidden" ref={emblaRef}>
-            <div className="flex">
+          <Carousel 
+            opts={{ 
+              align: 'start', 
+              slidesToScroll: 1,
+              loop: true 
+            }} 
+            plugins={[autoplayPlugin]}
+            className="w-full relative"
+          >
+            <CarouselContent>
               {testimonials.map((testimonial) => (
-                <div key={testimonial.id} className="flex-[0_0_100%] min-w-0 md:flex-[0_0_33.33%] pl-4">
+                <CarouselItem key={testimonial.id} className="md:basis-1/3 pl-4">
                   {renderTestimonialCard(testimonial)}
-                </div>
+                </CarouselItem>
               ))}
+            </CarouselContent>
+            
+            <div className="flex items-center justify-center mt-8 gap-2">
+              <CarouselPrevious className="relative md:absolute left-0 md:-left-12 top-1/2 -translate-y-1/2" />
+              <CarouselNext className="relative md:absolute right-0 md:-right-12 top-1/2 -translate-y-1/2" />
             </div>
-          </div>
-          
-          <div className="flex items-center justify-center mt-8 gap-2">
-            <CarouselPrevious className="relative md:absolute left-0 md:-left-12 top-1/2 -translate-y-1/2" onClick={() => emblaApi?.scrollPrev()} />
-            <CarouselNext className="relative md:absolute right-0 md:-right-12 top-1/2 -translate-y-1/2" onClick={() => emblaApi?.scrollNext()} />
-          </div>
+          </Carousel>
         </div>
       </div>
     </section>
