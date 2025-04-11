@@ -5,7 +5,6 @@ import Footer from '@/components/Footer';
 import { Mail, MapPin, MessageSquare, MessageCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { useToast } from '@/hooks/use-toast';
 
 // Default contact information
 const defaultContactData = {
