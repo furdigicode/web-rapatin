@@ -153,30 +153,6 @@ const TentangKami = () => {
             </div>
           </div>
           
-          {/* Team */}
-          <div className="max-w-4xl mx-auto">
-            <h2 className="text-2xl font-bold mb-6">{aboutData.team.title}</h2>
-            <div className="grid md:grid-cols-3 gap-6">
-              {aboutData.team.members.map((member) => (
-                <div key={member.id} className="glass p-6 rounded-xl text-center">
-                  <div className="w-24 h-24 rounded-full bg-primary/10 mx-auto mb-4">
-                    {member.avatarUrl && (
-                      <img 
-                        src={member.avatarUrl} 
-                        alt={member.name} 
-                        className="w-full h-full rounded-full object-cover"
-                      />
-                    )}
-                  </div>
-                  <h3 className="text-xl font-semibold mb-1">{member.name}</h3>
-                  <p className="text-sm text-primary mb-2">{member.position}</p>
-                  <p className="text-muted-foreground text-sm">
-                    {member.bio}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
         </div>
       </main>
       
