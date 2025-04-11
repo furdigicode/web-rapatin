@@ -67,14 +67,14 @@ const Navbar: React.FC = () => {
               <a href="#features" className="text-sm font-medium hover:text-primary transition-colors">Fitur</a>
               <button 
                 onClick={() => scrollToSection('cara-kerja')} 
-                className="text-sm font-medium hover:text-primary transition-colors cursor-default"
+                className="text-sm font-medium hover:text-primary transition-colors cursor-pointer"
               >
                 Cara Kerja
               </button>
               <a href="#pricing" className="text-sm font-medium hover:text-primary transition-colors">Harga</a>
               <button 
                 onClick={() => scrollToSection('testimonials')} 
-                className="text-sm font-medium hover:text-primary transition-colors cursor-default"
+                className="text-sm font-medium hover:text-primary transition-colors cursor-pointer"
               >
                 Testimoni
               </button>
@@ -98,13 +98,13 @@ const Navbar: React.FC = () => {
           )}
           
           <Button asChild size="sm" className="bg-primary text-white hover:bg-primary/90">
-            <a href="https://app.rapatin.id/dashboard/register" onClick={handleRegistration} className="cursor-default">Daftar/Login</a>
+            <a href="https://app.rapatin.id/dashboard/register" onClick={handleRegistration} className="cursor-pointer">Daftar/Login</a>
           </Button>
         </nav>
         
         {/* Mobile Menu Button */}
         <button 
-          className="md:hidden text-foreground cursor-default"
+          className="md:hidden text-foreground cursor-pointer"
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
         >
           {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
@@ -128,13 +128,13 @@ const Navbar: React.FC = () => {
               <>
                 <button 
                   onClick={() => scrollToSection('cara-kerja')} 
-                  className="block w-full text-left text-sm font-medium hover:text-primary transition-colors py-2 cursor-default"
+                  className="block w-full text-left text-sm font-medium hover:text-primary transition-colors py-2 cursor-pointer"
                 >
                   Cara Kerja
                 </button>
                 <button 
                   onClick={() => scrollToSection('testimonials')} 
-                  className="block w-full text-left text-sm font-medium hover:text-primary transition-colors py-2 cursor-default"
+                  className="block w-full text-left text-sm font-medium hover:text-primary transition-colors py-2 cursor-pointer"
                 >
                   Testimoni
                 </button>
@@ -189,10 +189,10 @@ const Navbar: React.FC = () => {
             
             <div className="flex flex-col space-y-3 pt-2">
               <Button asChild variant="outline" size="sm">
-                <a href="https://app.rapatin.id/dashboard/login" className="cursor-default">Masuk</a>
+                <a href="https://app.rapatin.id/dashboard/login" className="cursor-pointer">Masuk</a>
               </Button>
               <Button asChild size="sm" className="bg-primary text-white hover:bg-primary/90">
-                <a href="https://app.rapatin.id/dashboard/register" onClick={handleRegistration} className="cursor-default">Daftar</a>
+                <a href="https://app.rapatin.id/dashboard/register" onClick={handleRegistration} className="cursor-pointer">Daftar</a>
               </Button>
             </div>
           </div>

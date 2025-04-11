@@ -1,7 +1,7 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { Star, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Star } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { 
   Carousel, 
@@ -10,6 +10,8 @@ import {
   CarouselPrevious,
   CarouselNext
 } from '@/components/ui/carousel';
+import useEmblaCarousel from 'embla-carousel-react';
+import Autoplay from 'embla-carousel-autoplay';
 
 type Testimonial = {
   id: string;
@@ -80,6 +82,19 @@ const TestimonialSection = () => {
     }
   ];
 
+  // Setup autoplay plugin with 3-second interval
+  const [emblaRef, emblaApi] = useEmblaCarousel({ 
+    align: 'start', 
+    slidesToScroll: 1,
+    loop: true 
+  }, [
+    Autoplay({
+      delay: 3000,
+      stopOnInteraction: false,
+      stopOnMouseEnter: true,
+    })
+  ]);
+
   const renderTestimonialCard = (testimonial: Testimonial) => (
     <Card key={testimonial.id} className="glass h-full hover:shadow-elevation transition-all duration-300 animate-fade-in delay-100">
       <CardContent className="p-6 flex flex-col h-full">
@@ -125,20 +140,20 @@ const TestimonialSection = () => {
         </div>
 
         <div className="max-w-6xl mx-auto">
-          <Carousel className="w-full" opts={{ align: 'start', slidesToScroll: 1 }}>
-            <CarouselContent>
+          <div className="w-full overflow-hidden" ref={emblaRef}>
+            <div className="flex">
               {testimonials.map((testimonial) => (
-                <CarouselItem key={testimonial.id} className="md:basis-1/3 lg:basis-1/3 pl-4">
+                <div key={testimonial.id} className="flex-[0_0_100%] min-w-0 md:flex-[0_0_33.33%] pl-4">
                   {renderTestimonialCard(testimonial)}
-                </CarouselItem>
+                </div>
               ))}
-            </CarouselContent>
-            
-            <div className="flex items-center justify-center mt-8 gap-2">
-              <CarouselPrevious className="relative md:absolute left-0 md:-left-12 top-1/2 -translate-y-1/2" />
-              <CarouselNext className="relative md:absolute right-0 md:-right-12 top-1/2 -translate-y-1/2" />
             </div>
-          </Carousel>
+          </div>
+          
+          <div className="flex items-center justify-center mt-8 gap-2">
+            <CarouselPrevious className="relative md:absolute left-0 md:-left-12 top-1/2 -translate-y-1/2" onClick={() => emblaApi?.scrollPrev()} />
+            <CarouselNext className="relative md:absolute right-0 md:-right-12 top-1/2 -translate-y-1/2" onClick={() => emblaApi?.scrollNext()} />
+          </div>
         </div>
       </div>
     </section>

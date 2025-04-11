@@ -27,7 +27,7 @@ const PricingSection: React.FC = () => {
   
   const plans = [
     { participants: "100 Peserta", price: "Rp 20.000" },
-    { participants: "300 Peserta", price: "Rp 40.000" },
+    { participants: "300 Peserta", price: "Rp 40.000", bestSeller: true },
     { participants: "500 Peserta", price: "Rp 70.000" },
     { participants: "1000 Peserta", price: "Rp 130.000" }
   ];
@@ -85,10 +85,10 @@ const PricingSection: React.FC = () => {
                   </div>
                   
                   <div className="absolute bottom-2 left-2 right-2 flex items-center justify-center gap-4 bg-primary/10 rounded-b-lg p-2">
-                    <Mic size={16} className="text-primary cursor-pointer" />
-                    <Video size={16} className="text-primary cursor-pointer" />
-                    <Share2 size={16} className="text-primary cursor-pointer" />
-                    <Users size={16} className="text-primary cursor-pointer" />
+                    <Mic size={16} className="text-primary" />
+                    <Video size={16} className="text-primary" />
+                    <Share2 size={16} className="text-primary" />
+                    <Users size={16} className="text-primary" />
                   </div>
                 </div>
               </div>
@@ -118,10 +118,15 @@ const PricingSection: React.FC = () => {
                   {plans.map((plan, index) => (
                     <div 
                       key={index} 
-                      className={`p-4 rounded-lg border cursor-pointer ${
+                      className={`p-4 rounded-lg border relative ${
                         index === 1 ? "border-primary bg-primary/5" : "border-border"
                       }`}
                     >
+                      {plan.bestSeller && (
+                        <div className="absolute -top-3 -right-3 bg-orange-500 text-white text-xs font-medium px-3 py-1 rounded-full shadow-sm">
+                          Best Seller
+                        </div>
+                      )}
                       <p className="font-medium text-sm mb-1">{plan.participants}</p>
                       <p className="text-xl font-bold mb-1">{plan.price}</p>
                       <p className="text-xs text-muted-foreground">/rapat/tanggal</p>
