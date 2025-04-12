@@ -1,167 +1,168 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Card, CardContent } from '@/components/ui/card';
-import { Calendar, User, Clock } from 'lucide-react';
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
+import { Calendar, User, Tag } from 'lucide-react';
+
+interface BlogPost {
+  id: number;
+  title: string;
+  slug: string;
+  excerpt: string;
+  content: string;
+  coverImage: string;
+  category: string;
+  author: string;
+  date: string;
+  status: 'draft' | 'published' | 'scheduled';
+}
 
 const Blog = () => {
-  const blogPosts = [
-    {
-      id: 1,
-      title: 'Cara Mengoptimalkan Rapat Online Anda',
-      excerpt: 'Pelajari cara membuat rapat online Anda lebih produktif dan efisien dengan tips dan trik dari para ahli.',
-      date: '10 Juni 2023',
-      author: 'Budi Setiawan',
-      readTime: '5 menit',
-      category: 'Tips & Trik',
-      image: 'https://images.unsplash.com/photo-1553877522-43269d4ea984?q=80&w=2070'
-    },
-    {
-      id: 2,
-      title: 'Mengapa Model Bayar-Sesuai-Pakai Lebih Ekonomis',
-      excerpt: 'Analisis mendalam tentang bagaimana model bayar-sesuai-pakai dapat menghemat biaya rapat online Anda secara signifikan.',
-      date: '28 Mei 2023',
-      author: 'Dewi Lestari',
-      readTime: '7 menit',
-      category: 'Bisnis',
-      image: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?q=80&w=2070'
-    },
-    {
-      id: 3,
-      title: 'Fitur Baru: Laporan Peserta yang Ditingkatkan',
-      excerpt: 'Jelajahi fitur laporan peserta baru kami yang memberi Anda wawasan lebih mendalam tentang partisipasi rapat.',
-      date: '15 Mei 2023',
-      author: 'Adi Nugroho',
-      readTime: '4 menit',
-      category: 'Fitur Baru',
-      image: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?q=80&w=2070'
-    },
-    {
-      id: 4,
-      title: 'Keamanan Rapat Online: Praktik Terbaik',
-      excerpt: 'Lindungi rapat online Anda dari gangguan dan ancaman keamanan dengan praktik terbaik ini.',
-      date: '5 Mei 2023',
-      author: 'Siti Rahayu',
-      readTime: '6 menit',
-      category: 'Keamanan',
-      image: 'https://images.unsplash.com/photo-1560264280-88b68371db39?q=80&w=2070'
-    },
-    {
-      id: 5,
-      title: 'Studi Kasus: Bagaimana Perusahaan ABC Menghemat 40% Biaya Rapat',
-      excerpt: 'Pelajari bagaimana Perusahaan ABC berhasil mengurangi biaya rapat mereka secara signifikan dengan menggunakan Rapatin.',
-      date: '22 April 2023',
-      author: 'Budi Setiawan',
-      readTime: '8 menit',
-      category: 'Studi Kasus',
-      image: 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?q=80&w=2070'
-    },
-    {
-      id: 6,
-      title: 'Menggunakan Rekaman Cloud untuk Meningkatkan Produktivitas Tim',
-      excerpt: 'Pelajari cara memanfaatkan rekaman cloud untuk meningkatkan kolaborasi dan produktivitas tim Anda.',
-      date: '10 April 2023',
-      author: 'Dewi Lestari',
-      readTime: '5 menit',
-      category: 'Produktivitas',
-      image: 'https://images.unsplash.com/photo-1600880292089-90a7e086ee0c?q=80&w=2070'
-    }
-  ];
+  const [posts, setPosts] = useState<BlogPost[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const categories = [
-    'Semua',
-    'Tips & Trik',
-    'Bisnis',
-    'Fitur Baru',
-    'Keamanan',
-    'Studi Kasus',
-    'Produktivitas'
-  ];
+  useEffect(() => {
+    // In a real app, this would fetch from an API
+    // For now, we'll simulate loading and use mock data
+    setTimeout(() => {
+      setPosts([
+        {
+          id: 1,
+          title: "Cara Mengoptimalkan Rapat Online Anda",
+          slug: "cara-mengoptimalkan-rapat-online-anda",
+          excerpt: "Pelajari cara membuat rapat online Anda lebih produktif dan efisien dengan tips dan trik dari para ahli.",
+          content: "<h2>Pendahuluan</h2><p>Rapat online telah menjadi bagian penting dari rutinitas kerja modern. Artikel ini akan membahas cara mengoptimalkan rapat online agar lebih efektif dan efisien.</p>",
+          coverImage: "https://images.unsplash.com/photo-1590650153855-d9e808231d41?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&h=627&q=80",
+          category: "Tips & Trik",
+          author: "Budi Setiawan",
+          date: "10 Juni 2023",
+          status: "published"
+        },
+        {
+          id: 2,
+          title: "Mengapa Model Bayar-Sesuai-Pakai Lebih Ekonomis",
+          slug: "mengapa-model-bayar-sesuai-pakai-lebih-ekonomis",
+          excerpt: "Analisis mendalam tentang bagaimana model bayar-sesuai-pakai dapat menghemat biaya rapat online Anda secara signifikan.",
+          content: "<h2>Model Bayar-Sesuai-Pakai</h2><p>Dalam model bisnis ini, Anda hanya membayar untuk apa yang Anda gunakan, tidak lebih dan tidak kurang.</p>",
+          coverImage: "https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&h=627&q=80",
+          category: "Bisnis",
+          author: "Dewi Lestari",
+          date: "28 Mei 2023",
+          status: "published"
+        }
+      ]);
+      setIsLoading(false);
+    }, 500);
+    
+    // Add schema markup for blog listing
+    const script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.text = JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "Blog",
+      "name": "Blog Rapatin",
+      "description": "Artikel dan tips seputar meeting online dan produktivitas",
+      "url": "https://rapatin.id/blog"
+    });
+    document.head.appendChild(script);
+    
+    return () => {
+      document.head.removeChild(script);
+    };
+  }, []);
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen flex flex-col">
       <Navbar />
       
-      <main className="pt-28 pb-20">
-        <div className="container mx-auto px-4 md:px-6">
+      <main className="flex-grow pt-28 pb-20">
+        <div className="container mx-auto px-4">
+          {/* Breadcrumb */}
+          <Breadcrumb className="mb-8">
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbLink as={Link} to="/">Home</BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbPage>Blog</BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+          
           {/* Header */}
-          <div className="max-w-3xl mx-auto text-center mb-16 animate-fade-in">
+          <div className="text-center max-w-3xl mx-auto mb-16 animate-fade-in">
             <h1 className="text-3xl md:text-4xl font-bold mb-4">Blog Rapatin</h1>
             <p className="text-lg text-muted-foreground">
-              Wawasan, tips, dan berita terbaru tentang rapat online dan produktivitas.
+              Artikel dan tips seputar meeting online dan produktivitas
             </p>
           </div>
           
-          {/* Categories */}
-          <div className="mb-10 overflow-x-auto">
-            <div className="flex justify-center">
-            <div className="flex space-x-2 min-w-max">
-              {categories.map((category, index) => (
-                <button
-                  key={index}
-                  className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap ${
-                    index === 0
-                      ? 'bg-primary text-white'
-                      : 'bg-accent/50 text-foreground hover:bg-accent'
-                  } cursor-default`}
-                >
-                  {category}
-                </button>
+          {/* Blog Posts */}
+          {isLoading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {Array.from({ length: 3 }).map((_, index) => (
+                <div key={index} className="rounded-lg overflow-hidden shadow-md">
+                  <div className="w-full h-48 bg-gray-200 animate-pulse"></div>
+                  <div className="p-6 space-y-4">
+                    <div className="h-6 bg-gray-200 rounded animate-pulse"></div>
+                    <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
+                    <div className="h-4 bg-gray-200 rounded animate-pulse w-2/3"></div>
+                  </div>
+                </div>
               ))}
             </div>
-            </div>
-          </div>
-          
-          {/* Blog Posts */}
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
-            {blogPosts.map((post) => (
-              <Card key={post.id} className="glass hover:shadow-elevation transition-all duration-300 overflow-hidden">
-                <Link to={`/blog/${post.id}`} className="cursor-default">
-                  <div className="aspect-video w-full bg-primary/10 overflow-hidden">
-                    <img 
-                      src={post.image} 
-                      alt={post.title} 
-                      className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                    />
-                  </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {posts.map((post) => (
+                <Link to={`/blog/${post.slug}`} key={post.id}>
+                  <Card className="h-full hover:shadow-lg transition-all duration-300">
+                    <div className="aspect-video overflow-hidden">
+                      <img 
+                        src={post.coverImage} 
+                        alt={post.title} 
+                        className="w-full h-full object-cover transition-all duration-500 hover:scale-105" 
+                      />
+                    </div>
+                    <CardContent className="p-6">
+                      <div className="flex items-center gap-4 text-sm text-muted-foreground mb-3">
+                        <span className="bg-primary/10 text-primary px-2 py-0.5 rounded-full text-xs">
+                          {post.category}
+                        </span>
+                        <div className="flex items-center">
+                          <Calendar size={14} className="mr-1" />
+                          <span>{post.date}</span>
+                        </div>
+                      </div>
+                      
+                      <h2 className="text-xl font-semibold mb-2 hover:text-primary transition-colors">
+                        {post.title}
+                      </h2>
+                      
+                      <p className="text-muted-foreground line-clamp-3 text-sm mb-4">
+                        {post.excerpt}
+                      </p>
+                      
+                      <div className="flex items-center text-sm text-muted-foreground">
+                        <User size={14} className="mr-1" />
+                        <span>{post.author}</span>
+                      </div>
+                    </CardContent>
+                  </Card>
                 </Link>
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between mb-3 text-xs text-muted-foreground">
-                    <span className="px-2 py-1 rounded-full bg-primary/10 text-primary font-medium">
-                      {post.category}
-                    </span>
-                    <div className="flex items-center">
-                      <Calendar size={14} className="mr-1" />
-                      <span>{post.date}</span>
-                    </div>
-                  </div>
-                  
-                  <h3 className="text-xl font-semibold mb-2">
-                    <Link to={`/blog/${post.id}`} className="hover:text-primary transition-colors cursor-default">
-                      {post.title}
-                    </Link>
-                  </h3>
-                  
-                  <p className="text-muted-foreground mb-4">
-                    {post.excerpt}
-                  </p>
-                  
-                  <div className="flex items-center justify-between text-sm">
-                    <div className="flex items-center">
-                      <User size={14} className="mr-1" />
-                      <span>{post.author}</span>
-                    </div>
-                    <div className="flex items-center">
-                      <Clock size={14} className="mr-1" />
-                      <span>{post.readTime}</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       </main>
       

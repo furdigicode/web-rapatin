@@ -35,6 +35,26 @@
     <priority>0.8</priority>
   </url>
   
+  <!-- Blog Pages -->
+  <url>
+    <loc>https://rapatin.id/blog</loc>
+    <lastmod>2025-04-12</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://rapatin.id/blog/cara-mengoptimalkan-rapat-online-anda</loc>
+    <lastmod>2023-06-10</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://rapatin.id/blog/mengapa-model-bayar-sesuai-pakai-lebih-ekonomis</loc>
+    <lastmod>2023-05-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  
   <!-- Company Pages -->
   <url>
     <loc>https://rapatin.id/tentang-kami</loc>

@@ -22,6 +22,23 @@ import SyaratKetentuan from "./pages/SyaratKetentuan";
 import KebijakanPrivasi from "./pages/KebijakanPrivasi";
 import MenjadiReseller from "./pages/MenjadiReseller";
 
+// Blog Pages
+import Blog from "./pages/Blog";
+import BlogPost from "./pages/BlogPost";
+
+// Admin Pages
+import AdminLogin from "./pages/admin/Login";
+import AdminDashboard from "./pages/admin/Dashboard";
+import BlogManagement from "./pages/admin/BlogManagement";
+import URLManagement from "./pages/admin/URLManagement";
+import BrandLogoManagement from "./pages/admin/BrandLogoManagement";
+import FAQManagement from "./pages/admin/FAQManagement";
+import TestimonialManagement from "./pages/admin/TestimonialManagement";
+import AboutManagement from "./pages/admin/AboutManagement";
+import ContactManagement from "./pages/admin/ContactManagement";
+import TermsManagement from "./pages/admin/TermsManagement";
+import PrivacyManagement from "./pages/admin/PrivacyManagement";
+
 const queryClient = new QueryClient();
 
 // Create a separate component for the routes that can use hooks
@@ -64,6 +81,23 @@ const AppRoutes = () => {
       <Route path="/menjadi-reseller" element={<MenjadiReseller />} />
       <Route path="/tentang-kami" element={<TentangKami />} />
       <Route path="/kontak" element={<Kontak />} />
+      
+      {/* Blog Pages */}
+      <Route path="/blog" element={<Blog />} />
+      <Route path="/blog/:slug" element={<BlogPost />} />
+      
+      {/* Admin Routes */}
+      <Route path="/admin/login" element={<AdminLogin />} />
+      <Route path="/admin/dashboard" element={<AdminDashboard />} />
+      <Route path="/admin/blog" element={<BlogManagement />} />
+      <Route path="/admin/urls" element={<URLManagement />} />
+      <Route path="/admin/brand-logos" element={<BrandLogoManagement />} />
+      <Route path="/admin/faq" element={<FAQManagement />} />
+      <Route path="/admin/testimonials" element={<TestimonialManagement />} />
+      <Route path="/admin/about" element={<AboutManagement />} />
+      <Route path="/admin/contact" element={<ContactManagement />} />
+      <Route path="/admin/terms" element={<TermsManagement />} />
+      <Route path="/admin/privacy" element={<PrivacyManagement />} />
       
       {/* 404 Catch-all Route */}
       <Route path="*" element={<NotFound />} />
