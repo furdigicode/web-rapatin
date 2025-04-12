@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -31,16 +30,6 @@ const Kontak = () => {
     // Functionality to open CRISP chat
     if (window.$crisp) {
       window.$crisp.push(['do', 'chat:open']);
-      toast({
-        title: "Live Chat",
-        description: "Live chat telah dibuka, silakan mulai percakapan.",
-      });
-    } else {
-      toast({
-        title: "Error",
-        description: "Live chat tidak tersedia saat ini. Silakan coba lagi nanti.",
-        variant: "destructive"
-      });
     }
   };
 
