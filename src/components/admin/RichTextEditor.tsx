@@ -22,9 +22,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { 
   Tooltip,
   TooltipContent,
-  TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { TooltipProvider } from '@radix-ui/react-tooltip';
 
 interface RichTextEditorProps {
   value: string;

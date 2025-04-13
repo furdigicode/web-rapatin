@@ -16,7 +16,7 @@ import {
   AlertCircle, 
   XCircle,
   Search,
-  LinkIcon,
+  Link as LinkIcon,
   Tag
 } from 'lucide-react';
 

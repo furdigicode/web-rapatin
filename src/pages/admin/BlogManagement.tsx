@@ -1,7 +1,8 @@
+
 import React, { useState, useEffect } from 'react';
 import AdminLayout from '@/components/admin/AdminLayout';
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -10,23 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Textarea } from "@/components/ui/textarea";
 import RichTextEditor from '@/components/admin/RichTextEditor';
 import SEOPanel from '@/components/admin/SEOPanel';
-
-interface BlogPost {
-  id: number;
-  title: string;
-  slug: string;
-  excerpt: string;
-  content: string;
-  coverImage: string;
-  category: string;
-  author: string;
-  date: string;
-  status: 'draft' | 'published' | 'scheduled';
-  publishedAt: string;
-  seoTitle: string;
-  metaDescription: string;
-  focusKeyword: string;
-}
+import { BlogPost, BlogPostFormData, defaultBlogPostFormData } from '@/types/BlogTypes';
 
 const BlogManagement = () => {
   const { toast } = useToast();
@@ -94,20 +79,9 @@ const BlogManagement = () => {
   const [isCreating, setIsCreating] = useState(false);
   const [isEditing, setIsEditing] = useState<number | null>(null);
   
-  const [formData, setFormData] = useState<Omit<BlogPost, 'id'>>({
-    title: "",
-    slug: "",
-    excerpt: "",
-    content: "",
-    coverImage: "",
-    category: categories[0],
-    author: "Admin",
-    date: new Date().toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' }),
-    status: "draft",
-    publishedAt: "",
-    seoTitle: "",
-    metaDescription: "",
-    focusKeyword: ""
+  const [formData, setFormData] = useState<BlogPostFormData>({
+    ...defaultBlogPostFormData,
+    category: categories[0]
   });
 
   // Auto-update SEO title when main title changes (if SEO title is empty)
@@ -117,7 +91,7 @@ const BlogManagement = () => {
     }
   }, [formData.title]);
 
-  const handleInputChange = (field: keyof Omit<BlogPost, 'id'>, value: string) => {
+  const handleInputChange = (field: keyof BlogPostFormData, value: string) => {
     setFormData({ ...formData, [field]: value });
   };
 
@@ -169,19 +143,8 @@ const BlogManagement = () => {
     
     // Reset form
     setFormData({
-      title: "",
-      slug: "",
-      excerpt: "",
-      content: "",
-      coverImage: "",
-      category: categories[0],
-      author: "Admin",
-      date: new Date().toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' }),
-      status: "draft",
-      publishedAt: "",
-      seoTitle: "",
-      metaDescription: "",
-      focusKeyword: ""
+      ...defaultBlogPostFormData,
+      category: categories[0]
     });
     
     setIsCreating(false);

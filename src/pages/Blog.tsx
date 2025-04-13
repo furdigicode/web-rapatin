@@ -10,6 +10,7 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
   BreadcrumbPage,
+  BreadcrumbLink,
 } from "@/components/ui/breadcrumb";
 import { Calendar, User, Tag } from 'lucide-react';
 
@@ -90,7 +91,9 @@ const Blog = () => {
           <Breadcrumb className="mb-8">
             <BreadcrumbList>
               <BreadcrumbItem>
-                <Link to="/">Home</Link>
+                <BreadcrumbLink asChild>
+                  <Link to="/">Home</Link>
+                </BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator />
               <BreadcrumbItem>
