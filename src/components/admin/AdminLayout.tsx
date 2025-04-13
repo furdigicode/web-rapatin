@@ -3,17 +3,11 @@ import React, { useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { 
   LayoutDashboard, 
-  Link as LinkIcon, 
   FileText, 
-  Settings, 
-  Users, 
-  MessageSquare,
-  FileQuestion,
   LogOut,
   Menu,
   X,
-  Home,
-  Star
+  Home
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -54,58 +48,10 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title }) => {
       active: location.pathname === '/admin/dashboard'
     },
     { 
-      icon: <LinkIcon size={20} />, 
-      label: 'Manajemen URL', 
-      path: '/admin/urls',
-      active: location.pathname === '/admin/urls'
-    },
-    { 
-      icon: <LinkIcon size={20} />, 
-      label: 'Brands', 
-      path: '/admin/brand-logos',
-      active: location.pathname === '/admin/brand-logos'
-    },
-    { 
-      icon: <FileQuestion size={20} />, 
-      label: 'FAQ', 
-      path: '/admin/faq',
-      active: location.pathname === '/admin/faq'
-    },
-    { 
       icon: <FileText size={20} />, 
       label: 'Blog', 
       path: '/admin/blog',
       active: location.pathname === '/admin/blog'
-    },
-    { 
-      icon: <Star size={20} />, 
-      label: 'Testimonial', 
-      path: '/admin/testimonials',
-      active: location.pathname === '/admin/testimonials'
-    },
-    { 
-      icon: <MessageSquare size={20} />, 
-      label: 'Tentang Kami', 
-      path: '/admin/about',
-      active: location.pathname === '/admin/about'
-    },
-    { 
-      icon: <Users size={20} />, 
-      label: 'Kontak', 
-      path: '/admin/contact',
-      active: location.pathname === '/admin/contact'
-    },
-    { 
-      icon: <Settings size={20} />, 
-      label: 'S&K', 
-      path: '/admin/terms',
-      active: location.pathname === '/admin/terms'
-    },
-    { 
-      icon: <Settings size={20} />, 
-      label: 'Kebijakan Privasi', 
-      path: '/admin/privacy',
-      active: location.pathname === '/admin/privacy'
     }
   ];
 
