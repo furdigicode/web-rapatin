@@ -29,24 +29,14 @@ import BlogPost from "./pages/BlogPost";
 import AdminLogin from "./pages/admin/Login";
 import AdminDashboard from "./pages/admin/Dashboard";
 import BlogManagement from "./pages/admin/BlogManagement";
-import URLManagement from "./pages/admin/URLManagement";
-import BrandLogoManagement from "./pages/admin/BrandLogoManagement";
-import FAQManagement from "./pages/admin/FAQManagement";
-import TestimonialManagement from "./pages/admin/TestimonialManagement";
-import AboutManagement from "./pages/admin/AboutManagement";
-import ContactManagement from "./pages/admin/ContactManagement";
-import TermsManagement from "./pages/admin/TermsManagement";
-import PrivacyManagement from "./pages/admin/PrivacyManagement";
 
 const queryClient = new QueryClient();
 
-// Create a separate component for the routes that can use hooks
 const AppRoutes = () => {
   const location = useLocation();
 
   useEffect(() => {
     // Handle CRISP chat
-    // Initialize CRISP chat
     window.$crisp = [];
     window.CRISP_WEBSITE_ID = "c876efde-7b19-4dc0-affd-2efcdc34ba2c";
 
@@ -89,14 +79,6 @@ const AppRoutes = () => {
       <Route path="/admin/login" element={<AdminLogin />} />
       <Route path="/admin/dashboard" element={<AdminDashboard />} />
       <Route path="/admin/blog" element={<BlogManagement />} />
-      <Route path="/admin/urls" element={<URLManagement />} />
-      <Route path="/admin/brand-logos" element={<BrandLogoManagement />} />
-      <Route path="/admin/faq" element={<FAQManagement />} />
-      <Route path="/admin/testimonials" element={<TestimonialManagement />} />
-      <Route path="/admin/about" element={<AboutManagement />} />
-      <Route path="/admin/contact" element={<ContactManagement />} />
-      <Route path="/admin/terms" element={<TermsManagement />} />
-      <Route path="/admin/privacy" element={<PrivacyManagement />} />
       
       {/* 404 Catch-all Route */}
       <Route path="*" element={<NotFound />} />
@@ -104,7 +86,6 @@ const AppRoutes = () => {
   );
 };
 
-// Main App component
 const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
