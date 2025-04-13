@@ -7,10 +7,9 @@ import { Card, CardContent } from '@/components/ui/card';
 import {
   Breadcrumb,
   BreadcrumbItem,
-  BreadcrumbLink,
   BreadcrumbList,
-  BreadcrumbPage,
   BreadcrumbSeparator,
+  BreadcrumbPage,
 } from "@/components/ui/breadcrumb";
 import { Calendar, User, Tag } from 'lucide-react';
 
@@ -91,7 +90,7 @@ const Blog = () => {
           <Breadcrumb className="mb-8">
             <BreadcrumbList>
               <BreadcrumbItem>
-                <BreadcrumbLink as={Link} to="/">Home</BreadcrumbLink>
+                <Link to="/">Home</Link>
               </BreadcrumbItem>
               <BreadcrumbSeparator />
               <BreadcrumbItem>

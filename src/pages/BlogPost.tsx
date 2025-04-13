@@ -1,18 +1,20 @@
 
 import React, { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import {
   Breadcrumb,
   BreadcrumbItem,
-  BreadcrumbLink,
   BreadcrumbList,
-  BreadcrumbPage,
   BreadcrumbSeparator,
+  BreadcrumbPage,
 } from "@/components/ui/breadcrumb";
-import { Calendar, User, Tag, Share2 } from 'lucide-react';
+import { Calendar, User, Tag, Share2, Bookmark, ThumbsUp, MessageSquare, ArrowLeft, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Card, CardContent } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
 
 interface BlogPost {
   id: number;
@@ -23,25 +25,38 @@ interface BlogPost {
   coverImage: string;
   category: string;
   author: string;
+  authorAvatar?: string;
   date: string;
   status: 'draft' | 'published' | 'scheduled';
-  publishedAt: string;
-  seoTitle: string;
-  metaDescription: string;
+  relatedPosts?: RelatedPost[];
+}
+
+interface RelatedPost {
+  id: number;
+  title: string;
+  slug: string;
+  coverImage: string;
+  category: string;
 }
 
 const BlogPost = () => {
   const { slug } = useParams<{ slug: string }>();
   const [post, setPost] = useState<BlogPost | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-
+  const [notFound, setNotFound] = useState(false);
+  
   useEffect(() => {
-    // In a real app, this would fetch from an API based on the slug
+    // Reset state when slug changes
+    setPost(null);
+    setIsLoading(true);
+    setNotFound(false);
+    
+    // In a real app, this would fetch from an API
     // For now, we'll simulate loading and use mock data
     setTimeout(() => {
-      // Mock data based on slug
-      if (slug === 'cara-mengoptimalkan-rapat-online-anda') {
-        setPost({
+      // Mock data
+      const mockPosts: BlogPost[] = [
+        {
           id: 1,
           title: "Cara Mengoptimalkan Rapat Online Anda",
           slug: "cara-mengoptimalkan-rapat-online-anda",
@@ -50,219 +65,179 @@ const BlogPost = () => {
             <h2>Pendahuluan</h2>
             <p>Rapat online telah menjadi bagian penting dari rutinitas kerja modern. Artikel ini akan membahas cara mengoptimalkan rapat online agar lebih efektif dan efisien.</p>
             
-            <h2>Tips Mengoptimalkan Rapat Online</h2>
-            <ul>
-              <li>Siapkan agenda yang jelas</li>
-              <li>Tentukan durasi yang tepat</li>
-              <li>Gunakan fitur screen sharing</li>
-              <li>Rekam rapat untuk referensi</li>
-              <li>Pastikan semua peserta mendapatkan kesempatan berbicara</li>
-            </ul>
+            <h2>Siapkan Agenda yang Jelas</h2>
+            <p>Sebelum memulai rapat, pastikan Anda memiliki agenda yang jelas. Kirimkan agenda tersebut ke semua peserta sebelum rapat dimulai. Dengan demikian, semua orang akan memahami tujuan rapat dan apa yang diharapkan dari mereka.</p>
             
-            <h3>1. Siapkan Agenda yang Jelas</h3>
-            <p>Agenda rapat yang jelas membantu semua peserta memahami tujuan dan alur diskusi. Bagikan agenda sebelum rapat dimulai agar peserta dapat mempersiapkan diri.</p>
+            <h2>Batasi Durasi Rapat</h2>
+            <p>Rapat yang terlalu panjang cenderung tidak produktif. Batasi durasi rapat menjadi maksimal 45-60 menit. Jika perlu lebih lama, pertimbangkan untuk menjadwalkan beberapa rapat yang lebih pendek.</p>
             
-            <h3>2. Tentukan Durasi yang Tepat</h3>
-            <p>Rapat yang terlalu panjang cenderung membuat peserta kehilangan fokus. Usahakan durasi rapat tidak lebih dari 1 jam untuk menjaga produktivitas.</p>
+            <h2>Gunakan Fitur Screen Sharing</h2>
+            <p>Memanfaatkan fitur berbagi layar untuk menunjukkan dokumen, presentasi, atau data yang relevan. Ini membantu semua peserta fokus pada materi yang sedang dibahas.</p>
             
-            <h3>3. Gunakan Fitur Screen Sharing</h3>
-            <p>Tampilkan visual seperti presentasi atau dokumen untuk memperjelas diskusi dan menjaga perhatian peserta tetap fokus.</p>
-            
-            <h3>4. Rekam Rapat untuk Referensi</h3>
-            <p>Rekaman rapat sangat berguna untuk peserta yang tidak dapat hadir atau untuk mengkaji ulang poin-poin penting yang dibahas.</p>
-            
-            <h3>5. Pastikan Semua Peserta Mendapatkan Kesempatan Berbicara</h3>
-            <p>Libatkan semua peserta dalam diskusi untuk mendapatkan perspektif yang beragam dan membuat semua orang merasa dihargai.</p>
+            <h2>Rekam Rapat untuk Referensi</h2>
+            <p>Merekam rapat memungkinkan peserta yang tidak hadir untuk mengejar ketinggalan, dan juga membantu dalam membuat catatan rapat yang akurat.</p>
             
             <h2>Kesimpulan</h2>
-            <p>Dengan menerapkan tips-tips di atas, Anda dapat menyelenggarakan rapat online yang lebih efektif dan mendapatkan hasil yang maksimal.</p>
+            <p>Dengan menerapkan tips di atas, Anda dapat membuat rapat online Anda lebih produktif dan efisien. Jangan lupa untuk selalu menindaklanjuti hasil rapat dengan tindakan nyata.</p>
           `,
           coverImage: "https://images.unsplash.com/photo-1590650153855-d9e808231d41?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&h=627&q=80",
           category: "Tips & Trik",
           author: "Budi Setiawan",
+          authorAvatar: "https://randomuser.me/api/portraits/men/32.jpg",
           date: "10 Juni 2023",
           status: "published",
-          publishedAt: "2023-06-10T09:00:00",
-          seoTitle: "10 Cara Mengoptimalkan Rapat Online untuk Efisiensi Maksimal",
-          metaDescription: "Pelajari cara membuat rapat online Anda lebih produktif dan efisien dengan panduan lengkap ini. Dapatkan tips terbaik dari para ahli untuk meningkatkan kolaborasi tim."
-        });
-      } else if (slug === 'mengapa-model-bayar-sesuai-pakai-lebih-ekonomis') {
-        setPost({
+          relatedPosts: [
+            {
+              id: 2,
+              title: "Mengapa Model Bayar-Sesuai-Pakai Lebih Ekonomis",
+              slug: "mengapa-model-bayar-sesuai-pakai-lebih-ekonomis",
+              coverImage: "https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&h=627&q=80",
+              category: "Bisnis"
+            },
+            {
+              id: 3,
+              title: "5 Alat yang Harus Anda Miliki untuk Rapat Online",
+              slug: "5-alat-yang-harus-anda-miliki-untuk-rapat-online",
+              coverImage: "https://images.unsplash.com/photo-1591115765373-5207764f72e4?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&h=627&q=80",
+              category: "Tips & Trik"
+            }
+          ]
+        },
+        {
           id: 2,
           title: "Mengapa Model Bayar-Sesuai-Pakai Lebih Ekonomis",
           slug: "mengapa-model-bayar-sesuai-pakai-lebih-ekonomis",
           excerpt: "Analisis mendalam tentang bagaimana model bayar-sesuai-pakai dapat menghemat biaya rapat online Anda secara signifikan.",
           content: `
             <h2>Model Bayar-Sesuai-Pakai</h2>
-            <p>Dalam model bisnis ini, Anda hanya membayar untuk apa yang Anda gunakan, tidak lebih dan tidak kurang. Ini sangat berbeda dengan model langganan tradisional.</p>
+            <p>Dalam model bisnis ini, Anda hanya membayar untuk apa yang Anda gunakan, tidak lebih dan tidak kurang.</p>
             
-            <h2>Keuntungan Ekonomis</h2>
-            <ul>
-              <li>Tidak ada biaya berlangganan bulanan yang tetap</li>
-              <li>Hanya membayar saat menggunakan layanan</li>
-              <li>Dapat menyesuaikan penggunaan sesuai kebutuhan</li>
-              <li>Lebih transparan dalam pengeluaran</li>
-            </ul>
+            <h2>Menghemat Biaya</h2>
+            <p>Dengan model bayar-sesuai-pakai, Anda tidak perlu membayar biaya tetap bulanan yang besar. Ini sangat menguntungkan bagi bisnis yang hanya perlu mengadakan rapat online sesekali.</p>
             
-            <h3>Analisis Perbandingan Biaya</h3>
-            <table class="min-w-full border-collapse border border-gray-300 my-4">
-              <thead>
-                <tr>
-                  <th class="border border-gray-300 px-4 py-2 bg-gray-100">Model Bisnis</th>
-                  <th class="border border-gray-300 px-4 py-2 bg-gray-100">Biaya Bulanan</th>
-                  <th class="border border-gray-300 px-4 py-2 bg-gray-100">Biaya Tahunan</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td class="border border-gray-300 px-4 py-2">Langganan Tradisional</td>
-                  <td class="border border-gray-300 px-4 py-2">Rp 500.000</td>
-                  <td class="border border-gray-300 px-4 py-2">Rp 6.000.000</td>
-                </tr>
-                <tr>
-                  <td class="border border-gray-300 px-4 py-2">Bayar-Sesuai-Pakai</td>
-                  <td class="border border-gray-300 px-4 py-2">Rp 0 - 300.000</td>
-                  <td class="border border-gray-300 px-4 py-2">Rp 0 - 3.600.000</td>
-                </tr>
-              </tbody>
-            </table>
+            <h2>Fleksibilitas Tinggi</h2>
+            <p>Model ini menawarkan fleksibilitas yang tinggi. Anda bisa meningkatkan atau mengurangi penggunaan sesuai kebutuhan tanpa harus terikat kontrak jangka panjang.</p>
             
             <h2>Kesimpulan</h2>
-            <p>Dengan model bayar-sesuai-pakai, bisnis Anda bisa menghemat hingga 40% dari biaya langganan tradisional, terutama jika penggunaan tidak konstan sepanjang tahun.</p>
+            <p>Model bayar-sesuai-pakai adalah solusi ekonomis untuk bisnis dari berbagai ukuran. Ini memungkinkan Anda untuk mengoptimalkan anggaran dan hanya membayar untuk layanan yang benar-benar Anda gunakan.</p>
           `,
           coverImage: "https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&h=627&q=80",
           category: "Bisnis",
           author: "Dewi Lestari",
+          authorAvatar: "https://randomuser.me/api/portraits/women/44.jpg",
           date: "28 Mei 2023",
           status: "published",
-          publishedAt: "2023-05-28T10:30:00",
-          seoTitle: "Model Bayar-Sesuai-Pakai: Solusi Ekonomis untuk Rapat Online",
-          metaDescription: "Temukan bagaimana model bayar-sesuai-pakai dapat menghemat biaya rapat online Anda hingga 40%. Analisis perbandingan dengan model langganan bulanan."
+          relatedPosts: [
+            {
+              id: 1,
+              title: "Cara Mengoptimalkan Rapat Online Anda",
+              slug: "cara-mengoptimalkan-rapat-online-anda",
+              coverImage: "https://images.unsplash.com/photo-1590650153855-d9e808231d41?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&h=627&q=80",
+              category: "Tips & Trik"
+            }
+          ]
+        }
+      ];
+      
+      const foundPost = mockPosts.find(p => p.slug === slug);
+      
+      if (foundPost) {
+        setPost(foundPost);
+        
+        // Add schema markup for blog post
+        const script = document.createElement('script');
+        script.type = 'application/ld+json';
+        script.text = JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "BlogPosting",
+          "headline": foundPost.title,
+          "description": foundPost.excerpt,
+          "author": {
+            "@type": "Person",
+            "name": foundPost.author
+          },
+          "datePublished": new Date().toISOString(),
+          "image": foundPost.coverImage,
+          "publisher": {
+            "@type": "Organization",
+            "name": "Rapatin",
+            "logo": {
+              "@type": "ImageObject",
+              "url": "https://rapatin.id/logo.png"
+            }
+          },
+          "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": `https://rapatin.id/blog/${foundPost.slug}`
+          }
         });
+        document.head.appendChild(script);
+        
+        // Add meta tags for SEO and social sharing
+        const metaTags = [
+          { name: "description", content: foundPost.excerpt },
+          { property: "og:title", content: foundPost.title },
+          { property: "og:description", content: foundPost.excerpt },
+          { property: "og:image", content: foundPost.coverImage },
+          { property: "og:type", content: "article" },
+          { property: "og:url", content: `https://rapatin.id/blog/${foundPost.slug}` },
+          { name: "twitter:card", content: "summary_large_image" },
+          { name: "twitter:title", content: foundPost.title },
+          { name: "twitter:description", content: foundPost.excerpt },
+          { name: "twitter:image", content: foundPost.coverImage }
+        ];
+        
+        // Remove existing meta tags to avoid duplicates
+        document.querySelectorAll('meta[property^="og:"], meta[name^="twitter:"], meta[name="description"]')
+          .forEach(tag => tag.remove());
+        
+        // Add new meta tags
+        metaTags.forEach(tag => {
+          const metaTag = document.createElement('meta');
+          Object.entries(tag).forEach(([key, value]) => {
+            metaTag.setAttribute(key, value);
+          });
+          document.head.appendChild(metaTag);
+        });
+        
+        // Set document title
+        document.title = `${foundPost.title} | Blog Rapatin`;
+        
+        return () => {
+          // Clean up
+          document.querySelectorAll('meta[property^="og:"], meta[name^="twitter:"], meta[name="description"]')
+            .forEach(tag => tag.remove());
+          if (script.parentNode) {
+            script.parentNode.removeChild(script);
+          }
+          document.title = 'Rapatin';
+        };
       } else {
-        // Post not found
-        setPost(null);
+        setNotFound(true);
       }
+      
       setIsLoading(false);
-    }, 800);
+    }, 500);
   }, [slug]);
   
-  // Update meta tags for SEO
-  useEffect(() => {
-    if (post) {
-      // Set page title
-      document.title = `${post.seoTitle || post.title} | Rapatin`;
-      
-      // Check if meta description already exists
-      let metaDesc = document.querySelector('meta[name="description"]');
-      if (!metaDesc) {
-        // Create meta description if it doesn't exist
-        metaDesc = document.createElement('meta');
-        metaDesc.setAttribute('name', 'description');
-        document.head.appendChild(metaDesc);
-      }
-      // Set meta description content
-      metaDesc.setAttribute('content', post.metaDescription || post.excerpt);
-      
-      // Set canonical URL
-      let canonicalLink = document.querySelector('link[rel="canonical"]');
-      if (!canonicalLink) {
-        canonicalLink = document.createElement('link');
-        canonicalLink.setAttribute('rel', 'canonical');
-        document.head.appendChild(canonicalLink);
-      }
-      canonicalLink.setAttribute('href', `https://rapatin.id/blog/${post.slug}`);
-      
-      // Set Open Graph tags
-      const ogTags = {
-        'og:title': post.seoTitle || post.title,
-        'og:description': post.metaDescription || post.excerpt,
-        'og:image': post.coverImage,
-        'og:type': 'article',
-        'og:url': `https://rapatin.id/blog/${post.slug}`
-      };
-      
-      Object.entries(ogTags).forEach(([property, content]) => {
-        let ogTag = document.querySelector(`meta[property="${property}"]`);
-        if (!ogTag) {
-          ogTag = document.createElement('meta');
-          ogTag.setAttribute('property', property);
-          document.head.appendChild(ogTag);
-        }
-        ogTag.setAttribute('content', content);
-      });
-      
-      // Add BlogPosting schema markup
-      const script = document.createElement('script');
-      script.type = 'application/ld+json';
-      script.text = JSON.stringify({
-        "@context": "https://schema.org",
-        "@type": "BlogPosting",
-        "headline": post.title,
-        "description": post.metaDescription || post.excerpt,
-        "image": post.coverImage,
-        "author": {
-          "@type": "Person",
-          "name": post.author
-        },
-        "publisher": {
-          "@type": "Organization",
-          "name": "Rapatin",
-          "logo": {
-            "@type": "ImageObject",
-            "url": "/lovable-uploads/b85c0fd2-b1c7-4ba8-8938-bf1ac3bdeb28.png"
-          }
-        },
-        "datePublished": post.publishedAt,
-        "mainEntityOfPage": {
-          "@type": "WebPage",
-          "@id": `https://rapatin.id/blog/${post.slug}`
-        }
-      });
-      document.head.appendChild(script);
-      
-      return () => {
-        // Clean up dynamic meta tags
-        document.title = "Rapatin - Jadwalkan rapat Zoom tanpa langganan";
-        document.head.removeChild(script);
-      };
-    }
-  }, [post]);
-
-  const handleShare = () => {
-    if (navigator.share && post) {
-      navigator.share({
-        title: post.title,
-        text: post.excerpt,
-        url: `https://rapatin.id/blog/${post.slug}`
-      });
-    } else {
-      // Fallback for browsers that don't support the Share API
-      // Just copy the URL to clipboard
-      if (post) {
-        navigator.clipboard.writeText(`https://rapatin.id/blog/${post.slug}`)
-          .then(() => {
-            alert('URL berhasil disalin ke clipboard!');
-          });
-      }
-    }
-  };
-
   if (isLoading) {
     return (
       <div className="min-h-screen flex flex-col">
         <Navbar />
         <main className="flex-grow pt-28 pb-20">
           <div className="container mx-auto px-4">
-            {/* Loading skeleton */}
-            <div className="max-w-3xl mx-auto">
-              <div className="h-8 bg-gray-200 rounded w-64 mb-6 animate-pulse"></div>
-              <div className="h-12 bg-gray-200 rounded w-full mb-8 animate-pulse"></div>
-              <div className="h-80 bg-gray-200 rounded w-full mb-8 animate-pulse"></div>
+            <div className="max-w-4xl mx-auto">
+              <div className="w-full h-80 bg-gray-200 rounded-lg animate-pulse mb-8"></div>
+              <div className="h-10 bg-gray-200 rounded animate-pulse mb-6 w-3/4"></div>
+              <div className="flex items-center gap-4 mb-8">
+                <div className="w-10 h-10 rounded-full bg-gray-200 animate-pulse"></div>
+                <div className="h-4 bg-gray-200 rounded animate-pulse w-40"></div>
+              </div>
               <div className="space-y-4">
-                <div className="h-4 bg-gray-200 rounded w-full animate-pulse"></div>
-                <div className="h-4 bg-gray-200 rounded w-5/6 animate-pulse"></div>
-                <div className="h-4 bg-gray-200 rounded w-4/6 animate-pulse"></div>
+                <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
+                <div className="h-4 bg-gray-200 rounded animate-pulse w-5/6"></div>
+                <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
+                <div className="h-4 bg-gray-200 rounded animate-pulse w-4/5"></div>
               </div>
             </div>
           </div>
@@ -271,15 +246,15 @@ const BlogPost = () => {
       </div>
     );
   }
-
-  if (!post) {
+  
+  if (notFound) {
     return (
       <div className="min-h-screen flex flex-col">
         <Navbar />
         <main className="flex-grow pt-28 pb-20">
           <div className="container mx-auto px-4 text-center">
-            <h1 className="text-3xl font-bold mb-4">Artikel Tidak Ditemukan</h1>
-            <p className="mb-8">Maaf, artikel yang Anda cari tidak tersedia.</p>
+            <h1 className="text-3xl md:text-4xl font-bold mb-4">Artikel Tidak Ditemukan</h1>
+            <p className="text-lg text-muted-foreground mb-8">Maaf, artikel yang Anda cari tidak ditemukan.</p>
             <Button asChild>
               <Link to="/blog">Kembali ke Blog</Link>
             </Button>
@@ -289,96 +264,169 @@ const BlogPost = () => {
       </div>
     );
   }
-
+  
+  if (!post) return null;
+  
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
       
       <main className="flex-grow pt-28 pb-20">
-        <article className="container mx-auto px-4">
+        <div className="container mx-auto px-4">
           {/* Breadcrumb */}
-          <div className="max-w-3xl mx-auto mb-8">
-            <Breadcrumb>
-              <BreadcrumbList>
-                <BreadcrumbItem>
-                  <BreadcrumbLink as={Link} to="/">Home</BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator />
-                <BreadcrumbItem>
-                  <BreadcrumbLink as={Link} to="/blog">Blog</BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator />
-                <BreadcrumbItem>
-                  <BreadcrumbPage>{post.title}</BreadcrumbPage>
-                </BreadcrumbItem>
-              </BreadcrumbList>
-            </Breadcrumb>
-          </div>
+          <Breadcrumb className="mb-8 max-w-4xl mx-auto">
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <Link to="/">Home</Link>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <Link to="/blog">Blog</Link>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbPage>{post.title}</BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
           
-          {/* Header */}
-          <header className="max-w-3xl mx-auto mb-8">
-            <div className="flex items-center gap-2 mb-4">
-              <Link to={`/blog?category=${post.category}`} className="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm">
-                {post.category}
-              </Link>
-            </div>
-            
-            <h1 className="text-3xl md:text-4xl font-bold mb-4">{post.title}</h1>
-            
-            <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground mb-6">
-              <div className="flex items-center">
-                <Calendar size={16} className="mr-1" />
-                <span>{post.date}</span>
-              </div>
-              
-              <div className="flex items-center">
-                <User size={16} className="mr-1" />
-                <span>{post.author}</span>
-              </div>
-              
-              <Button variant="outline" size="sm" className="gap-1" onClick={handleShare}>
-                <Share2 size={14} />
-                <span>Bagikan</span>
-              </Button>
-            </div>
-          </header>
-          
-          {/* Cover Image */}
-          <div className="max-w-4xl mx-auto mb-8">
+          {/* Article Content */}
+          <div className="max-w-4xl mx-auto">
+            {/* Cover Image */}
             <img 
               src={post.coverImage} 
               alt={post.title} 
-              className="w-full h-auto rounded-lg shadow-md" 
+              className="w-full h-auto rounded-lg mb-8 aspect-[1.91/1] object-cover" 
             />
-          </div>
-          
-          {/* Content */}
-          <div className="max-w-3xl mx-auto">
-            <div 
-              className="prose prose-lg max-w-none"
-              dangerouslySetInnerHTML={{ __html: post.content }}
-            />
-          </div>
-          
-          {/* Tags and sharing */}
-          <div className="max-w-3xl mx-auto mt-12 pt-8 border-t flex flex-wrap justify-between items-center">
-            <div className="flex flex-wrap gap-2 mb-4 md:mb-0">
-              <Button variant="outline" size="sm" asChild>
-                <Link to={`/blog?category=${post.category}`}>
-                  <Tag size={14} className="mr-1" />
-                  {post.category}
-                </Link>
+            
+            {/* Title */}
+            <h1 className="text-3xl md:text-4xl font-bold mb-4">{post.title}</h1>
+            
+            {/* Article Metadata */}
+            <div className="flex items-center gap-6 mb-8">
+              <div className="flex items-center gap-2">
+                <Avatar className="h-8 w-8">
+                  {post.authorAvatar ? (
+                    <AvatarImage src={post.authorAvatar} alt={post.author} />
+                  ) : (
+                    <AvatarFallback>{post.author.charAt(0)}</AvatarFallback>
+                  )}
+                </Avatar>
+                <span className="text-sm">{post.author}</span>
+              </div>
+              
+              <div className="flex items-center text-sm text-muted-foreground">
+                <Calendar size={14} className="mr-1" />
+                <span>{post.date}</span>
+              </div>
+              
+              <div className="flex items-center text-sm">
+                <Tag size={14} className="mr-1 text-primary" />
+                <span className="text-primary">{post.category}</span>
+              </div>
+            </div>
+            
+            {/* Social Sharing */}
+            <div className="flex items-center gap-2 mb-8">
+              <Button variant="outline" size="sm" className="gap-2">
+                <Share2 size={16} />
+                <span>Bagikan</span>
+              </Button>
+              <Button variant="outline" size="sm" className="gap-2">
+                <Bookmark size={16} />
+                <span>Simpan</span>
               </Button>
             </div>
             
-            <div>
-              <Button variant="outline" size="sm" onClick={handleShare}>
-                <Share2 size={14} className="mr-2" />
-                Bagikan Artikel
+            {/* Article Content */}
+            <div 
+              className="prose max-w-none mb-10"
+              dangerouslySetInnerHTML={{ __html: post.content }}
+            />
+            
+            {/* Article Actions */}
+            <div className="flex items-center gap-4 mb-10">
+              <Button variant="outline" size="sm" className="gap-2">
+                <ThumbsUp size={16} />
+                <span>Suka</span>
+              </Button>
+              <Button variant="outline" size="sm" className="gap-2">
+                <MessageSquare size={16} />
+                <span>Komentar</span>
               </Button>
             </div>
+            
+            <Separator className="my-10" />
+            
+            {/* Author */}
+            <div className="flex items-start gap-4 mb-10 p-6 bg-muted/40 rounded-lg">
+              <Avatar className="h-16 w-16">
+                {post.authorAvatar ? (
+                  <AvatarImage src={post.authorAvatar} alt={post.author} />
+                ) : (
+                  <AvatarFallback>{post.author.charAt(0)}</AvatarFallback>
+                )}
+              </Avatar>
+              <div>
+                <h3 className="text-lg font-semibold mb-2">Tentang {post.author}</h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Penulis artikel tentang teknologi dan produktivitas. Suka berbagi tips dan trik untuk membuat rapat online lebih efektif.
+                </p>
+                <Button variant="outline" size="sm">Lihat Semua Artikel</Button>
+              </div>
+            </div>
+            
+            {/* Related Posts */}
+            {post.relatedPosts && post.relatedPosts.length > 0 && (
+              <div className="mb-10">
+                <h2 className="text-2xl font-bold mb-6">Artikel Terkait</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {post.relatedPosts.map((relatedPost) => (
+                    <Link to={`/blog/${relatedPost.slug}`} key={relatedPost.id}>
+                      <Card className="h-full hover:shadow-md transition-all">
+                        <div className="aspect-video overflow-hidden">
+                          <img 
+                            src={relatedPost.coverImage} 
+                            alt={relatedPost.title} 
+                            className="w-full h-full object-cover" 
+                          />
+                        </div>
+                        <CardContent className="p-4">
+                          <div className="flex items-center mb-2">
+                            <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">
+                              {relatedPost.category}
+                            </span>
+                          </div>
+                          <h3 className="text-lg font-semibold hover:text-primary transition-colors">
+                            {relatedPost.title}
+                          </h3>
+                        </CardContent>
+                      </Card>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            {/* Pagination */}
+            <div className="flex justify-between">
+              <Button variant="outline" asChild className="gap-2">
+                <Link to="/blog">
+                  <ArrowLeft size={16} />
+                  <span>Kembali ke Blog</span>
+                </Link>
+              </Button>
+              {post.relatedPosts && post.relatedPosts.length > 0 && (
+                <Button variant="outline" asChild className="gap-2">
+                  <Link to={`/blog/${post.relatedPosts[0].slug}`}>
+                    <span>Artikel Berikutnya</span>
+                    <ArrowRight size={16} />
+                  </Link>
+                </Button>
+              )}
+            </div>
           </div>
-        </article>
+        </div>
       </main>
       
       <Footer />

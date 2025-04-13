@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import AdminLayout from '@/components/admin/AdminLayout';
 import { Button } from "@/components/ui/button";
@@ -6,8 +5,9 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Edit, Trash, Eye, ArrowRight, Calendar, Tag, User } from 'lucide-react';
+import { Plus, Edit, Trash, Eye, ArrowRight, Calendar, Tag, User, Link as LinkIcon } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
+import { Textarea } from "@/components/ui/textarea";
 import RichTextEditor from '@/components/admin/RichTextEditor';
 import SEOPanel from '@/components/admin/SEOPanel';
 
@@ -153,7 +153,19 @@ const BlogManagement = () => {
       console.log('Updating sitemap.xml with new article');
     }
     
-    setBlogPosts([...blogPosts, { ...formData, id: newId, slug: finalSlug }]);
+    // Ensure the status is one of the allowed values
+    const validStatus = formData.status === 'published' || formData.status === 'scheduled' 
+      ? formData.status 
+      : 'draft';
+      
+    const newPost: BlogPost = {
+      ...formData,
+      id: newId,
+      slug: finalSlug,
+      status: validStatus
+    };
+    
+    setBlogPosts([...blogPosts, newPost]);
     
     // Reset form
     setFormData({
@@ -176,7 +188,7 @@ const BlogManagement = () => {
     
     toast({
       title: "Artikel berhasil dibuat",
-      description: `Artikel "${formData.title}" telah berhasil dibuat sebagai ${formData.status}`,
+      description: `Artikel "${formData.title}" telah berhasil dibuat sebagai ${validStatus}`,
     });
   };
 
@@ -231,8 +243,13 @@ const BlogManagement = () => {
       console.log('Updating sitemap.xml with updated article');
     }
     
+    // Ensure the status is one of the allowed values
+    const validStatus = formData.status === 'published' || formData.status === 'scheduled' 
+      ? formData.status 
+      : 'draft';
+    
     setBlogPosts(blogPosts.map(post => 
-      post.id === isEditing ? { ...post, ...formData, slug: finalSlug } : post
+      post.id === isEditing ? { ...post, ...formData, slug: finalSlug, status: validStatus } : post
     ));
     
     setIsEditing(null);
@@ -263,7 +280,7 @@ const BlogManagement = () => {
     const updatedPosts = blogPosts.map(post => 
       post.id === id ? { 
         ...post, 
-        status: 'published', 
+        status: 'published' as const, 
         publishedAt: new Date().toISOString() 
       } : post
     );
