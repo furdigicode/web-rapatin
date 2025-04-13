@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import AdminLayout from '@/components/admin/AdminLayout';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,76 +13,84 @@ import { Textarea } from "@/components/ui/textarea";
 import RichTextEditor from '@/components/admin/RichTextEditor';
 import SEOPanel from '@/components/admin/SEOPanel';
 import { BlogPost, BlogPostFormData, defaultBlogPostFormData } from '@/types/BlogTypes';
+import { supabase } from '@/integrations/supabase/client';
 
 const BlogManagement = () => {
   const { toast } = useToast();
-
-  const [blogPosts, setBlogPosts] = useState<BlogPost[]>([
-    {
-      id: 1,
-      title: "Cara Mengoptimalkan Rapat Online Anda",
-      slug: "cara-mengoptimalkan-rapat-online-anda",
-      excerpt: "Pelajari cara membuat rapat online Anda lebih produktif dan efisien dengan tips dan trik dari para ahli.",
-      content: "<h2>Pendahuluan</h2><p>Rapat online telah menjadi bagian penting dari rutinitas kerja modern. Artikel ini akan membahas cara mengoptimalkan rapat online agar lebih efektif dan efisien.</p><h2>Tips Mengoptimalkan Rapat Online</h2><ul><li>Siapkan agenda yang jelas</li><li>Tentukan durasi yang tepat</li><li>Gunakan fitur screen sharing</li><li>Rekam rapat untuk referensi</li></ul>",
-      coverImage: "https://images.unsplash.com/photo-1590650153855-d9e808231d41?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&h=627&q=80",
-      category: "Tips & Trik",
-      author: "Budi Setiawan",
-      date: "10 Juni 2023",
-      status: "published",
-      publishedAt: "2023-06-10T09:00:00",
-      seoTitle: "10 Cara Mengoptimalkan Rapat Online untuk Efisiensi Maksimal",
-      metaDescription: "Pelajari cara membuat rapat online Anda lebih produktif dan efisien dengan panduan lengkap ini. Dapatkan tips terbaik dari para ahli untuk meningkatkan kolaborasi tim.",
-      focusKeyword: "rapat online"
-    },
-    {
-      id: 2,
-      title: "Mengapa Model Bayar-Sesuai-Pakai Lebih Ekonomis",
-      slug: "mengapa-model-bayar-sesuai-pakai-lebih-ekonomis",
-      excerpt: "Analisis mendalam tentang bagaimana model bayar-sesuai-pakai dapat menghemat biaya rapat online Anda secara signifikan.",
-      content: "<h2>Model Bayar-Sesuai-Pakai</h2><p>Dalam model bisnis ini, Anda hanya membayar untuk apa yang Anda gunakan, tidak lebih dan tidak kurang.</p>",
-      coverImage: "https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&h=627&q=80",
-      category: "Bisnis",
-      author: "Dewi Lestari",
-      date: "28 Mei 2023",
-      status: "published",
-      publishedAt: "2023-05-28T10:30:00",
-      seoTitle: "Model Bayar-Sesuai-Pakai: Solusi Ekonomis untuk Rapat Online",
-      metaDescription: "Temukan bagaimana model bayar-sesuai-pakai dapat menghemat biaya rapat online Anda hingga 40%. Analisis perbandingan dengan model langganan bulanan.",
-      focusKeyword: "bayar sesuai pakai"
-    },
-    {
-      id: 3,
-      title: "Fitur Baru: Laporan Peserta yang Ditingkatkan",
-      slug: "fitur-baru-laporan-peserta-yang-ditingkatkan",
-      excerpt: "Jelajahi fitur laporan peserta baru kami yang memberi Anda wawasan lebih mendalam tentang partisipasi rapat.",
-      content: "<h2>Fitur Laporan Peserta</h2><p>Dengan fitur baru ini, Anda dapat melihat statistik lengkap tentang partisipasi peserta dalam rapat.</p>",
-      coverImage: "https://images.unsplash.com/photo-1559223607-a43c990c692c?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&h=627&q=80",
-      category: "Fitur Baru",
-      author: "Adi Nugroho",
-      date: "15 Mei 2023",
-      status: "draft",
-      publishedAt: "",
-      seoTitle: "Fitur Baru: Tingkatkan Analisis Rapat dengan Laporan Peserta",
-      metaDescription: "Kenali fitur laporan peserta terbaru dari Rapatin yang memberikan wawasan mendalam tentang keterlibatan dan partisipasi dalam rapat online Anda.",
-      focusKeyword: "laporan peserta"
-    }
-  ]);
-  
-  const categories = [
-    "Tips & Trik", 
-    "Bisnis", 
-    "Fitur Baru", 
-    "Keamanan", 
-    "Studi Kasus", 
-    "Produktivitas"
-  ];
+  const queryClient = useQueryClient();
 
   const [isCreating, setIsCreating] = useState(false);
-  const [isEditing, setIsEditing] = useState<number | null>(null);
+  const [isEditing, setIsEditing] = useState<string | null>(null);
   
   const [formData, setFormData] = useState<BlogPostFormData>({
-    ...defaultBlogPostFormData,
-    category: categories[0]
+    ...defaultBlogPostFormData
+  });
+
+  // Fetch categories from Supabase
+  const { data: categoriesData } = useQuery({
+    queryKey: ['blog-categories'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('blog_categories')
+        .select('name')
+        .order('name');
+      
+      if (error) {
+        console.error('Error fetching categories:', error);
+        toast({
+          variant: "destructive",
+          title: "Error fetching categories",
+          description: error.message,
+        });
+        return [];
+      }
+      
+      return data.map(category => category.name);
+    },
+  });
+
+  const categories = categoriesData || [];
+
+  // Fetch blog posts from Supabase
+  const { data: blogPosts = [], isLoading } = useQuery({
+    queryKey: ['blog-posts'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('blog_posts')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (error) {
+        console.error('Error fetching blog posts:', error);
+        toast({
+          variant: "destructive",
+          title: "Error fetching blog posts",
+          description: error.message,
+        });
+        return [];
+      }
+      
+      return data.map(post => ({
+        id: post.id,
+        title: post.title || '',
+        slug: post.slug || '',
+        excerpt: post.excerpt || '',
+        content: post.content || '',
+        coverImage: post.cover_image || '',
+        category: post.category || '',
+        author: post.author || 'Admin',
+        date: new Date(post.created_at).toLocaleDateString('id-ID', { 
+          year: 'numeric', 
+          month: 'long', 
+          day: 'numeric' 
+        }),
+        status: post.status as 'draft' | 'published' | 'scheduled',
+        publishedAt: post.published_at || '',
+        seoTitle: post.seo_title || '',
+        metaDescription: post.meta_description || '',
+        focusKeyword: post.focus_keyword || ''
+      }));
+    },
   });
 
   // Auto-update SEO title when main title changes (if SEO title is empty)
@@ -90,6 +99,153 @@ const BlogManagement = () => {
       setFormData({...formData, seoTitle: formData.title});
     }
   }, [formData.title]);
+
+  // Create post mutation
+  const createPostMutation = useMutation({
+    mutationFn: async (postData: BlogPostFormData) => {
+      const { data, error } = await supabase
+        .from('blog_posts')
+        .insert({
+          title: postData.title,
+          slug: postData.slug,
+          excerpt: postData.excerpt,
+          content: postData.content,
+          cover_image: postData.coverImage,
+          category: postData.category,
+          author: postData.author,
+          status: postData.status,
+          published_at: postData.status === 'published' ? new Date().toISOString() : postData.publishedAt,
+          seo_title: postData.seoTitle,
+          meta_description: postData.metaDescription,
+          focus_keyword: postData.focusKeyword
+        })
+        .select()
+        .single();
+      
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['blog-posts'] });
+      toast({
+        title: "Artikel berhasil dibuat",
+        description: `Artikel "${formData.title}" telah berhasil dibuat`,
+      });
+      setIsCreating(false);
+      setFormData({
+        ...defaultBlogPostFormData,
+        category: categories.length > 0 ? categories[0] : ''
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        variant: "destructive",
+        title: "Terjadi kesalahan",
+        description: error.message,
+      });
+    }
+  });
+
+  // Update post mutation
+  const updatePostMutation = useMutation({
+    mutationFn: async (postData: BlogPostFormData & { id: string }) => {
+      const { data, error } = await supabase
+        .from('blog_posts')
+        .update({
+          title: postData.title,
+          slug: postData.slug,
+          excerpt: postData.excerpt,
+          content: postData.content,
+          cover_image: postData.coverImage,
+          category: postData.category,
+          author: postData.author,
+          status: postData.status,
+          published_at: postData.status === 'published' && !postData.publishedAt ? new Date().toISOString() : postData.publishedAt,
+          seo_title: postData.seoTitle,
+          meta_description: postData.metaDescription,
+          focus_keyword: postData.focusKeyword
+        })
+        .eq('id', postData.id)
+        .select()
+        .single();
+      
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['blog-posts'] });
+      toast({
+        title: "Artikel berhasil diperbarui",
+        description: `Artikel "${formData.title}" telah berhasil diperbarui`,
+      });
+      setIsEditing(null);
+    },
+    onError: (error: any) => {
+      toast({
+        variant: "destructive",
+        title: "Terjadi kesalahan",
+        description: error.message,
+      });
+    }
+  });
+
+  // Delete post mutation
+  const deletePostMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from('blog_posts')
+        .delete()
+        .eq('id', id);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['blog-posts'] });
+      toast({
+        title: "Artikel berhasil dihapus",
+        description: "Artikel telah berhasil dihapus",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        variant: "destructive",
+        title: "Terjadi kesalahan",
+        description: error.message,
+      });
+    }
+  });
+
+  // Publish post mutation
+  const publishPostMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { data, error } = await supabase
+        .from('blog_posts')
+        .update({
+          status: 'published',
+          published_at: new Date().toISOString()
+        })
+        .eq('id', id)
+        .select()
+        .single();
+      
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['blog-posts'] });
+      toast({
+        title: "Artikel berhasil dipublikasikan",
+        description: "Artikel telah berhasil dipublikasikan",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        variant: "destructive",
+        title: "Terjadi kesalahan",
+        description: error.message,
+      });
+    }
+  });
 
   const handleInputChange = (field: keyof BlogPostFormData, value: string) => {
     setFormData({ ...formData, [field]: value });
@@ -112,51 +268,16 @@ const BlogManagement = () => {
         .toLowerCase()
         .replace(/[^\w\s]/gi, '')
         .replace(/\s+/g, '-');
-      
-      // Check for duplicate slug
-      const existingSlug = blogPosts.find(post => post.slug === finalSlug);
-      if (existingSlug) {
-        finalSlug = `${finalSlug}-${Date.now()}`;
-      }
     }
     
-    const newId = blogPosts.length > 0 ? Math.max(...blogPosts.map(post => post.id)) + 1 : 1;
-    
-    // Update sitemap for published posts (in real implementation)
-    if (formData.status === 'published') {
-      console.log('Updating sitemap.xml with new article');
-    }
-    
-    // Ensure the status is one of the allowed values
-    const validStatus = formData.status === 'published' || formData.status === 'scheduled' 
-      ? formData.status 
-      : 'draft';
-      
-    const newPost: BlogPost = {
+    createPostMutation.mutate({
       ...formData,
-      id: newId,
-      slug: finalSlug,
-      status: validStatus
-    };
-    
-    setBlogPosts([...blogPosts, newPost]);
-    
-    // Reset form
-    setFormData({
-      ...defaultBlogPostFormData,
-      category: categories[0]
-    });
-    
-    setIsCreating(false);
-    
-    toast({
-      title: "Artikel berhasil dibuat",
-      description: `Artikel "${formData.title}" telah berhasil dibuat sebagai ${validStatus}`,
+      slug: finalSlug
     });
   };
 
   const handleStartEdit = (post: BlogPost) => {
-    setIsEditing(post.id);
+    setIsEditing(post.id as string);
     setFormData({
       title: post.title,
       slug: post.slug,
@@ -167,7 +288,7 @@ const BlogManagement = () => {
       author: post.author,
       date: post.date,
       status: post.status,
-      publishedAt: post.publishedAt,
+      publishedAt: post.publishedAt ? post.publishedAt : '',
       seoTitle: post.seoTitle,
       metaDescription: post.metaDescription,
       focusKeyword: post.focusKeyword
@@ -193,73 +314,23 @@ const BlogManagement = () => {
         .toLowerCase()
         .replace(/[^\w\s]/gi, '')
         .replace(/\s+/g, '-');
-      
-      // Check for duplicate slug that isn't the current post
-      const existingSlug = blogPosts.find(post => post.slug === finalSlug && post.id !== isEditing);
-      if (existingSlug) {
-        finalSlug = `${finalSlug}-${Date.now()}`;
-      }
     }
     
-    // Update sitemap for published posts (in real implementation)
-    if (formData.status === 'published') {
-      console.log('Updating sitemap.xml with updated article');
-    }
-    
-    // Ensure the status is one of the allowed values
-    const validStatus = formData.status === 'published' || formData.status === 'scheduled' 
-      ? formData.status 
-      : 'draft';
-    
-    setBlogPosts(blogPosts.map(post => 
-      post.id === isEditing ? { ...post, ...formData, slug: finalSlug, status: validStatus } : post
-    ));
-    
-    setIsEditing(null);
-    
-    toast({
-      title: "Artikel berhasil diperbarui",
-      description: `Artikel "${formData.title}" telah berhasil diperbarui`,
+    updatePostMutation.mutate({
+      id: isEditing,
+      ...formData,
+      slug: finalSlug
     });
   };
 
-  const handleDeletePost = (id: number) => {
-    const postToDelete = blogPosts.find(post => post.id === id);
-    
-    // Update sitemap by removing the deleted post (in real implementation)
-    if (postToDelete && postToDelete.status === 'published') {
-      console.log(`Removing ${postToDelete.slug} from sitemap.xml`);
+  const handleDeletePost = (id: string) => {
+    if (confirm("Apakah Anda yakin ingin menghapus artikel ini?")) {
+      deletePostMutation.mutate(id);
     }
-    
-    setBlogPosts(blogPosts.filter(post => post.id !== id));
-    
-    toast({
-      title: "Artikel berhasil dihapus",
-      description: "Artikel telah berhasil dihapus",
-    });
   };
 
-  const handlePublishPost = (id: number) => {
-    const updatedPosts = blogPosts.map(post => 
-      post.id === id ? { 
-        ...post, 
-        status: 'published' as const, 
-        publishedAt: new Date().toISOString() 
-      } : post
-    );
-    
-    setBlogPosts(updatedPosts);
-    
-    // Update sitemap with newly published post (in real implementation)
-    const publishedPost = updatedPosts.find(post => post.id === id);
-    if (publishedPost) {
-      console.log(`Adding ${publishedPost.slug} to sitemap.xml`);
-    }
-    
-    toast({
-      title: "Artikel berhasil dipublikasikan",
-      description: "Artikel telah berhasil dipublikasikan",
-    });
+  const handlePublishPost = (id: string) => {
+    publishPostMutation.mutate(id);
   };
 
   const handleImageUpload = () => {
@@ -452,7 +523,11 @@ const BlogManagement = () => {
 
   return (
     <AdminLayout title="Manajemen Blog">
-      {isCreating ? (
+      {isLoading ? (
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        </div>
+      ) : isCreating ? (
         renderBlogForm('create')
       ) : isEditing !== null ? (
         renderBlogForm('edit')
@@ -470,105 +545,117 @@ const BlogManagement = () => {
           </div>
           
           <div className="space-y-4">
-            {blogPosts.map((post) => (
-              <Card key={post.id} className={post.status === 'draft' ? 'border-dashed' : ''}>
-                <CardContent className="p-6">
-                  <div className="flex gap-6">
-                    {/* Cover image */}
-                    {post.coverImage && (
-                      <div className="hidden sm:block w-32 h-32 rounded-md overflow-hidden flex-shrink-0">
-                        <img 
-                          src={post.coverImage} 
-                          alt={post.title} 
-                          className="w-full h-full object-cover" 
-                        />
-                      </div>
-                    )}
-                    
-                    {/* Content */}
-                    <div className="flex-1">
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <div className="flex items-center gap-2 mb-2">
-                            <span className={`px-2 py-0.5 text-xs rounded-full ${
-                              post.status === 'published' 
-                                ? 'bg-green-100 text-green-800' 
-                                : post.status === 'scheduled'
-                                ? 'bg-blue-100 text-blue-800'
-                                : 'bg-amber-100 text-amber-800'
-                            }`}>
-                              {post.status === 'published' 
-                                ? 'Published' 
-                                : post.status === 'scheduled'
-                                ? 'Scheduled'
-                                : 'Draft'
-                              }
-                            </span>
-                            <span className="text-xs text-muted-foreground">{post.date}</span>
-                            <span className="text-xs text-muted-foreground">•</span>
-                            <span className="text-xs text-muted-foreground">{post.category}</span>
-                          </div>
-                          <h3 className="text-lg font-semibold mb-2">{post.title}</h3>
-                          <p className="text-sm text-muted-foreground mb-4 line-clamp-2">{post.excerpt}</p>
-                          <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                            <div className="flex items-center gap-1">
-                              <User size={12} />
-                              <span>{post.author}</span>
+            {blogPosts.length === 0 ? (
+              <Card>
+                <CardContent className="p-6 text-center">
+                  <p className="text-muted-foreground mb-4">Belum ada artikel. Klik tombol di atas untuk membuat artikel pertama Anda.</p>
+                  <Button onClick={() => setIsCreating(true)} className="gap-2">
+                    <Plus size={16} />
+                    Tambah Artikel
+                  </Button>
+                </CardContent>
+              </Card>
+            ) : (
+              blogPosts.map((post) => (
+                <Card key={post.id} className={post.status === 'draft' ? 'border-dashed' : ''}>
+                  <CardContent className="p-6">
+                    <div className="flex gap-6">
+                      {/* Cover image */}
+                      {post.coverImage && (
+                        <div className="hidden sm:block w-32 h-32 rounded-md overflow-hidden flex-shrink-0">
+                          <img 
+                            src={post.coverImage} 
+                            alt={post.title} 
+                            className="w-full h-full object-cover" 
+                          />
+                        </div>
+                      )}
+                      
+                      {/* Content */}
+                      <div className="flex-1">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <div className="flex items-center gap-2 mb-2">
+                              <span className={`px-2 py-0.5 text-xs rounded-full ${
+                                post.status === 'published' 
+                                  ? 'bg-green-100 text-green-800' 
+                                  : post.status === 'scheduled'
+                                  ? 'bg-blue-100 text-blue-800'
+                                  : 'bg-amber-100 text-amber-800'
+                              }`}>
+                                {post.status === 'published' 
+                                  ? 'Published' 
+                                  : post.status === 'scheduled'
+                                  ? 'Scheduled'
+                                  : 'Draft'
+                                }
+                              </span>
+                              <span className="text-xs text-muted-foreground">{post.date}</span>
+                              <span className="text-xs text-muted-foreground">•</span>
+                              <span className="text-xs text-muted-foreground">{post.category}</span>
                             </div>
-                            {post.slug && (
+                            <h3 className="text-lg font-semibold mb-2">{post.title}</h3>
+                            <p className="text-sm text-muted-foreground mb-4 line-clamp-2">{post.excerpt}</p>
+                            <div className="flex items-center gap-4 text-xs text-muted-foreground">
                               <div className="flex items-center gap-1">
-                                <LinkIcon size={12} />
-                                <span className="truncate max-w-[200px]">/blog/{post.slug}</span>
+                                <User size={12} />
+                                <span>{post.author}</span>
                               </div>
-                            )}
+                              {post.slug && (
+                                <div className="flex items-center gap-1">
+                                  <LinkIcon size={12} />
+                                  <span className="truncate max-w-[200px]">/blog/{post.slug}</span>
+                                </div>
+                              )}
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                    
-                    {/* Actions */}
-                    <div className="flex flex-col gap-2">
-                      <Button variant="outline" size="sm" className="h-8 gap-1 min-w-20" title="Lihat">
-                        <Eye size={14} />
-                        <span>Lihat</span>
-                      </Button>
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className="h-8 gap-1 min-w-20" 
-                        onClick={() => handleStartEdit(post)}
-                        title="Edit"
-                      >
-                        <Edit size={14} />
-                        <span>Edit</span>
-                      </Button>
-                      {post.status === 'draft' && (
+                      
+                      {/* Actions */}
+                      <div className="flex flex-col gap-2">
+                        <Button variant="outline" size="sm" className="h-8 gap-1 min-w-20" title="Lihat">
+                          <Eye size={14} />
+                          <span>Lihat</span>
+                        </Button>
                         <Button 
                           variant="outline" 
                           size="sm" 
-                          className="h-8 gap-1 text-green-600 hover:text-green-700 min-w-20" 
-                          onClick={() => handlePublishPost(post.id)}
-                          title="Publikasikan"
+                          className="h-8 gap-1 min-w-20" 
+                          onClick={() => handleStartEdit(post)}
+                          title="Edit"
                         >
-                          <ArrowRight size={14} />
-                          <span>Publish</span>
+                          <Edit size={14} />
+                          <span>Edit</span>
                         </Button>
-                      )}
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className="h-8 gap-1 text-destructive hover:text-destructive min-w-20" 
-                        onClick={() => handleDeletePost(post.id)}
-                        title="Hapus"
-                      >
-                        <Trash size={14} />
-                        <span>Hapus</span>
-                      </Button>
+                        {post.status === 'draft' && (
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="h-8 gap-1 text-green-600 hover:text-green-700 min-w-20" 
+                            onClick={() => handlePublishPost(post.id as string)}
+                            title="Publikasikan"
+                          >
+                            <ArrowRight size={14} />
+                            <span>Publish</span>
+                          </Button>
+                        )}
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="h-8 gap-1 text-destructive hover:text-destructive min-w-20" 
+                          onClick={() => handleDeletePost(post.id as string)}
+                          title="Hapus"
+                        >
+                          <Trash size={14} />
+                          <span>Hapus</span>
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                  </CardContent>
+                </Card>
+              ))
+            )}
           </div>
         </div>
       )}

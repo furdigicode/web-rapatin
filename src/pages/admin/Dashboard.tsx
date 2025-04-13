@@ -1,34 +1,39 @@
+
 import React from 'react';
+import { useQuery } from '@tanstack/react-query';
 import AdminLayout from '@/components/admin/AdminLayout';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BarChart, Users, FileText, Clock, Eye, MousePointer } from 'lucide-react';
+import { Eye, MousePointer } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Separator } from "@/components/ui/separator";
-const Dashboard = () => {
-  // Mock data for most viewed articles
-  const mostViewedArticles = [{
-    id: 1,
-    title: "7 Tips Rapat Online yang Efektif",
-    views: 1243
-  }, {
-    id: 2,
-    title: "Cara Meningkatkan Produktivitas Tim Remote",
-    views: 986
-  }, {
-    id: 3,
-    title: "Memilih Platform Rapat yang Tepat",
-    views: 854
-  }, {
-    id: 4,
-    title: "Etika dalam Rapat Virtual",
-    views: 732
-  }, {
-    id: 5,
-    title: "Mengatasi Kendala Teknis Saat Rapat Online",
-    views: 645
-  }];
+import { supabase } from '@/integrations/supabase/client';
 
-  // Mock data for most visited pages
+const Dashboard = () => {
+  // Fetch most viewed blog posts
+  const { data: mostViewedArticles = [], isLoading: isLoadingArticles } = useQuery({
+    queryKey: ['most-viewed-articles'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('blog_posts')
+        .select('id, title, slug')
+        .order('created_at', { ascending: false })
+        .limit(5);
+      
+      if (error) {
+        console.error('Error fetching most viewed articles:', error);
+        return [];
+      }
+      
+      // Since we don't have real view counts yet, we'll simulate them
+      return data.map((post, index) => ({
+        id: post.id,
+        title: post.title,
+        views: Math.floor(Math.random() * 1000) + 500 - (index * 100)
+      }));
+    },
+  });
+
+  // Mock data for most visited pages (we'll replace this with real analytics later)
   const mostVisitedPages = [{
     id: 1,
     path: "/fitur/dashboard",
@@ -55,9 +60,8 @@ const Dashboard = () => {
     title: "Tentang Kami",
     visits: 765
   }];
+
   return <AdminLayout title="Dashboard">
-      
-      
       <div className="grid gap-6 md:grid-cols-2 mb-6">
         {/* Most Viewed Articles */}
         <Card>
@@ -69,22 +73,37 @@ const Dashboard = () => {
             <Separator />
           </CardHeader>
           <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Judul Artikel</TableHead>
-                  <TableHead className="text-right">Dilihat</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {mostViewedArticles.map(article => <TableRow key={article.id}>
-                    <TableCell className="font-medium truncate max-w-[250px]">
-                      {article.title}
-                    </TableCell>
-                    <TableCell className="text-right">{article.views.toLocaleString()}</TableCell>
-                  </TableRow>)}
-              </TableBody>
-            </Table>
+            {isLoadingArticles ? (
+              <div className="py-4 text-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+              </div>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Judul Artikel</TableHead>
+                    <TableHead className="text-right">Dilihat</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {mostViewedArticles.map(article => (
+                    <TableRow key={article.id}>
+                      <TableCell className="font-medium truncate max-w-[250px]">
+                        {article.title}
+                      </TableCell>
+                      <TableCell className="text-right">{article.views.toLocaleString()}</TableCell>
+                    </TableRow>
+                  ))}
+                  {mostViewedArticles.length === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={2} className="text-center py-4 text-muted-foreground">
+                        Belum ada data artikel
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            )}
           </CardContent>
         </Card>
         
@@ -119,4 +138,5 @@ const Dashboard = () => {
       </div>
     </AdminLayout>;
 };
+
 export default Dashboard;

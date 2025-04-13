@@ -1,6 +1,6 @@
 
 export interface BlogPost {
-  id: number;
+  id: string;
   title: string;
   slug: string;
   excerpt: string;
@@ -16,7 +16,7 @@ export interface BlogPost {
   focusKeyword: string;
 }
 
-export type BlogPostFormData = Omit<BlogPost, 'id'>;
+export type BlogPostFormData = Omit<BlogPost, 'id' | 'date'>;
 
 export const defaultBlogPostFormData: BlogPostFormData = {
   title: "",
@@ -26,7 +26,6 @@ export const defaultBlogPostFormData: BlogPostFormData = {
   coverImage: "",
   category: "",
   author: "Admin",
-  date: new Date().toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' }),
   status: "draft",
   publishedAt: "",
   seoTitle: "",
