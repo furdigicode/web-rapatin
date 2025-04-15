@@ -1,22 +1,21 @@
 
 import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbList,
-  BreadcrumbSeparator,
-  BreadcrumbPage,
-} from "@/components/ui/breadcrumb";
-import { Calendar, User, Tag, Share2, Bookmark, ThumbsUp, MessageSquare, ArrowLeft, ArrowRight } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { supabase } from '@/integrations/supabase/client';
 import { BlogPost as BlogPostType } from '@/types/BlogTypes';
+
+// Import refactored components
+import BlogPostSkeleton from '@/components/blog/BlogPostSkeleton';
+import BlogPostNotFound from '@/components/blog/BlogPostNotFound';
+import BlogBreadcrumb from '@/components/blog/BlogBreadcrumb';
+import BlogPostMeta from '@/components/blog/BlogPostMeta';
+import ShareButtons from '@/components/blog/ShareButtons';
+import AuthorBio from '@/components/blog/AuthorBio';
+import RelatedPosts from '@/components/blog/RelatedPosts';
+import PostNavigation from '@/components/blog/PostNavigation';
 
 interface RelatedPost {
   id: string;
@@ -89,7 +88,6 @@ const BlogPost = () => {
             month: 'long',
             day: 'numeric'
           }),
-          // Cast the status to the specific allowed types
           status: (data.status as 'draft' | 'published' | 'scheduled'),
           publishedAt: data.published_at || '',
           seoTitle: data.seo_title || data.title,
@@ -109,7 +107,7 @@ const BlogPost = () => {
           .limit(2);
         
         if (!relatedError && relatedData && relatedData.length > 0) {
-          const formattedRelatedPosts = relatedData.map((related: SupabaseBlogPost) => ({
+          const formattedRelatedPosts = relatedData.map((related: any) => ({
             id: related.id,
             title: related.title,
             slug: related.slug,
@@ -203,48 +201,11 @@ const BlogPost = () => {
   }, [slug]);
   
   if (isLoading) {
-    return (
-      <div className="min-h-screen flex flex-col">
-        <Navbar />
-        <main className="flex-grow pt-28 pb-20">
-          <div className="container mx-auto px-4">
-            <div className="max-w-4xl mx-auto">
-              <div className="w-full h-80 bg-gray-200 rounded-lg animate-pulse mb-8"></div>
-              <div className="h-10 bg-gray-200 rounded animate-pulse mb-6 w-3/4"></div>
-              <div className="flex items-center gap-4 mb-8">
-                <div className="w-10 h-10 rounded-full bg-gray-200 animate-pulse"></div>
-                <div className="h-4 bg-gray-200 rounded animate-pulse w-40"></div>
-              </div>
-              <div className="space-y-4">
-                <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
-                <div className="h-4 bg-gray-200 rounded animate-pulse w-5/6"></div>
-                <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
-                <div className="h-4 bg-gray-200 rounded animate-pulse w-4/5"></div>
-              </div>
-            </div>
-          </div>
-        </main>
-        <Footer />
-      </div>
-    );
+    return <BlogPostSkeleton />;
   }
   
   if (notFound) {
-    return (
-      <div className="min-h-screen flex flex-col">
-        <Navbar />
-        <main className="flex-grow pt-28 pb-20">
-          <div className="container mx-auto px-4 text-center">
-            <h1 className="text-3xl md:text-4xl font-bold mb-4">Artikel Tidak Ditemukan</h1>
-            <p className="text-lg text-muted-foreground mb-8">Maaf, artikel yang Anda cari tidak ditemukan.</p>
-            <Button asChild>
-              <Link to="/blog">Kembali ke Blog</Link>
-            </Button>
-          </div>
-        </main>
-        <Footer />
-      </div>
-    );
+    return <BlogPostNotFound />;
   }
   
   if (!post) return null;
@@ -256,21 +217,7 @@ const BlogPost = () => {
       <main className="flex-grow pt-28 pb-20">
         <div className="container mx-auto px-4">
           {/* Breadcrumb */}
-          <Breadcrumb className="mb-8 max-w-4xl mx-auto">
-            <BreadcrumbList>
-              <BreadcrumbItem>
-                <Link to="/">Home</Link>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator />
-              <BreadcrumbItem>
-                <Link to="/blog">Blog</Link>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator />
-              <BreadcrumbItem>
-                <BreadcrumbPage>{post.title}</BreadcrumbPage>
-              </BreadcrumbItem>
-            </BreadcrumbList>
-          </Breadcrumb>
+          <BlogBreadcrumb title={post.title} />
           
           {/* Article Content */}
           <div className="max-w-4xl mx-auto">
@@ -287,38 +234,10 @@ const BlogPost = () => {
             <h1 className="text-3xl md:text-4xl font-bold mb-4">{post.title}</h1>
             
             {/* Article Metadata */}
-            <div className="flex items-center gap-6 mb-8">
-              <div className="flex items-center gap-2">
-                <Avatar className="h-8 w-8">
-                  <AvatarFallback>{post.author.charAt(0)}</AvatarFallback>
-                </Avatar>
-                <span className="text-sm">{post.author}</span>
-              </div>
-              
-              <div className="flex items-center text-sm text-muted-foreground">
-                <Calendar size={14} className="mr-1" />
-                <span>{post.date}</span>
-              </div>
-              
-              {post.category && (
-                <div className="flex items-center text-sm">
-                  <Tag size={14} className="mr-1 text-primary" />
-                  <span className="text-primary">{post.category}</span>
-                </div>
-              )}
-            </div>
+            <BlogPostMeta post={post} />
             
             {/* Social Sharing */}
-            <div className="flex items-center gap-2 mb-8">
-              <Button variant="outline" size="sm" className="gap-2">
-                <Share2 size={16} />
-                <span>Bagikan</span>
-              </Button>
-              <Button variant="outline" size="sm" className="gap-2">
-                <Bookmark size={16} />
-                <span>Simpan</span>
-              </Button>
-            </div>
+            <ShareButtons showLikeComment={false} />
             
             {/* Article Content */}
             <div 
@@ -327,82 +246,18 @@ const BlogPost = () => {
             />
             
             {/* Article Actions */}
-            <div className="flex items-center gap-4 mb-10">
-              <Button variant="outline" size="sm" className="gap-2">
-                <ThumbsUp size={16} />
-                <span>Suka</span>
-              </Button>
-              <Button variant="outline" size="sm" className="gap-2">
-                <MessageSquare size={16} />
-                <span>Komentar</span>
-              </Button>
-            </div>
+            <ShareButtons />
             
             <Separator className="my-10" />
             
             {/* Author */}
-            <div className="flex items-start gap-4 mb-10 p-6 bg-muted/40 rounded-lg">
-              <Avatar className="h-16 w-16">
-                <AvatarFallback>{post.author.charAt(0)}</AvatarFallback>
-              </Avatar>
-              <div>
-                <h3 className="text-lg font-semibold mb-2">Tentang {post.author}</h3>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Penulis artikel tentang teknologi dan produktivitas. Suka berbagi tips dan trik untuk membuat rapat online lebih efektif.
-                </p>
-                <Button variant="outline" size="sm">Lihat Semua Artikel</Button>
-              </div>
-            </div>
+            <AuthorBio author={post.author} />
             
             {/* Related Posts */}
-            {relatedPosts.length > 0 && (
-              <div className="mb-10">
-                <h2 className="text-2xl font-bold mb-6">Artikel Terkait</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {relatedPosts.map((relatedPost) => (
-                    <Link to={`/blog/${relatedPost.slug}`} key={relatedPost.id}>
-                      <Card className="h-full hover:shadow-md transition-all">
-                        <div className="aspect-video overflow-hidden">
-                          <img 
-                            src={relatedPost.coverImage} 
-                            alt={relatedPost.title} 
-                            className="w-full h-full object-cover" 
-                          />
-                        </div>
-                        <CardContent className="p-4">
-                          <div className="flex items-center mb-2">
-                            <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">
-                              {relatedPost.category}
-                            </span>
-                          </div>
-                          <h3 className="text-lg font-semibold hover:text-primary transition-colors">
-                            {relatedPost.title}
-                          </h3>
-                        </CardContent>
-                      </Card>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            )}
+            <RelatedPosts posts={relatedPosts} />
             
             {/* Pagination */}
-            <div className="flex justify-between">
-              <Button variant="outline" asChild className="gap-2">
-                <Link to="/blog">
-                  <ArrowLeft size={16} />
-                  <span>Kembali ke Blog</span>
-                </Link>
-              </Button>
-              {relatedPosts.length > 0 && (
-                <Button variant="outline" asChild className="gap-2">
-                  <Link to={`/blog/${relatedPosts[0].slug}`}>
-                    <span>Artikel Berikutnya</span>
-                    <ArrowRight size={16} />
-                  </Link>
-                </Button>
-              )}
-            </div>
+            <PostNavigation relatedPosts={relatedPosts} />
           </div>
         </div>
       </main>
