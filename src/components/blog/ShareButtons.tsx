@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Facebook, Twitter, Linkedin, Mail, Share2, ThumbsUp, MessageSquare, Headphones } from 'lucide-react';
+import { Facebook, Twitter, Linkedin, Mail, Share2, ThumbsUp, MessageSquare, MessageCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface ShareButtonsProps {
@@ -49,7 +49,7 @@ const ShareButtons = ({ showLikeComment = true }: ShareButtonsProps) => {
           className="gap-2"
           onClick={() => handleShare('whatsapp')}
         >
-          <Headphones size={16} />
+          <MessageCircle size={16} />
           <span>WhatsApp</span>
         </Button>
         <Button
