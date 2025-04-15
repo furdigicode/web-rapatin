@@ -15,134 +15,109 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
+import { supabase } from '@/integrations/supabase/client';
+import { BlogPost as BlogPostType } from '@/types/BlogTypes';
 
-interface BlogPost {
-  id: number;
+interface RelatedPost {
+  id: string;
+  title: string;
+  slug: string;
+  coverImage: string;
+  category: string;
+}
+
+interface SupabaseBlogPost {
+  id: string;
   title: string;
   slug: string;
   excerpt: string;
   content: string;
-  coverImage: string;
+  cover_image: string;
   category: string;
   author: string;
-  authorAvatar?: string;
-  date: string;
+  created_at: string;
   status: 'draft' | 'published' | 'scheduled';
-  relatedPosts?: RelatedPost[];
-}
-
-interface RelatedPost {
-  id: number;
-  title: string;
-  slug: string;
-  coverImage: string;
-  category: string;
+  published_at: string;
+  seo_title: string;
+  meta_description: string;
+  focus_keyword: string;
 }
 
 const BlogPost = () => {
   const { slug } = useParams<{ slug: string }>();
-  const [post, setPost] = useState<BlogPost | null>(null);
+  const [post, setPost] = useState<BlogPostType | null>(null);
+  const [relatedPosts, setRelatedPosts] = useState<RelatedPost[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   
   useEffect(() => {
     // Reset state when slug changes
     setPost(null);
+    setRelatedPosts([]);
     setIsLoading(true);
     setNotFound(false);
     
-    // In a real app, this would fetch from an API
-    // For now, we'll simulate loading and use mock data
-    setTimeout(() => {
-      // Mock data
-      const mockPosts: BlogPost[] = [
-        {
-          id: 1,
-          title: "Cara Mengoptimalkan Rapat Online Anda",
-          slug: "cara-mengoptimalkan-rapat-online-anda",
-          excerpt: "Pelajari cara membuat rapat online Anda lebih produktif dan efisien dengan tips dan trik dari para ahli.",
-          content: `
-            <h2>Pendahuluan</h2>
-            <p>Rapat online telah menjadi bagian penting dari rutinitas kerja modern. Artikel ini akan membahas cara mengoptimalkan rapat online agar lebih efektif dan efisien.</p>
-            
-            <h2>Siapkan Agenda yang Jelas</h2>
-            <p>Sebelum memulai rapat, pastikan Anda memiliki agenda yang jelas. Kirimkan agenda tersebut ke semua peserta sebelum rapat dimulai. Dengan demikian, semua orang akan memahami tujuan rapat dan apa yang diharapkan dari mereka.</p>
-            
-            <h2>Batasi Durasi Rapat</h2>
-            <p>Rapat yang terlalu panjang cenderung tidak produktif. Batasi durasi rapat menjadi maksimal 45-60 menit. Jika perlu lebih lama, pertimbangkan untuk menjadwalkan beberapa rapat yang lebih pendek.</p>
-            
-            <h2>Gunakan Fitur Screen Sharing</h2>
-            <p>Memanfaatkan fitur berbagi layar untuk menunjukkan dokumen, presentasi, atau data yang relevan. Ini membantu semua peserta fokus pada materi yang sedang dibahas.</p>
-            
-            <h2>Rekam Rapat untuk Referensi</h2>
-            <p>Merekam rapat memungkinkan peserta yang tidak hadir untuk mengejar ketinggalan, dan juga membantu dalam membuat catatan rapat yang akurat.</p>
-            
-            <h2>Kesimpulan</h2>
-            <p>Dengan menerapkan tips di atas, Anda dapat membuat rapat online Anda lebih produktif dan efisien. Jangan lupa untuk selalu menindaklanjuti hasil rapat dengan tindakan nyata.</p>
-          `,
-          coverImage: "https://images.unsplash.com/photo-1590650153855-d9e808231d41?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&h=627&q=80",
-          category: "Tips & Trik",
-          author: "Budi Setiawan",
-          authorAvatar: "https://randomuser.me/api/portraits/men/32.jpg",
-          date: "10 Juni 2023",
-          status: "published",
-          relatedPosts: [
-            {
-              id: 2,
-              title: "Mengapa Model Bayar-Sesuai-Pakai Lebih Ekonomis",
-              slug: "mengapa-model-bayar-sesuai-pakai-lebih-ekonomis",
-              coverImage: "https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&h=627&q=80",
-              category: "Bisnis"
-            },
-            {
-              id: 3,
-              title: "5 Alat yang Harus Anda Miliki untuk Rapat Online",
-              slug: "5-alat-yang-harus-anda-miliki-untuk-rapat-online",
-              coverImage: "https://images.unsplash.com/photo-1591115765373-5207764f72e4?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&h=627&q=80",
-              category: "Tips & Trik"
-            }
-          ]
-        },
-        {
-          id: 2,
-          title: "Mengapa Model Bayar-Sesuai-Pakai Lebih Ekonomis",
-          slug: "mengapa-model-bayar-sesuai-pakai-lebih-ekonomis",
-          excerpt: "Analisis mendalam tentang bagaimana model bayar-sesuai-pakai dapat menghemat biaya rapat online Anda secara signifikan.",
-          content: `
-            <h2>Model Bayar-Sesuai-Pakai</h2>
-            <p>Dalam model bisnis ini, Anda hanya membayar untuk apa yang Anda gunakan, tidak lebih dan tidak kurang.</p>
-            
-            <h2>Menghemat Biaya</h2>
-            <p>Dengan model bayar-sesuai-pakai, Anda tidak perlu membayar biaya tetap bulanan yang besar. Ini sangat menguntungkan bagi bisnis yang hanya perlu mengadakan rapat online sesekali.</p>
-            
-            <h2>Fleksibilitas Tinggi</h2>
-            <p>Model ini menawarkan fleksibilitas yang tinggi. Anda bisa meningkatkan atau mengurangi penggunaan sesuai kebutuhan tanpa harus terikat kontrak jangka panjang.</p>
-            
-            <h2>Kesimpulan</h2>
-            <p>Model bayar-sesuai-pakai adalah solusi ekonomis untuk bisnis dari berbagai ukuran. Ini memungkinkan Anda untuk mengoptimalkan anggaran dan hanya membayar untuk layanan yang benar-benar Anda gunakan.</p>
-          `,
-          coverImage: "https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&h=627&q=80",
-          category: "Bisnis",
-          author: "Dewi Lestari",
-          authorAvatar: "https://randomuser.me/api/portraits/women/44.jpg",
-          date: "28 Mei 2023",
-          status: "published",
-          relatedPosts: [
-            {
-              id: 1,
-              title: "Cara Mengoptimalkan Rapat Online Anda",
-              slug: "cara-mengoptimalkan-rapat-online-anda",
-              coverImage: "https://images.unsplash.com/photo-1590650153855-d9e808231d41?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&h=627&q=80",
-              category: "Tips & Trik"
-            }
-          ]
+    const fetchBlogPost = async () => {
+      try {
+        // Fetch the blog post from Supabase
+        const { data, error } = await supabase
+          .from('blog_posts')
+          .select('*')
+          .eq('slug', slug)
+          .eq('status', 'published')
+          .single();
+        
+        if (error || !data) {
+          console.error('Error fetching blog post:', error);
+          setNotFound(true);
+          setIsLoading(false);
+          return;
         }
-      ];
-      
-      const foundPost = mockPosts.find(p => p.slug === slug);
-      
-      if (foundPost) {
-        setPost(foundPost);
+        
+        // Transform Supabase data to our BlogPost type
+        const blogPost = {
+          id: data.id,
+          title: data.title,
+          slug: data.slug,
+          excerpt: data.excerpt || '',
+          content: data.content || '',
+          coverImage: data.cover_image || '',
+          category: data.category || '',
+          author: data.author || 'Admin',
+          date: new Date(data.created_at).toLocaleDateString('id-ID', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+          }),
+          status: data.status,
+          publishedAt: data.published_at || '',
+          seoTitle: data.seo_title || data.title,
+          metaDescription: data.meta_description || data.excerpt || '',
+          focusKeyword: data.focus_keyword || '',
+        };
+        
+        setPost(blogPost);
+        
+        // Fetch related posts (posts in the same category)
+        const { data: relatedData, error: relatedError } = await supabase
+          .from('blog_posts')
+          .select('id, title, slug, cover_image, category')
+          .eq('status', 'published')
+          .eq('category', data.category)
+          .neq('id', data.id)
+          .limit(2);
+        
+        if (!relatedError && relatedData && relatedData.length > 0) {
+          const formattedRelatedPosts = relatedData.map((related: SupabaseBlogPost) => ({
+            id: related.id,
+            title: related.title,
+            slug: related.slug,
+            coverImage: related.cover_image || '',
+            category: related.category || '',
+          }));
+          
+          setRelatedPosts(formattedRelatedPosts);
+        }
         
         // Add schema markup for blog post
         const script = document.createElement('script');
@@ -150,14 +125,14 @@ const BlogPost = () => {
         script.text = JSON.stringify({
           "@context": "https://schema.org",
           "@type": "BlogPosting",
-          "headline": foundPost.title,
-          "description": foundPost.excerpt,
+          "headline": blogPost.title,
+          "description": blogPost.excerpt,
           "author": {
             "@type": "Person",
-            "name": foundPost.author
+            "name": blogPost.author
           },
-          "datePublished": new Date().toISOString(),
-          "image": foundPost.coverImage,
+          "datePublished": data.published_at || data.created_at,
+          "image": blogPost.coverImage,
           "publisher": {
             "@type": "Organization",
             "name": "Rapatin",
@@ -168,23 +143,23 @@ const BlogPost = () => {
           },
           "mainEntityOfPage": {
             "@type": "WebPage",
-            "@id": `https://rapatin.id/blog/${foundPost.slug}`
+            "@id": `https://rapatin.id/blog/${blogPost.slug}`
           }
         });
         document.head.appendChild(script);
         
         // Add meta tags for SEO and social sharing
         const metaTags = [
-          { name: "description", content: foundPost.excerpt },
-          { property: "og:title", content: foundPost.title },
-          { property: "og:description", content: foundPost.excerpt },
-          { property: "og:image", content: foundPost.coverImage },
+          { name: "description", content: blogPost.metaDescription },
+          { property: "og:title", content: blogPost.seoTitle },
+          { property: "og:description", content: blogPost.metaDescription },
+          { property: "og:image", content: blogPost.coverImage },
           { property: "og:type", content: "article" },
-          { property: "og:url", content: `https://rapatin.id/blog/${foundPost.slug}` },
+          { property: "og:url", content: `https://rapatin.id/blog/${blogPost.slug}` },
           { name: "twitter:card", content: "summary_large_image" },
-          { name: "twitter:title", content: foundPost.title },
-          { name: "twitter:description", content: foundPost.excerpt },
-          { name: "twitter:image", content: foundPost.coverImage }
+          { name: "twitter:title", content: blogPost.seoTitle },
+          { name: "twitter:description", content: blogPost.metaDescription },
+          { name: "twitter:image", content: blogPost.coverImage }
         ];
         
         // Remove existing meta tags to avoid duplicates
@@ -201,23 +176,29 @@ const BlogPost = () => {
         });
         
         // Set document title
-        document.title = `${foundPost.title} | Blog Rapatin`;
-        
-        return () => {
-          // Clean up
-          document.querySelectorAll('meta[property^="og:"], meta[name^="twitter:"], meta[name="description"]')
-            .forEach(tag => tag.remove());
-          if (script.parentNode) {
-            script.parentNode.removeChild(script);
-          }
-          document.title = 'Rapatin';
-        };
-      } else {
+        document.title = `${blogPost.seoTitle} | Blog Rapatin`;
+      } catch (err) {
+        console.error('Error in blog post fetch:', err);
         setNotFound(true);
+      } finally {
+        setIsLoading(false);
       }
-      
-      setIsLoading(false);
-    }, 500);
+    };
+    
+    if (slug) {
+      fetchBlogPost();
+    }
+    
+    return () => {
+      // Clean up
+      document.querySelectorAll('meta[property^="og:"], meta[name^="twitter:"], meta[name="description"]')
+        .forEach(tag => tag.remove());
+      const jsonLdScript = document.querySelector('script[type="application/ld+json"]');
+      if (jsonLdScript?.parentNode) {
+        jsonLdScript.parentNode.removeChild(jsonLdScript);
+      }
+      document.title = 'Rapatin';
+    };
   }, [slug]);
   
   if (isLoading) {
@@ -293,11 +274,13 @@ const BlogPost = () => {
           {/* Article Content */}
           <div className="max-w-4xl mx-auto">
             {/* Cover Image */}
-            <img 
-              src={post.coverImage} 
-              alt={post.title} 
-              className="w-full h-auto rounded-lg mb-8 aspect-[1.91/1] object-cover" 
-            />
+            {post.coverImage && (
+              <img 
+                src={post.coverImage} 
+                alt={post.title} 
+                className="w-full h-auto rounded-lg mb-8 aspect-[1.91/1] object-cover" 
+              />
+            )}
             
             {/* Title */}
             <h1 className="text-3xl md:text-4xl font-bold mb-4">{post.title}</h1>
@@ -306,11 +289,7 @@ const BlogPost = () => {
             <div className="flex items-center gap-6 mb-8">
               <div className="flex items-center gap-2">
                 <Avatar className="h-8 w-8">
-                  {post.authorAvatar ? (
-                    <AvatarImage src={post.authorAvatar} alt={post.author} />
-                  ) : (
-                    <AvatarFallback>{post.author.charAt(0)}</AvatarFallback>
-                  )}
+                  <AvatarFallback>{post.author.charAt(0)}</AvatarFallback>
                 </Avatar>
                 <span className="text-sm">{post.author}</span>
               </div>
@@ -320,10 +299,12 @@ const BlogPost = () => {
                 <span>{post.date}</span>
               </div>
               
-              <div className="flex items-center text-sm">
-                <Tag size={14} className="mr-1 text-primary" />
-                <span className="text-primary">{post.category}</span>
-              </div>
+              {post.category && (
+                <div className="flex items-center text-sm">
+                  <Tag size={14} className="mr-1 text-primary" />
+                  <span className="text-primary">{post.category}</span>
+                </div>
+              )}
             </div>
             
             {/* Social Sharing */}
@@ -361,11 +342,7 @@ const BlogPost = () => {
             {/* Author */}
             <div className="flex items-start gap-4 mb-10 p-6 bg-muted/40 rounded-lg">
               <Avatar className="h-16 w-16">
-                {post.authorAvatar ? (
-                  <AvatarImage src={post.authorAvatar} alt={post.author} />
-                ) : (
-                  <AvatarFallback>{post.author.charAt(0)}</AvatarFallback>
-                )}
+                <AvatarFallback>{post.author.charAt(0)}</AvatarFallback>
               </Avatar>
               <div>
                 <h3 className="text-lg font-semibold mb-2">Tentang {post.author}</h3>
@@ -377,11 +354,11 @@ const BlogPost = () => {
             </div>
             
             {/* Related Posts */}
-            {post.relatedPosts && post.relatedPosts.length > 0 && (
+            {relatedPosts.length > 0 && (
               <div className="mb-10">
                 <h2 className="text-2xl font-bold mb-6">Artikel Terkait</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {post.relatedPosts.map((relatedPost) => (
+                  {relatedPosts.map((relatedPost) => (
                     <Link to={`/blog/${relatedPost.slug}`} key={relatedPost.id}>
                       <Card className="h-full hover:shadow-md transition-all">
                         <div className="aspect-video overflow-hidden">
@@ -416,9 +393,9 @@ const BlogPost = () => {
                   <span>Kembali ke Blog</span>
                 </Link>
               </Button>
-              {post.relatedPosts && post.relatedPosts.length > 0 && (
+              {relatedPosts.length > 0 && (
                 <Button variant="outline" asChild className="gap-2">
-                  <Link to={`/blog/${post.relatedPosts[0].slug}`}>
+                  <Link to={`/blog/${relatedPosts[0].slug}`}>
                     <span>Artikel Berikutnya</span>
                     <ArrowRight size={16} />
                   </Link>
