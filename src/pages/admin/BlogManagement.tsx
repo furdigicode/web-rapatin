@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import AdminLayout from '@/components/admin/AdminLayout';
@@ -286,7 +285,6 @@ const BlogManagement = () => {
       coverImage: post.coverImage,
       category: post.category,
       author: post.author,
-      date: post.date,
       status: post.status,
       publishedAt: post.publishedAt ? post.publishedAt : '',
       seoTitle: post.seoTitle,
