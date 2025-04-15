@@ -75,7 +75,7 @@ const BlogPost = () => {
         }
         
         // Transform Supabase data to our BlogPost type
-        const blogPost = {
+        const blogPost: BlogPostType = {
           id: data.id,
           title: data.title,
           slug: data.slug,
@@ -89,7 +89,8 @@ const BlogPost = () => {
             month: 'long',
             day: 'numeric'
           }),
-          status: data.status,
+          // Cast the status to the specific allowed types
+          status: (data.status as 'draft' | 'published' | 'scheduled'),
           publishedAt: data.published_at || '',
           seoTitle: data.seo_title || data.title,
           metaDescription: data.meta_description || data.excerpt || '',

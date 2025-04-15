@@ -50,7 +50,8 @@ const Blog = () => {
             month: 'long',
             day: 'numeric'
           }),
-          status: post.status,
+          // Cast the status to the specific allowed types
+          status: (post.status as 'draft' | 'published' | 'scheduled'),
           publishedAt: post.published_at || '',
           seoTitle: post.seo_title || post.title,
           metaDescription: post.meta_description || post.excerpt || '',
