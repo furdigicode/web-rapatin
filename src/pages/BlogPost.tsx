@@ -241,7 +241,10 @@ const BlogPost = () => {
               className="prose max-w-none mb-10"
               dangerouslySetInnerHTML={{ __html: post.content }}
             />
-            
+
+            <div>
+              <h3 className="text-lg font-semibold mb-2">Bagikan</h3>
+            </div>
             {/* Article Actions */}
             <ShareButtons />
             
