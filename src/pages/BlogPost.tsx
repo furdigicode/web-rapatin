@@ -236,9 +236,6 @@ const BlogPost = () => {
             {/* Article Metadata */}
             <BlogPostMeta post={post} />
             
-            {/* Social Sharing */}
-            <ShareButtons showLikeComment={false} />
-            
             {/* Article Content */}
             <div 
               className="prose max-w-none mb-10"
