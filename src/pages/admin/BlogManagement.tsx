@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import AdminLayout from '@/components/admin/AdminLayout';
@@ -13,6 +14,7 @@ import RichTextEditor from '@/components/admin/RichTextEditor';
 import SEOPanel from '@/components/admin/SEOPanel';
 import { BlogPost, BlogPostFormData, defaultBlogPostFormData } from '@/types/BlogTypes';
 import { supabase } from '@/integrations/supabase/client';
+import { DeleteConfirmation } from '@/components/blog/DeleteConfirmation';
 
 const BlogManagement = () => {
   const { toast } = useToast();
@@ -509,6 +511,13 @@ const BlogManagement = () => {
 
   return (
     <AdminLayout title="Manajemen Blog">
+      {/* Delete confirmation dialog */}
+      <DeleteConfirmation 
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        onConfirm={handleConfirmDelete}
+      />
+
       {isLoading ? (
         <div className="flex justify-center items-center h-64">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
