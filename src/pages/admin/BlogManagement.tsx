@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import AdminLayout from '@/components/admin/AdminLayout';
@@ -148,27 +149,45 @@ const BlogManagement = () => {
     mutationFn: async (postData: BlogPostFormData & { id: string }) => {
       console.log("Updating post with data:", postData);
       
+      // Create the update object with the correct structure
+      const updateData = {
+        title: postData.title,
+        slug: postData.slug,
+        excerpt: postData.excerpt,
+        content: postData.content,
+        cover_image: postData.coverImage,
+        category: postData.category,
+        author: postData.author,
+        status: postData.status,
+        published_at: postData.status === 'published' && !postData.publishedAt ? new Date().toISOString() : postData.publishedAt,
+        seo_title: postData.seoTitle,
+        meta_description: postData.metaDescription,
+        focus_keyword: postData.focusKeyword
+      };
+      
+      console.log("Final update data:", updateData);
+      
       const { data, error } = await supabase
         .from('blog_posts')
-        .update({
-          title: postData.title,
-          slug: postData.slug,
-          excerpt: postData.excerpt,
-          content: postData.content,
-          cover_image: postData.coverImage,
-          category: postData.category,
-          author: postData.author,
-          status: postData.status,
-          published_at: postData.status === 'published' && !postData.publishedAt ? new Date().toISOString() : postData.publishedAt,
-          seo_title: postData.seoTitle,
-          meta_description: postData.metaDescription,
-          focus_keyword: postData.focusKeyword
-        })
+        .update(updateData)
         .eq('id', postData.id);
       
       if (error) {
         console.error("Supabase update error:", error);
         throw error;
+      }
+      
+      // Verify the update by fetching the latest version
+      const { data: verifyData, error: verifyError } = await supabase
+        .from('blog_posts')
+        .select('title')
+        .eq('id', postData.id)
+        .single();
+        
+      if (verifyError) {
+        console.error("Verification error:", verifyError);
+      } else {
+        console.log("Updated title in database:", verifyData.title);
       }
       
       return data;
@@ -180,6 +199,8 @@ const BlogManagement = () => {
         description: `Artikel "${formData.title}" telah berhasil diperbarui`,
       });
       setIsEditing(null);
+      // Reset form data after successful update
+      setFormData({...defaultBlogPostFormData});
     },
     onError: (error: any) => {
       console.error("Update error:", error);
@@ -315,6 +336,7 @@ const BlogManagement = () => {
     }
     
     console.log("Updating post with ID:", isEditing);
+    console.log("Current form data title:", formData.title);
     
     updatePostMutation.mutate({
       id: isEditing,
