@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import AdminLayout from '@/components/admin/AdminLayout';
@@ -147,6 +146,8 @@ const BlogManagement = () => {
 
   const updatePostMutation = useMutation({
     mutationFn: async (postData: BlogPostFormData & { id: string }) => {
+      console.log("Updating post with data:", postData);
+      
       const { data, error } = await supabase
         .from('blog_posts')
         .update({
@@ -163,11 +164,13 @@ const BlogManagement = () => {
           meta_description: postData.metaDescription,
           focus_keyword: postData.focusKeyword
         })
-        .eq('id', postData.id)
-        .select()
-        .single();
+        .eq('id', postData.id);
       
-      if (error) throw error;
+      if (error) {
+        console.error("Supabase update error:", error);
+        throw error;
+      }
+      
       return data;
     },
     onSuccess: () => {
@@ -179,10 +182,11 @@ const BlogManagement = () => {
       setIsEditing(null);
     },
     onError: (error: any) => {
+      console.error("Update error:", error);
       toast({
         variant: "destructive",
         title: "Terjadi kesalahan",
-        description: error.message,
+        description: error.message || "Gagal memperbarui artikel",
       });
     }
   });
@@ -272,6 +276,7 @@ const BlogManagement = () => {
   };
 
   const handleStartEdit = (post: BlogPost) => {
+    console.log("Starting edit for post:", post);
     setIsEditing(post.id as string);
     setFormData({
       title: post.title,
@@ -308,6 +313,8 @@ const BlogManagement = () => {
         .replace(/[^\w\s]/gi, '')
         .replace(/\s+/g, '-');
     }
+    
+    console.log("Updating post with ID:", isEditing);
     
     updatePostMutation.mutate({
       id: isEditing,
