@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import AdminLayout from '@/components/admin/AdminLayout';
@@ -149,7 +148,6 @@ const BlogManagement = () => {
     mutationFn: async (postData: BlogPostFormData & { id: string }) => {
       console.log("Updating post with data:", postData);
       
-      // Create the update object with the correct structure
       const updateData = {
         title: postData.title,
         slug: postData.slug,
@@ -167,7 +165,7 @@ const BlogManagement = () => {
       
       console.log("Final update data:", updateData);
       
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('blog_posts')
         .update(updateData)
         .eq('id', postData.id);
@@ -177,29 +175,27 @@ const BlogManagement = () => {
         throw error;
       }
       
-      // Verify the update by fetching the latest version
       const { data: verifyData, error: verifyError } = await supabase
         .from('blog_posts')
-        .select('title')
+        .select('*')
         .eq('id', postData.id)
         .single();
         
       if (verifyError) {
         console.error("Verification error:", verifyError);
+        throw verifyError;
       } else {
-        console.log("Updated title in database:", verifyData.title);
+        console.log("Updated post in database:", verifyData);
+        return verifyData;
       }
-      
-      return data;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['blog-posts'] });
       toast({
         title: "Artikel berhasil diperbarui",
-        description: `Artikel "${formData.title}" telah berhasil diperbarui`,
+        description: `Artikel "${data.title}" telah berhasil diperbarui`,
       });
       setIsEditing(null);
-      // Reset form data after successful update
       setFormData({...defaultBlogPostFormData});
     },
     onError: (error: any) => {
@@ -540,7 +536,6 @@ const BlogManagement = () => {
 
   return (
     <AdminLayout title="Manajemen Blog">
-      {/* Delete confirmation dialog */}
       <DeleteConfirmation 
         open={deleteDialogOpen}
         onOpenChange={setDeleteDialogOpen}
