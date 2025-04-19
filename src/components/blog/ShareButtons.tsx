@@ -1,91 +1,43 @@
 
 import React from 'react';
-import { Facebook, Twitter, Linkedin, Mail, Share2, ThumbsUp, MessageSquare, MessageCircle } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Button } from "@/components/ui/button";
+import { Facebook, Twitter, Linkedin, Mail, Share2, MessageCircle } from "lucide-react";
 
 interface ShareButtonsProps {
-  showLikeComment?: boolean;
+  url?: string;
+  title?: string;
 }
 
-const ShareButtons = ({ showLikeComment = true }: ShareButtonsProps) => {
-  const currentUrl = window.location.href;
-  const handleShare = (platform: string) => {
-    const text = document.title;
-    const urls = {
-      facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(currentUrl)}`,
-      twitter: `https://twitter.com/intent/tweet?url=${encodeURIComponent(currentUrl)}&text=${encodeURIComponent(text)}`,
-      linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(currentUrl)}`,
-      whatsapp: `https://wa.me/?text=${encodeURIComponent(text + ' ' + currentUrl)}`,
-      gmail: `mailto:?subject=${encodeURIComponent(text)}&body=${encodeURIComponent(currentUrl)}`
-    };
+export default function ShareButtons({ url = window.location.href, title = document.title }: ShareButtonsProps) {
+  const shareUrls = {
+    facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
+    twitter: `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`,
+    whatsapp: `https://wa.me/?text=${encodeURIComponent(title + ' ' + url)}`,
+    linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`,
+    gmail: `mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent(url)}`
+  };
 
-    window.open(urls[platform], '_blank', 'width=600,height=400');
+  const handleShare = (platform: keyof typeof shareUrls) => {
+    window.open(shareUrls[platform], '_blank', 'noopener,noreferrer');
   };
 
   return (
-    <>
-      <div className="flex items-center gap-2 mb-8">
-        <Button
-          variant="outline"
-          size="sm"
-          className="gap-2"
-          onClick={() => handleShare('facebook')}
-        >
-          <Facebook size={16} />
-          <span>Facebook</span>
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          className="gap-2"
-          onClick={() => handleShare('twitter')}
-        >
-          <Twitter size={16} />
-          <span>Twitter</span>
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          className="gap-2"
-          onClick={() => handleShare('whatsapp')}
-        >
-          <MessageCircle size={16} />
-          <span>WhatsApp</span>
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          className="gap-2"
-          onClick={() => handleShare('linkedin')}
-        >
-          <Linkedin size={16} />
-          <span>LinkedIn</span>
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          className="gap-2"
-          onClick={() => handleShare('gmail')}
-        >
-          <Mail size={16} />
-          <span>Email</span>
-        </Button>
-      </div>
-      
-      {showLikeComment && (
-        <div className="flex items-center gap-4 mb-10">
-          <Button variant="outline" size="sm" className="gap-2">
-            <ThumbsUp size={16} />
-            <span>Suka</span>
-          </Button>
-          <Button variant="outline" size="sm" className="gap-2">
-            <MessageSquare size={16} />
-            <span>Komentar</span>
-          </Button>
-        </div>
-      )}
-    </>
+    <div className="flex items-center gap-2 mb-8">
+      <Button variant="outline" size="sm" onClick={() => handleShare('facebook')} className="gap-2">
+        <Facebook size={16} />
+      </Button>
+      <Button variant="outline" size="sm" onClick={() => handleShare('twitter')} className="gap-2">
+        <Twitter size={16} />
+      </Button>
+      <Button variant="outline" size="sm" onClick={() => handleShare('whatsapp')} className="gap-2">
+        <MessageCircle size={16} />
+      </Button>
+      <Button variant="outline" size="sm" onClick={() => handleShare('linkedin')} className="gap-2">
+        <Linkedin size={16} />
+      </Button>
+      <Button variant="outline" size="sm" onClick={() => handleShare('gmail')} className="gap-2">
+        <Mail size={16} />
+      </Button>
+    </div>
   );
-};
-
-export default ShareButtons;
+}

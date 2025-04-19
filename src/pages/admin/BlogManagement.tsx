@@ -20,12 +20,13 @@ const BlogManagement = () => {
 
   const [isCreating, setIsCreating] = useState(false);
   const [isEditing, setIsEditing] = useState<string | null>(null);
-  
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [postToDelete, setPostToDelete] = useState<string | null>(null);
+
   const [formData, setFormData] = useState<BlogPostFormData>({
     ...defaultBlogPostFormData
   });
 
-  // Fetch categories from Supabase
   const { data: categoriesData } = useQuery({
     queryKey: ['blog-categories'],
     queryFn: async () => {
@@ -50,7 +51,6 @@ const BlogManagement = () => {
 
   const categories = categoriesData || [];
 
-  // Fetch blog posts from Supabase
   const { data: blogPosts = [], isLoading } = useQuery({
     queryKey: ['blog-posts'],
     queryFn: async () => {
@@ -92,14 +92,12 @@ const BlogManagement = () => {
     },
   });
 
-  // Auto-update SEO title when main title changes (if SEO title is empty)
   useEffect(() => {
     if (formData.title && !formData.seoTitle) {
       setFormData({...formData, seoTitle: formData.title});
     }
   }, [formData.title]);
 
-  // Create post mutation
   const createPostMutation = useMutation({
     mutationFn: async (postData: BlogPostFormData) => {
       const { data, error } = await supabase
@@ -145,7 +143,6 @@ const BlogManagement = () => {
     }
   });
 
-  // Update post mutation
   const updatePostMutation = useMutation({
     mutationFn: async (postData: BlogPostFormData & { id: string }) => {
       const { data, error } = await supabase
@@ -188,7 +185,6 @@ const BlogManagement = () => {
     }
   });
 
-  // Delete post mutation
   const deletePostMutation = useMutation({
     mutationFn: async (id: string) => {
       const { error } = await supabase
@@ -214,7 +210,6 @@ const BlogManagement = () => {
     }
   });
 
-  // Publish post mutation
   const publishPostMutation = useMutation({
     mutationFn: async (id: string) => {
       const { data, error } = await supabase
@@ -260,7 +255,6 @@ const BlogManagement = () => {
       return;
     }
     
-    // Generate slug if empty
     let finalSlug = formData.slug;
     if (!finalSlug) {
       finalSlug = formData.title
@@ -305,7 +299,6 @@ const BlogManagement = () => {
       return;
     }
     
-    // Generate slug if empty
     let finalSlug = formData.slug;
     if (!finalSlug) {
       finalSlug = formData.title
@@ -321,9 +314,16 @@ const BlogManagement = () => {
     });
   };
 
-  const handleDeletePost = (id: string) => {
-    if (confirm("Apakah Anda yakin ingin menghapus artikel ini?")) {
-      deletePostMutation.mutate(id);
+  const handleDeleteClick = (id: string) => {
+    setPostToDelete(id);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (postToDelete) {
+      deletePostMutation.mutate(postToDelete);
+      setDeleteDialogOpen(false);
+      setPostToDelete(null);
     }
   };
 
@@ -332,7 +332,6 @@ const BlogManagement = () => {
   };
 
   const handleImageUpload = () => {
-    // In a real implementation, this would open a file picker and upload the image
     const imageUrl = prompt("Enter image URL (in production, this would be a file upload):");
     if (imageUrl) {
       setFormData({...formData, coverImage: imageUrl});
@@ -363,9 +362,7 @@ const BlogManagement = () => {
             <TabsTrigger value="settings">Pengaturan</TabsTrigger>
           </TabsList>
           
-          {/* Content Tab */}
           <TabsContent value="content" className="space-y-6">
-            {/* Title */}
             <div className="space-y-2">
               <Label htmlFor="title">Judul Artikel</Label>
               <Input
@@ -377,7 +374,6 @@ const BlogManagement = () => {
               />
             </div>
             
-            {/* Cover Image */}
             <div className="space-y-2">
               <Label>Cover Image</Label>
               <div className="flex items-start gap-4">
@@ -409,7 +405,6 @@ const BlogManagement = () => {
               </div>
             </div>
             
-            {/* Excerpt */}
             <div className="space-y-2">
               <Label htmlFor="excerpt">Ringkasan</Label>
               <Textarea
@@ -421,7 +416,6 @@ const BlogManagement = () => {
               />
             </div>
             
-            {/* Content */}
             <div className="space-y-2">
               <Label htmlFor="content">Konten</Label>
               <RichTextEditor 
@@ -431,7 +425,6 @@ const BlogManagement = () => {
             </div>
           </TabsContent>
           
-          {/* SEO Tab */}
           <TabsContent value="seo">
             <SEOPanel
               title={formData.seoTitle}
@@ -446,11 +439,9 @@ const BlogManagement = () => {
             />
           </TabsContent>
           
-          {/* Settings Tab */}
           <TabsContent value="settings" className="space-y-6">
             <Card>
               <CardContent className="pt-6 space-y-6">
-                {/* Category */}
                 <div className="space-y-2">
                   <Label htmlFor="category" className="flex items-center gap-2">
                     <Tag size={14} />
@@ -468,7 +459,6 @@ const BlogManagement = () => {
                   </select>
                 </div>
                 
-                {/* Author */}
                 <div className="space-y-2">
                   <Label htmlFor="author" className="flex items-center gap-2">
                     <User size={14} />
@@ -481,7 +471,6 @@ const BlogManagement = () => {
                   />
                 </div>
                 
-                {/* Status */}
                 <div className="space-y-2">
                   <Label htmlFor="status">Status Publikasi</Label>
                   <select
@@ -496,7 +485,6 @@ const BlogManagement = () => {
                   </select>
                 </div>
                 
-                {/* Published Date/Time */}
                 {formData.status === 'scheduled' && (
                   <div className="space-y-2">
                     <Label htmlFor="publishedAt" className="flex items-center gap-2">
@@ -558,7 +546,6 @@ const BlogManagement = () => {
                 <Card key={post.id} className={post.status === 'draft' ? 'border-dashed' : ''}>
                   <CardContent className="p-6">
                     <div className="flex gap-6">
-                      {/* Cover image */}
                       {post.coverImage && (
                         <div className="hidden sm:block w-32 h-32 rounded-md overflow-hidden flex-shrink-0">
                           <img 
@@ -569,7 +556,6 @@ const BlogManagement = () => {
                         </div>
                       )}
                       
-                      {/* Content */}
                       <div className="flex-1">
                         <div className="flex justify-between items-start">
                           <div>
@@ -610,7 +596,6 @@ const BlogManagement = () => {
                         </div>
                       </div>
                       
-                      {/* Actions */}
                       <div className="flex flex-col gap-2">
                         <Button variant="outline" size="sm" className="h-8 gap-1 min-w-20" title="Lihat">
                           <Eye size={14} />
@@ -642,7 +627,7 @@ const BlogManagement = () => {
                           variant="outline" 
                           size="sm" 
                           className="h-8 gap-1 text-destructive hover:text-destructive min-w-20" 
-                          onClick={() => handleDeletePost(post.id as string)}
+                          onClick={() => handleDeleteClick(post.id as string)}
                           title="Hapus"
                         >
                           <Trash size={14} />
