@@ -21,7 +21,7 @@ const HeroSection: React.FC = () => {
         <div className="inline-flex items-center py-1 px-4 bg-accent/70 rounded-full backdrop-blur-sm mt-0 mb-4 animate-fade-in mx-auto">
           <span className="text-xs font-medium text-primary text-center">Aplikasi penjadwalan rapat premium tanpa batas waktu</span>
         </div>
-        <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-foreground text-center mb-4 animate-fade-in">
+        <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-foreground text-center mb-4 max-w-4xl animate-fade-in">
           Jadwalkan <span className="text-primary">rapat online</span> tanpa akun Zoom berbayar
         </h1>
         <p className="text-lg md:text-xl text-muted-foreground max-w-2xl text-center mb-8 animate-fade-in">
