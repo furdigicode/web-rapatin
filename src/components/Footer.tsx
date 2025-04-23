@@ -48,7 +48,7 @@ const Footer: React.FC = () => {
             <h3 className="text-sm font-semibold uppercase tracking-wider mb-4">Sumber Daya</h3>
             <ul className="space-y-2">
               <li><a href="/faq" className="text-muted-foreground hover:text-primary text-sm transition-colors">FAQ</a></li>
-              <li><a href="https://doc.rapatin.id" className="text-muted-foreground hover:text-primary text-sm transition-colors">Pusat Bantuan</a></li>
+              <li><a href="https://help.rapatin.id" className="text-muted-foreground hover:text-primary text-sm transition-colors">Pusat Bantuan</a></li>
               <li><a href="/menjadi-reseller" className="text-muted-foreground hover:text-primary text-sm transition-colors">Menjadi Reseller</a></li>
               <li><a href="/blog" className="text-muted-foreground hover:text-primary text-sm transition-colors">Artikel Blog</a></li>
             </ul>
