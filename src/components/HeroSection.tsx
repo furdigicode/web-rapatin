@@ -62,7 +62,7 @@ const HeroSection: React.FC = () => {
             loading="lazy"
           />
         </div>
-        <div className="mt-2 md:mt-6 w-full">
+        <div className="mt-6 md:mt-6 w-full">
           <div className="text-center mb-8 animate-fade-in">
             <p className="text-sm text-muted-foreground font-medium uppercase tracking-wider">DIPERCAYA OLEH 120+ BRAND</p>
           </div>
