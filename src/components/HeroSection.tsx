@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from 'lucide-react';
@@ -38,10 +39,10 @@ const HeroSection: React.FC = () => {
         </Button>
         
         <div className="mt-16 w-full max-w-5xl mx-auto relative animate-fade-in">
-          <div className="aspect-video rounded-xl overflow-hidden shadow-elevation border border-white/40 glass">
+          <div className="aspect-video rounded-xl overflow-hidden shadow-elevation border border-white/40 glass flex flex-col items-center justify-center bg-white">
             <img 
-              src="/lovable-uploads/c9c9c9c9-c9c9-4c9c-9c9c-c9c9c9c9c9c9.png" 
-              alt="Rapatin Dashboard" 
+              src="/lovable-uploads/e5209dfb-81fe-448a-97d3-dcf8e0f111fc.png"
+              alt="Rapatin Dashboard"
               className="w-full h-full object-cover"
             />
           </div>
@@ -74,3 +75,4 @@ const HeroSection: React.FC = () => {
 };
 
 export default HeroSection;
+

@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -25,6 +26,32 @@ import BlogPost from "./pages/BlogPost";
 import AdminLogin from "./pages/admin/Login";
 import AdminDashboard from "./pages/admin/Dashboard";
 import BlogManagement from "./pages/admin/BlogManagement";
+
+// WhatsApp Widget Injection
+function WhatsappWidgetScript() {
+  useEffect(() => {
+    // Remove Crisp chat widget if it exists
+    const crisp = document.querySelector('script[src*="crisp.chat"]');
+    if (crisp) {
+      crisp.remove();
+      const crispElements = document.querySelectorAll('[id*="crisp"]');
+      crispElements.forEach(el => el.remove());
+    }
+
+    // Inject WhatsApp Widget if not already present
+    if (!document.getElementById("balesoto-script")) {
+      const script = document.createElement('script');
+      script.id = "balesoto-script";
+      script.type = "text/javascript";
+      script.src = "https://cdn.balesotomatis.id/scripts/embed.js";
+      script.setAttribute("balesoto-origin", "aHR0cHM6Ly93aWRnZXQuYmFsZXNvdG9tYXRpcy5pZC9pbmRleA==");
+      script.setAttribute("balesoto-key", "BALESOTO-gr9i53");
+      document.body.appendChild(script);
+    }
+  }, []);
+
+  return null;
+}
 
 const queryClient = new QueryClient();
 
@@ -68,6 +95,7 @@ const AppRoutes = () => {
 const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
+      <WhatsappWidgetScript />
       <Toaster />
       <Sonner />
       <BrowserRouter>
@@ -78,3 +106,4 @@ const App = () => {
 };
 
 export default App;
+
