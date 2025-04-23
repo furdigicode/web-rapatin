@@ -1,6 +1,6 @@
 
 import React from "react";
-import { Whatsapp } from "lucide-react";
+import { MessageSquare } from "lucide-react";
 
 const WHATSAPP_URL =
   "https://wa.me/+6287788980084?text=Halo%20saya%20ingin%20daftar%20ke%20Rapatin";
@@ -17,7 +17,7 @@ const WhatsAppWidget = () => (
         "0 4px 20px 0 rgba(39, 174, 96, 0.30), 0 1.5px 4px 0 rgba(39,174,96,0.20)",
     }}
   >
-    <Whatsapp className="w-7 h-7" />
+    <MessageSquare className="w-7 h-7" />
     <span className="sr-only">Hubungi via WhatsApp</span>
   </a>
 );
