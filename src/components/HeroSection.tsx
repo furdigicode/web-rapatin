@@ -1,11 +1,10 @@
-
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Calendar, Clock, DollarSign, Video, BadgeDollarSign } from 'lucide-react';
 import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
 
-const IllustSrc = "/lovable-uploads/e7e34560-7715-4bb4-9fa9-26f74f4090b8.png";
+const IllustSrc = "/lovable-uploads/90dcfcfe-cb9e-46e1-88a3-5cf6472dd222.png";
 
 const HeroSection: React.FC = () => {
   const autoplayPlugin = React.useMemo(() => Autoplay({
@@ -54,11 +53,11 @@ const HeroSection: React.FC = () => {
             <span>Durasi Tidak Terbatas</span>
           </div>
         </div>
-        <div className="w-full flex justify-center max-w-6xl animate-slide-in-right mb-8">
+        <div className="w-full flex justify-center animate-slide-in-right mb-8">
           <img 
             src={IllustSrc} 
             alt="Ilustrasi Rapatin" 
-            className="w-full max-w-3xl mx-auto rounded-2xl shadow-elevation border border-white/40 bg-white"
+            className="w-full max-w-full mx-auto rounded-2xl shadow-elevation border border-white/40 bg-white"
             style={{ background: "rgba(255,255,255,0.9)" }}
             loading="lazy"
           />
@@ -102,7 +101,7 @@ const HeroSection: React.FC = () => {
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 35" width="85" height="30" className="opacity-70 hover:opacity-100">
                       <path d="M25 4.5C13.7 4.5 4.5 13.7 4.5 25s9.2 20.5 20.5 20.5S45.5 36.3 45.5 25 36.3 4.5 25 4.5zm0 38c-9.7 0-17.5-7.8-17.5-17.5S15.3 7.5 25 7.5 42.5 15.3 42.5 25 34.7 42.5 25 42.5z" fill="#FFC700" />
                       <path d="M25 10.5c-8 0-14.5 6.5-14.5 14.5S17 39.5 25 39.5 39.5 33 39.5 25 33 10.5 25 10.5zm0 26c-6.4 0-11.5-5.1-11.5-11.5S18.6 13.5 25 13.5 36.5 18.6 36.5 25 31.4 36.5 25 36.5z" fill="#FFC700" />
-                      <path d="M25 16.5c-4.7 0-8.5 3.8-8.5 8.5s3.8 8.5 8.5 8.5 8.5-3.8 8.5-8.5-3.8-8.5-8.5-8.5zm0 14c-3 0-5.5-2.5-5.5-5.5s2.5-5.5 5.5-5.5 5.5 2.5 5.5 5.5-2.5 5.5-5.5 5.5z" fill="#FFC700" />
+                      <path d="M25 16.5c-4.7 0-8.5 3.8-8.5 8.5s3.8 8.5 8.5 8.5 8.5-3.8 8.5-8.5-3.8 8.5-8.5-8.5zm0 14c-3 0-5.5-2.5-5.5-5.5s2.5-5.5 5.5-5.5 5.5 2.5 5.5 5.5-2.5 5.5-5.5 5.5z" fill="#FFC700" />
                       <path d="M54 14h3.5v14H54zM62 14h3.5l6 8.5V14H75v14h-3.5l-6-8.4V28H62zM78 14h9c2.8 0 4.5 1.7 4.5 4.2 0 1.8-1 3.1-2.5 3.7 1.3.5 2 1.7 2 3.3v2.8h-3.5v-2.4c0-1.2-.6-1.8-1.9-1.8h-4.1V28H78V14zm3.5 6.8H86c1.2 0 1.9-.6 1.9-1.6 0-1-.7-1.6-1.9-1.6h-4.5v3.2z" fill="#FFC700" />
                     </svg>
                   </div>
@@ -138,4 +137,5 @@ const HeroSection: React.FC = () => {
     </section>
   );
 };
+
 export default HeroSection;
