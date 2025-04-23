@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Calendar, Clock, DollarSign, Video, BadgeDollarSign } from 'lucide-react';
@@ -53,12 +54,12 @@ const HeroSection: React.FC = () => {
             <span>Durasi Tidak Terbatas</span>
           </div>
         </div>
-        <div className="w-full max-w-6xl mt-8 animate-slide-in-right">
+        <div className="w-full flex justify-center max-w-6xl animate-slide-in-right mb-8">
           <img 
             src={IllustSrc} 
             alt="Ilustrasi Rapatin" 
-            className="w-full rounded-2xl shadow-elevation border border-white/40 bg-white object-cover"
-            style={{ background: "rgba(255,255,255,0.9)", maxHeight: "600px" }}
+            className="w-full max-w-3xl mx-auto rounded-2xl shadow-elevation border border-white/40 bg-white"
+            style={{ background: "rgba(255,255,255,0.9)" }}
             loading="lazy"
           />
         </div>
@@ -77,7 +78,7 @@ const HeroSection: React.FC = () => {
                 <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
                   <div className="flex items-center justify-center h-12 grayscale hover:grayscale-0 transition-all duration-300">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 30" width="100" height="30" className="opacity-70 hover:opacity-100">
-                      <path d="M79.246 13.636c0 1.755-1.078 2.837-2.832 2.837-1.752 0-2.83-1.082-2.83-2.837 0-1.753 1.078-2.835 2.83-2.835 1.754 0 2.832 1.082 2.832 2.835m-8.318 0c0 3.265 2.226 5.493 5.486 5.493 3.262 0 5.488-2.228 5.488-5.493 0-3.261-2.226-5.489-5.488-5.489-3.26 0-5.486 2.228-5.486 5.489M62.6 8.8h2.5v2.3h.1c.7-1.5 2-2.6 3.9-2.6 1.4 0 2.5.5 3.2 1.6.8-1 2.1-1.6 3.6-1.6 2.9 0 4.1 1.9 4.1 4.6v6h-2.6v-5.5c0-1.4-.6-2.4-2-2.4-1.8 0-2.5 1.3-2.5 3.1v4.8h-2.6v-5.5c0-1.5-.6-2.4-2-2.4-1.8 0-2.5 1.3-2.5 3v4.9h-2.6V8.8zm-6.8.3c3.3 0 5.5 2.2 5.5 5.5s-2.2 5.5-5.5 5.5-5.5-2.2-5.5-5.5 2.2-5.5 5.5-5.5m0 8.4c1.8 0 2.8-1.1 2.8-2.9s-1-2.9-2.8-2.9-2.8 1.1-2.8 2.9 1 2.9 2.8 2.9m-8.9-8.7h2.6v10.3h-2.6V8.8zm1.3-4.7c.9 0 1.6.7 1.6 1.6s-.7 1.6-1.6 1.6-1.6-.7-1.6-1.6.7-1.6 1.6-1.6M33.5 8.8h2.5v1.7h.1c.7-1.3 2.2-2 3.6-2 3.7 0 5.1 2.8 5.1 5.8 0 2.7-1.5 5.2-4.4 5.2-1.7 0-3.1-.7-3.9-1.9H36.2v5.4h-2.6V8.8zm5.4 8c1.7 0 2.6-1.3 2.6-2.8s-.9-2.9-2.6-2.9-2.8 1.1-2.8 2.9 1 2.9 2.8 2.9" fill="#2166b0" />
+                      <path d="M79.246 13.636c0 1.755-1.078 2.837-2.832 2.837-1.752 0-2.83-1.082-2.83-2.837 0-1.753 1.078-2.835 2.83-2.835 1.754 0 2.832 1.082 2.832 2.835m-8.318 0c0 3.265 2.226 5.493 5.486 5.493 3.262 0 5.488-2.228 5.488-5.493 0-3.261-2.226-5.489-5.488-5.489-3.26 0-5.486 2.228-5.486 5.489M62.6 8.8h2.5v2.3h.1c.7-1.5 2-2.6 3.9-2.6 1.4 0 2.5.5 3.2 1.6.8-1 2.1-1.6 3.6-1.6 2.9 0 4.1 1.9 4.1 4.6v6h-2.6v-5.5c0-1.4-.6-2.4-2-2.4-1.8 0-2.5 1.3-2.5 3.1v4.8h-2.6v-5.5c0-1.5-.6-2.4-2-2.4-1.8 0-2.5 1.3-2.5 3v4.9h-2.6V8.8zm-6.8.3c3.3 0 5.5 2.2 5.5 5.5s-2.2 5.5-5.5 5.5-5.5-2.2-5.5-5.5 2.2-5.5 5.5-5.5m0 8.4c1.8 0 2.8-1.1 2.8-2.9s-1-2.9-2.8-2.9-2.8 1.1-2.8 2.9 1 2.9 2.8 2.9m-8.9-8.7h2.6v10.3h-2.6V8.8zm1.3-4.7c.9 0 1.6.7 1.6 1.6s-.7 1.6-1.6 1.6-1.6-.7-1.6-1.6.7-1.6 1.6-1.6M33.5 8.8h2.5v1.7h.1c.7-1.3 2.2-2 3.6-2 3.7 0 5.1 2.8 5.1 5.8 0 2.7-1.5 5.2-4.4 5.2-1.7 0-3.1-.7-3.9-1.9H36.2v5.4h-2.6V8.8zm5.4 8c1.7 0 2.6-1.3 2.6-2.8s-.9-2.9-2.6-2.9c-1.6 0-2.6 1.4-2.6 2.9s.9 2.8 2.6 2.8m-14-8h2.6v1.5H27.6c.5-1 1.8-1.8 3.2-1.8.7 0 1.4.2 2 .5l-.9 2.2c-.4-.2-.9-.3-1.4-.3-1.9 0-2.9 1.3-2.9 3.4v4.8h-2.6V8.8zm-5.4.3c3.3 0 5.5 2.2 5.5 5.5s-2.2 5.5-5.5 5.5-5.5-2.2-5.5-5.5 2.2-5.5 5.5-5.5m0 8.4c1.8 0 2.8-1.1 2.8-2.9s-1-2.9-2.8-2.9-2.8 1.1-2.8 2.9 1 2.9 2.8 2.9" fill="#2166b0" />
                     </svg>
                   </div>
                 </CarouselItem>
@@ -137,5 +138,4 @@ const HeroSection: React.FC = () => {
     </section>
   );
 };
-
 export default HeroSection;
