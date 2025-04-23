@@ -4,7 +4,7 @@ import { Calendar, Clock, DollarSign, Video, BadgeDollarSign } from 'lucide-reac
 import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
 
-const IllustSrc = "/lovable-uploads/c64ceec2-7c79-4671-912e-b179358001aa.png";
+const IllustSrc = "/lovable-uploads/e7e34560-7715-4bb4-9fa9-26f74f4090b8.png";
 
 const HeroSection: React.FC = () => {
   const autoplayPlugin = React.useMemo(() => Autoplay({
