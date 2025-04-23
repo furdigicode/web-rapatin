@@ -35,7 +35,7 @@ const HeroSection: React.FC = () => {
             <a href="#pricing">Lihat Harga</a>
           </Button>
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-10 max-w-xl w-full mx-auto pt-2 animate-fade-in">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-10 max-w-4xl w-full mx-auto pt-2 animate-fade-in">
           <div className="flex items-center gap-2 text-sm justify-center">
             <BadgeDollarSign size={18} className="text-primary" />
             <span>Bayar Setiap Rapat</span>
