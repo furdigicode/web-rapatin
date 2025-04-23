@@ -11,7 +11,7 @@ const defaultContactData = {
   email: "halo@rapatin.id",
   phone: "+62 877 8898 0084",
   address: "Desa Tempel, Jatisari, Mijen, Kota Semarang",
-  livechat: "Dukungan langsung melalui livechat kami di dalam aplikasi"
+  livechat: "Dukungan langsung melalui livechat di aplikasi"
 };
 const Kontak = () => {
   const {
