@@ -53,12 +53,12 @@ const HeroSection: React.FC = () => {
             <span>Durasi Tidak Terbatas</span>
           </div>
         </div>
-        <div className="w-full max-w-6xl mt-8 animate-slide-in-right">
+        <div className="max-w-full mt-8 animate-slide-in-right">
           <img 
             src={IllustSrc} 
             alt="Ilustrasi Rapatin" 
             className="w-full rounded-2xl shadow-elevation border border-white/40 bg-white object-cover"
-            style={{ background: "rgba(255,255,255,0.9)", maxHeight: "600px" }}
+            style={{ background: "rgba(255,255,255,0.9)", maxHeight: "800px" }}
             loading="lazy"
           />
         </div>
