@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Calendar, Clock, DollarSign, Video, BadgeDollarSign } from 'lucide-react';
 import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
+
 const HeroSection: React.FC = () => {
   const autoplayPlugin = React.useMemo(() => Autoplay({
     delay: 5000,
@@ -13,6 +14,8 @@ const HeroSection: React.FC = () => {
     // Required for proper functioning
     stopOnMouseEnter: true // Pause on mouse hover
   }), []);
+  const whatsappUrl = `https://wa.me/6287788980084?text=${encodeURIComponent("Halo saya ingin daftar ke Rapatin")}`;
+
   return <section className="pt-28 pb-12 md:pt-32 md:pb-24 overflow-hidden bg-hero-pattern">
       <div className="container mx-auto px-4 md:px-6">
         <div className="grid md:grid-cols-2 gap-12 items-center">
@@ -31,7 +34,7 @@ const HeroSection: React.FC = () => {
             
             <div className="flex flex-col sm:flex-row gap-4 pt-4">
               <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-white rounded-lg h-12 px-8">
-                <a href="https://app.rapatin.id/dashboard/register" target="_blank" rel="noopener noreferrer">Mulai Menjadwalkan</a>
+                <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">Mulai Menjadwalkan</a>
               </Button>
               <Button asChild variant="outline" size="lg" className="rounded-lg h-12 px-8">
                 <a href="#pricing">Lihat Harga</a>
@@ -166,7 +169,7 @@ const HeroSection: React.FC = () => {
                   <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
                     <div className="flex items-center justify-center h-12 grayscale hover:grayscale-0 transition-all duration-300">
                       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 35" width="100" height="30" className="opacity-70 hover:opacity-100">
-                        <path d="M21.2 10c-4.2 0-7.6 3.4-7.6 7.6s3.4 7.6 7.6 7.6 7.6-3.4 7.6-7.6S25.4 10 21.2 10zm0 12.8c-2.9 0-5.2-2.3-5.2-5.2s2.3-5.2 5.2-5.2 5.2 2.3 5.2 5.2-2.3 5.2-5.2 5.2zM36.5 10.4h-3v14.3h10.1v-2.9h-7.1zM51.9 10.4l-6.6 14.3h3.2l1.3-2.8h6.2l1.3 2.8h3.2l-6.6-14.3zm-.4 8.6l1.9-4.1 1.9 4.1h-3.8zM66.3 10.4h-3v14.3h3v-5.7h6.3v-2.9h-6.3zM83.8 10.4h-11v2.9h4v11.4h3V13.3h4zM91.7 10.4h-3v14.3h10.1v-2.9h-7.1z" fill="#005BAA" />
+                        <path d="M21.2 10c-4.2 0-7.6 3.4-7.6 7.6s3.4 7.6 7.6 7.6 7.6-3.4 7.6-7.6-3.4 7.6-7.6-7.6zm0 12.8c-2.9 0-5.2-2.3-5.2-5.2s2.3-5.2 5.2-5.2 5.2 2.3 5.2 5.2-2.3 5.2-5.2 5.2zM36.5 10.4h-3v14.3h10.1v-2.9h-7.1zM51.9 10.4l-6.6 14.3h3.2l1.3-2.8h6.2l1.3 2.8h3.2l-6.6-14.3zm-.4 8.6l1.9-4.1 1.9 4.1h-3.8zM66.3 10.4h-3v14.3h3v-5.7h6.3v-2.9h-6.3zM83.8 10.4h-11v2.9h4v11.4h3V13.3h4zM91.7 10.4h-3v14.3h10.1v-2.9h-7.1z" fill="#005BAA" />
                       </svg>
                     </div>
                   </CarouselItem>

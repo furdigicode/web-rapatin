@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Check, Video, Mic, Users, Globe, Clock, Calendar, BarChart, MessageSquare, Share2, UserPlus, Zap, FileText, Languages, VideoIcon } from 'lucide-react';
@@ -32,6 +31,8 @@ const PricingSection: React.FC = () => {
     { participants: "1000 Peserta", price: "Rp 130.000" }
   ];
   
+  const whatsappUrl = `https://wa.me/6287788980084?text=${encodeURIComponent("Halo saya ingin daftar ke Rapatin")}`;
+
   const handleRegistration = () => {
     // Track registration click with Facebook Pixel
     if (typeof window.fbq === 'function') {
@@ -56,11 +57,9 @@ const PricingSection: React.FC = () => {
         
         <Card className="max-w-7xl mx-auto p-6 md:p-8 animate-fade-in shadow-elevation">
           <div className="grid md:grid-cols-2 gap-8">
-            {/* Left side - Illustration with feature icons */}
             <div className="bg-accent/20 rounded-xl p-6 relative">
               <div className="flex items-center justify-center h-full">
                 <div className="relative w-full max-w-md aspect-video bg-gradient-to-br from-primary/10 to-primary/5 rounded-xl border border-primary/20 p-6 shadow-md">
-                  {/* Meeting Room Illustration */}
                   <div className="absolute top-2 left-2 right-2 flex items-center justify-between bg-primary/10 rounded-t-lg p-2">
                     <div className="flex items-center gap-2">
                       <Video size={16} className="text-primary" />
@@ -73,7 +72,6 @@ const PricingSection: React.FC = () => {
                     </div>
                   </div>
                   
-                  {/* Feature Icons scattered in the "room" */}
                   <div className="grid grid-cols-3 gap-4 mt-12">
                     {features.slice(0, 9).map((feature, idx) => (
                       <div key={idx} className="flex items-center justify-center bg-white/80 rounded-full h-10 w-10 shadow-sm mx-auto">
@@ -94,7 +92,6 @@ const PricingSection: React.FC = () => {
               </div>
             </div>
             
-            {/* Right side - Pricing and features */}
             <div>
               <div className="mb-6">
                 <h3 className="text-2xl font-bold mb-4">
@@ -139,7 +136,7 @@ const PricingSection: React.FC = () => {
                     asChild
                     className="w-full rounded-lg bg-primary hover:bg-primary/90 text-white"
                   >
-                    <a href="https://app.rapatin.id/dashboard/register" onClick={handleRegistration} target="_blank" rel="noopener noreferrer">Jadwalkan Rapat Sekarang</a>
+                    <a href={whatsappUrl} onClick={handleRegistration} target="_blank" rel="noopener noreferrer">Jadwalkan Rapat Sekarang</a>
                   </Button>
                 </div>
               </div>

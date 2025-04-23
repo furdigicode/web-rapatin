@@ -8,6 +8,7 @@ const Navbar: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
   const isHomePage = location.pathname === '/';
+  const whatsappUrl = `https://wa.me/6287788980084?text=${encodeURIComponent("Halo saya ingin daftar ke Rapatin")}`;
 
   useEffect(() => {
     const handleScroll = () => {
@@ -94,7 +95,7 @@ const Navbar: React.FC = () => {
           
           <Button asChild size="sm" className="bg-primary text-white hover:bg-primary/90">
             <a 
-              href={`https://wa.me/087788980084?text=${encodeURIComponent("Halo saya ingin daftar ke Rapatin")}`} 
+              href={whatsappUrl}
               onClick={handleRegistration} 
               target="_blank" 
               rel="noopener noreferrer" 
@@ -192,7 +193,7 @@ const Navbar: React.FC = () => {
               </Button>
               <Button asChild size="sm" className="bg-primary text-white hover:bg-primary/90">
                 <a 
-                  href={`https://wa.me/087788980084?text=${encodeURIComponent("Halo saya ingin daftar ke Rapatin")}`} 
+                  href={whatsappUrl}
                   onClick={handleRegistration} 
                   target="_blank" 
                   rel="noopener noreferrer" 
