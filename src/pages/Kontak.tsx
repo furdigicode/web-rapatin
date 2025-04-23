@@ -13,9 +13,10 @@ const defaultContactData = {
   address: "Jl. Sudirman No. 123, Jakarta Selatan, 12190, Indonesia",
   livechat: "Dukungan langsung melalui livechat kami"
 };
-
 const Kontak = () => {
-  const { toast } = useToast();
+  const {
+    toast
+  } = useToast();
   const [contactData, setContactData] = useState(defaultContactData);
 
   // Load contact data from localStorage
@@ -25,16 +26,13 @@ const Kontak = () => {
       setContactData(JSON.parse(savedData));
     }
   }, []);
-
   const openLiveChat = () => {
     // Functionality to open CRISP chat
     if (window.$crisp) {
       window.$crisp.push(['do', 'chat:open']);
     }
   };
-
-  return (
-    <div className="min-h-screen">
+  return <div className="min-h-screen">
       <Navbar />
       
       <main className="pt-28 pb-20">
@@ -70,7 +68,7 @@ const Kontak = () => {
                     <MessageCircle size={22} />
                   </div>
                   <h3 className="text-lg font-semibold mb-2">Whatsapp</h3>
-                  <a href={`https://wa.me/${contactData.phone.replace(/\D/g,'')}`} className="text-primary font-medium">
+                  <a href={`https://wa.me/${contactData.phone.replace(/\D/g, '')}`} className="text-primary font-medium">
                     {contactData.phone}
                   </a>
                 </CardContent>
@@ -97,9 +95,7 @@ const Kontak = () => {
                   </div>
                   <h3 className="text-lg font-semibold mb-2">Live Chat</h3>
                   <p className="text-muted-foreground mb-3">{contactData.livechat}</p>
-                  <Button onClick={openLiveChat} className="w-full">
-                    Mulai Chat
-                  </Button>
+                  
                 </CardContent>
               </Card>
             </div>
@@ -108,8 +104,6 @@ const Kontak = () => {
       </main>
       
       <Footer />
-    </div>
-  );
+    </div>;
 };
-
 export default Kontak;
