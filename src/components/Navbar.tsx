@@ -8,7 +8,7 @@ const Navbar: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
   const isHomePage = location.pathname === '/';
-  const whatsappUrl = `https://wa.me/6287788980084?text=${encodeURIComponent("Halo saya ingin daftar ke Rapatin")}`;
+  const whatsappUrl = `https://wa.me/+6287788980084?text=${encodeURIComponent("Halo saya ingin daftar ke Rapatin")}`;
 
   useEffect(() => {
     const handleScroll = () => {
@@ -58,7 +58,6 @@ const Navbar: React.FC = () => {
           <Link to="/" className="text-sm font-medium hover:text-primary transition-colors flex items-center">
             Home
           </Link>
-          
           {isHomePage ? (
             <>
               <a href="#features" className="text-sm font-medium hover:text-primary transition-colors">Fitur</a>
@@ -92,7 +91,6 @@ const Navbar: React.FC = () => {
               </Link>
             </>
           )}
-          
           <Button asChild size="sm" className="bg-primary text-white hover:bg-primary/90">
             <a 
               href={whatsappUrl}
@@ -105,7 +103,6 @@ const Navbar: React.FC = () => {
             </a>
           </Button>
         </nav>
-        
         <button 
           className="md:hidden text-foreground cursor-pointer"
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -124,7 +121,6 @@ const Navbar: React.FC = () => {
             >
               Home
             </Link>
-            
             {isHomePage ? (
               <>
                 <button 
@@ -186,7 +182,6 @@ const Navbar: React.FC = () => {
                 </Link>
               </>
             )}
-            
             <div className="flex flex-col space-y-3 pt-2">
               <Button asChild variant="outline" size="sm">
                 <a href="https://app.rapatin.id/dashboard/login" className="cursor-pointer">Masuk</a>
