@@ -5,16 +5,19 @@ import { Card } from "@/components/ui/card";
 
 const PricingSection: React.FC = () => {
   const features = [
+    // Core features
     { name: "Rekaman Cloud (akses 72 jam)", icon: <VideoIcon size={18} /> },
     { name: "Durasi rapat tak terbatas", icon: <Clock size={18} /> },
     { name: "Akses seharian (00.00 - 23.59)", icon: <Calendar size={18} /> },
     { name: "Berbagi layar", icon: <Share2 size={18} /> },
     
+    // Communication features
     { name: "Interpretasi Bahasa", icon: <Languages size={18} /> },
     { name: "Smart Recording", icon: <Zap size={18} /> },
     { name: "Ringkasan Rapat", icon: <FileText size={18} /> },
     { name: "AI Companion", icon: <MessageSquare size={18} /> },
     
+    // Engagement features
     { name: "Polling, Tanya Jawab, Survei", icon: <BarChart size={18} /> },
     { name: "Sistem pendaftaran", icon: <UserPlus size={18} /> },
     { name: "Live streaming ke YouTube", icon: <Video size={18} /> },
@@ -28,9 +31,10 @@ const PricingSection: React.FC = () => {
     { participants: "1000 Peserta", price: "Rp 130.000" }
   ];
   
-  const whatsappUrl = `https://wa.me/+6287788980084?text=${encodeURIComponent("Halo saya ingin daftar ke Rapatin")}`;
+  const whatsappUrl = `https://wa.me/6287788980084?text=${encodeURIComponent("Halo saya ingin daftar ke Rapatin")}`;
 
   const handleRegistration = () => {
+    // Track registration click with Facebook Pixel
     if (typeof window.fbq === 'function') {
       window.fbq('track', 'CompleteRegistration');
     }

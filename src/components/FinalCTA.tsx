@@ -1,9 +1,10 @@
+
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from 'lucide-react';
 
 const FinalCTA: React.FC = () => {
-  const whatsappUrl = `https://wa.me/+6287788980084?text=${encodeURIComponent("Halo saya ingin daftar ke Rapatin")}`;
+  const whatsappUrl = `https://wa.me/6287788980084?text=${encodeURIComponent("Halo saya ingin daftar ke Rapatin")}`;
   const handleRegistration = () => {
     // Track registration click with Facebook Pixel
     if (typeof window.fbq === 'function') {
