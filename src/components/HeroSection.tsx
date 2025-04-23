@@ -53,7 +53,7 @@ const HeroSection: React.FC = () => {
             <span>Durasi Tidak Terbatas</span>
           </div>
         </div>
-        <div className="max-w-full mt-8 animate-slide-in-right">
+        <div className="max-w-full mt-8 mb-10 animate-slide-in-right">
           <img 
             src={IllustSrc} 
             alt="Ilustrasi Rapatin" 
