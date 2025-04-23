@@ -22,7 +22,12 @@ const FinalCTA: React.FC = () => {
                 Bergabunglah dengan ribuan pengguna yang sudah menikmati fleksibilitas platform rapat bayar-sesuai-penggunaan kami.
               </p>
               <Button asChild size="lg" className="rounded-lg bg-primary hover:bg-primary/90 text-white">
-                <a href="https://app.rapatin.id/dashboard/register" onClick={handleRegistration} target="_blank" rel="noopener noreferrer">
+                <a 
+                  href={`https://wa.me/087788980084?text=${encodeURIComponent("Halo saya ingin daftar ke Rapatin")}`} 
+                  onClick={handleRegistration} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                >
                   Daftar & Mulai Menjadwalkan
                   <ArrowRight size={16} className="ml-2" />
                 </a>

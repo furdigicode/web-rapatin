@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Menu, X, Home, HelpCircle } from 'lucide-react';
@@ -32,7 +31,6 @@ const Navbar: React.FC = () => {
   };
 
   const handleRegistration = () => {
-    // Track registration click with Facebook Pixel
     if (typeof window.fbq === 'function') {
       window.fbq('track', 'CompleteRegistration');
     }
@@ -55,14 +53,12 @@ const Navbar: React.FC = () => {
           </a>
         </div>
 
-        {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center space-x-8">
           <Link to="/" className="text-sm font-medium hover:text-primary transition-colors flex items-center">
             Home
           </Link>
           
           {isHomePage ? (
-            // Navigation links for Home page with scroll functionality
             <>
               <a href="#features" className="text-sm font-medium hover:text-primary transition-colors">Fitur</a>
               <button 
@@ -80,7 +76,6 @@ const Navbar: React.FC = () => {
               </button>
             </>
           ) : (
-            // Navigation links for other pages
             <>
               <Link to="/#features" className="text-sm font-medium hover:text-primary transition-colors">
                 Fitur
@@ -98,11 +93,18 @@ const Navbar: React.FC = () => {
           )}
           
           <Button asChild size="sm" className="bg-primary text-white hover:bg-primary/90">
-            <a href="https://app.rapatin.id/dashboard/register" onClick={handleRegistration} className="cursor-pointer">Daftar/Login</a>
+            <a 
+              href={`https://wa.me/087788980084?text=${encodeURIComponent("Halo saya ingin daftar ke Rapatin")}`} 
+              onClick={handleRegistration} 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="cursor-pointer"
+            >
+              Daftar
+            </a>
           </Button>
         </nav>
         
-        {/* Mobile Menu Button */}
         <button 
           className="md:hidden text-foreground cursor-pointer"
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -111,7 +113,6 @@ const Navbar: React.FC = () => {
         </button>
       </div>
 
-      {/* Mobile Menu */}
       {isMobileMenuOpen && (
         <div className="md:hidden glass animate-fade-in">
           <div className="py-4 px-6 space-y-4">
@@ -124,7 +125,6 @@ const Navbar: React.FC = () => {
             </Link>
             
             {isHomePage ? (
-              // Mobile menu items for home page
               <>
                 <button 
                   onClick={() => scrollToSection('cara-kerja')} 
@@ -154,7 +154,6 @@ const Navbar: React.FC = () => {
                 </a>
               </>
             ) : (
-              // Mobile menu items for other pages
               <>
                 <Link 
                   to="/#features" 
@@ -192,7 +191,15 @@ const Navbar: React.FC = () => {
                 <a href="https://app.rapatin.id/dashboard/login" className="cursor-pointer">Masuk</a>
               </Button>
               <Button asChild size="sm" className="bg-primary text-white hover:bg-primary/90">
-                <a href="https://app.rapatin.id/dashboard/register" onClick={handleRegistration} className="cursor-pointer">Daftar</a>
+                <a 
+                  href={`https://wa.me/087788980084?text=${encodeURIComponent("Halo saya ingin daftar ke Rapatin")}`} 
+                  onClick={handleRegistration} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="cursor-pointer"
+                >
+                  Daftar
+                </a>
               </Button>
             </div>
           </div>

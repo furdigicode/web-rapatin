@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { DollarSign, Shield, BarChart as ChartBar, Users, Headphones, ArrowRight, CheckCircle2, Calendar, Video, Calculator, CreditCard, TrendingUp, Wallet, CreditCard as CardIcon, Link, Share2 } from 'lucide-react';
@@ -8,7 +7,6 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
 const MenjadiReseller = () => {
-  // Track registration click with Facebook Pixel
   const handleRegistration = () => {
     if (typeof window.fbq === 'function') {
       window.fbq('track', 'Lead', {
@@ -118,8 +116,13 @@ const MenjadiReseller = () => {
                 Jual kembali akses rapat online Pay-As-You-Go untuk Zoom harian dengan harga yang Anda tentukan sendiri — tanpa biaya bulanan atau langganan.
               </p>
               <Button asChild size="lg" className="rounded-lg bg-primary hover:bg-primary/90 text-white">
-                <a href="https://app.rapatin.id/dashboard/register" onClick={handleRegistration} target="_blank" rel="noopener noreferrer">
-                  Gabung Reseller
+                <a 
+                  href={`https://wa.me/087788980084?text=${encodeURIComponent("Halo saya ingin daftar ke Rapatin")}`} 
+                  onClick={handleRegistration} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                >
+                  Gabung Reseller & Mulai Menghasilkan
                   <ArrowRight size={16} className="ml-2" />
                 </a>
               </Button>
@@ -364,7 +367,12 @@ const MenjadiReseller = () => {
             
             <div className="text-center">
               <Button asChild size="lg" className="rounded-lg bg-primary hover:bg-primary/90 text-white">
-                <a href="https://app.rapatin.id/dashboard/register" onClick={handleRegistration} target="_blank" rel="noopener noreferrer">
+                <a 
+                  href={`https://wa.me/087788980084?text=${encodeURIComponent("Halo saya ingin daftar ke Rapatin")}`} 
+                  onClick={handleRegistration} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                >
                   Gabung Reseller & Mulai Menghasilkan
                   <ArrowRight size={16} className="ml-2" />
                 </a>
@@ -400,7 +408,12 @@ const MenjadiReseller = () => {
 
             <div className="mt-12 text-center">
               <Button asChild size="lg" className="rounded-lg bg-primary hover:bg-primary/90 text-white">
-                <a href="https://app.rapatin.id/dashboard/register" onClick={handleRegistration} target="_blank" rel="noopener noreferrer">
+                <a 
+                  href={`https://wa.me/087788980084?text=${encodeURIComponent("Halo saya ingin daftar ke Rapatin")}`} 
+                  onClick={handleRegistration} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                >
                   Mulai Perjalanan Reseller Anda
                   <ArrowRight size={16} className="ml-2" />
                 </a>
@@ -447,7 +460,12 @@ const MenjadiReseller = () => {
                   Bergabunglah dengan jaringan reseller sukses kami dan mulai tawarkan solusi rapat fleksibel kepada pelanggan Anda dengan harga yang Anda tentukan sendiri.
                 </p>
                 <Button asChild size="lg" className="rounded-lg bg-primary hover:bg-primary/90 text-white">
-                  <a href="https://app.rapatin.id/dashboard/register" onClick={handleRegistration} target="_blank" rel="noopener noreferrer">
+                  <a 
+                    href={`https://wa.me/087788980084?text=${encodeURIComponent("Halo saya ingin daftar ke Rapatin")}`} 
+                    onClick={handleRegistration} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                  >
                     Daftar sebagai Reseller
                     <ArrowRight size={16} className="ml-2" />
                   </a>
