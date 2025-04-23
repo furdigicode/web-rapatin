@@ -42,7 +42,7 @@ const HeroSection: React.FC = () => {
           </div>
           <div className="flex items-center gap-2 text-sm justify-center">
             <Video size={18} className="text-primary" />
-            <span>Fitur Zoom Business</span>
+            <span>Kualitas Video Full HD</span>
           </div>
           <div className="flex items-center gap-2 text-sm justify-center">
             <Calendar size={18} className="text-primary" />
