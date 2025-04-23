@@ -10,8 +10,8 @@ import { useToast } from '@/hooks/use-toast';
 const defaultContactData = {
   email: "halo@rapatin.id",
   phone: "+62 877 8898 0084",
-  address: "Jl. Sudirman No. 123, Jakarta Selatan, 12190, Indonesia",
-  livechat: "Dukungan langsung melalui livechat kami"
+  address: "Desa Tempel, Jatisari, Mijen, Kota Semarang",
+  livechat: "Dukungan langsung melalui livechat kami di dalam aplikasi"
 };
 const Kontak = () => {
   const {
