@@ -93,6 +93,13 @@ const Navbar: React.FC = () => {
             </>
           )}
           
+          <a 
+            href="https://app.rapatin.id/dashboard/login" 
+            className="text-sm font-medium hover:text-primary transition-colors"
+          >
+            Login
+          </a>
+
           <Button asChild size="sm" className="bg-primary text-white hover:bg-primary/90">
             <a href="https://app.rapatin.id/dashboard/register" onClick={handleRegistration} className="cursor-pointer">Daftar</a>
           </Button>
