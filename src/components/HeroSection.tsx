@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Calendar, Clock, DollarSign, Video, BadgeDollarSign } from 'lucide-react';
@@ -13,6 +14,13 @@ const HeroSection: React.FC = () => {
     rootNode: emblaRoot => emblaRoot.parentElement,
     stopOnMouseEnter: true
   }), []);
+
+  const handleRegistration = () => {
+    // Track registration click with Facebook Pixel
+    if (typeof window.fbq === 'function') {
+      window.fbq('track', 'CompleteRegistration');
+    }
+  };
 
   return (
     <section className="pt-28 pb-12 md:pt-32 md:pb-24 overflow-hidden bg-hero-pattern flex flex-col items-center">
