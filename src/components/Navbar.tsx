@@ -94,15 +94,7 @@ const Navbar: React.FC = () => {
           )}
           
           <Button asChild size="sm" className="bg-primary text-white hover:bg-primary/90">
-            <a 
-              href={whatsappUrl}
-              onClick={handleRegistration} 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              className="cursor-pointer"
-            >
-              Daftar
-            </a>
+            <a href="https://app.rapatin.id/dashboard/register" onClick={handleRegistration} className="cursor-pointer">Daftar</a>
           </Button>
         </nav>
         
