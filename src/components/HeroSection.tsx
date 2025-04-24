@@ -13,7 +13,6 @@ const HeroSection: React.FC = () => {
     rootNode: emblaRoot => emblaRoot.parentElement,
     stopOnMouseEnter: true
   }), []);
-  const whatsappUrl = `https://wa.me/6287788980084?text=${encodeURIComponent("Halo saya ingin daftar ke Rapatin")}`;
 
   return (
     <section className="pt-28 pb-12 md:pt-32 md:pb-24 overflow-hidden bg-hero-pattern flex flex-col items-center">
@@ -29,7 +28,7 @@ const HeroSection: React.FC = () => {
         </p>
         <div className="flex flex-col sm:flex-row gap-4 pt-2 mb-8 justify-center animate-fade-in">
           <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-white rounded-lg h-12 px-8">
-            <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">Mulai Menjadwalkan</a>
+            <a href="https://app.rapatin.id/dashboard/register" onClick={handleRegistration} className="cursor-pointer">Mulai Menjadwalkan</a>
           </Button>
           <Button asChild variant="outline" size="lg" className="rounded-lg h-12 px-8">
             <a href="#pricing">Lihat Harga</a>

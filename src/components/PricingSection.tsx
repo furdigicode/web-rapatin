@@ -30,8 +30,6 @@ const PricingSection: React.FC = () => {
     { participants: "500 Peserta", price: "Rp 70.000" },
     { participants: "1000 Peserta", price: "Rp 130.000" }
   ];
-  
-  const whatsappUrl = `https://wa.me/6287788980084?text=${encodeURIComponent("Halo saya ingin daftar ke Rapatin")}`;
 
   const handleRegistration = () => {
     // Track registration click with Facebook Pixel
@@ -136,7 +134,7 @@ const PricingSection: React.FC = () => {
                     asChild
                     className="w-full rounded-lg bg-primary hover:bg-primary/90 text-white"
                   >
-                    <a href={whatsappUrl} onClick={handleRegistration} target="_blank" rel="noopener noreferrer">Jadwalkan Rapat Sekarang</a>
+                    <a href="https://app.rapatin.id/dashboard/register" onClick={handleRegistration} className="cursor-pointer">Daftar Sekarang</a>
                   </Button>
                 </div>
               </div>
