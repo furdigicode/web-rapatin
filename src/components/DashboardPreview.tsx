@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Calendar, CheckCircle, Clock, BarChart, FileText, Users, Video, Play, Download, List, Search, Share, Eye } from 'lucide-react';
 import { Button } from "@/components/ui/button";
@@ -5,6 +6,13 @@ import { useIsMobile } from "@/hooks/use-mobile";
 
 const DashboardPreview: React.FC = () => {
   const isMobile = useIsMobile();
+  
+  const handleRegistration = () => {
+    // Track registration click with Facebook Pixel
+    if (typeof window.fbq === 'function') {
+      window.fbq('track', 'CompleteRegistration');
+    }
+  };
   
   return (
     <section id="dashboard" className="py-20 bg-accent/20 w-full">
