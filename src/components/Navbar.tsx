@@ -92,9 +92,7 @@ const Navbar: React.FC = () => {
               </Link>
             </>
           )}
-          <Button asChild variant="outline" size="sm">
-            <a href="https://app.rapatin.id/dashboard/login" className="cursor-pointer">Masuk</a>
-          </Button>
+          
           <Button asChild size="sm" className="bg-primary text-white hover:bg-primary/90">
             <a href="https://app.rapatin.id/dashboard/register" onClick={handleRegistration} className="cursor-pointer">Daftar</a>
           </Button>
