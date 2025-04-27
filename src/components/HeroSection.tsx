@@ -68,45 +68,45 @@ const HeroSection: React.FC = () => {
             loading="lazy"
           />
         </div>
-      <div className="mt-6 md:mt-6 w-full">
-        <div className="text-center mb-8 animate-fade-in">
-          <p className="text-sm text-muted-foreground font-medium uppercase tracking-wider">DIPERCAYA OLEH 120+ BRAND</p>
-        </div>
-        <Carousel opts={{
-          align: "start",
-          loop: true,
-          dragFree: true,
-          containScroll: false
-        }} plugins={[autoplayPlugin]} className="w-full">
-          <CarouselContent className="py-4">
-            {[...Array(2)].map((_, copy) => <React.Fragment key={`copy-${copy}`}>
-              <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
-                <div className="flex items-center justify-center h-12 grayscale hover:grayscale-0 transition-all duration-300">
-                  <img
-                    src="/lovable-uploads/e690e2b8-f08c-4ae8-b42e-6754404ab3c1.png"
-                    alt="Halodoc"
-                    className="h-8 object-contain opacity-70 hover:opacity-100"
-                  />
-                </div>
-              </CarouselItem>
-              <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
-                <div className="flex items-center justify-center h-12 grayscale hover:grayscale-0 transition-all duration-300">
-                  <img
-                    src="/lovable-uploads/6727be9b-ee09-4c6d-adfe-11182325799c.png"
-                    alt="Papaya"
-                    className="h-8 object-contain opacity-70 hover:opacity-100"
-                  />
-                </div>
-              </CarouselItem>
-              <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
-                <div className="flex items-center justify-center h-12 grayscale hover:grayscale-0 transition-all duration-300">
-                  <img
-                    src="/lovable-uploads/60fca5a0-b0eb-4219-b6e6-a27578d426b8.png"
-                    alt="Gontor"
-                    className="h-8 object-contain opacity-70 hover:opacity-100"
-                  />
-                </div>
-              </CarouselItem>
+        <div className="mt-6 md:mt-6 w-full">
+          <div className="text-center mb-8 animate-fade-in">
+            <p className="text-sm text-muted-foreground font-medium uppercase tracking-wider">DIPERCAYA OLEH 120+ BRAND</p>
+          </div>
+          <Carousel opts={{
+            align: "start",
+            loop: true,
+            dragFree: true,
+            containScroll: false
+          }} plugins={[autoplayPlugin]} className="w-full">
+            <CarouselContent className="py-4">
+              {[...Array(2)].map((_, copy) => <React.Fragment key={`copy-${copy}`}>
+                <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
+                  <div className="flex items-center justify-center h-12 grayscale hover:grayscale-0 transition-all duration-300">
+                    <img
+                      src="/lovable-uploads/e690e2b8-f08c-4ae8-b42e-6754404ab3c1.png"
+                      alt="Halodoc"
+                      className="h-8 object-contain opacity-70 hover:opacity-100"
+                    />
+                  </div>
+                </CarouselItem>
+                <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
+                  <div className="flex items-center justify-center h-12 grayscale hover:grayscale-0 transition-all duration-300">
+                    <img
+                      src="/lovable-uploads/6727be9b-ee09-4c6d-adfe-11182325799c.png"
+                      alt="Papaya"
+                      className="h-8 object-contain opacity-70 hover:opacity-100"
+                    />
+                  </div>
+                </CarouselItem>
+                <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
+                  <div className="flex items-center justify-center h-12 grayscale hover:grayscale-0 transition-all duration-300">
+                    <img
+                      src="/lovable-uploads/60fca5a0-b0eb-4219-b6e6-a27578d426b8.png"
+                      alt="Gontor"
+                      className="h-8 object-contain opacity-70 hover:opacity-100"
+                    />
+                  </div>
+                </CarouselItem>
                 <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
                   <div className="flex items-center justify-center h-12 grayscale hover:grayscale-0 transition-all duration-300">
                     <img
@@ -125,85 +125,82 @@ const HeroSection: React.FC = () => {
                     />
                   </div>
                 </CarouselItem>
-              
-              {/* New Logos */}
-              <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
-                <div className="flex items-center justify-center h-12 grayscale hover:grayscale-0 transition-all duration-300">
-                  <img
-                    src="/lovable-uploads/f9a7c9c6-2b29-44ca-9305-91b3ffc15bc1.png"
-                    alt="Logo 1"
-                    className="h-8 object-contain opacity-70 hover:opacity-100"
-                  />
-                </div>
-              </CarouselItem>
-              <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
-                <div className="flex items-center justify-center h-12 grayscale hover:grayscale-0 transition-all duration-300">
-                  <img
-                    src="/lovable-uploads/f303edd0-4209-4221-bab6-368e05a456be.png"
-                    alt="Logo 2"
-                    className="h-8 object-contain opacity-70 hover:opacity-100"
-                  />
-                </div>
-              </CarouselItem>
-              <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
-                <div className="flex items-center justify-center h-12 grayscale hover:grayscale-0 transition-all duration-300">
-                  <img
-                    src="/lovable-uploads/0eab88ce-60bf-4459-a3f5-f8e25d3f92e7.png"
-                    alt="Logo 3"
-                    className="h-8 object-contain opacity-70 hover:opacity-100"
-                  />
-                </div>
-              </CarouselItem>
-              <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
-                <div className="flex items-center justify-center h-12 grayscale hover:grayscale-0 transition-all duration-300">
-                  <img
-                    src="/lovable-uploads/ef84200c-2c0a-465c-ac8c-d97dcccd228e.png"
-                    alt="Logo 4"
-                    className="h-8 object-contain opacity-70 hover:opacity-100"
-                  />
-                </div>
-              </CarouselItem>
-              
-              {/* Additional Logos */}
-              <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
-                <div className="flex items-center justify-center h-12 grayscale hover:grayscale-0 transition-all duration-300">
-                  <img
-                    src="/lovable-uploads/logo1.png"
-                    alt="ISO Jepang"
-                    className="h-8 object-contain opacity-70 hover:opacity-100"
-                  />
-                </div>
-              </CarouselItem>
-              <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
-                <div className="flex items-center justify-center h-12 grayscale hover:grayscale-0 transition-all duration-300">
-                  <img
-                    src="/lovable-uploads/logo2.png"
-                    alt="Furqan Digital"
-                    className="h-8 object-contain opacity-70 hover:opacity-100"
-                  />
-                </div>
-              </CarouselItem>
-              <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
-                <div className="flex items-center justify-center h-12 grayscale hover:grayscale-0 transition-all duration-300">
-                  <img
-                    src="/lovable-uploads/logo3.png"
-                    alt="TestiBox"
-                    className="h-8 object-contain opacity-70 hover:opacity-100"
-                  />
-                </div>
-              </CarouselItem>
-              <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
-                <div className="flex items-center justify-center h-12 grayscale hover:grayscale-0 transition-all duration-300">
-                  <img
-                    src="/lovable-uploads/logo4.png"
-                    alt="SiaPintar"
-                    className="h-8 object-contain opacity-70 hover:opacity-100"
-                  />
-                </div>
-              </CarouselItem>
-            </React.Fragment>)}
-          </CarouselContent>
-        </Carousel>
+                <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
+                  <div className="flex items-center justify-center h-12 grayscale hover:grayscale-0 transition-all duration-300">
+                    <img
+                      src="/lovable-uploads/f9a7c9c6-2b29-44ca-9305-91b3ffc15bc1.png"
+                      alt="Logo 1"
+                      className="h-8 object-contain opacity-70 hover:opacity-100"
+                    />
+                  </div>
+                </CarouselItem>
+                <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
+                  <div className="flex items-center justify-center h-12 grayscale hover:grayscale-0 transition-all duration-300">
+                    <img
+                      src="/lovable-uploads/f303edd0-4209-4221-bab6-368e05a456be.png"
+                      alt="Logo 2"
+                      className="h-8 object-contain opacity-70 hover:opacity-100"
+                    />
+                  </div>
+                </CarouselItem>
+                <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
+                  <div className="flex items-center justify-center h-12 grayscale hover:grayscale-0 transition-all duration-300">
+                    <img
+                      src="/lovable-uploads/0eab88ce-60bf-4459-a3f5-f8e25d3f92e7.png"
+                      alt="Logo 3"
+                      className="h-8 object-contain opacity-70 hover:opacity-100"
+                    />
+                  </div>
+                </CarouselItem>
+                <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
+                  <div className="flex items-center justify-center h-12 grayscale hover:grayscale-0 transition-all duration-300">
+                    <img
+                      src="/lovable-uploads/ef84200c-2c0a-465c-ac8c-d97dcccd228e.png"
+                      alt="Logo 4"
+                      className="h-8 object-contain opacity-70 hover:opacity-100"
+                    />
+                  </div>
+                </CarouselItem>
+                <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
+                  <div className="flex items-center justify-center h-12 grayscale hover:grayscale-0 transition-all duration-300">
+                    <img
+                      src="/lovable-uploads/logo1.png"
+                      alt="ISO Jepang"
+                      className="h-8 object-contain opacity-70 hover:opacity-100"
+                    />
+                  </div>
+                </CarouselItem>
+                <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
+                  <div className="flex items-center justify-center h-12 grayscale hover:grayscale-0 transition-all duration-300">
+                    <img
+                      src="/lovable-uploads/logo2.png"
+                      alt="Furqan Digital"
+                      className="h-8 object-contain opacity-70 hover:opacity-100"
+                    />
+                  </div>
+                </CarouselItem>
+                <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
+                  <div className="flex items-center justify-center h-12 grayscale hover:grayscale-0 transition-all duration-300">
+                    <img
+                      src="/lovable-uploads/logo3.png"
+                      alt="TestiBox"
+                      className="h-8 object-contain opacity-70 hover:opacity-100"
+                    />
+                  </div>
+                </CarouselItem>
+                <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
+                  <div className="flex items-center justify-center h-12 grayscale hover:grayscale-0 transition-all duration-300">
+                    <img
+                      src="/lovable-uploads/logo4.png"
+                      alt="SiaPintar"
+                      className="h-8 object-contain opacity-70 hover:opacity-100"
+                    />
+                  </div>
+                </CarouselItem>
+              </React.Fragment>)}
+            </CarouselContent>
+          </Carousel>
+        </div>
       </div>
     </section>
   );
