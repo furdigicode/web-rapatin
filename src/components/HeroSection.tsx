@@ -80,6 +80,33 @@ const HeroSection: React.FC = () => {
           }} plugins={[autoplayPlugin]} className="w-full">
             <CarouselContent className="py-4">
               {[...Array(2)].map((_, copy) => <React.Fragment key={`copy-${copy}`}>
+              <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
+                <div className="flex items-center justify-center h-12 grayscale hover:grayscale-0 transition-all duration-300">
+                  <img
+                    src="/lovable-uploads/e690e2b8-f08c-4ae8-b42e-6754404ab3c1.png"
+                    alt="Halodoc"
+                    className="h-8 object-contain opacity-70 hover:opacity-100"
+                  />
+                </div>
+              </CarouselItem>
+              <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
+                <div className="flex items-center justify-center h-12 grayscale hover:grayscale-0 transition-all duration-300">
+                  <img
+                    src="/lovable-uploads/6727be9b-ee09-4c6d-adfe-11182325799c.png"
+                    alt="Papaya"
+                    className="h-8 object-contain opacity-70 hover:opacity-100"
+                  />
+                </div>
+              </CarouselItem>
+              <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
+                <div className="flex items-center justify-center h-12 grayscale hover:grayscale-0 transition-all duration-300">
+                  <img
+                    src="/lovable-uploads/60fca5a0-b0eb-4219-b6e6-a27578d426b8.png"
+                    alt="Gontor"
+                    className="h-8 object-contain opacity-70 hover:opacity-100"
+                  />
+                </div>
+              </CarouselItem>
                 <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
                   <div className="flex items-center justify-center h-12 grayscale hover:grayscale-0 transition-all duration-300">
                     <img
