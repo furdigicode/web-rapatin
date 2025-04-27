@@ -8,7 +8,7 @@ const IllustSrc = "/lovable-uploads/e7e34560-7715-4bb4-9fa9-26f74f4090b8.png";
 
 const HeroSection: React.FC = () => {
   const autoplayPlugin = React.useMemo(() => Autoplay({
-    delay: 5000,
+    delay: 2500,
     stopOnInteraction: false,
     rootNode: emblaRoot => emblaRoot.parentElement,
     stopOnMouseEnter: true
@@ -94,15 +94,6 @@ const HeroSection: React.FC = () => {
                     <img
                       src="/lovable-uploads/6727be9b-ee09-4c6d-adfe-11182325799c.png"
                       alt="Papaya"
-                      className="h-8 object-contain opacity-70 hover:opacity-100"
-                    />
-                  </div>
-                </CarouselItem>
-                <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
-                  <div className="flex items-center justify-center h-12 grayscale hover:grayscale-0 transition-all duration-300">
-                    <img
-                      src="/lovable-uploads/60fca5a0-b0eb-4219-b6e6-a27578d426b8.png"
-                      alt="Gontor"
                       className="h-8 object-contain opacity-70 hover:opacity-100"
                     />
                   </div>
