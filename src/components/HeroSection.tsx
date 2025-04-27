@@ -8,7 +8,7 @@ const IllustSrc = "/lovable-uploads/e7e34560-7715-4bb4-9fa9-26f74f4090b8.png";
 
 const HeroSection: React.FC = () => {
   const autoplayPlugin = React.useMemo(() => Autoplay({
-    delay: 5000,
+    delay: 2500,
     stopOnInteraction: false,
     rootNode: emblaRoot => emblaRoot.parentElement,
     stopOnMouseEnter: true
@@ -101,15 +101,6 @@ const HeroSection: React.FC = () => {
                 <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
                   <div className="flex items-center justify-center h-12 grayscale hover:grayscale-0 transition-all duration-300">
                     <img
-                      src="/lovable-uploads/60fca5a0-b0eb-4219-b6e6-a27578d426b8.png"
-                      alt="Gontor"
-                      className="h-8 object-contain opacity-70 hover:opacity-100"
-                    />
-                  </div>
-                </CarouselItem>
-                <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
-                  <div className="flex items-center justify-center h-12 grayscale hover:grayscale-0 transition-all duration-300">
-                    <img
                       src="/lovable-uploads/f9d05e48-8991-48c0-a45c-a0d34484ac7b.png"
                       alt="FHP Law School"
                       className="h-8 object-contain opacity-70 hover:opacity-100"
@@ -121,42 +112,6 @@ const HeroSection: React.FC = () => {
                     <img
                       src="/lovable-uploads/23a924a5-b5a4-4809-83db-42ea8ae871b7.png"
                       alt="JMKP"
-                      className="h-8 object-contain opacity-70 hover:opacity-100"
-                    />
-                  </div>
-                </CarouselItem>
-                <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
-                  <div className="flex items-center justify-center h-12 grayscale hover:grayscale-0 transition-all duration-300">
-                    <img
-                      src="/lovable-uploads/f9a7c9c6-2b29-44ca-9305-91b3ffc15bc1.png"
-                      alt="Logo 1"
-                      className="h-8 object-contain opacity-70 hover:opacity-100"
-                    />
-                  </div>
-                </CarouselItem>
-                <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
-                  <div className="flex items-center justify-center h-12 grayscale hover:grayscale-0 transition-all duration-300">
-                    <img
-                      src="/lovable-uploads/f303edd0-4209-4221-bab6-368e05a456be.png"
-                      alt="Logo 2"
-                      className="h-8 object-contain opacity-70 hover:opacity-100"
-                    />
-                  </div>
-                </CarouselItem>
-                <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
-                  <div className="flex items-center justify-center h-12 grayscale hover:grayscale-0 transition-all duration-300">
-                    <img
-                      src="/lovable-uploads/0eab88ce-60bf-4459-a3f5-f8e25d3f92e7.png"
-                      alt="Logo 3"
-                      className="h-8 object-contain opacity-70 hover:opacity-100"
-                    />
-                  </div>
-                </CarouselItem>
-                <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
-                  <div className="flex items-center justify-center h-12 grayscale hover:grayscale-0 transition-all duration-300">
-                    <img
-                      src="/lovable-uploads/ef84200c-2c0a-465c-ac8c-d97dcccd228e.png"
-                      alt="Logo 4"
                       className="h-8 object-contain opacity-70 hover:opacity-100"
                     />
                   </div>
