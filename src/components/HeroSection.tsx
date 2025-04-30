@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Calendar, Clock, DollarSign, Video, BadgeDollarSign } from 'lucide-react';
@@ -5,6 +6,8 @@ import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carouse
 import Autoplay from "embla-carousel-autoplay";
 
 const IllustSrc = "/lovable-uploads/e7e34560-7715-4bb4-9fa9-26f74f4090b8.png";
+const FithubLogoSrc = "https://fithub.id/images/illustration-fithub-logo.svg";
+const STTNFLogoSrc = "/lovable-uploads/b70888a6-9acc-48cc-96b4-9005ecadc630.png";
 
 const HeroSection: React.FC = () => {
   const autoplayPlugin = React.useMemo(() => Autoplay({
@@ -119,9 +122,18 @@ const HeroSection: React.FC = () => {
                 <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
                   <div className="flex items-center justify-center h-12 grayscale hover:grayscale-0 transition-all duration-300">
                     <img
-                      src="/lovable-uploads/f9a7c9c6-2b29-44ca-9305-91b3ffc15bc1.png"
-                      alt="Logo 1"
+                      src={FithubLogoSrc}
+                      alt="Fithub"
                       className="h-8 object-contain opacity-70 hover:opacity-100"
+                    />
+                  </div>
+                </CarouselItem>
+                <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
+                  <div className="flex items-center justify-center h-14 grayscale hover:grayscale-0 transition-all duration-300">
+                    <img
+                      src={STTNFLogoSrc}
+                      alt="STT Nurul Fikri"
+                      className="h-10 object-contain opacity-70 hover:opacity-100"
                     />
                   </div>
                 </CarouselItem>
@@ -143,15 +155,6 @@ const HeroSection: React.FC = () => {
                     />
                   </div>
                 </CarouselItem>
-                <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
-                  <div className="flex items-center justify-center h-12 grayscale hover:grayscale-0 transition-all duration-300">
-                    <img
-                      src="/lovable-uploads/ef84200c-2c0a-465c-ac8c-d97dcccd228e.png"
-                      alt="Logo 4"
-                      className="h-8 object-contain opacity-70 hover:opacity-100"
-                    />
-                  </div>
-                </CarouselItem>
               </React.Fragment>)}
             </CarouselContent>
           </Carousel>
@@ -162,3 +165,4 @@ const HeroSection: React.FC = () => {
 };
 
 export default HeroSection;
+
