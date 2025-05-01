@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Menu, X, Home, HelpCircle } from 'lucide-react';
@@ -28,12 +29,6 @@ const Navbar: React.FC = () => {
     if (section) {
       section.scrollIntoView({ behavior: 'smooth' });
       setIsMobileMenuOpen(false);
-    }
-  };
-
-  const handleRegistration = () => {
-    if (typeof window.fbq === 'function') {
-      window.fbq('track', 'CompleteRegistration');
     }
   };
 
@@ -101,7 +96,7 @@ const Navbar: React.FC = () => {
           </a>
 
           <Button asChild size="sm" className="bg-primary text-white hover:bg-primary/90">
-            <a href="https://app.rapatin.id/dashboard/register" onClick={handleRegistration} className="cursor-pointer">Daftar</a>
+            <a href="https://app.rapatin.id/dashboard/register" className="cursor-pointer">Daftar</a>
           </Button>
         </nav>
         
@@ -191,7 +186,7 @@ const Navbar: React.FC = () => {
                 <a href="https://app.rapatin.id/dashboard/login" className="cursor-pointer">Masuk</a>
               </Button>
               <Button asChild size="sm" className="bg-primary text-white hover:bg-primary/90">
-                <a href="https://app.rapatin.id/dashboard/register" onClick={handleRegistration} className="cursor-pointer">Daftar</a>
+                <a href="https://app.rapatin.id/dashboard/register" className="cursor-pointer">Daftar</a>
               </Button>
             </div>
           </div>

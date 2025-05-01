@@ -5,12 +5,6 @@ import { ArrowRight } from 'lucide-react';
 
 const FinalCTA: React.FC = () => {
   const whatsappUrl = `https://wa.me/6287788980084?text=${encodeURIComponent("Halo saya ingin daftar ke Rapatin")}`;
-  const handleRegistration = () => {
-    // Track registration click with Facebook Pixel
-    if (typeof window.fbq === 'function') {
-      window.fbq('track', 'CompleteRegistration');
-    }
-  };
 
   return (
     <section className="py-20 bg-gradient-to-b from-background to-accent/30">
@@ -23,7 +17,7 @@ const FinalCTA: React.FC = () => {
                 Bergabunglah dengan ribuan pengguna yang sudah menikmati fleksibilitas platform rapat bayar-sesuai-penggunaan kami.
               </p>
               <Button asChild size="lg" className="rounded-lg bg-primary hover:bg-primary/90 text-white">
-                <a href="https://app.rapatin.id/dashboard/register" onClick={handleRegistration} className="cursor-pointer">Daftar & Mulai Menjadwalkan
+                <a href="https://app.rapatin.id/dashboard/register" className="cursor-pointer">Daftar & Mulai Menjadwalkan
                   <ArrowRight size={16} className="ml-2" />
                 </a>
               </Button>

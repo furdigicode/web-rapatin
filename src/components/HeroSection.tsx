@@ -17,13 +17,6 @@ const HeroSection: React.FC = () => {
     stopOnMouseEnter: true
   }), []);
 
-  const handleRegistration = () => {
-    // Track registration click with Facebook Pixel
-    if (typeof window.fbq === 'function') {
-      window.fbq('track', 'CompleteRegistration');
-    }
-  };
-
   return (
     <section className="pt-28 pb-12 md:pt-32 md:pb-24 overflow-hidden bg-hero-pattern flex flex-col items-center">
       <div className="container mx-auto px-4 md:px-6 flex flex-col items-center">
@@ -38,7 +31,7 @@ const HeroSection: React.FC = () => {
         </p>
         <div className="flex flex-col sm:flex-row gap-4 pt-2 mb-8 justify-center animate-fade-in">
           <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-white rounded-lg h-12 px-8">
-            <a href="https://app.rapatin.id/dashboard/register" onClick={handleRegistration} className="cursor-pointer">Mulai Menjadwalkan</a>
+            <a href="https://app.rapatin.id/dashboard/register" className="cursor-pointer">Mulai Menjadwalkan</a>
           </Button>
           <Button asChild variant="outline" size="lg" className="rounded-lg h-12 px-8">
             <a href="#pricing">Lihat Harga</a>
@@ -165,4 +158,3 @@ const HeroSection: React.FC = () => {
 };
 
 export default HeroSection;
-
