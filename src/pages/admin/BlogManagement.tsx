@@ -31,42 +31,26 @@ const BlogManagement = () => {
   const { data: categoriesData } = useQuery({
     queryKey: ['blog-categories'],
     queryFn: async () => {
-      try {
-        // Get all unique categories from blog_posts
-        const { data, error } = await supabase
-          .from('blog_posts')
-          .select('category')
-          .not('category', 'is', null) as { data: any[], error: any };
-        
-        if (error) {
-          console.error('Error fetching categories:', error);
-          toast({
-            variant: "destructive",
-            title: "Error fetching categories",
-            description: error.message,
-          });
-          return [];
-        }
-        
-        // Extract unique categories
-        const uniqueCategories = Array.from(new Set(data.map(item => item.category)))
-          .filter(Boolean)
-          .sort();
-          
-        // Add some default categories if there aren't any yet
-        if (uniqueCategories.length === 0) {
-          return ['General', 'Tutorial', 'News', 'Tips & Tricks'];
-        }
-        
-        return uniqueCategories as string[];
-      } catch (err) {
-        console.error('Error in categories fetch:', err);
-        return ['General', 'Tutorial', 'News', 'Tips & Tricks'];
+      const { data, error } = await supabase
+        .from('blog_categories')
+        .select('name')
+        .order('name');
+      
+      if (error) {
+        console.error('Error fetching categories:', error);
+        toast({
+          variant: "destructive",
+          title: "Error fetching categories",
+          description: error.message,
+        });
+        return [];
       }
+      
+      return data.map(category => category.name);
     },
   });
 
-  const categories = categoriesData || ['General'];
+  const categories = categoriesData || [];
 
   const { data: blogPosts = [], isLoading } = useQuery({
     queryKey: ['blog-posts'],
@@ -74,7 +58,7 @@ const BlogManagement = () => {
       const { data, error } = await supabase
         .from('blog_posts')
         .select('*')
-        .order('created_at', { ascending: false }) as { data: any[], error: any };
+        .order('created_at', { ascending: false });
       
       if (error) {
         console.error('Error fetching blog posts:', error);
@@ -113,12 +97,7 @@ const BlogManagement = () => {
     if (formData.title && !formData.seoTitle) {
       setFormData({...formData, seoTitle: formData.title});
     }
-    
-    // Set default category if none selected
-    if (!formData.category && categories.length > 0) {
-      setFormData({...formData, category: categories[0]});
-    }
-  }, [formData.title, categories]);
+  }, [formData.title]);
 
   const createPostMutation = useMutation({
     mutationFn: async (postData: BlogPostFormData) => {
@@ -139,7 +118,7 @@ const BlogManagement = () => {
           focus_keyword: postData.focusKeyword
         })
         .select()
-        .single() as { data: any, error: any };
+        .single();
       
       if (error) throw error;
       return data;
@@ -189,7 +168,7 @@ const BlogManagement = () => {
       const { error } = await supabase
         .from('blog_posts')
         .update(updateData)
-        .eq('id', postData.id) as { error: any };
+        .eq('id', postData.id);
       
       if (error) {
         console.error("Supabase update error:", error);
@@ -200,7 +179,7 @@ const BlogManagement = () => {
         .from('blog_posts')
         .select('*')
         .eq('id', postData.id)
-        .single() as { data: any, error: any };
+        .single();
         
       if (verifyError) {
         console.error("Verification error:", verifyError);
@@ -234,7 +213,7 @@ const BlogManagement = () => {
       const { error } = await supabase
         .from('blog_posts')
         .delete()
-        .eq('id', id) as { error: any };
+        .eq('id', id);
       
       if (error) throw error;
     },
@@ -264,7 +243,7 @@ const BlogManagement = () => {
         })
         .eq('id', id)
         .select()
-        .single() as { data: any, error: any };
+        .single();
       
       if (error) throw error;
       return data;

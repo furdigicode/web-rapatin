@@ -23,12 +23,11 @@ const Blog = () => {
   useEffect(() => {
     const fetchBlogPosts = async () => {
       try {
-        // We need to use the generic version of from() to specify the expected data structure
         const { data, error } = await supabase
           .from('blog_posts')
           .select('*')
           .eq('status', 'published')
-          .order('created_at', { ascending: false }) as { data: any[], error: any };
+          .order('created_at', { ascending: false });
         
         if (error) {
           console.error('Error fetching blog posts:', error);
