@@ -1,7 +1,8 @@
+
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { Footer } from "@/components/Footer";
-import { Navbar } from "@/components/Navbar";
+import Footer from "@/components/Footer";
+import Navbar from "@/components/Navbar";
 import { Link } from "react-router-dom";
 
 export default function MenjadiReseller() {
