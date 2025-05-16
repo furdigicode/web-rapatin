@@ -22,7 +22,7 @@ const ResellerForm: React.FC = () => {
       selling_experience: '',
       reason: '',
       selling_plan: '',
-      monthly_target: 0, // Keep it as a string in the form, Zod will transform it
+      monthly_target: 0, // Changed from string '0' to number 0
     },
   });
   

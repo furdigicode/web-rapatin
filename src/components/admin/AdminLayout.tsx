@@ -7,7 +7,8 @@ import {
   LogOut,
   Menu,
   X,
-  Home
+  Home,
+  Users
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -52,6 +53,12 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title }) => {
       label: 'Blog', 
       path: '/admin/blog',
       active: location.pathname === '/admin/blog'
+    },
+    { 
+      icon: <Users size={20} />, 
+      label: 'Resellers', 
+      path: '/admin/resellers',
+      active: location.pathname === '/admin/resellers'
     }
   ];
 

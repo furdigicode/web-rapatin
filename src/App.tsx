@@ -36,6 +36,7 @@ import BlogPost from "./pages/BlogPost";
 import AdminLogin from "./pages/admin/Login";
 import AdminDashboard from "./pages/admin/Dashboard";
 import BlogManagement from "./pages/admin/BlogManagement";
+import ResellerManagement from "./pages/admin/ResellerManagement";
 
 import WhatsAppWidget from "./components/WhatsAppWidget";
 
@@ -79,6 +80,7 @@ const AppRoutes = () => {
       <Route path="/admin/login" element={<AdminLogin />} />
       <Route path="/admin/dashboard" element={<AdminDashboard />} />
       <Route path="/admin/blog" element={<BlogManagement />} />
+      <Route path="/admin/resellers" element={<ResellerManagement />} />
       
       {/* 404 Catch-all Route */}
       <Route path="*" element={<NotFound />} />
