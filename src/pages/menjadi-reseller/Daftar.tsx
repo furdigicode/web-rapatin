@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -57,7 +58,7 @@ const DaftarReseller = () => {
       selling_experience: '',
       reason: '',
       selling_plan: '',
-      monthly_target: '0',
+      monthly_target: '0', // Using string here as the input is a string type
     },
   });
 
@@ -73,7 +74,7 @@ const DaftarReseller = () => {
         selling_experience: data.selling_experience,
         reason: data.reason,
         selling_plan: data.selling_plan,
-        monthly_target: data.monthly_target,
+        monthly_target: data.monthly_target, // This is now properly typed as a number after transformation
       });
 
       if (error) throw error;
