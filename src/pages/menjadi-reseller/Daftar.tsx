@@ -74,7 +74,7 @@ const DaftarReseller = () => {
         selling_experience: data.selling_experience,
         reason: data.reason,
         selling_plan: data.selling_plan,
-        monthly_target: data.monthly_target, // This is now properly typed as a number after transformation
+        monthly_target: Number(data.monthly_target), // Ensure it's sent as a number
       });
 
       if (error) throw error;

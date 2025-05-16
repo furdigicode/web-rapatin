@@ -3,4 +3,5 @@
 
 interface Window {
   fbq: any;
+  $crisp: any;
 }

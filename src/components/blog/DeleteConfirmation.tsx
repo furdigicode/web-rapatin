@@ -12,14 +12,29 @@ import {
 } from "@/components/ui/alert-dialog";
 
 interface DeleteConfirmationProps {
-  open: boolean;
+  isOpen?: boolean;
+  open?: boolean;
   onOpenChange: (open: boolean) => void;
+  onClose?: () => void;
   onConfirm: () => void;
+  onDelete?: () => void;
 }
 
-export function DeleteConfirmation({ open, onOpenChange, onConfirm }: DeleteConfirmationProps) {
+export function DeleteConfirmation({ 
+  isOpen, 
+  open, 
+  onOpenChange, 
+  onClose, 
+  onConfirm, 
+  onDelete 
+}: DeleteConfirmationProps) {
+  // Support both naming conventions (isOpen/open and onClose/onOpenChange)
+  const isDialogOpen = isOpen || open || false;
+  const handleClose = onClose || (() => onOpenChange(false));
+  const handleConfirm = onDelete || onConfirm;
+
   return (
-    <AlertDialog open={open} onOpenChange={onOpenChange}>
+    <AlertDialog open={isDialogOpen} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Apakah Anda yakin ingin menghapus artikel ini?</AlertDialogTitle>
@@ -28,8 +43,13 @@ export function DeleteConfirmation({ open, onOpenChange, onConfirm }: DeleteConf
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Batal</AlertDialogCancel>
-          <AlertDialogAction onClick={onConfirm} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Hapus</AlertDialogAction>
+          <AlertDialogCancel onClick={handleClose}>Batal</AlertDialogCancel>
+          <AlertDialogAction 
+            onClick={handleConfirm} 
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+          >
+            Hapus
+          </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

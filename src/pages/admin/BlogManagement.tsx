@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Pencil, Trash2, Eye, Search } from 'lucide-react';
@@ -19,7 +20,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
-import DeleteConfirmation from '@/components/blog/DeleteConfirmation';
+import { DeleteConfirmation } from '@/components/blog/DeleteConfirmation';
 import { supabase } from '@/integrations/supabase/client';
 
 const BlogManagement = () => {
@@ -98,7 +99,7 @@ const BlogManagement = () => {
   };
 
   return (
-    <AdminLayout>
+    <AdminLayout title="Blog Management">
       <div className="container mx-auto py-10">
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-2xl font-bold">Blog Management</h1>
@@ -127,7 +128,10 @@ const BlogManagement = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredPosts.map((post) => (
+              {posts.filter(post => 
+                post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                (post.category && post.category.toLowerCase().includes(searchTerm.toLowerCase()))
+              ).map((post) => (
                 <TableRow key={post.id}>
                   <TableCell className="font-medium">{post.title}</TableCell>
                   <TableCell>{post.category || 'N/A'}</TableCell>
@@ -172,9 +176,9 @@ const BlogManagement = () => {
         </div>
       </div>
       <DeleteConfirmation
-        isOpen={isDeleteDialogOpen}
-        onClose={() => setIsDeleteDialogOpen(false)}
-        onDelete={handleDelete}
+        open={isDeleteDialogOpen}
+        onOpenChange={() => setIsDeleteDialogOpen(false)}
+        onConfirm={handleDelete}
       />
     </AdminLayout>
   );
