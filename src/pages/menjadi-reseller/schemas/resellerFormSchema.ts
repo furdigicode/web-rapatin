@@ -10,7 +10,7 @@ export const resellerFormSchema = z.object({
   reason: z.string().min(10, { message: 'Alasan harus diisi minimal 10 karakter' }),
   selling_plan: z.string().min(10, { message: 'Rencana penjualan harus diisi minimal 10 karakter' }),
   monthly_target: z.coerce.number()
-    .min(0, { message: 'Target harus berupa angka positif' })
+    .nonnegative({ message: 'Target harus berupa angka positif' })
     .default(0),
 });
 

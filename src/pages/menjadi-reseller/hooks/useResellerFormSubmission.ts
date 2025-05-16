@@ -7,15 +7,53 @@ import { ResellerFormValues } from '../schemas/resellerFormSchema';
 
 export const useResellerFormSubmission = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [lastError, setLastError] = useState<Error | null>(null);
   const navigate = useNavigate();
+
+  const testConnection = async (): Promise<boolean> => {
+    try {
+      console.log('Testing Supabase connection before submission...');
+      const { data, error } = await supabase
+        .from('reseller_applications')
+        .select('id')
+        .limit(1)
+        .single();
+      
+      if (error) {
+        console.error('Connection test failed with error:', error);
+        setLastError(new Error(`Connection test failed: ${error.message}`));
+        return false;
+      }
+      
+      console.log('Connection test successful', data);
+      return true;
+    } catch (error) {
+      console.error('Exception during connection test:', error);
+      setLastError(error instanceof Error ? error : new Error(String(error)));
+      return false;
+    }
+  };
 
   const handleSubmit = async (data: ResellerFormValues) => {
     setIsSubmitting(true);
+    setLastError(null);
     
     try {
+      // Log form values for debugging
       console.log('Form values to be submitted:', data);
       console.log('monthly_target (value):', data.monthly_target);
       console.log('monthly_target (type):', typeof data.monthly_target);
+      
+      // Test connection before attempting submission
+      const isConnected = await testConnection();
+      if (!isConnected) {
+        toast({
+          variant: 'destructive',
+          title: 'Koneksi Gagal',
+          description: 'Tidak dapat terhubung ke server. Mohon cek koneksi internet Anda dan coba lagi.',
+        });
+        return;
+      }
       
       // Create the data object that will be sent to Supabase
       const submitData = {
@@ -31,10 +69,17 @@ export const useResellerFormSubmission = () => {
       
       console.log('Prepared data for Supabase:', submitData);
       
-      const { data: insertedData, error } = await supabase.from('reseller_applications').insert(submitData);
+      // Attempt to insert with more detailed error logging
+      const { data: insertedData, error } = await supabase
+        .from('reseller_applications')
+        .insert(submitData)
+        .select();
 
       if (error) {
         console.error('Supabase error details:', error);
+        console.error('Error code:', error.code);
+        console.error('Error message:', error.message);
+        console.error('Error details:', error.details);
         throw error;
       }
 
@@ -56,12 +101,18 @@ export const useResellerFormSubmission = () => {
       navigate('/menjadi-reseller');
     } catch (error) {
       console.error('Error submitting form:', error);
-      // More detailed error message
-      let errorMessage = 'Terjadi kesalahan saat mengirim pendaftaran. Silakan coba lagi.';
+      // More detailed error message with network info
+      let errorMessage = 'Terjadi kesalahan saat mengirim pendaftaran.';
       
       if (error instanceof Error) {
+        setLastError(error);
         errorMessage += ` Detail: ${error.message}`;
         console.error('Error stack:', error.stack);
+        
+        // Add network status info
+        if (navigator.onLine === false) {
+          errorMessage += ' Anda sedang offline. Mohon periksa koneksi internet Anda.';
+        }
       }
       
       toast({
@@ -76,6 +127,7 @@ export const useResellerFormSubmission = () => {
 
   return {
     handleSubmit,
-    isSubmitting
+    isSubmitting,
+    lastError
   };
 };
