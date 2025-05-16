@@ -1,15 +1,8 @@
-
-import React from 'react';
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
-import { useEffect } from "react";
-import { ThemeProvider } from "next-themes";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-
-// UI Components
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
-
-// Pages
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { useEffect } from "react";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import FAQ from "./pages/FAQ";
@@ -26,7 +19,6 @@ import LaporanPeserta from "./pages/fitur/LaporanPeserta";
 import SyaratKetentuan from "./pages/SyaratKetentuan";
 import KebijakanPrivasi from "./pages/KebijakanPrivasi";
 import MenjadiReseller from "./pages/MenjadiReseller";
-import DaftarReseller from "./pages/menjadi-reseller/Daftar";
 
 // Blog Pages
 import Blog from "./pages/Blog";
@@ -36,7 +28,6 @@ import BlogPost from "./pages/BlogPost";
 import AdminLogin from "./pages/admin/Login";
 import AdminDashboard from "./pages/admin/Dashboard";
 import BlogManagement from "./pages/admin/BlogManagement";
-import ResellerManagement from "./pages/admin/ResellerManagement";
 
 import WhatsAppWidget from "./components/WhatsAppWidget";
 
@@ -46,6 +37,8 @@ const AppRoutes = () => {
   const location = useLocation();
 
   useEffect(() => {
+    // Remove Crisp initialization
+    
     // Track page view with Meta Pixel for non-admin pages
     if (typeof window.fbq === 'function') {
       window.fbq('track', 'PageView');
@@ -68,7 +61,6 @@ const AppRoutes = () => {
       <Route path="/syarat-ketentuan" element={<SyaratKetentuan />} />
       <Route path="/kebijakan-privasi" element={<KebijakanPrivasi />} />
       <Route path="/menjadi-reseller" element={<MenjadiReseller />} />
-      <Route path="/menjadi-reseller/daftar" element={<DaftarReseller />} />
       <Route path="/tentang-kami" element={<TentangKami />} />
       <Route path="/kontak" element={<Kontak />} />
       
@@ -80,7 +72,6 @@ const AppRoutes = () => {
       <Route path="/admin/login" element={<AdminLogin />} />
       <Route path="/admin/dashboard" element={<AdminDashboard />} />
       <Route path="/admin/blog" element={<BlogManagement />} />
-      <Route path="/admin/resellers" element={<ResellerManagement />} />
       
       {/* 404 Catch-all Route */}
       <Route path="*" element={<NotFound />} />
@@ -90,18 +81,14 @@ const AppRoutes = () => {
 
 const App = () => {
   return (
-    <React.StrictMode>
-      <ThemeProvider attribute="class" defaultTheme="light">
-        <QueryClientProvider client={queryClient}>
-          <BrowserRouter>
-            <AppRoutes />
-            <WhatsAppWidget />
-            <Toaster />
-            <Sonner />
-          </BrowserRouter>
-        </QueryClientProvider>
-      </ThemeProvider>
-    </React.StrictMode>
+    <QueryClientProvider client={queryClient}>
+      <Toaster />
+      <Sonner />
+      <BrowserRouter>
+        <AppRoutes />
+        <WhatsAppWidget />
+      </BrowserRouter>
+    </QueryClientProvider>
   );
 };
 

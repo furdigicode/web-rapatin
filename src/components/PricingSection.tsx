@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Check, Video, Mic, Users, Globe, Clock, Calendar, BarChart, MessageSquare, Share2, UserPlus, Zap, FileText, Languages, VideoIcon } from 'lucide-react';
@@ -31,6 +30,13 @@ const PricingSection: React.FC = () => {
     { participants: "500 Peserta", price: "Rp 70.000" },
     { participants: "1000 Peserta", price: "Rp 130.000" }
   ];
+
+  const handleRegistration = () => {
+    // Track registration click with Facebook Pixel
+    if (typeof window.fbq === 'function') {
+      window.fbq('track', 'CompleteRegistration');
+    }
+  };
   
   return (
     <section id="pricing" className="py-20 bg-background w-full">
@@ -128,7 +134,7 @@ const PricingSection: React.FC = () => {
                     asChild
                     className="w-full rounded-lg bg-primary hover:bg-primary/90 text-white"
                   >
-                    <a href="https://app.rapatin.id/dashboard/register" className="cursor-pointer">Daftar Sekarang</a>
+                    <a href="https://app.rapatin.id/dashboard/register" onClick={handleRegistration} className="cursor-pointer">Daftar Sekarang</a>
                   </Button>
                 </div>
               </div>

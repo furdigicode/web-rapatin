@@ -7,6 +7,13 @@ import { useIsMobile } from "@/hooks/use-mobile";
 const DashboardPreview: React.FC = () => {
   const isMobile = useIsMobile();
   
+  const handleRegistration = () => {
+    // Track registration click with Facebook Pixel
+    if (typeof window.fbq === 'function') {
+      window.fbq('track', 'CompleteRegistration');
+    }
+  };
+  
   return (
     <section id="dashboard" className="py-20 bg-accent/20 w-full">
       <div className="container mx-auto px-4 md:px-6">
@@ -57,7 +64,7 @@ const DashboardPreview: React.FC = () => {
             </div>
             
             <Button asChild size="lg" className="mt-6 bg-primary hover:bg-primary/90 text-white rounded-lg">
-              <a href="https://app.rapatin.id/dashboard/register" className="cursor-pointer">Daftar Sekarang</a>
+              <a href="https://app.rapatin.id/dashboard/register" onClick={handleRegistration} className="cursor-pointer">Daftar Sekarang</a>
             </Button>
           </div>
           

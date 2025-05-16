@@ -27,8 +27,8 @@ const Kontak = () => {
     }
   }, []);
   const openLiveChat = () => {
-    // Functionality to open CRISP chat if available
-    if (typeof window !== 'undefined' && window.$crisp) {
+    // Functionality to open CRISP chat
+    if (window.$crisp) {
       window.$crisp.push(['do', 'chat:open']);
     }
   };

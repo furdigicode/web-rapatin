@@ -2,6 +2,9 @@
 /// <reference types="vite/client" />
 
 interface Window {
-  fbq: any;
-  $crisp: any;
+  $crisp: any[];
+  CRISP_WEBSITE_ID: string;
+  dataLayer: any[];
+  fbq: Function;
+  _fbq: any;
 }
