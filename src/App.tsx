@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -30,8 +31,25 @@ import AdminDashboard from "./pages/admin/Dashboard";
 import BlogManagement from "./pages/admin/BlogManagement";
 
 import WhatsAppWidget from "./components/WhatsAppWidget";
+import React from "react";
 
-const queryClient = new QueryClient();
+// Create a new QueryClient instance inside the component to ensure
+// it's created after React is fully loaded
+const App = () => {
+  // Create the client inside the component function
+  const queryClient = new QueryClient();
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <Toaster />
+      <Sonner />
+      <BrowserRouter>
+        <AppRoutes />
+        <WhatsAppWidget />
+      </BrowserRouter>
+    </QueryClientProvider>
+  );
+};
 
 const AppRoutes = () => {
   const location = useLocation();
@@ -76,19 +94,6 @@ const AppRoutes = () => {
       {/* 404 Catch-all Route */}
       <Route path="*" element={<NotFound />} />
     </Routes>
-  );
-};
-
-const App = () => {
-  return (
-    <QueryClientProvider client={queryClient}>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <AppRoutes />
-        <WhatsAppWidget />
-      </BrowserRouter>
-    </QueryClientProvider>
   );
 };
 
