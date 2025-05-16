@@ -25,23 +25,6 @@ interface RelatedPost {
   category: string;
 }
 
-interface SupabaseBlogPost {
-  id: string;
-  title: string;
-  slug: string;
-  excerpt: string;
-  content: string;
-  cover_image: string;
-  category: string;
-  author: string;
-  created_at: string;
-  status: 'draft' | 'published' | 'scheduled';
-  published_at: string;
-  seo_title: string;
-  meta_description: string;
-  focus_keyword: string;
-}
-
 const BlogPost = () => {
   const { slug } = useParams<{ slug: string }>();
   const [post, setPost] = useState<BlogPostType | null>(null);
@@ -58,13 +41,13 @@ const BlogPost = () => {
     
     const fetchBlogPost = async () => {
       try {
-        // Fetch the blog post from Supabase
+        // Fetch the blog post from Supabase using type assertion
         const { data, error } = await supabase
           .from('blog_posts')
           .select('*')
           .eq('slug', slug)
           .eq('status', 'published')
-          .single();
+          .single() as { data: any, error: any };
         
         if (error || !data) {
           console.error('Error fetching blog post:', error);
@@ -73,7 +56,7 @@ const BlogPost = () => {
           return;
         }
         
-        // Transform Supabase data to our BlogPost type
+        // Transform raw data to our BlogPost type
         const blogPost: BlogPostType = {
           id: data.id,
           title: data.title,
@@ -98,24 +81,26 @@ const BlogPost = () => {
         setPost(blogPost);
         
         // Fetch related posts (posts in the same category)
-        const { data: relatedData, error: relatedError } = await supabase
-          .from('blog_posts')
-          .select('id, title, slug, cover_image, category')
-          .eq('status', 'published')
-          .eq('category', data.category)
-          .neq('id', data.id)
-          .limit(2);
-        
-        if (!relatedError && relatedData && relatedData.length > 0) {
-          const formattedRelatedPosts = relatedData.map((related: any) => ({
-            id: related.id,
-            title: related.title,
-            slug: related.slug,
-            coverImage: related.cover_image || '',
-            category: related.category || '',
-          }));
+        if (data.category) {
+          const { data: relatedData, error: relatedError } = await supabase
+            .from('blog_posts')
+            .select('id, title, slug, cover_image, category')
+            .eq('status', 'published')
+            .eq('category', data.category)
+            .neq('id', data.id)
+            .limit(2) as { data: any[], error: any };
           
-          setRelatedPosts(formattedRelatedPosts);
+          if (!relatedError && relatedData && relatedData.length > 0) {
+            const formattedRelatedPosts = relatedData.map((related: any) => ({
+              id: related.id,
+              title: related.title,
+              slug: related.slug,
+              coverImage: related.cover_image || '',
+              category: related.category || '',
+            }));
+            
+            setRelatedPosts(formattedRelatedPosts);
+          }
         }
         
         // Add schema markup for blog post
