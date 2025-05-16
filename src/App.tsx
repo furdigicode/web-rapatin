@@ -1,9 +1,15 @@
 
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import React from 'react';
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { useEffect } from "react";
+import { ThemeProvider } from "next-themes";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+// UI Components
+import { Toaster } from "@/components/ui/toaster";
+import { Toaster as Sonner } from "@/components/ui/sonner";
+
+// Pages
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import FAQ from "./pages/FAQ";
@@ -39,8 +45,6 @@ const AppRoutes = () => {
   const location = useLocation();
 
   useEffect(() => {
-    // Remove Crisp initialization
-    
     // Track page view with Meta Pixel for non-admin pages
     if (typeof window.fbq === 'function') {
       window.fbq('track', 'PageView');
@@ -84,14 +88,18 @@ const AppRoutes = () => {
 
 const App = () => {
   return (
-    <QueryClientProvider client={queryClient}>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <AppRoutes />
-        <WhatsAppWidget />
-      </BrowserRouter>
-    </QueryClientProvider>
+    <React.StrictMode>
+      <ThemeProvider attribute="class" defaultTheme="light">
+        <QueryClientProvider client={queryClient}>
+          <BrowserRouter>
+            <AppRoutes />
+            <WhatsAppWidget />
+            <Toaster />
+            <Sonner />
+          </BrowserRouter>
+        </QueryClientProvider>
+      </ThemeProvider>
+    </React.StrictMode>
   );
 };
 

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -38,7 +37,10 @@ const formSchema = z.object({
   selling_experience: z.string().optional(),
   reason: z.string().min(10, { message: 'Alasan harus diisi minimal 10 karakter' }),
   selling_plan: z.string().min(10, { message: 'Rencana penjualan harus diisi minimal 10 karakter' }),
-  monthly_target: z.string().transform((val) => parseInt(val, 10)),
+  monthly_target: z.string().transform((val) => {
+    const parsed = parseInt(val, 10);
+    return isNaN(parsed) ? 0 : parsed;
+  }),
 });
 
 type FormValues = z.infer<typeof formSchema>;
