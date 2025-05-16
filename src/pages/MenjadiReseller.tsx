@@ -1,18 +1,17 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { DollarSign, Shield, BarChart as ChartBar, Users, Headphones, ArrowRight, CheckCircle2, Calendar, Video, Calculator, CreditCard, TrendingUp, Wallet, CreditCard as CardIcon, Link, Share2 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Card, CardContent } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import ResellerRegistrationDialog from '@/components/ResellerRegistrationDialog';
 
 const MenjadiReseller = () => {
-  const handleRegistration = () => {
-    if (typeof window.fbq === 'function') {
-      window.fbq('track', 'Lead', {
-        content_name: 'reseller_program'
-      });
-    }
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  
+  const handleOpenRegistrationDialog = () => {
+    setIsDialogOpen(true);
   };
   
   const benefits = [{
@@ -115,16 +114,13 @@ const MenjadiReseller = () => {
               <p className="text-xl text-muted-foreground mb-8">
                 Jual kembali akses rapat online Pay-As-You-Go untuk Zoom harian dengan harga yang Anda tentukan sendiri — tanpa biaya bulanan atau langganan.
               </p>
-              <Button asChild size="lg" className="rounded-lg bg-primary hover:bg-primary/90 text-white">
-                <a 
-                  href={`https://wa.me/087788980084?text=${encodeURIComponent("Halo saya ingin daftar ke Rapatin")}`} 
-                  onClick={handleRegistration} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                >
-                  Gabung Reseller & Mulai Menghasilkan
-                  <ArrowRight size={16} className="ml-2" />
-                </a>
+              <Button 
+                size="lg" 
+                className="rounded-lg bg-primary hover:bg-primary/90 text-white"
+                onClick={handleOpenRegistrationDialog}
+              >
+                Gabung Reseller & Mulai Menghasilkan
+                <ArrowRight size={16} className="ml-2" />
               </Button>
             </div>
             <div className="flex-1">
@@ -366,16 +362,13 @@ const MenjadiReseller = () => {
             </div>
             
             <div className="text-center">
-              <Button asChild size="lg" className="rounded-lg bg-primary hover:bg-primary/90 text-white">
-                <a 
-                  href={`https://wa.me/087788980084?text=${encodeURIComponent("Halo saya ingin daftar ke Rapatin")}`} 
-                  onClick={handleRegistration} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                >
-                  Gabung Reseller & Mulai Menghasilkan
-                  <ArrowRight size={16} className="ml-2" />
-                </a>
+              <Button 
+                size="lg" 
+                className="rounded-lg bg-primary hover:bg-primary/90 text-white"
+                onClick={handleOpenRegistrationDialog}
+              >
+                Gabung Reseller & Mulai Menghasilkan
+                <ArrowRight size={16} className="ml-2" />
               </Button>
             </div>
           </div>
@@ -407,16 +400,13 @@ const MenjadiReseller = () => {
             </div>
 
             <div className="mt-12 text-center">
-              <Button asChild size="lg" className="rounded-lg bg-primary hover:bg-primary/90 text-white">
-                <a 
-                  href={`https://wa.me/087788980084?text=${encodeURIComponent("Halo saya ingin daftar ke Rapatin")}`} 
-                  onClick={handleRegistration} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                >
-                  Mulai Perjalanan Reseller Anda
-                  <ArrowRight size={16} className="ml-2" />
-                </a>
+              <Button 
+                size="lg" 
+                className="rounded-lg bg-primary hover:bg-primary/90 text-white"
+                onClick={handleOpenRegistrationDialog}
+              >
+                Mulai Perjalanan Reseller Anda
+                <ArrowRight size={16} className="ml-2" />
               </Button>
             </div>
           </div>
@@ -459,16 +449,13 @@ const MenjadiReseller = () => {
                 <p className="text-muted-foreground mb-6">
                   Bergabunglah dengan jaringan reseller sukses kami dan mulai tawarkan solusi rapat fleksibel kepada pelanggan Anda dengan harga yang Anda tentukan sendiri.
                 </p>
-                <Button asChild size="lg" className="rounded-lg bg-primary hover:bg-primary/90 text-white">
-                  <a 
-                    href={`https://wa.me/087788980084?text=${encodeURIComponent("Halo saya ingin daftar ke Rapatin")}`} 
-                    onClick={handleRegistration} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                  >
-                    Daftar sebagai Reseller
-                    <ArrowRight size={16} className="ml-2" />
-                  </a>
+                <Button 
+                  size="lg" 
+                  className="rounded-lg bg-primary hover:bg-primary/90 text-white"
+                  onClick={handleOpenRegistrationDialog}
+                >
+                  Daftar sebagai Reseller
+                  <ArrowRight size={16} className="ml-2" />
                 </Button>
               </div>
               <div className="rounded-xl bg-primary/5 p-6 space-y-4 cursor-default">
@@ -500,6 +487,12 @@ const MenjadiReseller = () => {
           </div>
         </div>
       </section>
+      
+      {/* Registration Dialog */}
+      <ResellerRegistrationDialog 
+        open={isDialogOpen} 
+        onOpenChange={setIsDialogOpen} 
+      />
       
       <Footer />
     </div>;

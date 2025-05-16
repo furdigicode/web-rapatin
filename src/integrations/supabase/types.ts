@@ -9,104 +9,6 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      blog_categories: {
-        Row: {
-          created_at: string
-          description: string | null
-          id: string
-          name: string
-          slug: string
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          description?: string | null
-          id?: string
-          name: string
-          slug: string
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          description?: string | null
-          id?: string
-          name?: string
-          slug?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      blog_comments: {
-        Row: {
-          author_email: string
-          author_name: string
-          content: string
-          created_at: string
-          id: string
-          post_id: string
-          status: string
-          updated_at: string
-        }
-        Insert: {
-          author_email: string
-          author_name: string
-          content: string
-          created_at?: string
-          id?: string
-          post_id: string
-          status?: string
-          updated_at?: string
-        }
-        Update: {
-          author_email?: string
-          author_name?: string
-          content?: string
-          created_at?: string
-          id?: string
-          post_id?: string
-          status?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "blog_comments_post_id_fkey"
-            columns: ["post_id"]
-            isOneToOne: false
-            referencedRelation: "blog_posts"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      blog_post_tags: {
-        Row: {
-          post_id: string
-          tag_id: string
-        }
-        Insert: {
-          post_id: string
-          tag_id: string
-        }
-        Update: {
-          post_id?: string
-          tag_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "blog_post_tags_post_id_fkey"
-            columns: ["post_id"]
-            isOneToOne: false
-            referencedRelation: "blog_posts"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "blog_post_tags_tag_id_fkey"
-            columns: ["tag_id"]
-            isOneToOne: false
-            referencedRelation: "blog_tags"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       blog_posts: {
         Row: {
           author: string | null
@@ -161,27 +63,48 @@ export type Database = {
         }
         Relationships: []
       }
-      blog_tags: {
+      reseller_applications: {
         Row: {
           created_at: string
+          email: string
+          has_sold_zoom: boolean
           id: string
+          monthly_target: number
           name: string
-          slug: string
+          reason: string
+          selling_experience: string | null
+          selling_plan: string
+          status: string
           updated_at: string
+          whatsapp: string
         }
         Insert: {
           created_at?: string
+          email: string
+          has_sold_zoom?: boolean
           id?: string
+          monthly_target: number
           name: string
-          slug: string
+          reason: string
+          selling_experience?: string | null
+          selling_plan: string
+          status?: string
           updated_at?: string
+          whatsapp: string
         }
         Update: {
           created_at?: string
+          email?: string
+          has_sold_zoom?: boolean
           id?: string
+          monthly_target?: number
           name?: string
-          slug?: string
+          reason?: string
+          selling_experience?: string | null
+          selling_plan?: string
+          status?: string
           updated_at?: string
+          whatsapp?: string
         }
         Relationships: []
       }
