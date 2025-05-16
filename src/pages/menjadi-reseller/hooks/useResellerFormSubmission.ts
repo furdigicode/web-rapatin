@@ -13,18 +13,32 @@ export const useResellerFormSubmission = () => {
     setIsSubmitting(true);
     
     try {
-      const { error } = await supabase.from('reseller_applications').insert({
+      console.log('Form values to be submitted:', data);
+      console.log('monthly_target (value):', data.monthly_target);
+      console.log('monthly_target (type):', typeof data.monthly_target);
+      
+      // Create the data object that will be sent to Supabase
+      const submitData = {
         name: data.name,
         email: data.email,
         whatsapp: data.whatsapp,
         has_sold_zoom: data.has_sold_zoom === 'true',
-        selling_experience: data.selling_experience,
+        selling_experience: data.selling_experience || '',
         reason: data.reason,
         selling_plan: data.selling_plan,
-        monthly_target: data.monthly_target, // This is now definitely a number after transform
-      });
+        monthly_target: Number(data.monthly_target), // Ensure it's a number
+      };
+      
+      console.log('Prepared data for Supabase:', submitData);
+      
+      const { data: insertedData, error } = await supabase.from('reseller_applications').insert(submitData);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error details:', error);
+        throw error;
+      }
+
+      console.log('Submission successful:', insertedData);
 
       toast({
         title: 'Pendaftaran Berhasil',
@@ -42,10 +56,18 @@ export const useResellerFormSubmission = () => {
       navigate('/menjadi-reseller');
     } catch (error) {
       console.error('Error submitting form:', error);
+      // More detailed error message
+      let errorMessage = 'Terjadi kesalahan saat mengirim pendaftaran. Silakan coba lagi.';
+      
+      if (error instanceof Error) {
+        errorMessage += ` Detail: ${error.message}`;
+        console.error('Error stack:', error.stack);
+      }
+      
       toast({
         variant: 'destructive',
         title: 'Pendaftaran Gagal',
-        description: 'Terjadi kesalahan saat mengirim pendaftaran. Silakan coba lagi.',
+        description: errorMessage,
       });
     } finally {
       setIsSubmitting(false);

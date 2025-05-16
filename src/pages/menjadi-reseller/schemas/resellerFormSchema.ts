@@ -9,11 +9,9 @@ export const resellerFormSchema = z.object({
   selling_experience: z.string().optional(),
   reason: z.string().min(10, { message: 'Alasan harus diisi minimal 10 karakter' }),
   selling_plan: z.string().min(10, { message: 'Rencana penjualan harus diisi minimal 10 karakter' }),
-  monthly_target: z.string()
-    .refine(val => !isNaN(Number(val)), {
-      message: 'Target harus berupa angka',
-    })
-    .transform(val => Number(val)), // Transform to number
+  monthly_target: z.coerce.number()
+    .min(0, { message: 'Target harus berupa angka positif' })
+    .default(0),
 });
 
 export type ResellerFormValues = z.infer<typeof resellerFormSchema>;
