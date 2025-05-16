@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -128,7 +129,7 @@ export default function ResellerApplications() {
 
   if (isError) {
     return (
-      <AdminLayout>
+      <AdminLayout title="Pendaftaran Reseller">
         <div className="container p-4">
           <div className="flex items-center justify-center rounded-lg border border-red-200 bg-red-50 p-8 text-center">
             <div>
@@ -142,7 +143,7 @@ export default function ResellerApplications() {
   }
 
   return (
-    <AdminLayout>
+    <AdminLayout title="Pendaftaran Reseller">
       <div className="container p-4">
         <div className="mb-8">
           <h2 className="text-3xl font-bold">Pendaftaran Reseller</h2>
