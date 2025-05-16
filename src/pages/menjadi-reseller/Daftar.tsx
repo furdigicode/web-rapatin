@@ -59,7 +59,7 @@ const DaftarReseller = () => {
       selling_experience: '',
       reason: '',
       selling_plan: '',
-      monthly_target: '0',
+      monthly_target: '0', // This is a string, but will be transformed to number by Zod
     },
   });
 
