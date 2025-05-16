@@ -38,10 +38,11 @@ const formSchema = z.object({
   selling_experience: z.string().optional(),
   reason: z.string().min(10, { message: 'Alasan harus diisi minimal 10 karakter' }),
   selling_plan: z.string().min(10, { message: 'Rencana penjualan harus diisi minimal 10 karakter' }),
-  monthly_target: z.string().transform((val) => {
-    const parsed = parseInt(val, 10);
-    return isNaN(parsed) ? 0 : parsed;
-  }),
+  monthly_target: z.string()
+    .refine(val => !isNaN(Number(val)), {
+      message: 'Target harus berupa angka',
+    })
+    .transform(val => Number(val)), // Transform to number
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -58,7 +59,7 @@ const DaftarReseller = () => {
       selling_experience: '',
       reason: '',
       selling_plan: '',
-      monthly_target: '0', // Using string here as the input is a string type
+      monthly_target: '0',
     },
   });
 
@@ -74,7 +75,7 @@ const DaftarReseller = () => {
         selling_experience: data.selling_experience,
         reason: data.reason,
         selling_plan: data.selling_plan,
-        monthly_target: Number(data.monthly_target), // Ensure it's sent as a number
+        monthly_target: data.monthly_target, // This is now definitely a number after transform
       });
 
       if (error) throw error;
