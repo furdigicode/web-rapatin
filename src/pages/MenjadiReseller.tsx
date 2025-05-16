@@ -5,6 +5,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Card, CardContent } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Link as RouterLink } from 'react-router-dom';
 
 const MenjadiReseller = () => {
   const handleRegistration = () => {
@@ -116,15 +117,13 @@ const MenjadiReseller = () => {
                 Jual kembali akses rapat online Pay-As-You-Go untuk Zoom harian dengan harga yang Anda tentukan sendiri — tanpa biaya bulanan atau langganan.
               </p>
               <Button asChild size="lg" className="rounded-lg bg-primary hover:bg-primary/90 text-white">
-                <a 
-                  href={`https://wa.me/087788980084?text=${encodeURIComponent("Halo saya ingin daftar ke Rapatin")}`} 
-                  onClick={handleRegistration} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
+                <RouterLink 
+                  to="/menjadi-reseller/daftar"
+                  onClick={handleRegistration}
                 >
                   Gabung Reseller & Mulai Menghasilkan
                   <ArrowRight size={16} className="ml-2" />
-                </a>
+                </RouterLink>
               </Button>
             </div>
             <div className="flex-1">
@@ -367,15 +366,13 @@ const MenjadiReseller = () => {
             
             <div className="text-center">
               <Button asChild size="lg" className="rounded-lg bg-primary hover:bg-primary/90 text-white">
-                <a 
-                  href={`https://wa.me/087788980084?text=${encodeURIComponent("Halo saya ingin daftar ke Rapatin")}`} 
-                  onClick={handleRegistration} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
+                <RouterLink 
+                  to="/menjadi-reseller/daftar"
+                  onClick={handleRegistration}
                 >
                   Gabung Reseller & Mulai Menghasilkan
                   <ArrowRight size={16} className="ml-2" />
-                </a>
+                </RouterLink>
               </Button>
             </div>
           </div>
@@ -408,15 +405,13 @@ const MenjadiReseller = () => {
 
             <div className="mt-12 text-center">
               <Button asChild size="lg" className="rounded-lg bg-primary hover:bg-primary/90 text-white">
-                <a 
-                  href={`https://wa.me/087788980084?text=${encodeURIComponent("Halo saya ingin daftar ke Rapatin")}`} 
-                  onClick={handleRegistration} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
+                <RouterLink 
+                  to="/menjadi-reseller/daftar"
+                  onClick={handleRegistration}
                 >
                   Mulai Perjalanan Reseller Anda
                   <ArrowRight size={16} className="ml-2" />
-                </a>
+                </RouterLink>
               </Button>
             </div>
           </div>
@@ -460,15 +455,13 @@ const MenjadiReseller = () => {
                   Bergabunglah dengan jaringan reseller sukses kami dan mulai tawarkan solusi rapat fleksibel kepada pelanggan Anda dengan harga yang Anda tentukan sendiri.
                 </p>
                 <Button asChild size="lg" className="rounded-lg bg-primary hover:bg-primary/90 text-white">
-                  <a 
-                    href={`https://wa.me/087788980084?text=${encodeURIComponent("Halo saya ingin daftar ke Rapatin")}`} 
-                    onClick={handleRegistration} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
+                  <RouterLink 
+                    to="/menjadi-reseller/daftar"
+                    onClick={handleRegistration}
                   >
                     Daftar sebagai Reseller
                     <ArrowRight size={16} className="ml-2" />
-                  </a>
+                  </RouterLink>
                 </Button>
               </div>
               <div className="rounded-xl bg-primary/5 p-6 space-y-4 cursor-default">

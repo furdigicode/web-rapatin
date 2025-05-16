@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -19,6 +20,7 @@ import LaporanPeserta from "./pages/fitur/LaporanPeserta";
 import SyaratKetentuan from "./pages/SyaratKetentuan";
 import KebijakanPrivasi from "./pages/KebijakanPrivasi";
 import MenjadiReseller from "./pages/MenjadiReseller";
+import DaftarReseller from "./pages/menjadi-reseller/Daftar";
 
 // Blog Pages
 import Blog from "./pages/Blog";
@@ -61,6 +63,7 @@ const AppRoutes = () => {
       <Route path="/syarat-ketentuan" element={<SyaratKetentuan />} />
       <Route path="/kebijakan-privasi" element={<KebijakanPrivasi />} />
       <Route path="/menjadi-reseller" element={<MenjadiReseller />} />
+      <Route path="/menjadi-reseller/daftar" element={<DaftarReseller />} />
       <Route path="/tentang-kami" element={<TentangKami />} />
       <Route path="/kontak" element={<Kontak />} />
       
