@@ -1,15 +1,10 @@
-
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Calendar, Clock, DollarSign, Video, BadgeDollarSign } from 'lucide-react';
 import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
 
-// Import the image directly or add it as a local variable
 const IllustSrc = "/lovable-uploads/e7e34560-7715-4bb4-9fa9-26f74f4090b8.png";
-// Define the missing logo sources
-const FithubLogoSrc = "/lovable-uploads/f303edd0-4209-4221-bab6-368e05a456be.png"; // Using an existing image as placeholder
-const STTNFLogoSrc = "/lovable-uploads/0eab88ce-60bf-4459-a3f5-f8e25d3f92e7.png"; // Using an existing image as placeholder
 
 const HeroSection: React.FC = () => {
   const autoplayPlugin = React.useMemo(() => Autoplay({
@@ -85,24 +80,33 @@ const HeroSection: React.FC = () => {
           }} plugins={[autoplayPlugin]} className="w-full">
             <CarouselContent className="py-4">
               {[...Array(2)].map((_, copy) => <React.Fragment key={`copy-${copy}`}>
-                <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
-                  <div className="flex items-center justify-center h-12 grayscale hover:grayscale-0 transition-all duration-300">
-                    <img
-                      src="/lovable-uploads/e690e2b8-f08c-4ae8-b42e-6754404ab3c1.png"
-                      alt="Halodoc"
-                      className="h-8 object-contain opacity-70 hover:opacity-100"
-                    />
-                  </div>
-                </CarouselItem>
-                <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
-                  <div className="flex items-center justify-center h-12 grayscale hover:grayscale-0 transition-all duration-300">
-                    <img
-                      src="/lovable-uploads/6727be9b-ee09-4c6d-adfe-11182325799c.png"
-                      alt="Papaya"
-                      className="h-8 object-contain opacity-70 hover:opacity-100"
-                    />
-                  </div>
-                </CarouselItem>
+              <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
+                <div className="flex items-center justify-center h-12 grayscale hover:grayscale-0 transition-all duration-300">
+                  <img
+                    src="/lovable-uploads/e690e2b8-f08c-4ae8-b42e-6754404ab3c1.png"
+                    alt="Halodoc"
+                    className="h-8 object-contain opacity-70 hover:opacity-100"
+                  />
+                </div>
+              </CarouselItem>
+              <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
+                <div className="flex items-center justify-center h-12 grayscale hover:grayscale-0 transition-all duration-300">
+                  <img
+                    src="/lovable-uploads/6727be9b-ee09-4c6d-adfe-11182325799c.png"
+                    alt="Papaya"
+                    className="h-8 object-contain opacity-70 hover:opacity-100"
+                  />
+                </div>
+              </CarouselItem>
+              <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
+                <div className="flex items-center justify-center h-12 grayscale hover:grayscale-0 transition-all duration-300">
+                  <img
+                    src="/lovable-uploads/60fca5a0-b0eb-4219-b6e6-a27578d426b8.png"
+                    alt="Gontor"
+                    className="h-8 object-contain opacity-70 hover:opacity-100"
+                  />
+                </div>
+              </CarouselItem>
                 <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
                   <div className="flex items-center justify-center h-12 grayscale hover:grayscale-0 transition-all duration-300">
                     <img
@@ -117,42 +121,6 @@ const HeroSection: React.FC = () => {
                     <img
                       src="/lovable-uploads/23a924a5-b5a4-4809-83db-42ea8ae871b7.png"
                       alt="JMKP"
-                      className="h-8 object-contain opacity-70 hover:opacity-100"
-                    />
-                  </div>
-                </CarouselItem>
-                <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
-                  <div className="flex items-center justify-center h-12 grayscale hover:grayscale-0 transition-all duration-300">
-                    <img
-                      src={FithubLogoSrc}
-                      alt="Fithub"
-                      className="h-8 object-contain opacity-70 hover:opacity-100"
-                    />
-                  </div>
-                </CarouselItem>
-                <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
-                  <div className="flex items-center justify-center h-14 grayscale hover:grayscale-0 transition-all duration-300">
-                    <img
-                      src={STTNFLogoSrc}
-                      alt="STT Nurul Fikri"
-                      className="h-10 object-contain opacity-70 hover:opacity-100"
-                    />
-                  </div>
-                </CarouselItem>
-                <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
-                  <div className="flex items-center justify-center h-12 grayscale hover:grayscale-0 transition-all duration-300">
-                    <img
-                      src="/lovable-uploads/f303edd0-4209-4221-bab6-368e05a456be.png"
-                      alt="Logo 2"
-                      className="h-8 object-contain opacity-70 hover:opacity-100"
-                    />
-                  </div>
-                </CarouselItem>
-                <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
-                  <div className="flex items-center justify-center h-12 grayscale hover:grayscale-0 transition-all duration-300">
-                    <img
-                      src="/lovable-uploads/0eab88ce-60bf-4459-a3f5-f8e25d3f92e7.png"
-                      alt="Logo 3"
                       className="h-8 object-contain opacity-70 hover:opacity-100"
                     />
                   </div>

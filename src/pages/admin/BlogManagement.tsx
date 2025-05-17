@@ -28,22 +28,25 @@ const BlogManagement = () => {
     ...defaultBlogPostFormData
   });
 
-  // Use hardcoded categories instead of querying a non-existent table
-  const predefinedCategories = [
-    'Tips & Trik', 
-    'Video Meeting', 
-    'Produktivitas', 
-    'Komunikasi', 
-    'Remote Work',
-    'Webinar',
-    'Teknologi'
-  ];
-  
   const { data: categoriesData } = useQuery({
     queryKey: ['blog-categories'],
     queryFn: async () => {
-      // Return predefined categories instead of querying the database
-      return predefinedCategories;
+      const { data, error } = await supabase
+        .from('blog_categories')
+        .select('name')
+        .order('name');
+      
+      if (error) {
+        console.error('Error fetching categories:', error);
+        toast({
+          variant: "destructive",
+          title: "Error fetching categories",
+          description: error.message,
+        });
+        return [];
+      }
+      
+      return data.map(category => category.name);
     },
   });
 
