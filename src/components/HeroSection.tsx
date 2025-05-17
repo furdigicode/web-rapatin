@@ -5,7 +5,11 @@ import { Calendar, Clock, DollarSign, Video, BadgeDollarSign } from 'lucide-reac
 import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
 
+// Import the image directly or add it as a local variable
 const IllustSrc = "/lovable-uploads/e7e34560-7715-4bb4-9fa9-26f74f4090b8.png";
+// Define the missing logo sources
+const FithubLogoSrc = "/lovable-uploads/f303edd0-4209-4221-bab6-368e05a456be.png"; // Using an existing image as placeholder
+const STTNFLogoSrc = "/lovable-uploads/0eab88ce-60bf-4459-a3f5-f8e25d3f92e7.png"; // Using an existing image as placeholder
 
 const HeroSection: React.FC = () => {
   const autoplayPlugin = React.useMemo(() => Autoplay({
