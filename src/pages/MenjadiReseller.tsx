@@ -117,7 +117,7 @@ const MenjadiReseller = () => {
               </p>
               <Button asChild size="lg" className="rounded-lg bg-primary hover:bg-primary/90 text-white">
                 <a 
-                  href={`https://wa.me/087788980084?text=${encodeURIComponent("Halo saya ingin daftar ke Rapatin")}`} 
+                  href="https://forms.gle/svvXLvR8ZjRiLWKh9" 
                   onClick={handleRegistration} 
                   target="_blank" 
                   rel="noopener noreferrer"
@@ -368,7 +368,7 @@ const MenjadiReseller = () => {
             <div className="text-center">
               <Button asChild size="lg" className="rounded-lg bg-primary hover:bg-primary/90 text-white">
                 <a 
-                  href={`https://wa.me/087788980084?text=${encodeURIComponent("Halo saya ingin daftar ke Rapatin")}`} 
+                  href="https://forms.gle/svvXLvR8ZjRiLWKh9" 
                   onClick={handleRegistration} 
                   target="_blank" 
                   rel="noopener noreferrer"
@@ -409,7 +409,7 @@ const MenjadiReseller = () => {
             <div className="mt-12 text-center">
               <Button asChild size="lg" className="rounded-lg bg-primary hover:bg-primary/90 text-white">
                 <a 
-                  href={`https://wa.me/087788980084?text=${encodeURIComponent("Halo saya ingin daftar ke Rapatin")}`} 
+                  href="https://forms.gle/svvXLvR8ZjRiLWKh9" 
                   onClick={handleRegistration} 
                   target="_blank" 
                   rel="noopener noreferrer"
