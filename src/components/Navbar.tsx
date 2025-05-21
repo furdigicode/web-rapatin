@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Menu, X, Home, HelpCircle } from 'lucide-react';
@@ -33,7 +34,7 @@ const Navbar: React.FC = () => {
 
   const handleRegistration = () => {
     if (typeof window.fbq === 'function') {
-      window.fbq('track', 'CompleteRegistration');
+      window.fbq('track', 'CTAClick');
     }
   };
 

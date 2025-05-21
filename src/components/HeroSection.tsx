@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Calendar, Clock, DollarSign, Video, BadgeDollarSign } from 'lucide-react';
@@ -17,7 +18,7 @@ const HeroSection: React.FC = () => {
   const handleRegistration = () => {
     // Track registration click with Facebook Pixel
     if (typeof window.fbq === 'function') {
-      window.fbq('track', 'CompleteRegistration');
+      window.fbq('track', 'CTAClick');
     }
   };
 

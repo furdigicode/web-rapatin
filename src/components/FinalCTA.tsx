@@ -8,7 +8,7 @@ const FinalCTA: React.FC = () => {
   const handleRegistration = () => {
     // Track registration click with Facebook Pixel
     if (typeof window.fbq === 'function') {
-      window.fbq('track', 'CompleteRegistration');
+      window.fbq('track', 'CTAClick');
     }
   };
 
