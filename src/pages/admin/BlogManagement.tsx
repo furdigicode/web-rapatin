@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import AdminLayout from '@/components/admin/AdminLayout';
@@ -31,10 +32,10 @@ const BlogManagement = () => {
   const { data: categoriesData } = useQuery({
     queryKey: ['blog-categories'],
     queryFn: async () => {
+      // Use a raw query approach to get around TypeScript limitations
       const { data, error } = await supabase
         .from('blog_categories')
-        .select('name')
-        .order('name');
+        .select('*');
       
       if (error) {
         console.error('Error fetching categories:', error);
@@ -46,7 +47,8 @@ const BlogManagement = () => {
         return [];
       }
       
-      return data.map(category => category.name);
+      // Extract category names from the data
+      return data.map((category: any) => category.name);
     },
   });
 
