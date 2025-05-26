@@ -60,10 +60,6 @@ const Navbar: React.FC = () => {
             Home
           </Link>
           
-          <Link to="/appointment" className="text-sm font-medium hover:text-primary transition-colors">
-            Appointment Booking
-          </Link>
-          
           {isHomePage ? (
             <>
               <a href="#features" className="text-sm font-medium hover:text-primary transition-colors">Fitur</a>
