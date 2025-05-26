@@ -1,4 +1,5 @@
 
+
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Calendar, Clock, DollarSign, Video, BadgeDollarSign } from 'lucide-react';
@@ -126,6 +127,42 @@ const HeroSection: React.FC = () => {
                     />
                   </div>
                 </CarouselItem>
+                <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
+                  <div className="flex items-center justify-center h-12 grayscale hover:grayscale-0 transition-all duration-300">
+                    <img
+                      src="https://citraurbana.com/wp-content/uploads/2024/03/logo-horizontal-500.svg"
+                      alt="Citra Urbana"
+                      className="h-8 object-contain opacity-70 hover:opacity-100"
+                    />
+                  </div>
+                </CarouselItem>
+                <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
+                  <div className="flex items-center justify-center h-12 grayscale hover:grayscale-0 transition-all duration-300">
+                    <img
+                      src="/lovable-uploads/3789d5f7-4d81-4aef-93f6-e31f8546d541.png"
+                      alt="APKEPI"
+                      className="h-8 object-contain opacity-70 hover:opacity-100"
+                    />
+                  </div>
+                </CarouselItem>
+                <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
+                  <div className="flex items-center justify-center h-12 grayscale hover:grayscale-0 transition-all duration-300">
+                    <img
+                      src="/lovable-uploads/75085a74-99ab-4c7a-bb7f-9aa9fc2559a6.png"
+                      alt="ISO Jepang"
+                      className="h-8 object-contain opacity-70 hover:opacity-100"
+                    />
+                  </div>
+                </CarouselItem>
+                <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
+                  <div className="flex items-center justify-center h-12 grayscale hover:grayscale-0 transition-all duration-300">
+                    <img
+                      src="/lovable-uploads/22bcf4c0-f0a4-46c1-b090-c9832ecc1a3b.png"
+                      alt="Universitas Bung Hatta"
+                      className="h-8 object-contain opacity-70 hover:opacity-100"
+                    />
+                  </div>
+                </CarouselItem>
               </React.Fragment>)}
             </CarouselContent>
           </Carousel>
@@ -136,3 +173,4 @@ const HeroSection: React.FC = () => {
 };
 
 export default HeroSection;
+
