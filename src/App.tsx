@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -8,6 +9,7 @@ import NotFound from "./pages/NotFound";
 import FAQ from "./pages/FAQ";
 import TentangKami from "./pages/TentangKami";
 import Kontak from "./pages/Kontak";
+import Appointment from "./pages/Appointment";
 
 // Feature Pages
 import BayarSesuaiPakai from "./pages/fitur/BayarSesuaiPakai";
@@ -50,6 +52,7 @@ const AppRoutes = () => {
       {/* Public Routes */}
       <Route path="/" element={<Index />} />
       <Route path="/faq" element={<FAQ />} />
+      <Route path="/appointment" element={<Appointment />} />
       
       {/* Feature Pages */}
       <Route path="/fitur/bayar-sesuai-pakai" element={<BayarSesuaiPakai />} />

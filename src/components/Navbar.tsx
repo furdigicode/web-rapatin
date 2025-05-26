@@ -60,6 +60,10 @@ const Navbar: React.FC = () => {
             Home
           </Link>
           
+          <Link to="/appointment" className="text-sm font-medium hover:text-primary transition-colors">
+            Appointment Booking
+          </Link>
+          
           {isHomePage ? (
             <>
               <a href="#features" className="text-sm font-medium hover:text-primary transition-colors">Fitur</a>
@@ -123,6 +127,14 @@ const Navbar: React.FC = () => {
               onClick={() => setIsMobileMenuOpen(false)}
             >
               Home
+            </Link>
+            
+            <Link 
+              to="/appointment" 
+              className="block text-sm font-medium hover:text-primary transition-colors py-2"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              Appointment Booking
             </Link>
             
             {isHomePage ? (
