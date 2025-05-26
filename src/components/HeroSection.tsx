@@ -100,15 +100,6 @@ const HeroSection: React.FC = () => {
                   />
                 </div>
               </CarouselItem>
-              <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
-                <div className="flex items-center justify-center h-12 grayscale hover:grayscale-0 transition-all duration-300">
-                  <img
-                    src="/lovable-uploads/60fca5a0-b0eb-4219-b6e6-a27578d426b8.png"
-                    alt="Gontor"
-                    className="h-8 object-contain opacity-70 hover:opacity-100"
-                  />
-                </div>
-              </CarouselItem>
                 <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
                   <div className="flex items-center justify-center h-12 grayscale hover:grayscale-0 transition-all duration-300">
                     <img
