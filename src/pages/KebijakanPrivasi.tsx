@@ -69,6 +69,43 @@ const KebijakanPrivasi = () => {
     }
   }, []);
 
+  const renderContent = (content: string) => {
+    return content.split('\n\n').map((paragraph, index) => {
+      // Check if paragraph contains bullet points (lines starting with '- ')
+      if (paragraph.includes('\n- ') || paragraph.startsWith('- ')) {
+        let introText = '';
+        let listItems: string[] = [];
+        
+        if (paragraph.startsWith('- ')) {
+          // Entire paragraph is a list
+          listItems = paragraph.split('\n- ').map(item => item.replace(/^- /, ''));
+        } else {
+          // Mixed content with intro text and list
+          const [intro, ...items] = paragraph.split('\n- ');
+          introText = intro;
+          listItems = items;
+        }
+        
+        return (
+          <div key={index} className={index < content.split('\n\n').length - 1 ? "mb-3" : ""}>
+            {introText && <p className="mb-3">{introText}</p>}
+            <ul className="list-disc pl-6 space-y-2">
+              {listItems.map((item, i) => (
+                <li key={i}>{item}</li>
+              ))}
+            </ul>
+          </div>
+        );
+      } else {
+        return (
+          <p key={index} className={index < content.split('\n\n').length - 1 ? "mb-3" : ""}>
+            {paragraph}
+          </p>
+        );
+      }
+    });
+  };
+
   return (
     <div className="min-h-screen">
       <Navbar />
@@ -89,29 +126,7 @@ const KebijakanPrivasi = () => {
               {privacyData.sections.map((section) => (
                 <section key={section.id}>
                   <h2 className="text-2xl font-bold mb-4">{section.title}</h2>
-                  {/* Split paragraphs and render them */}
-                  {section.content.split('\n\n').map((paragraph, index) => {
-                    // Special handling for lists (lines starting with '- ')
-                    if (paragraph.includes('\n- ')) {
-                      const [introText, ...listItems] = paragraph.split('\n- ');
-                      return (
-                        <div key={index} className={index < section.content.split('\n\n').length - 1 ? "mb-3" : ""}>
-                          {introText && <p className="mb-3">{introText}</p>}
-                          <ul className="list-disc pl-6 space-y-2">
-                            {listItems.map((item, i) => (
-                              <li key={i}>{item}</li>
-                            ))}
-                          </ul>
-                        </div>
-                      );
-                    } else {
-                      return (
-                        <p key={index} className={index < section.content.split('\n\n').length - 1 ? "mb-3" : ""}>
-                          {paragraph}
-                        </p>
-                      );
-                    }
-                  })}
+                  {renderContent(section.content)}
                 </section>
               ))}
               
