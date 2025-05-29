@@ -8,7 +8,7 @@ const IllustSrc = "/lovable-uploads/e7e34560-7715-4bb4-9fa9-26f74f4090b8.png";
 
 const HeroSection: React.FC = () => {
   const autoplayPlugin = React.useMemo(() => Autoplay({
-    delay: 5000,
+    delay: 3000,
     stopOnInteraction: false,
     rootNode: emblaRoot => emblaRoot.parentElement,
     stopOnMouseEnter: true
