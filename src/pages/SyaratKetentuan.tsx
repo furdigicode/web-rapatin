@@ -7,7 +7,7 @@ import Footer from '@/components/Footer';
 const defaultTermsData = {
   header: {
     title: "Syarat & Ketentuan",
-    lastUpdated: "1 Juni 2023",
+    lastUpdated: "29 Mei 2025",
   },
   sections: [
     {
@@ -22,37 +22,42 @@ const defaultTermsData = {
     },
     {
       id: "3",
-      title: "3. Akun dan Pembayaran",
-      content: "Untuk menggunakan layanan kami, Anda harus membuat akun dan melakukan top-up saldo. Pembayaran dilakukan melalui metode pembayaran yang kami sediakan. Biaya layanan kami didasarkan pada penggunaan aktual Anda.\n\nKami berhak mengubah harga layanan kami kapan saja. Perubahan harga akan diumumkan melalui situs web atau email. Penggunaan berkelanjutan atas layanan kami setelah perubahan harga merupakan persetujuan Anda terhadap harga baru."
+      title: "3. Platform Meeting Zoom",
+      content: "Rapatin menggunakan Zoom sebagai platform meeting pihak ketiga melalui Zoom Developer Platform (API dan komponen lainnya). Rapatin BUKAN bagian dari perusahaan Zoom dan merupakan pengguna Zoom yang memanfaatkan layanan developer mereka.\n\nSemua Meeting ID yang dihasilkan sepenuhnya berada di bawah kontrol Zoom. Jika terjadi pemblokiran, penangguhan (suspend), atau tindakan serupa terhadap akun Zoom, hal tersebut sepenuhnya merupakan wewenang Zoom.\n\nJika Meeting ID diblokir atau ditangguhkan oleh Zoom, Rapatin tidak dapat membantu proses banding untuk reaktivasi akun tersebut. Dalam situasi ini, pengguna dapat membuat akun baru untuk melanjutkan penggunaan layanan."
     },
     {
       id: "4",
-      title: "4. Hak Kekayaan Intelektual",
-      content: "Layanan kami dan konten yang terkait dengannya, termasuk tetapi tidak terbatas pada teks, grafik, logo, ikon, gambar, klip audio, unduhan digital, dan kompilasi data, adalah milik Rapatin atau pemberi lisensinya dan dilindungi oleh hukum hak cipta internasional."
+      title: "4. Akun dan Pembayaran",
+      content: "Untuk menggunakan layanan kami, Anda harus membuat akun dan melakukan top-up saldo. Pembayaran dilakukan melalui metode pembayaran yang kami sediakan. Biaya layanan kami didasarkan pada penggunaan aktual Anda.\n\nKami berhak mengubah harga layanan kami kapan saja. Perubahan harga akan diumumkan melalui situs web atau email. Penggunaan berkelanjutan atas layanan kami setelah perubahan harga merupakan persetujuan Anda terhadap harga baru."
     },
     {
       id: "5",
-      title: "5. Privasi",
-      content: "Penggunaan Anda atas layanan kami juga diatur oleh Kebijakan Privasi kami, yang tersedia di situs web kami. Dengan menggunakan layanan kami, Anda juga menyetujui Kebijakan Privasi kami."
+      title: "5. Hak Kekayaan Intelektual",
+      content: "Layanan kami dan konten yang terkait dengannya, termasuk tetapi tidak terbatas pada teks, grafik, logo, ikon, gambar, klip audio, unduhan digital, dan kompilasi data, adalah milik Rapatin atau pemberi lisensinya dan dilindungi oleh hukum hak cipta internasional."
     },
     {
       id: "6",
-      title: "6. Pembatasan Tanggung Jawab",
-      content: "Sejauh diizinkan oleh hukum, Rapatin tidak bertanggung jawab atas kerugian tidak langsung, insidental, khusus, konsekuensial, atau hukuman, termasuk kerugian keuntungan, pendapatan, data, atau penggunaan, yang timbul dari atau terkait dengan penggunaan Anda atas layanan kami."
+      title: "6. Privasi",
+      content: "Penggunaan Anda atas layanan kami juga diatur oleh Kebijakan Privasi kami, yang tersedia di situs web kami. Dengan menggunakan layanan kami, Anda juga menyetujui Kebijakan Privasi kami."
     },
     {
       id: "7",
-      title: "7. Penghentian",
-      content: "Kami berhak menghentikan atau menangguhkan akses Anda ke layanan kami, tanpa pemberitahuan sebelumnya, karena alasan apa pun, termasuk tanpa batasan jika Anda melanggar Syarat & Ketentuan ini."
+      title: "7. Pembatasan Tanggung Jawab",
+      content: "Sejauh diizinkan oleh hukum, Rapatin tidak bertanggung jawab atas kerugian tidak langsung, insidental, khusus, konsekuensial, atau hukuman, termasuk kerugian keuntungan, pendapatan, data, atau penggunaan, yang timbul dari atau terkait dengan penggunaan Anda atas layanan kami."
     },
     {
       id: "8",
-      title: "8. Perubahan",
-      content: "Kami berhak, atas kebijakan kami sendiri, untuk mengubah atau mengganti Syarat & Ketentuan ini kapan saja. Perubahan yang signifikan akan diumumkan melalui situs web atau email. Penggunaan berkelanjutan atas layanan kami setelah perubahan tersebut merupakan persetujuan Anda terhadap Syarat & Ketentuan baru."
+      title: "8. Penghentian",
+      content: "Kami berhak menghentikan atau menangguhkan akses Anda ke layanan kami, tanpa pemberitahuan sebelumnya, karena alasan apa pun, termasuk tanpa batasan jika Anda melanggar Syarat & Ketentuan ini."
     },
     {
       id: "9",
-      title: "9. Hubungi Kami",
+      title: "9. Perubahan",
+      content: "Kami berhak, atas kebijakan kami sendiri, untuk mengubah atau mengganti Syarat & Ketentuan ini kapan saja. Perubahan yang signifikan akan diumumkan melalui situs web atau email. Penggunaan berkelanjutan atas layanan kami setelah perubahan tersebut merupakan persetujuan Anda terhadap Syarat & Ketentuan baru."
+    },
+    {
+      id: "10",
+      title: "10. Hubungi Kami",
       content: "Jika Anda memiliki pertanyaan tentang Syarat & Ketentuan ini, hubungi kami di:\n\nEmail: ladmin@rapatin.id"
     }
   ]
