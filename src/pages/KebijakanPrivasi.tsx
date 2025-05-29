@@ -53,7 +53,7 @@ const defaultPrivacyData = {
     {
       id: "9",
       title: "9. Hubungi Kami",
-      content: "Jika Anda memiliki pertanyaan tentang Kebijakan Privasi ini, hubungi kami di:\n\nEmail: privacy@rapatin.id\nTelepon: +62 812 3456 7890\nAlamat: Jl. Sudirman No. 123, Jakarta Selatan, 12190, Indonesia"
+      content: "Jika Anda memiliki pertanyaan tentang Kebijakan Privasi ini, hubungi kami di:\n\nEmail: admin@rapatin.id"
     }
   ]
 };
