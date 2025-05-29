@@ -13,7 +13,7 @@ const defaultTermsData = {
     {
       id: "1",
       title: "1. Pendahuluan",
-      content: "Selamat datang di Rapatin. Syarat & Ketentuan ini mengatur penggunaan Anda atas layanan yang disediakan oleh PT Rapatin Teknologi Indonesia (\"Rapatin,\" \"kami,\" atau \"kita\").\n\nDengan mengakses atau menggunakan layanan kami, Anda setuju untuk terikat oleh Syarat & Ketentuan ini. Jika Anda tidak setuju dengan bagian apa pun dari dokumen ini, Anda tidak boleh mengakses layanan kami."
+      content: "Selamat datang di Rapatin. Syarat & Ketentuan ini mengatur penggunaan Anda atas layanan yang disediakan Rapatin (\"Rapatin,\" \"kami,\" atau \"kita\").\n\nDengan mengakses atau menggunakan layanan kami, Anda setuju untuk terikat oleh Syarat & Ketentuan ini. Jika Anda tidak setuju dengan bagian apa pun dari dokumen ini, Anda tidak boleh mengakses layanan kami."
     },
     {
       id: "2",
@@ -53,7 +53,7 @@ const defaultTermsData = {
     {
       id: "9",
       title: "9. Hubungi Kami",
-      content: "Jika Anda memiliki pertanyaan tentang Syarat & Ketentuan ini, hubungi kami di:\n\nEmail: legal@rapatin.id\nTelepon: +62 812 3456 7890\nAlamat: Jl. Sudirman No. 123, Jakarta Selatan, 12190, Indonesia"
+      content: "Jika Anda memiliki pertanyaan tentang Syarat & Ketentuan ini, hubungi kami di:\n\nEmail: ladmin@rapatin.id"
     }
   ]
 };

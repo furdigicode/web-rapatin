@@ -13,7 +13,7 @@ const defaultPrivacyData = {
     {
       id: "1",
       title: "1. Pendahuluan",
-      content: "PT Rapatin Teknologi Indonesia (\"Rapatin,\" \"kami,\" atau \"kita\") menghargai privasi Anda. Kebijakan Privasi ini menjelaskan bagaimana kami mengumpulkan, menggunakan, dan mengungkapkan informasi pribadi Anda saat Anda menggunakan layanan kami.\n\nDengan menggunakan layanan kami, Anda menyetujui praktik yang dijelaskan dalam Kebijakan Privasi ini. Jika Anda tidak setuju dengan kebijakan ini, harap jangan gunakan layanan kami."
+      content: "Rapatin (\"Rapatin,\" \"kami,\" atau \"kita\") menghargai privasi Anda. Kebijakan Privasi ini menjelaskan bagaimana kami mengumpulkan, menggunakan, dan mengungkapkan informasi pribadi Anda saat Anda menggunakan layanan kami.\n\nDengan menggunakan layanan kami, Anda menyetujui praktik yang dijelaskan dalam Kebijakan Privasi ini. Jika Anda tidak setuju dengan kebijakan ini, harap jangan gunakan layanan kami."
     },
     {
       id: "2",
