@@ -18,7 +18,7 @@ const defaultPrivacyData = {
     {
       id: "2",
       title: "2. Informasi yang Kami Kumpulkan",
-      content: "Kami dapat mengumpulkan beberapa jenis informasi dari dan tentang pengguna layanan kami, termasuk:\n\n- Informasi pribadi seperti nama, alamat email, dan nomor telepon.\n- Informasi pembayaran untuk memproses transaksi.\n- Informasi tentang penggunaan layanan kami, seperti waktu, durasi, dan jumlah peserta rapat.\n- Informasi teknis seperti alamat IP, jenis perangkat, dan jenis browser."
+      content: "Kami dapat mengumpulkan beberapa jenis informasi dari dan tentang pengguna layanan kami, termasuk: \n\n- Informasi pribadi seperti nama, alamat email, dan nomor telepon.\n- Informasi pembayaran untuk memproses transaksi.\n- Informasi tentang penggunaan layanan kami, seperti waktu, durasi, dan jumlah peserta rapat.\n- Informasi teknis seperti alamat IP, jenis perangkat, dan jenis browser."
     },
     {
       id: "3",
