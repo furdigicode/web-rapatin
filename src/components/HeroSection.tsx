@@ -1,5 +1,3 @@
-
-
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Calendar, Clock, DollarSign, Video, BadgeDollarSign } from 'lucide-react';
@@ -154,6 +152,15 @@ const HeroSection: React.FC = () => {
                     />
                   </div>
                 </CarouselItem>
+                <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
+                  <div className="flex items-center justify-center h-12 grayscale hover:grayscale-0 transition-all duration-300">
+                    <img
+                      src="/lovable-uploads/1de3e82f-cc87-4981-8265-c0756628d701.png"
+                      alt="DigiCode"
+                      className="h-8 object-contain opacity-70 hover:opacity-100"
+                    />
+                  </div>
+                </CarouselItem>
               </React.Fragment>)}
             </CarouselContent>
           </Carousel>
@@ -164,4 +171,3 @@ const HeroSection: React.FC = () => {
 };
 
 export default HeroSection;
-
