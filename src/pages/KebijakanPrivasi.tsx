@@ -7,7 +7,7 @@ import Footer from '@/components/Footer';
 const defaultPrivacyData = {
   header: {
     title: "Kebijakan Privasi",
-    lastUpdated: "1 Juni 2023",
+    lastUpdated: "1 Maret 2025",
   },
   sections: [
     {

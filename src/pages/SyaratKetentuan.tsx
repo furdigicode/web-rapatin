@@ -7,7 +7,7 @@ import Footer from '@/components/Footer';
 const defaultTermsData = {
   header: {
     title: "Syarat & Ketentuan",
-    lastUpdated: "29 Mei 2025",
+    lastUpdated: "29 Maret 2025",
   },
   sections: [
     {
