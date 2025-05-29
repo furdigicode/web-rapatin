@@ -23,7 +23,7 @@ const defaultTermsData = {
     {
       id: "3",
       title: "3. Platform Meeting Zoom",
-      content: "Rapatin menggunakan Zoom sebagai platform meeting pihak ketiga melalui Zoom Developer Platform (API dan komponen lainnya). Rapatin BUKAN bagian dari perusahaan Zoom dan merupakan pengguna Zoom yang memanfaatkan layanan developer mereka.\n\nSemua Meeting ID yang dihasilkan sepenuhnya berada di bawah kontrol Zoom. Jika terjadi pemblokiran, penangguhan (suspend), atau tindakan serupa terhadap akun Zoom, hal tersebut sepenuhnya merupakan wewenang Zoom.\n\nJika Meeting ID diblokir atau ditangguhkan oleh Zoom, Rapatin tidak dapat membantu proses banding untuk reaktivasi akun tersebut. Dalam situasi ini, pengguna dapat membuat akun baru untuk melanjutkan penggunaan layanan."
+      content: "Rapatin menggunakan Zoom sebagai platform meeting pihak ketiga melalui Zoom Developer Platform (API dan komponen lainnya). Rapatin BUKAN bagian dari perusahaan Zoom dan merupakan pengguna Zoom yang memanfaatkan layanan developer mereka.\n\nSemua Meeting ID yang dihasilkan sepenuhnya berada di bawah kontrol Zoom. Jika terjadi pemblokiran, penangguhan (suspend), atau tindakan serupa terhadap akun Zoom kami, hal tersebut sepenuhnya merupakan wewenang Zoom.\n\nJika Meeting ID diblokir atau ditangguhkan oleh Zoom, Rapatin tidak dapat membantu proses banding untuk reaktivasi akun tersebut. Dalam situasi ini, pengguna dapat membuat jadwal baru untuk melanjutkan penggunaan layanan."
     },
     {
       id: "4",
@@ -58,7 +58,7 @@ const defaultTermsData = {
     {
       id: "10",
       title: "10. Hubungi Kami",
-      content: "Jika Anda memiliki pertanyaan tentang Syarat & Ketentuan ini, hubungi kami di:\n\nEmail: ladmin@rapatin.id"
+      content: "Jika Anda memiliki pertanyaan tentang Syarat & Ketentuan ini, hubungi kami di:\n\nEmail: admin@rapatin.id"
     }
   ]
 };
