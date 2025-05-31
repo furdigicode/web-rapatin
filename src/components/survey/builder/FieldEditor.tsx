@@ -8,16 +8,16 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Plus, Trash2, Save, X } from 'lucide-react';
-import type { SurveyField } from '@/types/SurveyTypes';
+import type { EditableField } from './FieldEditorTypes';
 
 interface FieldEditorProps {
-  field: SurveyField;
-  onSave: (field: Partial<SurveyField>) => void;
+  field: EditableField;
+  onSave: (field: Partial<EditableField>) => void;
   onCancel: () => void;
 }
 
 const FieldEditor: React.FC<FieldEditorProps> = ({ field, onSave, onCancel }) => {
-  const [editingField, setEditingField] = useState<Partial<SurveyField>>(field);
+  const [editingField, setEditingField] = useState<Partial<EditableField>>(field);
   const [options, setOptions] = useState<string[]>(field.options || []);
 
   useEffect(() => {

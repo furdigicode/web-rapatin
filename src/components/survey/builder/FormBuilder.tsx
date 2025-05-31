@@ -11,6 +11,7 @@ import FieldEditor from './FieldEditor';
 import FieldRenderer from '../render/FieldRenderer';
 import { Trash2, Edit, GripVertical, Clock } from 'lucide-react';
 import type { SurveyField, FieldType } from '@/types/SurveyTypes';
+import type { LocalField, EditableField } from './FieldEditorTypes';
 
 interface LocalField {
   tempId: string;
@@ -37,7 +38,7 @@ interface FormBuilderProps {
 }
 
 const FormBuilder: React.FC<FormBuilderProps> = ({ surveyId, fields, onLocalFieldsChange }) => {
-  const [selectedField, setSelectedField] = useState<SurveyField | LocalField | null>(null);
+  const [selectedField, setSelectedField] = useState<EditableField | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [localFields, setLocalFields] = useState<LocalField[]>([]);
   const { toast } = useToast();
@@ -272,7 +273,7 @@ const FormBuilder: React.FC<FormBuilderProps> = ({ surveyId, fields, onLocalFiel
     setIsEditing(true);
   };
 
-  const handleUpdateField = (updatedField: Partial<SurveyField | LocalField>) => {
+  const handleUpdateField = (updatedField: Partial<EditableField>) => {
     if (selectedField) {
       if ('tempId' in selectedField) {
         // Update local field
