@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import AdminLayout from '@/components/admin/AdminLayout';
@@ -537,7 +536,7 @@ const BlogManagement = () => {
   };
 
   return (
-    <AdminLayout title="Manajemen Blog">
+    <AdminLayout>
       <DeleteConfirmation 
         open={deleteDialogOpen}
         onOpenChange={setDeleteDialogOpen}

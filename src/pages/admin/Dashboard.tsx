@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import AdminLayout from '@/components/admin/AdminLayout';
@@ -61,7 +60,7 @@ const Dashboard = () => {
     visits: 765
   }];
 
-  return <AdminLayout title="Dashboard">
+  return <AdminLayout>
       <div className="grid gap-6 md:grid-cols-2 mb-6">
         {/* Most Viewed Articles */}
         <Card>
