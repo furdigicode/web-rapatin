@@ -1,0 +1,251 @@
+
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import AdminLayout from '@/components/admin/AdminLayout';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useToast } from '@/hooks/use-toast';
+import { Save, Eye, Settings, Plus } from 'lucide-react';
+import FormBuilder from '@/components/survey/builder/FormBuilder';
+import SurveySettings from '@/components/survey/builder/SurveySettings';
+import type { Survey, SurveyField } from '@/types/SurveyTypes';
+
+const SurveyBuilder = () => {
+  const { surveyId } = useParams();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const isNew = surveyId === 'new';
+
+  const [survey, setSurvey] = useState<Partial<Survey>>({
+    title: '',
+    description: '',
+    status: 'draft',
+    settings: {}
+  });
+
+  const { data: existingSurvey, isLoading: surveyLoading } = useQuery({
+    queryKey: ['survey', surveyId],
+    queryFn: async () => {
+      if (isNew) return null;
+      const { data, error } = await supabase
+        .from('surveys')
+        .select('*')
+        .eq('id', surveyId)
+        .single();
+      if (error) throw error;
+      return data as Survey;
+    },
+    enabled: !isNew
+  });
+
+  const { data: fields = [], isLoading: fieldsLoading } = useQuery({
+    queryKey: ['survey-fields', surveyId],
+    queryFn: async () => {
+      if (isNew) return [];
+      const { data, error } = await supabase
+        .from('survey_fields')
+        .select('*')
+        .eq('survey_id', surveyId)
+        .order('field_order');
+      if (error) throw error;
+      return data as SurveyField[];
+    },
+    enabled: !isNew
+  });
+
+  useEffect(() => {
+    if (existingSurvey) {
+      setSurvey(existingSurvey);
+    }
+  }, [existingSurvey]);
+
+  const saveSurveyMutation = useMutation({
+    mutationFn: async (surveyData: Partial<Survey>) => {
+      if (isNew) {
+        const { data, error } = await supabase
+          .from('surveys')
+          .insert(surveyData)
+          .select()
+          .single();
+        if (error) throw error;
+        return data;
+      } else {
+        const { data, error } = await supabase
+          .from('surveys')
+          .update(surveyData)
+          .eq('id', surveyId)
+          .select()
+          .single();
+        if (error) throw error;
+        return data;
+      }
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['surveys'] });
+      queryClient.invalidateQueries({ queryKey: ['survey', surveyId] });
+      toast({
+        title: "Survey saved",
+        description: "Your survey has been saved successfully.",
+      });
+      if (isNew) {
+        navigate(`/admin/survey/builder/${data.id}`);
+      }
+    },
+    onError: () => {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to save survey.",
+      });
+    }
+  });
+
+  const publishSurveyMutation = useMutation({
+    mutationFn: async () => {
+      const { error } = await supabase
+        .from('surveys')
+        .update({ status: 'published' })
+        .eq('id', surveyId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['survey', surveyId] });
+      setSurvey(prev => ({ ...prev, status: 'published' }));
+      toast({
+        title: "Survey published",
+        description: "Your survey is now live and accepting responses.",
+      });
+    }
+  });
+
+  const handleSave = () => {
+    if (!survey.title?.trim()) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Survey title is required.",
+      });
+      return;
+    }
+    saveSurveyMutation.mutate(survey);
+  };
+
+  const handlePublish = () => {
+    if (!survey.title?.trim()) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Survey title is required.",
+      });
+      return;
+    }
+    publishSurveyMutation.mutate();
+  };
+
+  if (surveyLoading || fieldsLoading) {
+    return (
+      <AdminLayout>
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">Loading survey builder...</div>
+        </div>
+      </AdminLayout>
+    );
+  }
+
+  return (
+    <AdminLayout>
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-2xl font-bold">
+              {isNew ? 'Create New Survey' : 'Edit Survey'}
+            </h1>
+            <p className="text-muted-foreground">
+              Build your survey with drag-and-drop form fields
+            </p>
+          </div>
+          <div className="flex gap-2">
+            <Button 
+              variant="outline" 
+              onClick={() => navigate(`/form/${surveyId}`)}
+              disabled={isNew}
+            >
+              <Eye className="w-4 h-4 mr-2" />
+              Preview
+            </Button>
+            <Button onClick={handleSave} disabled={saveSurveyMutation.isPending}>
+              <Save className="w-4 h-4 mr-2" />
+              Save
+            </Button>
+            {survey.status !== 'published' && !isNew && (
+              <Button 
+                onClick={handlePublish} 
+                disabled={publishSurveyMutation.isPending}
+                className="bg-green-600 hover:bg-green-700"
+              >
+                Publish
+              </Button>
+            )}
+          </div>
+        </div>
+
+        <Tabs defaultValue="builder" className="space-y-4">
+          <TabsList>
+            <TabsTrigger value="builder">
+              <Plus className="w-4 h-4 mr-2" />
+              Form Builder
+            </TabsTrigger>
+            <TabsTrigger value="settings">
+              <Settings className="w-4 h-4 mr-2" />
+              Settings
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="builder" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Survey Details</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium mb-2">Survey Title</label>
+                  <Input
+                    value={survey.title || ''}
+                    onChange={(e) => setSurvey(prev => ({ ...prev, title: e.target.value }))}
+                    placeholder="Enter survey title"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">Description</label>
+                  <Textarea
+                    value={survey.description || ''}
+                    onChange={(e) => setSurvey(prev => ({ ...prev, description: e.target.value }))}
+                    placeholder="Enter survey description (optional)"
+                    rows={3}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+
+            <FormBuilder surveyId={isNew ? undefined : surveyId} fields={fields} />
+          </TabsContent>
+
+          <TabsContent value="settings">
+            <SurveySettings 
+              settings={survey.settings || {}}
+              onSettingsChange={(settings) => setSurvey(prev => ({ ...prev, settings }))}
+            />
+          </TabsContent>
+        </Tabs>
+      </div>
+    </AdminLayout>
+  );
+};
+
+export default SurveyBuilder;
