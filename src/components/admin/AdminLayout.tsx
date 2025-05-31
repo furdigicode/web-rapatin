@@ -55,10 +55,10 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="flex">
+    <div className="h-screen bg-gray-50 overflow-hidden">
+      <div className="flex h-full">
         {/* Sidebar */}
-        <div className="w-64 bg-white shadow-sm border-r">
+        <div className="w-64 bg-white shadow-sm border-r flex flex-col h-full">
           <div className="p-6">
             <div className="flex items-center gap-2">
               <img 
@@ -70,7 +70,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
             </div>
           </div>
           
-          <nav className="px-4 pb-4">
+          <nav className="px-4 pb-4 flex-1">
             <ul className="space-y-2">
               {navigationItems.map((item) => {
                 const IconComponent = item.icon;
@@ -95,9 +95,9 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
         </div>
 
         {/* Main Content */}
-        <div className="flex-1">
+        <div className="flex-1 flex flex-col h-full overflow-hidden">
           {/* Header */}
-          <header className="bg-white border-b px-6 py-4">
+          <header className="bg-white border-b px-6 py-4 flex-shrink-0">
             <div className="flex justify-between items-center">
               <h1 className="text-xl font-semibold">Admin Panel</h1>
               <Button 
@@ -113,7 +113,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
           </header>
 
           {/* Page Content */}
-          <main className="p-6">
+          <main className="p-6 flex-1 overflow-auto">
             {children}
           </main>
         </div>
