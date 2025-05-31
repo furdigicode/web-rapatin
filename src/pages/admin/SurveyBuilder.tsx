@@ -66,11 +66,24 @@ const SurveyBuilder = () => {
   }, [existingSurvey]);
 
   const saveSurveyMutation = useMutation({
-    mutationFn: async (surveyData: Partial<Survey>) => {
+    mutationFn: async (surveyData: {
+      title: string;
+      description?: string;
+      status?: string;
+      settings?: Record<string, any>;
+      created_by?: string;
+    }) => {
       if (isNew) {
+        // Get current user
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error('User not authenticated');
+
         const { data, error } = await supabase
           .from('surveys')
-          .insert(surveyData)
+          .insert({
+            ...surveyData,
+            created_by: user.id
+          })
           .select()
           .single();
         if (error) throw error;
@@ -133,7 +146,13 @@ const SurveyBuilder = () => {
       });
       return;
     }
-    saveSurveyMutation.mutate(survey);
+    
+    saveSurveyMutation.mutate({
+      title: survey.title,
+      description: survey.description,
+      status: survey.status,
+      settings: survey.settings || {}
+    });
   };
 
   const handlePublish = () => {

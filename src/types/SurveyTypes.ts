@@ -5,7 +5,7 @@ export interface Survey {
   description?: string;
   status: 'draft' | 'published' | 'closed';
   created_by: string;
-  settings: SurveySettings;
+  settings: Record<string, any>;
   created_at: string;
   updated_at: string;
 }
@@ -32,7 +32,7 @@ export interface SurveyField {
   label: string;
   description?: string;
   options: string[];
-  validation_rules: ValidationRules;
+  validation_rules: Record<string, any>;
   field_order: number;
   is_required: boolean;
   created_at: string;

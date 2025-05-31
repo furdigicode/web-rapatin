@@ -24,13 +24,25 @@ const FormBuilder: React.FC<FormBuilderProps> = ({ surveyId, fields }) => {
   const queryClient = useQueryClient();
 
   const addFieldMutation = useMutation({
-    mutationFn: async (fieldData: Partial<SurveyField>) => {
+    mutationFn: async (fieldData: {
+      field_type: string;
+      label: string;
+      description: string;
+      options: string[];
+      validation_rules: Record<string, any>;
+      is_required: boolean;
+    }) => {
       const { data, error } = await supabase
         .from('survey_fields')
         .insert({
-          ...fieldData,
-          survey_id: surveyId,
-          field_order: fields.length
+          survey_id: surveyId!,
+          field_type: fieldData.field_type,
+          label: fieldData.label,
+          description: fieldData.description,
+          options: fieldData.options,
+          validation_rules: fieldData.validation_rules,
+          field_order: fields.length,
+          is_required: fieldData.is_required
         })
         .select()
         .single();
@@ -47,10 +59,19 @@ const FormBuilder: React.FC<FormBuilderProps> = ({ surveyId, fields }) => {
   });
 
   const updateFieldMutation = useMutation({
-    mutationFn: async ({ id, ...fieldData }: Partial<SurveyField> & { id: string }) => {
+    mutationFn: async (fieldData: {
+      id: string;
+      field_type?: string;
+      label?: string;
+      description?: string;
+      options?: string[];
+      validation_rules?: Record<string, any>;
+      is_required?: boolean;
+    }) => {
+      const { id, ...updateData } = fieldData;
       const { data, error } = await supabase
         .from('survey_fields')
-        .update(fieldData)
+        .update(updateData)
         .eq('id', id)
         .select()
         .single();
@@ -111,7 +132,7 @@ const FormBuilder: React.FC<FormBuilderProps> = ({ surveyId, fields }) => {
       return;
     }
 
-    const newField: Partial<SurveyField> = {
+    const newField = {
       field_type: fieldType,
       label,
       description: '',

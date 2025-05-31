@@ -6,11 +6,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
-import type { SurveySettings as SurveySettingsType } from '@/types/SurveyTypes';
 
 interface SurveySettingsProps {
-  settings: SurveySettingsType;
-  onSettingsChange: (settings: SurveySettingsType) => void;
+  settings: Record<string, any>;
+  onSettingsChange: (settings: Record<string, any>) => void;
 }
 
 const SurveySettings: React.FC<SurveySettingsProps> = ({ settings, onSettingsChange }) => {

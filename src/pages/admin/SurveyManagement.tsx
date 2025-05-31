@@ -56,13 +56,18 @@ const SurveyManagement = () => {
 
   const duplicateSurveyMutation = useMutation({
     mutationFn: async (survey: Survey) => {
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
       const { data: newSurvey, error: surveyError } = await supabase
         .from('surveys')
         .insert({
           title: `${survey.title} (Copy)`,
           description: survey.description,
           status: 'draft',
-          settings: survey.settings
+          settings: survey.settings,
+          created_by: user.id
         })
         .select()
         .single();
