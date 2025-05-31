@@ -14,17 +14,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import FormBuilder from '@/components/survey/builder/FormBuilder';
 import SurveySettings from '@/components/survey/builder/SurveySettings';
 import type { Survey, SurveyField } from '@/types/SurveyTypes';
-
-interface LocalField {
-  tempId: string;
-  field_type: string;
-  label: string;
-  description: string;
-  options: string[];
-  validation_rules: Record<string, any>;
-  is_required: boolean;
-  field_order: number;
-}
+import type { LocalField } from '@/components/survey/builder/FieldEditorTypes';
 
 const SurveyBuilder = () => {
   const { surveyId } = useParams();
