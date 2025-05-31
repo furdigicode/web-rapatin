@@ -13,17 +13,6 @@ import { Trash2, Edit, GripVertical, Clock } from 'lucide-react';
 import type { SurveyField, FieldType } from '@/types/SurveyTypes';
 import type { LocalField, EditableField } from './FieldEditorTypes';
 
-interface LocalField {
-  tempId: string;
-  field_type: FieldType;
-  label: string;
-  description: string;
-  options: string[];
-  validation_rules: Record<string, any>;
-  is_required: boolean;
-  field_order: number;
-}
-
 // Combined type for rendering fields
 interface DisplayField extends Omit<SurveyField, 'id'> {
   id: string;
