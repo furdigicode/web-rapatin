@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -23,20 +24,20 @@ interface DisplayField extends Omit<SurveyField, 'id'> {
 interface FormBuilderProps {
   surveyId?: string;
   fields: SurveyField[];
+  localFields: LocalField[];
   onLocalFieldsChange?: (fields: LocalField[]) => void;
 }
 
-const FormBuilder: React.FC<FormBuilderProps> = ({ surveyId, fields, onLocalFieldsChange }) => {
+const FormBuilder: React.FC<FormBuilderProps> = ({ 
+  surveyId, 
+  fields, 
+  localFields, 
+  onLocalFieldsChange 
+}) => {
   const [selectedField, setSelectedField] = useState<EditableField | null>(null);
   const [isEditing, setIsEditing] = useState(false);
-  const [localFields, setLocalFields] = useState<LocalField[]>([]);
   const { toast } = useToast();
   const queryClient = useQueryClient();
-
-  // Notify parent of local fields changes
-  useEffect(() => {
-    onLocalFieldsChange?.(localFields);
-  }, [localFields, onLocalFieldsChange]);
 
   // Combine database fields and local fields for display
   const allFields: DisplayField[] = [
@@ -181,7 +182,8 @@ const FormBuilder: React.FC<FormBuilderProps> = ({ surveyId, fields, onLocalFiel
         is_required: false,
         field_order: allFields.length
       };
-      setLocalFields(prev => [...prev, newLocalField]);
+      const updatedLocalFields = [...localFields, newLocalField];
+      onLocalFieldsChange?.(updatedLocalFields);
       toast({
         title: "Field added",
         description: "Field will be saved when you save the survey.",
@@ -216,7 +218,7 @@ const FormBuilder: React.FC<FormBuilderProps> = ({ surveyId, fields, onLocalFiel
     }));
 
     // Update local fields immediately
-    setLocalFields(localFieldsUpdated);
+    onLocalFieldsChange?.(localFieldsUpdated);
 
     // Update database fields if survey exists
     if (surveyId && dbFields.length > 0) {
@@ -266,11 +268,12 @@ const FormBuilder: React.FC<FormBuilderProps> = ({ surveyId, fields, onLocalFiel
     if (selectedField) {
       if ('tempId' in selectedField) {
         // Update local field
-        setLocalFields(prev => prev.map(f => 
+        const updatedLocalFields = localFields.map(f => 
           f.tempId === selectedField.tempId 
             ? { ...f, ...updatedField }
             : f
-        ));
+        );
+        onLocalFieldsChange?.(updatedLocalFields);
         setIsEditing(false);
         setSelectedField(null);
         toast({
@@ -289,7 +292,8 @@ const FormBuilder: React.FC<FormBuilderProps> = ({ surveyId, fields, onLocalFiel
 
   const handleDeleteField = (field: DisplayField) => {
     if (field.isLocal && field.tempId) {
-      setLocalFields(prev => prev.filter(f => f.tempId !== field.tempId));
+      const updatedLocalFields = localFields.filter(f => f.tempId !== field.tempId);
+      onLocalFieldsChange?.(updatedLocalFields);
       toast({
         title: "Field removed",
         description: "Local field has been removed.",

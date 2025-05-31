@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -117,9 +118,6 @@ const SurveyBuilder = () => {
             .insert(fieldsToCreate);
 
           if (fieldsError) throw fieldsError;
-
-          // Clear local fields after successful creation
-          setLocalFields([]);
         }
 
         return newSurvey;
@@ -135,6 +133,9 @@ const SurveyBuilder = () => {
       }
     },
     onSuccess: (data) => {
+      // Clear local fields after successful save
+      setLocalFields([]);
+      
       queryClient.invalidateQueries({ queryKey: ['surveys'] });
       queryClient.invalidateQueries({ queryKey: ['survey', surveyId] });
       queryClient.invalidateQueries({ queryKey: ['survey-fields', surveyId] });
@@ -307,6 +308,7 @@ const SurveyBuilder = () => {
             <FormBuilder 
               surveyId={isNew ? undefined : surveyId} 
               fields={fields} 
+              localFields={localFields}
               onLocalFieldsChange={setLocalFields}
             />
           </TabsContent>
