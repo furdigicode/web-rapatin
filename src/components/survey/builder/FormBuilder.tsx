@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -24,6 +23,13 @@ interface LocalField {
   field_order: number;
 }
 
+// Combined type for rendering fields
+interface DisplayField extends Omit<SurveyField, 'id'> {
+  id: string;
+  isLocal: boolean;
+  tempId?: string;
+}
+
 interface FormBuilderProps {
   surveyId?: string;
   fields: SurveyField[];
@@ -43,9 +49,23 @@ const FormBuilder: React.FC<FormBuilderProps> = ({ surveyId, fields, onLocalFiel
   }, [localFields, onLocalFieldsChange]);
 
   // Combine database fields and local fields for display
-  const allFields = [
+  const allFields: DisplayField[] = [
     ...fields.map(f => ({ ...f, isLocal: false })),
-    ...localFields.map(f => ({ ...f, id: f.tempId, isLocal: true }))
+    ...localFields.map(f => ({ 
+      id: f.tempId,
+      survey_id: surveyId || '', 
+      field_type: f.field_type,
+      label: f.label,
+      description: f.description,
+      options: f.options,
+      validation_rules: f.validation_rules,
+      field_order: f.field_order,
+      is_required: f.is_required,
+      created_at: '',
+      updated_at: '',
+      isLocal: true,
+      tempId: f.tempId
+    }))
   ].sort((a, b) => a.field_order - b.field_order);
 
   const addFieldMutation = useMutation({
@@ -195,7 +215,7 @@ const FormBuilder: React.FC<FormBuilderProps> = ({ surveyId, fields, onLocalFiel
     // Separate database fields and local fields
     const dbFields = updatedFields.filter(f => !f.isLocal);
     const localFieldsUpdated = updatedFields.filter(f => f.isLocal).map(f => ({
-      tempId: f.id,
+      tempId: f.tempId!,
       field_type: f.field_type,
       label: f.label,
       description: f.description || '',
@@ -218,8 +238,37 @@ const FormBuilder: React.FC<FormBuilderProps> = ({ surveyId, fields, onLocalFiel
     }
   };
 
-  const handleEditField = (field: SurveyField | LocalField) => {
-    setSelectedField(field);
+  const handleEditField = (field: DisplayField) => {
+    if (field.isLocal && field.tempId) {
+      // Convert DisplayField to LocalField for editing
+      const localField: LocalField = {
+        tempId: field.tempId,
+        field_type: field.field_type,
+        label: field.label,
+        description: field.description || '',
+        options: field.options || [],
+        validation_rules: field.validation_rules || {},
+        is_required: field.is_required || false,
+        field_order: field.field_order
+      };
+      setSelectedField(localField);
+    } else {
+      // Convert DisplayField to SurveyField for editing
+      const surveyField: SurveyField = {
+        id: field.id,
+        survey_id: field.survey_id,
+        field_type: field.field_type,
+        label: field.label,
+        description: field.description,
+        options: field.options,
+        validation_rules: field.validation_rules,
+        field_order: field.field_order,
+        is_required: field.is_required,
+        created_at: field.created_at,
+        updated_at: field.updated_at
+      };
+      setSelectedField(surveyField);
+    }
     setIsEditing(true);
   };
 
@@ -248,9 +297,9 @@ const FormBuilder: React.FC<FormBuilderProps> = ({ surveyId, fields, onLocalFiel
     }
   };
 
-  const handleDeleteField = (field: any) => {
-    if (field.isLocal) {
-      setLocalFields(prev => prev.filter(f => f.tempId !== field.id));
+  const handleDeleteField = (field: DisplayField) => {
+    if (field.isLocal && field.tempId) {
+      setLocalFields(prev => prev.filter(f => f.tempId !== field.tempId));
       toast({
         title: "Field removed",
         description: "Local field has been removed.",
