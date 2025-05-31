@@ -79,6 +79,7 @@ const AppRoutes = () => {
       <Route path="/admin/dashboard" element={<AdminDashboard />} />
       <Route path="/admin/blog" element={<BlogManagement />} />
       <Route path="/admin/survey" element={<SurveyManagement />} />
+      <Route path="/admin/survey/builder/new" element={<SurveyBuilder />} />
       <Route path="/admin/survey/builder/:surveyId" element={<SurveyBuilder />} />
       
       {/* 404 Catch-all Route */}

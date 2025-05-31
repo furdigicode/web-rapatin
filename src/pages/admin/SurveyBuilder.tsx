@@ -28,35 +28,72 @@ const SurveyBuilder = () => {
     status: 'draft',
     settings: {}
   });
+  const [user, setUser] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Check authentication on component mount
+  useEffect(() => {
+    const checkAuth = async () => {
+      console.log('Checking authentication...');
+      const { data: { user }, error } = await supabase.auth.getUser();
+      console.log('Auth check result:', { user, error });
+      
+      if (error || !user) {
+        console.log('User not authenticated, redirecting to login');
+        toast({
+          variant: "destructive",
+          title: "Authentication Required",
+          description: "Please log in to access the survey builder.",
+        });
+        navigate('/admin/login');
+        return;
+      }
+      
+      setUser(user);
+      setIsLoading(false);
+    };
+
+    checkAuth();
+  }, [navigate, toast]);
 
   const { data: existingSurvey, isLoading: surveyLoading } = useQuery({
     queryKey: ['survey', surveyId],
     queryFn: async () => {
       if (isNew) return null;
+      console.log('Fetching existing survey:', surveyId);
       const { data, error } = await supabase
         .from('surveys')
         .select('*')
         .eq('id', surveyId)
         .single();
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching survey:', error);
+        throw error;
+      }
+      console.log('Fetched survey:', data);
       return data as Survey;
     },
-    enabled: !isNew
+    enabled: !isNew && !!user
   });
 
   const { data: fields = [], isLoading: fieldsLoading } = useQuery({
     queryKey: ['survey-fields', surveyId],
     queryFn: async () => {
       if (isNew) return [];
+      console.log('Fetching survey fields for:', surveyId);
       const { data, error } = await supabase
         .from('survey_fields')
         .select('*')
         .eq('survey_id', surveyId)
         .order('field_order');
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching fields:', error);
+        throw error;
+      }
+      console.log('Fetched fields:', data);
       return data as SurveyField[];
     },
-    enabled: !isNew
+    enabled: !isNew && !!user
   });
 
   useEffect(() => {
@@ -73,11 +110,13 @@ const SurveyBuilder = () => {
       settings?: Record<string, any>;
       created_by?: string;
     }) => {
-      if (isNew) {
-        // Get current user
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) throw new Error('User not authenticated');
+      console.log('Saving survey:', surveyData);
+      
+      if (!user) {
+        throw new Error('User not authenticated');
+      }
 
+      if (isNew) {
         // Create survey
         const { data: newSurvey, error: surveyError } = await supabase
           .from('surveys')
@@ -88,7 +127,11 @@ const SurveyBuilder = () => {
           .select()
           .single();
         
-        if (surveyError) throw surveyError;
+        if (surveyError) {
+          console.error('Error creating survey:', surveyError);
+          throw surveyError;
+        }
+        console.log('Created new survey:', newSurvey);
         return newSurvey;
       } else {
         const { data, error } = await supabase
@@ -97,7 +140,11 @@ const SurveyBuilder = () => {
           .eq('id', surveyId)
           .select()
           .single();
-        if (error) throw error;
+        if (error) {
+          console.error('Error updating survey:', error);
+          throw error;
+        }
+        console.log('Updated survey:', data);
         return data;
       }
     },
@@ -113,11 +160,12 @@ const SurveyBuilder = () => {
         navigate(`/admin/survey/builder/${data.id}`);
       }
     },
-    onError: () => {
+    onError: (error) => {
+      console.error('Save survey error:', error);
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to save survey.",
+        description: `Failed to save survey: ${error.message}`,
       });
     }
   });
@@ -141,6 +189,15 @@ const SurveyBuilder = () => {
   });
 
   const handleSave = () => {
+    if (!user) {
+      toast({
+        variant: "destructive",
+        title: "Authentication Error",
+        description: "You must be logged in to save surveys.",
+      });
+      return;
+    }
+
     if (!survey.title?.trim()) {
       toast({
         variant: "destructive",
@@ -159,6 +216,15 @@ const SurveyBuilder = () => {
   };
 
   const handlePublish = () => {
+    if (!user) {
+      toast({
+        variant: "destructive",
+        title: "Authentication Error",
+        description: "You must be logged in to publish surveys.",
+      });
+      return;
+    }
+
     if (!survey.title?.trim()) {
       toast({
         variant: "destructive",
@@ -171,8 +237,35 @@ const SurveyBuilder = () => {
   };
 
   const handleSurveyCreated = (newSurveyId: string) => {
+    console.log('Survey created callback with ID:', newSurveyId);
     navigate(`/admin/survey/builder/${newSurveyId}`);
   };
+
+  if (isLoading) {
+    return (
+      <AdminLayout>
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">Checking authentication...</div>
+        </div>
+      </AdminLayout>
+    );
+  }
+
+  if (!user) {
+    return (
+      <AdminLayout>
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <p className="text-lg font-semibold mb-2">Authentication Required</p>
+            <p className="text-muted-foreground mb-4">Please log in to access the survey builder.</p>
+            <Button onClick={() => navigate('/admin/login')}>
+              Go to Login
+            </Button>
+          </div>
+        </div>
+      </AdminLayout>
+    );
+  }
 
   if (surveyLoading || fieldsLoading) {
     return (
@@ -183,6 +276,8 @@ const SurveyBuilder = () => {
       </AdminLayout>
     );
   }
+
+  console.log('SurveyBuilder render - isNew:', isNew, 'surveyId:', surveyId, 'user:', user?.id);
 
   return (
     <AdminLayout>
