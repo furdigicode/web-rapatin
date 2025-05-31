@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -28,17 +27,16 @@ const SurveyBuilder = () => {
     status: 'draft',
     settings: {}
   });
-  const [user, setUser] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Check authentication on component mount
+  // Check mock authentication on component mount
   useEffect(() => {
-    const checkAuth = async () => {
-      console.log('Checking authentication...');
-      const { data: { user }, error } = await supabase.auth.getUser();
-      console.log('Auth check result:', { user, error });
+    const checkAuth = () => {
+      console.log('Checking mock authentication...');
+      const isAuthenticated = localStorage.getItem('adminAuth');
+      console.log('Mock auth check result:', { isAuthenticated });
       
-      if (error || !user) {
+      if (!isAuthenticated) {
         console.log('User not authenticated, redirecting to login');
         toast({
           variant: "destructive",
@@ -49,7 +47,6 @@ const SurveyBuilder = () => {
         return;
       }
       
-      setUser(user);
       setIsLoading(false);
     };
 
@@ -73,7 +70,7 @@ const SurveyBuilder = () => {
       console.log('Fetched survey:', data);
       return data as Survey;
     },
-    enabled: !isNew && !!user
+    enabled: !isNew && !isLoading
   });
 
   const { data: fields = [], isLoading: fieldsLoading } = useQuery({
@@ -93,7 +90,7 @@ const SurveyBuilder = () => {
       console.log('Fetched fields:', data);
       return data as SurveyField[];
     },
-    enabled: !isNew && !!user
+    enabled: !isNew && !isLoading
   });
 
   useEffect(() => {
@@ -112,9 +109,8 @@ const SurveyBuilder = () => {
     }) => {
       console.log('Saving survey:', surveyData);
       
-      if (!user) {
-        throw new Error('User not authenticated');
-      }
+      // Use a mock user ID for the created_by field
+      const mockUserId = 'mock-admin-user-id';
 
       if (isNew) {
         // Create survey
@@ -122,7 +118,7 @@ const SurveyBuilder = () => {
           .from('surveys')
           .insert({
             ...surveyData,
-            created_by: user.id
+            created_by: mockUserId
           })
           .select()
           .single();
@@ -189,7 +185,8 @@ const SurveyBuilder = () => {
   });
 
   const handleSave = () => {
-    if (!user) {
+    const isAuthenticated = localStorage.getItem('adminAuth');
+    if (!isAuthenticated) {
       toast({
         variant: "destructive",
         title: "Authentication Error",
@@ -216,7 +213,8 @@ const SurveyBuilder = () => {
   };
 
   const handlePublish = () => {
-    if (!user) {
+    const isAuthenticated = localStorage.getItem('adminAuth');
+    if (!isAuthenticated) {
       toast({
         variant: "destructive",
         title: "Authentication Error",
@@ -251,7 +249,8 @@ const SurveyBuilder = () => {
     );
   }
 
-  if (!user) {
+  const isAuthenticated = localStorage.getItem('adminAuth');
+  if (!isAuthenticated) {
     return (
       <AdminLayout>
         <div className="flex items-center justify-center h-64">
@@ -277,7 +276,7 @@ const SurveyBuilder = () => {
     );
   }
 
-  console.log('SurveyBuilder render - isNew:', isNew, 'surveyId:', surveyId, 'user:', user?.id);
+  console.log('SurveyBuilder render - isNew:', isNew, 'surveyId:', surveyId, 'authenticated:', !!isAuthenticated);
 
   return (
     <AdminLayout>

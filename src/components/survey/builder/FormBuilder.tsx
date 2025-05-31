@@ -135,9 +135,9 @@ const FormBuilder: React.FC<FormBuilderProps> = ({
   const createSurveyMutation = useMutation({
     mutationFn: async (fieldData: { fieldType: FieldType; label: string }) => {
       console.log('Creating new survey with field:', fieldData);
-      // Get current user
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('User not authenticated');
+      
+      // Use mock user ID instead of Supabase auth
+      const mockUserId = 'mock-admin-user-id';
 
       // Create survey first
       const { data: newSurvey, error: surveyError } = await supabase
@@ -146,7 +146,7 @@ const FormBuilder: React.FC<FormBuilderProps> = ({
           title: 'Untitled Survey',
           description: '',
           status: 'draft',
-          created_by: user.id,
+          created_by: mockUserId,
           settings: {}
         })
         .select()
