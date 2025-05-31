@@ -38,19 +38,34 @@ const FormBuilder: React.FC<FormBuilderProps> = ({
       is_required: boolean;
       field_order: number;
     }) => {
+      console.log('Adding field:', fieldData);
       const { data, error } = await supabase
         .from('survey_fields')
         .insert(fieldData)
         .select()
         .single();
-      if (error) throw error;
+      if (error) {
+        console.error('Error adding field:', error);
+        throw error;
+      }
+      console.log('Field added successfully:', data);
       return data;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log('Field mutation successful, invalidating queries');
       queryClient.invalidateQueries({ queryKey: ['survey-fields', surveyId] });
+      queryClient.invalidateQueries({ queryKey: ['surveys'] });
       toast({
         title: "Field added",
         description: "New field has been added to your survey.",
+      });
+    },
+    onError: (error) => {
+      console.error('Field mutation error:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to add field to survey.",
       });
     }
   });
@@ -66,13 +81,17 @@ const FormBuilder: React.FC<FormBuilderProps> = ({
       is_required?: boolean;
     }) => {
       const { id, ...updateData } = fieldData;
+      console.log('Updating field:', id, updateData);
       const { data, error } = await supabase
         .from('survey_fields')
         .update(updateData)
         .eq('id', id)
         .select()
         .single();
-      if (error) throw error;
+      if (error) {
+        console.error('Error updating field:', error);
+        throw error;
+      }
       return data;
     },
     onSuccess: () => {
@@ -115,6 +134,7 @@ const FormBuilder: React.FC<FormBuilderProps> = ({
 
   const createSurveyMutation = useMutation({
     mutationFn: async (fieldData: { fieldType: FieldType; label: string }) => {
+      console.log('Creating new survey with field:', fieldData);
       // Get current user
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('User not authenticated');
@@ -132,7 +152,12 @@ const FormBuilder: React.FC<FormBuilderProps> = ({
         .select()
         .single();
       
-      if (surveyError) throw surveyError;
+      if (surveyError) {
+        console.error('Error creating survey:', surveyError);
+        throw surveyError;
+      }
+
+      console.log('Survey created:', newSurvey);
 
       // Then create the field
       const { data: newField, error: fieldError } = await supabase
@@ -150,20 +175,35 @@ const FormBuilder: React.FC<FormBuilderProps> = ({
         .select()
         .single();
 
-      if (fieldError) throw fieldError;
+      if (fieldError) {
+        console.error('Error creating field:', fieldError);
+        throw fieldError;
+      }
 
+      console.log('Field created:', newField);
       return { survey: newSurvey, field: newField };
     },
     onSuccess: (data) => {
+      console.log('Survey creation successful:', data);
       onSurveyCreated?.(data.survey.id);
       toast({
         title: "Survey created",
         description: "New survey created with your first field.",
       });
+    },
+    onError: (error) => {
+      console.error('Survey creation error:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to create survey.",
+      });
     }
   });
 
   const handleFieldDrop = (fieldType: FieldType, label: string) => {
+    console.log('Field dropped:', fieldType, label, 'surveyId:', surveyId);
+    
     if (surveyId) {
       // Survey exists, add field directly
       const newField = {
@@ -176,9 +216,11 @@ const FormBuilder: React.FC<FormBuilderProps> = ({
         is_required: false,
         field_order: fields.length
       };
+      console.log('Adding field to existing survey:', newField);
       addFieldMutation.mutate(newField);
     } else {
       // No survey yet, create survey with first field
+      console.log('Creating new survey with first field');
       createSurveyMutation.mutate({ fieldType, label });
     }
   };
@@ -219,13 +261,15 @@ const FormBuilder: React.FC<FormBuilderProps> = ({
     }
   };
 
+  console.log('FormBuilder render - surveyId:', surveyId, 'fields:', fields);
+
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <div className="lg:col-span-1">
         <FieldPalette onFieldDrop={handleFieldDrop} />
       </div>
 
-      <div className="lg:col-span-2">
+      <div className="lg:col-span-1">
         <Card>
           <CardHeader>
             <CardTitle>Form Preview</CardTitle>
@@ -233,7 +277,7 @@ const FormBuilder: React.FC<FormBuilderProps> = ({
           <CardContent>
             {fields.length === 0 ? (
               <div className="text-center py-12 text-muted-foreground">
-                <p>Drag fields from the palette to build your survey</p>
+                <p>Click on field types from the palette to add them to your survey</p>
               </div>
             ) : (
               <DragDropContext onDragEnd={handleDragEnd}>
