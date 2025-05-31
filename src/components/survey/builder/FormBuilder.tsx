@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -136,8 +135,8 @@ const FormBuilder: React.FC<FormBuilderProps> = ({
     mutationFn: async (fieldData: { fieldType: FieldType; label: string }) => {
       console.log('Creating new survey with field:', fieldData);
       
-      // Use mock user ID instead of Supabase auth
-      const mockUserId = 'mock-admin-user-id';
+      // Use a valid mock UUID instead of string
+      const mockUserId = '00000000-0000-0000-0000-000000000001';
 
       // Create survey first
       const { data: newSurvey, error: surveyError } = await supabase

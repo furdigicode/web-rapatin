@@ -109,8 +109,8 @@ const SurveyBuilder = () => {
     }) => {
       console.log('Saving survey:', surveyData);
       
-      // Use a mock user ID for the created_by field
-      const mockUserId = 'mock-admin-user-id';
+      // Use a valid mock UUID instead of string
+      const mockUserId = '00000000-0000-0000-0000-000000000001';
 
       if (isNew) {
         // Create survey
