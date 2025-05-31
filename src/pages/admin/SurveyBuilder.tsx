@@ -10,12 +10,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { Save, Eye, Settings, Plus, AlertTriangle } from 'lucide-react';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Save, Eye, Settings, Plus } from 'lucide-react';
 import FormBuilder from '@/components/survey/builder/FormBuilder';
 import SurveySettings from '@/components/survey/builder/SurveySettings';
 import type { Survey, SurveyField } from '@/types/SurveyTypes';
-import type { LocalField } from '@/components/survey/builder/FieldEditorTypes';
 
 const SurveyBuilder = () => {
   const { surveyId } = useParams();
@@ -30,9 +28,6 @@ const SurveyBuilder = () => {
     status: 'draft',
     settings: {}
   });
-
-  const [localFields, setLocalFields] = useState<LocalField[]>([]);
-  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
   const { data: existingSurvey, isLoading: surveyLoading } = useQuery({
     queryKey: ['survey', surveyId],
@@ -70,11 +65,6 @@ const SurveyBuilder = () => {
     }
   }, [existingSurvey]);
 
-  // Track unsaved changes
-  useEffect(() => {
-    setHasUnsavedChanges(localFields.length > 0);
-  }, [localFields]);
-
   const saveSurveyMutation = useMutation({
     mutationFn: async (surveyData: {
       title: string;
@@ -88,7 +78,7 @@ const SurveyBuilder = () => {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) throw new Error('User not authenticated');
 
-        // Create survey first
+        // Create survey
         const { data: newSurvey, error: surveyError } = await supabase
           .from('surveys')
           .insert({
@@ -99,27 +89,6 @@ const SurveyBuilder = () => {
           .single();
         
         if (surveyError) throw surveyError;
-
-        // If there are local fields, create them all
-        if (localFields.length > 0) {
-          const fieldsToCreate = localFields.map(field => ({
-            survey_id: newSurvey.id,
-            field_type: field.field_type,
-            label: field.label,
-            description: field.description,
-            options: field.options,
-            validation_rules: field.validation_rules,
-            field_order: field.field_order,
-            is_required: field.is_required
-          }));
-
-          const { error: fieldsError } = await supabase
-            .from('survey_fields')
-            .insert(fieldsToCreate);
-
-          if (fieldsError) throw fieldsError;
-        }
-
         return newSurvey;
       } else {
         const { data, error } = await supabase
@@ -133,17 +102,12 @@ const SurveyBuilder = () => {
       }
     },
     onSuccess: (data) => {
-      // Clear local fields after successful save
-      setLocalFields([]);
-      
       queryClient.invalidateQueries({ queryKey: ['surveys'] });
       queryClient.invalidateQueries({ queryKey: ['survey', surveyId] });
       queryClient.invalidateQueries({ queryKey: ['survey-fields', surveyId] });
       toast({
         title: "Survey saved",
-        description: localFields.length > 0 
-          ? `Survey and ${localFields.length} field${localFields.length !== 1 ? 's' : ''} saved successfully.`
-          : "Survey saved successfully.",
+        description: "Survey saved successfully.",
       });
       if (isNew) {
         navigate(`/admin/survey/builder/${data.id}`);
@@ -206,6 +170,10 @@ const SurveyBuilder = () => {
     publishSurveyMutation.mutate();
   };
 
+  const handleSurveyCreated = (newSurveyId: string) => {
+    navigate(`/admin/survey/builder/${newSurveyId}`);
+  };
+
   if (surveyLoading || fieldsLoading) {
     return (
       <AdminLayout>
@@ -232,7 +200,7 @@ const SurveyBuilder = () => {
             <Button 
               variant="outline" 
               onClick={() => navigate(`/form/${surveyId}`)}
-              disabled={isNew || hasUnsavedChanges}
+              disabled={isNew}
             >
               <Eye className="w-4 h-4 mr-2" />
               Preview
@@ -240,12 +208,11 @@ const SurveyBuilder = () => {
             <Button 
               onClick={handleSave} 
               disabled={saveSurveyMutation.isPending}
-              className={hasUnsavedChanges ? 'bg-orange-600 hover:bg-orange-700' : ''}
             >
               <Save className="w-4 h-4 mr-2" />
-              Save{hasUnsavedChanges && ' Changes'}
+              Save Survey
             </Button>
-            {survey.status !== 'published' && !isNew && !hasUnsavedChanges && (
+            {survey.status !== 'published' && !isNew && (
               <Button 
                 onClick={handlePublish} 
                 disabled={publishSurveyMutation.isPending}
@@ -256,16 +223,6 @@ const SurveyBuilder = () => {
             )}
           </div>
         </div>
-
-        {hasUnsavedChanges && (
-          <Alert>
-            <AlertTriangle className="h-4 w-4" />
-            <AlertDescription>
-              You have {localFields.length} unsaved field{localFields.length !== 1 ? 's' : ''}. 
-              Save your survey to persist these changes.
-            </AlertDescription>
-          </Alert>
-        )}
 
         <Tabs defaultValue="builder" className="space-y-4">
           <TabsList>
@@ -308,8 +265,7 @@ const SurveyBuilder = () => {
             <FormBuilder 
               surveyId={isNew ? undefined : surveyId} 
               fields={fields} 
-              localFields={localFields}
-              onLocalFieldsChange={setLocalFields}
+              onSurveyCreated={handleSurveyCreated}
             />
           </TabsContent>
 
