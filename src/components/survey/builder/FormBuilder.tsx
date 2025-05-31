@@ -1,27 +1,52 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import FieldPalette from './FieldPalette';
 import FieldEditor from './FieldEditor';
 import FieldRenderer from '../render/FieldRenderer';
-import { Trash2, Edit, GripVertical } from 'lucide-react';
+import { Trash2, Edit, GripVertical, Clock } from 'lucide-react';
 import type { SurveyField, FieldType } from '@/types/SurveyTypes';
+
+interface LocalField {
+  tempId: string;
+  field_type: FieldType;
+  label: string;
+  description: string;
+  options: string[];
+  validation_rules: Record<string, any>;
+  is_required: boolean;
+  field_order: number;
+}
 
 interface FormBuilderProps {
   surveyId?: string;
   fields: SurveyField[];
+  onLocalFieldsChange?: (fields: LocalField[]) => void;
 }
 
-const FormBuilder: React.FC<FormBuilderProps> = ({ surveyId, fields }) => {
-  const [selectedField, setSelectedField] = useState<SurveyField | null>(null);
+const FormBuilder: React.FC<FormBuilderProps> = ({ surveyId, fields, onLocalFieldsChange }) => {
+  const [selectedField, setSelectedField] = useState<SurveyField | LocalField | null>(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [localFields, setLocalFields] = useState<LocalField[]>([]);
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  // Notify parent of local fields changes
+  useEffect(() => {
+    onLocalFieldsChange?.(localFields);
+  }, [localFields, onLocalFieldsChange]);
+
+  // Combine database fields and local fields for display
+  const allFields = [
+    ...fields.map(f => ({ ...f, isLocal: false })),
+    ...localFields.map(f => ({ ...f, id: f.tempId, isLocal: true }))
+  ].sort((a, b) => a.field_order - b.field_order);
 
   const addFieldMutation = useMutation({
     mutationFn: async (fieldData: {
@@ -41,7 +66,7 @@ const FormBuilder: React.FC<FormBuilderProps> = ({ surveyId, fields }) => {
           description: fieldData.description,
           options: fieldData.options,
           validation_rules: fieldData.validation_rules,
-          field_order: fields.length,
+          field_order: fields.length + localFields.length,
           is_required: fieldData.is_required
         })
         .select()
@@ -123,53 +148,115 @@ const FormBuilder: React.FC<FormBuilderProps> = ({ surveyId, fields }) => {
   });
 
   const handleFieldDrop = (fieldType: FieldType, label: string) => {
-    if (!surveyId) {
+    if (surveyId) {
+      // Survey exists, add field directly to database
+      const newField = {
+        field_type: fieldType,
+        label,
+        description: '',
+        options: [],
+        validation_rules: {},
+        is_required: false
+      };
+      addFieldMutation.mutate(newField);
+    } else {
+      // Survey doesn't exist yet, add to local state
+      const newLocalField: LocalField = {
+        tempId: `temp-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        field_type: fieldType,
+        label,
+        description: '',
+        options: [],
+        validation_rules: {},
+        is_required: false,
+        field_order: allFields.length
+      };
+      setLocalFields(prev => [...prev, newLocalField]);
       toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Please save the survey first before adding fields.",
+        title: "Field added",
+        description: "Field will be saved when you save the survey.",
       });
-      return;
     }
-
-    const newField = {
-      field_type: fieldType,
-      label,
-      description: '',
-      options: [],
-      validation_rules: {},
-      is_required: false
-    };
-
-    addFieldMutation.mutate(newField);
   };
 
   const handleDragEnd = (result: any) => {
     if (!result.destination) return;
 
-    const reorderedFields = Array.from(fields);
+    const reorderedFields = Array.from(allFields);
     const [reorderedItem] = reorderedFields.splice(result.source.index, 1);
     reorderedFields.splice(result.destination.index, 0, reorderedItem);
 
-    const updates = reorderedFields.map((field, index) => ({
-      id: field.id,
+    // Update field orders
+    const updatedFields = reorderedFields.map((field, index) => ({
+      ...field,
       field_order: index
     }));
 
-    reorderFieldsMutation.mutate(updates);
+    // Separate database fields and local fields
+    const dbFields = updatedFields.filter(f => !f.isLocal);
+    const localFieldsUpdated = updatedFields.filter(f => f.isLocal).map(f => ({
+      tempId: f.id,
+      field_type: f.field_type,
+      label: f.label,
+      description: f.description || '',
+      options: f.options || [],
+      validation_rules: f.validation_rules || {},
+      is_required: f.is_required || false,
+      field_order: f.field_order
+    }));
+
+    // Update local fields immediately
+    setLocalFields(localFieldsUpdated);
+
+    // Update database fields if survey exists
+    if (surveyId && dbFields.length > 0) {
+      const updates = dbFields.map(field => ({
+        id: field.id,
+        field_order: field.field_order
+      }));
+      reorderFieldsMutation.mutate(updates);
+    }
   };
 
-  const handleEditField = (field: SurveyField) => {
+  const handleEditField = (field: SurveyField | LocalField) => {
     setSelectedField(field);
     setIsEditing(true);
   };
 
-  const handleUpdateField = (updatedField: Partial<SurveyField>) => {
+  const handleUpdateField = (updatedField: Partial<SurveyField | LocalField>) => {
     if (selectedField) {
-      updateFieldMutation.mutate({
-        id: selectedField.id,
-        ...updatedField
+      if ('tempId' in selectedField) {
+        // Update local field
+        setLocalFields(prev => prev.map(f => 
+          f.tempId === selectedField.tempId 
+            ? { ...f, ...updatedField }
+            : f
+        ));
+        setIsEditing(false);
+        setSelectedField(null);
+        toast({
+          title: "Field updated",
+          description: "Field will be saved when you save the survey.",
+        });
+      } else {
+        // Update database field
+        updateFieldMutation.mutate({
+          id: selectedField.id,
+          ...updatedField
+        });
+      }
+    }
+  };
+
+  const handleDeleteField = (field: any) => {
+    if (field.isLocal) {
+      setLocalFields(prev => prev.filter(f => f.tempId !== field.id));
+      toast({
+        title: "Field removed",
+        description: "Local field has been removed.",
       });
+    } else {
+      deleteFieldMutation.mutate(field.id);
     }
   };
 
@@ -182,10 +269,18 @@ const FormBuilder: React.FC<FormBuilderProps> = ({ surveyId, fields }) => {
       <div className="lg:col-span-2">
         <Card>
           <CardHeader>
-            <CardTitle>Form Preview</CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle>Form Preview</CardTitle>
+              {localFields.length > 0 && (
+                <Badge variant="secondary" className="flex items-center gap-1">
+                  <Clock className="w-3 h-3" />
+                  {localFields.length} unsaved field{localFields.length !== 1 ? 's' : ''}
+                </Badge>
+              )}
+            </div>
           </CardHeader>
           <CardContent>
-            {fields.length === 0 ? (
+            {allFields.length === 0 ? (
               <div className="text-center py-12 text-muted-foreground">
                 <p>Drag fields from the palette to build your survey</p>
               </div>
@@ -194,7 +289,7 @@ const FormBuilder: React.FC<FormBuilderProps> = ({ surveyId, fields }) => {
                 <Droppable droppableId="form-fields">
                   {(provided) => (
                     <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-4">
-                      {fields.map((field, index) => (
+                      {allFields.map((field, index) => (
                         <Draggable key={field.id} draggableId={field.id} index={index}>
                           {(provided, snapshot) => (
                             <div
@@ -202,8 +297,13 @@ const FormBuilder: React.FC<FormBuilderProps> = ({ surveyId, fields }) => {
                               {...provided.draggableProps}
                               className={`relative group border rounded-lg p-4 bg-white ${
                                 snapshot.isDragging ? 'shadow-lg' : ''
-                              }`}
+                              } ${field.isLocal ? 'border-orange-200 bg-orange-50' : ''}`}
                             >
+                              {field.isLocal && (
+                                <Badge variant="outline" className="absolute top-1 left-1 text-xs">
+                                  Draft
+                                </Badge>
+                              )}
                               <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                 <Button
                                   size="sm"
@@ -215,7 +315,7 @@ const FormBuilder: React.FC<FormBuilderProps> = ({ surveyId, fields }) => {
                                 <Button
                                   size="sm"
                                   variant="ghost"
-                                  onClick={() => deleteFieldMutation.mutate(field.id)}
+                                  onClick={() => handleDeleteField(field)}
                                 >
                                   <Trash2 className="w-4 h-4" />
                                 </Button>

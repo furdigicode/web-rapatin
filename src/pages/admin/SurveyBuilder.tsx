@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -10,10 +9,22 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { Save, Eye, Settings, Plus } from 'lucide-react';
+import { Save, Eye, Settings, Plus, AlertTriangle } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import FormBuilder from '@/components/survey/builder/FormBuilder';
 import SurveySettings from '@/components/survey/builder/SurveySettings';
 import type { Survey, SurveyField } from '@/types/SurveyTypes';
+
+interface LocalField {
+  tempId: string;
+  field_type: string;
+  label: string;
+  description: string;
+  options: string[];
+  validation_rules: Record<string, any>;
+  is_required: boolean;
+  field_order: number;
+}
 
 const SurveyBuilder = () => {
   const { surveyId } = useParams();
@@ -28,6 +39,9 @@ const SurveyBuilder = () => {
     status: 'draft',
     settings: {}
   });
+
+  const [localFields, setLocalFields] = useState<LocalField[]>([]);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
   const { data: existingSurvey, isLoading: surveyLoading } = useQuery({
     queryKey: ['survey', surveyId],
@@ -65,6 +79,11 @@ const SurveyBuilder = () => {
     }
   }, [existingSurvey]);
 
+  // Track unsaved changes
+  useEffect(() => {
+    setHasUnsavedChanges(localFields.length > 0);
+  }, [localFields]);
+
   const saveSurveyMutation = useMutation({
     mutationFn: async (surveyData: {
       title: string;
@@ -78,7 +97,8 @@ const SurveyBuilder = () => {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) throw new Error('User not authenticated');
 
-        const { data, error } = await supabase
+        // Create survey first
+        const { data: newSurvey, error: surveyError } = await supabase
           .from('surveys')
           .insert({
             ...surveyData,
@@ -86,8 +106,33 @@ const SurveyBuilder = () => {
           })
           .select()
           .single();
-        if (error) throw error;
-        return data;
+        
+        if (surveyError) throw surveyError;
+
+        // If there are local fields, create them all
+        if (localFields.length > 0) {
+          const fieldsToCreate = localFields.map(field => ({
+            survey_id: newSurvey.id,
+            field_type: field.field_type,
+            label: field.label,
+            description: field.description,
+            options: field.options,
+            validation_rules: field.validation_rules,
+            field_order: field.field_order,
+            is_required: field.is_required
+          }));
+
+          const { error: fieldsError } = await supabase
+            .from('survey_fields')
+            .insert(fieldsToCreate);
+
+          if (fieldsError) throw fieldsError;
+
+          // Clear local fields after successful creation
+          setLocalFields([]);
+        }
+
+        return newSurvey;
       } else {
         const { data, error } = await supabase
           .from('surveys')
@@ -102,9 +147,12 @@ const SurveyBuilder = () => {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['surveys'] });
       queryClient.invalidateQueries({ queryKey: ['survey', surveyId] });
+      queryClient.invalidateQueries({ queryKey: ['survey-fields', surveyId] });
       toast({
         title: "Survey saved",
-        description: "Your survey has been saved successfully.",
+        description: localFields.length > 0 
+          ? `Survey and ${localFields.length} field${localFields.length !== 1 ? 's' : ''} saved successfully.`
+          : "Survey saved successfully.",
       });
       if (isNew) {
         navigate(`/admin/survey/builder/${data.id}`);
@@ -193,16 +241,20 @@ const SurveyBuilder = () => {
             <Button 
               variant="outline" 
               onClick={() => navigate(`/form/${surveyId}`)}
-              disabled={isNew}
+              disabled={isNew || hasUnsavedChanges}
             >
               <Eye className="w-4 h-4 mr-2" />
               Preview
             </Button>
-            <Button onClick={handleSave} disabled={saveSurveyMutation.isPending}>
+            <Button 
+              onClick={handleSave} 
+              disabled={saveSurveyMutation.isPending}
+              className={hasUnsavedChanges ? 'bg-orange-600 hover:bg-orange-700' : ''}
+            >
               <Save className="w-4 h-4 mr-2" />
-              Save
+              Save{hasUnsavedChanges && ' Changes'}
             </Button>
-            {survey.status !== 'published' && !isNew && (
+            {survey.status !== 'published' && !isNew && !hasUnsavedChanges && (
               <Button 
                 onClick={handlePublish} 
                 disabled={publishSurveyMutation.isPending}
@@ -213,6 +265,16 @@ const SurveyBuilder = () => {
             )}
           </div>
         </div>
+
+        {hasUnsavedChanges && (
+          <Alert>
+            <AlertTriangle className="h-4 w-4" />
+            <AlertDescription>
+              You have {localFields.length} unsaved field{localFields.length !== 1 ? 's' : ''}. 
+              Save your survey to persist these changes.
+            </AlertDescription>
+          </Alert>
+        )}
 
         <Tabs defaultValue="builder" className="space-y-4">
           <TabsList>
@@ -252,7 +314,11 @@ const SurveyBuilder = () => {
               </CardContent>
             </Card>
 
-            <FormBuilder surveyId={isNew ? undefined : surveyId} fields={fields} />
+            <FormBuilder 
+              surveyId={isNew ? undefined : surveyId} 
+              fields={fields} 
+              onLocalFieldsChange={setLocalFields}
+            />
           </TabsContent>
 
           <TabsContent value="settings">
