@@ -339,7 +339,10 @@ const FormBuilder: React.FC<FormBuilderProps> = ({ surveyId, fields, onLocalFiel
                               } ${field.isLocal ? 'border-orange-200 bg-orange-50' : ''}`}
                             >
                               {field.isLocal && (
-                                <Badge variant="outline" className="absolute top-1 left-1 text-xs">
+                                <Badge 
+                                  className="absolute -top-2 left-4 bg-orange-100 text-orange-700 border-orange-300 hover:bg-orange-200 px-2 py-1 text-xs font-medium shadow-sm animate-pulse"
+                                >
+                                  <Clock className="w-3 h-3 mr-1" />
                                   Draft
                                 </Badge>
                               )}
