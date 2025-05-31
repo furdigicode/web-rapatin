@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -7,9 +6,10 @@ import AdminLayout from '@/components/admin/AdminLayout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, MoreHorizontal, Eye, Edit, Copy, Trash2, BarChart3 } from 'lucide-react';
+import { Plus, MoreHorizontal, Eye, Edit, Copy, Trash2, BarChart3, Users, FileText, TrendingUp, Clock } from 'lucide-react';
 import type { Survey } from '@/types/SurveyTypes';
 
 const SurveyManagement = () => {
@@ -130,11 +130,127 @@ const SurveyManagement = () => {
     }
   };
 
+  const StatCard = ({ title, value, icon: Icon, trend }: { title: string; value: string; icon: any; trend?: string }) => (
+    <Card>
+      <CardContent className="p-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-sm font-medium text-muted-foreground">{title}</p>
+            <div className="flex items-center gap-2">
+              <h3 className="text-2xl font-bold">{value}</h3>
+              {trend && (
+                <Badge variant="secondary" className="text-xs">
+                  {trend}
+                </Badge>
+              )}
+            </div>
+          </div>
+          <Icon className="h-8 w-8 text-muted-foreground" />
+        </div>
+      </CardContent>
+    </Card>
+  );
+
+  const PlaceholderSurveyCard = ({ title, description, status, responses, date }: {
+    title: string;
+    description: string;
+    status: 'draft' | 'published' | 'closed';
+    responses: number;
+    date: string;
+  }) => (
+    <Card className="opacity-60">
+      <CardHeader>
+        <div className="flex justify-between items-start">
+          <div>
+            <CardTitle className="text-lg flex items-center gap-2">
+              {title}
+              <Badge variant="outline" className="text-xs">Sample</Badge>
+            </CardTitle>
+            <CardDescription>{description}</CardDescription>
+          </div>
+          <div className="flex items-center gap-2">
+            {status === 'published' && <Badge className="bg-green-100 text-green-800">Published</Badge>}
+            {status === 'closed' && <Badge className="bg-red-100 text-red-800">Closed</Badge>}
+            {status === 'draft' && <Badge className="bg-gray-100 text-gray-800">Draft</Badge>}
+            <Button variant="ghost" size="sm" disabled>
+              <MoreHorizontal className="w-4 h-4" />
+            </Button>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div className="flex justify-between items-center text-sm text-muted-foreground">
+          <span>{responses} responses</span>
+          <span>{date}</span>
+        </div>
+      </CardContent>
+    </Card>
+  );
+
+  const SurveySkeletonCard = () => (
+    <Card>
+      <CardHeader>
+        <div className="flex justify-between items-start">
+          <div className="space-y-2 flex-1">
+            <Skeleton className="h-6 w-3/4" />
+            <Skeleton className="h-4 w-full" />
+          </div>
+          <div className="flex items-center gap-2">
+            <Skeleton className="h-6 w-16" />
+            <Skeleton className="h-8 w-8" />
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div className="flex justify-between items-center">
+          <Skeleton className="h-4 w-24" />
+          <Skeleton className="h-4 w-32" />
+        </div>
+      </CardContent>
+    </Card>
+  );
+
   if (isLoading) {
     return (
       <AdminLayout>
-        <div className="flex items-center justify-center h-64">
-          <div className="text-center">Loading surveys...</div>
+        <div className="space-y-6">
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-2xl font-bold">Survey Management</h1>
+              <p className="text-muted-foreground">Create and manage your surveys</p>
+            </div>
+            <Button disabled>
+              <Plus className="w-4 h-4 mr-2" />
+              Create Survey
+            </Button>
+          </div>
+
+          {/* Stats Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div className="space-y-3">
+              <Skeleton className="h-4 w-20" />
+              <Skeleton className="h-8 w-16" />
+            </div>
+            <div className="space-y-3">
+              <Skeleton className="h-4 w-24" />
+              <Skeleton className="h-8 w-20" />
+            </div>
+            <div className="space-y-3">
+              <Skeleton className="h-4 w-28" />
+              <Skeleton className="h-8 w-24" />
+            </div>
+            <div className="space-y-3">
+              <Skeleton className="h-4 w-20" />
+              <Skeleton className="h-8 w-16" />
+            </div>
+          </div>
+
+          {/* Survey Cards */}
+          <div className="grid gap-4">
+            {Array.from({ length: 3 }).map((_, index) => (
+              <SurveySkeletonCard key={index} />
+            ))}
+          </div>
         </div>
       </AdminLayout>
     );
@@ -154,21 +270,110 @@ const SurveyManagement = () => {
           </Button>
         </div>
 
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <StatCard
+            title="Total Surveys"
+            value={surveys?.length.toString() || "0"}
+            icon={FileText}
+            trend="+2 this week"
+          />
+          <StatCard
+            title="Active Surveys"
+            value={surveys?.filter(s => s.status === 'published').length.toString() || "0"}
+            icon={BarChart3}
+            trend="3 published"
+          />
+          <StatCard
+            title="Total Responses"
+            value="247"
+            icon={Users}
+            trend="+18 today"
+          />
+          <StatCard
+            title="Response Rate"
+            value="68%"
+            icon={TrendingUp}
+            trend="+5% this month"
+          />
+        </div>
+
         <div className="grid gap-4">
           {surveys?.length === 0 ? (
-            <Card>
-              <CardContent className="flex flex-col items-center justify-center py-12">
-                <BarChart3 className="w-12 h-12 text-muted-foreground mb-4" />
-                <h3 className="text-lg font-semibold mb-2">No surveys yet</h3>
-                <p className="text-muted-foreground text-center mb-4">
-                  Get started by creating your first survey
-                </p>
-                <Button onClick={() => navigate('/admin/survey/builder/new')}>
-                  <Plus className="w-4 h-4 mr-2" />
-                  Create Survey
-                </Button>
-              </CardContent>
-            </Card>
+            <>
+              {/* Empty State with Placeholder Cards */}
+              <Card className="border-dashed">
+                <CardContent className="flex flex-col items-center justify-center py-12">
+                  <BarChart3 className="w-12 h-12 text-muted-foreground mb-4" />
+                  <h3 className="text-lg font-semibold mb-2">No surveys yet</h3>
+                  <p className="text-muted-foreground text-center mb-4">
+                    Get started by creating your first survey. Here's what your surveys will look like:
+                  </p>
+                  <Button onClick={() => navigate('/admin/survey/builder/new')}>
+                    <Plus className="w-4 h-4 mr-2" />
+                    Create Your First Survey
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Sample Survey Cards */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-muted-foreground">Survey Examples</h3>
+                
+                <PlaceholderSurveyCard
+                  title="Customer Satisfaction Survey"
+                  description="Gather feedback from your customers about their experience with your product or service."
+                  status="published"
+                  responses={156}
+                  date="Last updated 3 days ago"
+                />
+
+                <PlaceholderSurveyCard
+                  title="Employee Feedback Form"
+                  description="Collect valuable insights from your team members about workplace satisfaction and improvements."
+                  status="draft"
+                  responses={0}
+                  date="Created 1 week ago"
+                />
+
+                <PlaceholderSurveyCard
+                  title="Product Research Survey"
+                  description="Research customer needs and preferences for your upcoming product launches."
+                  status="closed"
+                  responses={89}
+                  date="Completed 2 weeks ago"
+                />
+              </div>
+
+              {/* Quick Start Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+                <Card className="border-dashed hover:border-solid transition-colors cursor-pointer" onClick={() => navigate('/admin/survey/builder/new')}>
+                  <CardContent className="p-6 text-center">
+                    <Plus className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
+                    <h4 className="font-semibold mb-2">Quick Start</h4>
+                    <p className="text-sm text-muted-foreground">Create a survey from scratch with our drag-and-drop builder</p>
+                  </CardContent>
+                </Card>
+
+                <Card className="border-dashed">
+                  <CardContent className="p-6 text-center">
+                    <FileText className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
+                    <h4 className="font-semibold mb-2">Templates</h4>
+                    <p className="text-sm text-muted-foreground">Choose from pre-built survey templates</p>
+                    <Badge variant="secondary" className="mt-2">Coming Soon</Badge>
+                  </CardContent>
+                </Card>
+
+                <Card className="border-dashed">
+                  <CardContent className="p-6 text-center">
+                    <BarChart3 className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
+                    <h4 className="font-semibold mb-2">Analytics</h4>
+                    <p className="text-sm text-muted-foreground">View detailed response analytics and insights</p>
+                    <Badge variant="secondary" className="mt-2">Available Soon</Badge>
+                  </CardContent>
+                </Card>
+              </div>
+            </>
           ) : (
             surveys?.map((survey) => (
               <Card key={survey.id}>
