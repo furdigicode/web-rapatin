@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -9,7 +10,6 @@ import FAQ from "./pages/FAQ";
 import TentangKami from "./pages/TentangKami";
 import Kontak from "./pages/Kontak";
 import Appointment from "./pages/Appointment";
-import SurveyForm from "./pages/SurveyForm";
 
 // Feature Pages
 import BayarSesuaiPakai from "./pages/fitur/BayarSesuaiPakai";
@@ -30,8 +30,6 @@ import BlogPost from "./pages/BlogPost";
 import AdminLogin from "./pages/admin/Login";
 import AdminDashboard from "./pages/admin/Dashboard";
 import BlogManagement from "./pages/admin/BlogManagement";
-import SurveyManagement from "./pages/admin/SurveyManagement";
-import SurveyBuilder from "./pages/admin/SurveyBuilder";
 
 import WhatsAppWidget from "./components/WhatsAppWidget";
 
@@ -55,7 +53,6 @@ const AppRoutes = () => {
       <Route path="/" element={<Index />} />
       <Route path="/faq" element={<FAQ />} />
       <Route path="/appointment" element={<Appointment />} />
-      <Route path="/form/:formId" element={<SurveyForm />} />
       
       {/* Feature Pages */}
       <Route path="/fitur/bayar-sesuai-pakai" element={<BayarSesuaiPakai />} />
@@ -78,9 +75,6 @@ const AppRoutes = () => {
       <Route path="/admin/login" element={<AdminLogin />} />
       <Route path="/admin/dashboard" element={<AdminDashboard />} />
       <Route path="/admin/blog" element={<BlogManagement />} />
-      <Route path="/admin/survey" element={<SurveyManagement />} />
-      <Route path="/admin/survey/builder/new" element={<SurveyBuilder />} />
-      <Route path="/admin/survey/builder/:surveyId" element={<SurveyBuilder />} />
       
       {/* 404 Catch-all Route */}
       <Route path="*" element={<NotFound />} />
