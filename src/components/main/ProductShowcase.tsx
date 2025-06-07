@@ -1,8 +1,7 @@
-
 import React from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Video, Calendar, BanknoteArrowDown, Proportions, CreditCard, Users, BarChart, MessageSquare, Settings, Play, Download, CheckCircle, User, DollarSign, FileText } from 'lucide-react';
+import { Video, Calendar, DollarSign, Proportions, CreditCard, Users, BarChart, MessageSquare, Settings, Play, Download, CheckCircle, User, FileText, Clock } from 'lucide-react';
 
 const MeetingSchedulingMockup = () => (
   <div className="glass rounded-xl overflow-hidden shadow-elevation border border-white/40 mx-auto max-w-md">
@@ -188,7 +187,7 @@ const ProductShowcase: React.FC = () => {
         { icon: Video, text: 'Unlock semua fitur Zoom' },
         { icon: Calendar, text: 'Easy scheduling interface' },
         { icon: Proportions, text: 'Kualitas video Full HD 1080p' },
-        { icon: BanknoteArrowDown, text: 'Ekonomis, tanpa langganan Zoom sendiri' }
+        { icon: DollarSign, text: 'Ekonomis, tanpa langganan Zoom sendiri' }
       ]
     },
     {
