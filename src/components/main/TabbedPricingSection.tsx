@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,23 +10,81 @@ const TabbedPricingSection: React.FC = () => {
       title: 'Meeting Scheduling',
       plans: [
         {
-          name: 'Basic',
-          price: '5.000',
-          duration: 'per meeting',
-          features: ['Durasi hingga 40 menit', 'Integrasi Zoom', 'Calendar sync', 'Email reminder']
+          name: '100 Peserta',
+          price: '20.000',
+          duration: '/rapat/tanggal',
+          features: [
+            'Rekaman Cloud (akses 72 jam)',
+            'Durasi rapat tak terbatas',
+            'Akses seharian (00.00 - 23.59)',
+            'Berbagi layar',
+            'Interpretasi Bahasa',
+            'Smart Recording',
+            'Ringkasan Rapat',
+            'AI Companion',
+            'Polling, Tanya Jawab, Survei',
+            'Sistem pendaftaran',
+            'Live streaming ke YouTube',
+            'Tetapkan hingga 99 Co-Host'
+          ]
         },
         {
-          name: 'Pro',
-          price: '8.000',
-          duration: 'per meeting',
-          features: ['Durasi hingga 60 menit', 'Integrasi Zoom', 'Calendar sync', 'Email reminder', 'Recording cloud', 'Custom branding'],
+          name: '300 Peserta',
+          price: '40.000',
+          duration: '/rapat/tanggal',
+          features: [
+            'Rekaman Cloud (akses 72 jam)',
+            'Durasi rapat tak terbatas',
+            'Akses seharian (00.00 - 23.59)',
+            'Berbagi layar',
+            'Interpretasi Bahasa',
+            'Smart Recording',
+            'Ringkasan Rapat',
+            'AI Companion',
+            'Polling, Tanya Jawab, Survei',
+            'Sistem pendaftaran',
+            'Live streaming ke YouTube',
+            'Tetapkan hingga 99 Co-Host'
+          ],
           popular: true
         },
         {
-          name: 'Enterprise',
-          price: '12.000',
-          duration: 'per meeting',
-          features: ['Durasi unlimited', 'Integrasi Zoom', 'Calendar sync', 'Email reminder', 'Recording cloud', 'Custom branding', 'Analytics', 'Priority support']
+          name: '500 Peserta',
+          price: '70.000',
+          duration: '/rapat/tanggal',
+          features: [
+            'Rekaman Cloud (akses 72 jam)',
+            'Durasi rapat tak terbatas',
+            'Akses seharian (00.00 - 23.59)',
+            'Berbagi layar',
+            'Interpretasi Bahasa',
+            'Smart Recording',
+            'Ringkasan Rapat',
+            'AI Companion',
+            'Polling, Tanya Jawab, Survei',
+            'Sistem pendaftaran',
+            'Live streaming ke YouTube',
+            'Tetapkan hingga 99 Co-Host'
+          ]
+        },
+        {
+          name: '1000 Peserta',
+          price: '130.000',
+          duration: '/rapat/tanggal',
+          features: [
+            'Rekaman Cloud (akses 72 jam)',
+            'Durasi rapat tak terbatas',
+            'Akses seharian (00.00 - 23.59)',
+            'Berbagi layar',
+            'Interpretasi Bahasa',
+            'Smart Recording',
+            'Ringkasan Rapat',
+            'AI Companion',
+            'Polling, Tanya Jawab, Survei',
+            'Sistem pendaftaran',
+            'Live streaming ke YouTube',
+            'Tetapkan hingga 99 Co-Host'
+          ]
         }
       ]
     },
@@ -102,7 +159,7 @@ const TabbedPricingSection: React.FC = () => {
           
           {Object.entries(pricingData).map(([key, data]) => (
             <TabsContent key={key} value={key}>
-              <div className="grid md:grid-cols-3 gap-8">
+              <div className={`grid gap-8 ${key === 'meeting' ? 'md:grid-cols-4' : 'md:grid-cols-3'}`}>
                 {data.plans.map((plan, index) => (
                   <Card key={index} className={`glass hover:shadow-elevation transition-all duration-300 animate-fade-in ${plan.popular ? 'ring-2 ring-primary relative' : ''}`} style={{animationDelay: `${index * 0.1}s`}}>
                     {plan.popular && (
