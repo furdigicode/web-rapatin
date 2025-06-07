@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Video, Calendar, DollarSign, Proportions, CreditCard, Users, BarChart, MessageSquare, Settings, Play, Download, CheckCircle, User, FileText, Clock } from 'lucide-react';
+import { Video, Calendar, DollarSign, Proportions, CreditCard, Users, BarChart, MessageSquare, Settings, Play, Download, CheckCircle, User, FileText, Clock, ClipboardList, Bell, Smartphone, UserCheck, Zap, Shield, MonitorPlay } from 'lucide-react';
 
 const MeetingSchedulingMockup = () => (
   <div className="glass rounded-xl overflow-hidden shadow-elevation border border-white/40 mx-auto max-w-md">
@@ -184,10 +184,11 @@ const ProductShowcase: React.FC = () => {
       description: 'Platform meeting scheduling yang terintegrasi dengan Zoom untuk meeting profesional tanpa perlu akun berbayar.',
       mockup: <MeetingSchedulingMockup />,
       features: [
-        { icon: Video, text: 'Unlock semua fitur Zoom' },
-        { icon: Calendar, text: 'Easy scheduling interface' },
-        { icon: Proportions, text: 'Kualitas video Full HD 1080p' },
-        { icon: DollarSign, text: 'Ekonomis, tanpa langganan Zoom sendiri' }
+        { icon: Video, text: 'Unlock semua fitur Zoom Professional', description: 'Akses fitur premium Zoom tanpa langganan sendiri' },
+        { icon: MonitorPlay, text: 'Kualitas video Full HD 1080p', description: 'Video berkualitas tinggi untuk meeting profesional' },
+        { icon: Calendar, text: 'Easy scheduling interface', description: 'Interface yang mudah untuk mengatur jadwal meeting' },
+        { icon: DollarSign, text: 'Ekonomis, tanpa langganan Zoom sendiri', description: 'Hemat biaya dengan menggunakan infrastruktur bersama' },
+        { icon: Shield, text: 'Keamanan tingkat enterprise', description: 'Proteksi data dan privasi meeting yang terjamin' }
       ]
     },
     {
@@ -197,10 +198,11 @@ const ProductShowcase: React.FC = () => {
       description: 'Sistem manajemen event lengkap untuk webinar, workshop, dan acara virtual dengan kapasitas besar.',
       mockup: <EventManagementMockup />,
       features: [
-        { icon: Users, text: 'Up-to 10.000 attendees' },
-        { icon: Settings, text: 'Registration management' },
-        { icon: BarChart, text: 'Attendee tracking' },
-        { icon: Video, text: 'Live streaming capabilities' }
+        { icon: Users, text: 'Hingga 10.000 peserta per event', description: 'Cocok untuk webinar, kelas online, dan seminar berskala besar' },
+        { icon: ClipboardList, text: 'Formulir pendaftaran fleksibel', description: 'Kumpulkan data peserta sesuai kebutuhan Anda' },
+        { icon: Zap, text: 'Pembayaran otomatis & notifikasi real-time', description: 'Terima pembayaran langsung, tanpa perlu cek manual' },
+        { icon: Smartphone, text: 'Distribusi link Zoom otomatis + pengingat WhatsApp', description: 'Undangan dan reminder terkirim otomatis tanpa repot' },
+        { icon: UserCheck, text: 'Pelacakan kehadiran peserta secara otomatis', description: 'Rekam kehadiran dan pantau aktivitas peserta dengan mudah' }
       ]
     },
     {
@@ -210,10 +212,11 @@ const ProductShowcase: React.FC = () => {
       description: 'Platform appointment booking untuk konsultasi, coaching, atau layanan profesional dengan sistem pembayaran terintegrasi.',
       mockup: <AppointmentBookingMockup />,
       features: [
-        { icon: Clock, text: 'One-on-one meetings' },
-        { icon: Calendar, text: 'Booking calendar integration' },
-        { icon: Users, text: 'Client management' },
-        { icon: CreditCard, text: 'Payment processing' }
+        { icon: Clock, text: 'Jadwal personal one-on-one yang fleksibel', description: 'Atur waktu konsultasi sesuai kebutuhan klien' },
+        { icon: Calendar, text: 'Integrasi kalender real-time', description: 'Sinkronisasi otomatis dengan Google Calendar dan aplikasi lain' },
+        { icon: Users, text: 'Sistem manajemen klien lengkap', description: 'Kelola data dan riwayat klien dalam satu platform' },
+        { icon: CreditCard, text: 'Payment gateway otomatis', description: 'Terima pembayaran langsung dengan berbagai metode' },
+        { icon: Bell, text: 'Reminder otomatis via WhatsApp & Email', description: 'Kurangi no-show dengan sistem pengingat cerdas' }
       ]
     }
   ];
@@ -244,13 +247,16 @@ const ProductShowcase: React.FC = () => {
                   <p className="text-muted-foreground text-lg leading-relaxed">{product.description}</p>
                 </div>
                 
-                <div className="grid grid-cols-1 sm:grid-cols-1 gap-4">
+                <div className="space-y-4">
                   {product.features.map((feature, featureIndex) => (
-                    <div key={featureIndex} className="flex items-center space-x-3">
-                      <div className="flex-shrink-0 w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
+                    <div key={featureIndex} className="flex items-start space-x-3">
+                      <div className="flex-shrink-0 w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center mt-1">
                         <feature.icon size={16} className="text-primary" />
                       </div>
-                      <span className="text-sm font-medium">{feature.text}</span>
+                      <div className="flex-1">
+                        <h4 className="text-sm font-semibold mb-1">{feature.text}</h4>
+                        <p className="text-xs text-muted-foreground leading-relaxed">{feature.description}</p>
+                      </div>
                     </div>
                   ))}
                 </div>
