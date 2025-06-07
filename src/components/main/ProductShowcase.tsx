@@ -224,7 +224,7 @@ const ProductShowcase: React.FC = () => {
       <div className="container mx-auto px-4 md:px-6">
         <div className="max-w-3xl mx-auto text-center mb-16 animate-fade-in">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Semua Penjadwalan dalam <span className="text-primary">Satu Platform</span>
+            Tiga Produk Utama dalam <span className="text-primary">Satu Platform</span>
           </h2>
           <p className="text-lg text-muted-foreground">
             Semua kebutuhan penjadwalan Anda tersedia dalam satu platform yang mudah digunakan
@@ -245,7 +245,7 @@ const ProductShowcase: React.FC = () => {
                   <p className="text-muted-foreground text-lg leading-relaxed">{product.description}</p>
                 </div>
                 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-1 gap-4">
                   {product.features.map((feature, featureIndex) => (
                     <div key={featureIndex} className="flex items-center space-x-3">
                       <div className="flex-shrink-0 w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
