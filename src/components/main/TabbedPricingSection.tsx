@@ -36,6 +36,8 @@ const TabbedPricingSection: React.FC = () => {
       features: [
         'Semua fitur Zoom meeting',
         'Customizable event registration page',
+        'Pembayaran otomatis dan metode pembayaran lengkap',
+        'Distribusi otomatis Zoom link dan passcode',
         'Event reminder email atau WhatsApp',
         'Digital certificate by Certifier',
         'Report & analytics'
