@@ -320,10 +320,7 @@ const ProductShowcase: React.FC = () => {
                 
                 <div className="flex flex-col sm:flex-row gap-3">
                   <Button size="lg" className="bg-primary hover:bg-primary/90">
-                    Coba {product.title}
-                  </Button>
-                  <Button variant="outline" size="lg">
-                    Pelajari Lebih Lanjut
+                    Pelajari selengkapnya
                   </Button>
                 </div>
               </div>
