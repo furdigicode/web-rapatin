@@ -22,14 +22,14 @@ const MainHeroSection: React.FC = () => {
           <span className="text-primary">All in one</span> pay as you go scheduling platform
         </h1>
         <p className="text-lg md:text-xl text-muted-foreground max-w-2xl text-center mb-8 animate-fade-in">
-          Kelola meeting, event, dan appointment dengan satu platform. Bayar sesuai penggunaan tanpa biaya berlangganan yang memberatkan.
+          Kelola meeting, event, dan appointment dengan satu platform. Bayar sesuai penggunaan tanpa biaya berlangganan. Tanpa komitmen.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 pt-2 mb-8 justify-center animate-fade-in">
           <Button size="lg" className="bg-primary hover:bg-primary/90 text-white rounded-lg h-12 px-8">
             Mulai Gratis Sekarang
           </Button>
           <Button variant="outline" size="lg" className="rounded-lg h-12 px-8">
-            Lihat Demo Platform
+            Lihat Produk
           </Button>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-10 max-w-4xl w-full mx-auto pt-2 animate-fade-in">
@@ -47,7 +47,7 @@ const MainHeroSection: React.FC = () => {
           </div>
           <div className="flex items-center gap-2 text-sm justify-center">
             <CreditCard size={18} className="text-primary" />
-            <span>Pay Per Use</span>
+            <span>Pay-as-you-go</span>
           </div>
         </div>
         <div className="max-w-full mt-8 mb-10 animate-slide-in-right">
