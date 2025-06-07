@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Calendar, CreditCard, Users, Clock } from 'lucide-react';
@@ -11,6 +12,16 @@ const MainHeroSection: React.FC = () => {
     rootNode: emblaRoot => emblaRoot.parentElement,
     stopOnMouseEnter: true
   }), []);
+
+  const scrollToProducts = () => {
+    const productSection = document.getElementById('product-showcase');
+    if (productSection) {
+      productSection.scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'start'
+      });
+    }
+  };
 
   return (
     <section className="pt-28 pb-12 md:pt-32 md:pb-24 overflow-hidden bg-hero-pattern flex flex-col items-center">
@@ -28,7 +39,7 @@ const MainHeroSection: React.FC = () => {
           <Button size="lg" className="bg-primary hover:bg-primary/90 text-white rounded-lg h-12 px-8">
             Mulai Gratis Sekarang
           </Button>
-          <Button variant="outline" size="lg" className="rounded-lg h-12 px-8">
+          <Button variant="outline" size="lg" className="rounded-lg h-12 px-8" onClick={scrollToProducts}>
             Lihat Produk
           </Button>
         </div>

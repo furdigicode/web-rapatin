@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -240,6 +241,7 @@ const ProductShowcase: React.FC = () => {
       subtitle: 'Jadwalkan meeting dengan infrastruktur Zoom yang mudah',
       description: 'Platform meeting scheduling yang terintegrasi dengan Zoom untuk meeting profesional tanpa perlu akun berbayar.',
       mockup: <MeetingSchedulingMockup />,
+      url: 'https://rapatin.id/meeting-scheduling',
       features: [
         { icon: Video, text: 'Unlock semua fitur Zoom Professional', description: 'Akses fitur premium Zoom tanpa langganan sendiri - recording cloud, breakout rooms, dan fitur enterprise lainnya' },
         { icon: MonitorPlay, text: 'Kualitas video Full HD 1080p dengan audio jernih', description: 'Video berkualitas tinggi dengan teknologi noise reduction untuk meeting profesional yang sempurna' },
@@ -254,6 +256,7 @@ const ProductShowcase: React.FC = () => {
       subtitle: 'Kelola event besar dengan sistem yang powerful',
       description: 'Sistem manajemen event lengkap untuk webinar, workshop, dan acara virtual dengan kapasitas besar.',
       mockup: <EventManagementMockup />,
+      url: '/event-management',
       features: [
         { icon: Users, text: 'Hingga 10.000 peserta per event', description: 'Cocok untuk webinar, kelas online, dan seminar berskala besar dengan infrastruktur cloud yang stabil' },
         { icon: ClipboardList, text: 'Formulir pendaftaran fleksibel', description: 'Kumpulkan data peserta sesuai kebutuhan Anda - custom fields, validasi otomatis, dan integrasi database' },
@@ -268,6 +271,7 @@ const ProductShowcase: React.FC = () => {
       subtitle: 'Sistem booking appointment dengan payment otomatis',
       description: 'Platform appointment booking untuk konsultasi, coaching, atau layanan profesional dengan sistem pembayaran terintegrasi.',
       mockup: <AppointmentBookingMockup />,
+      url: '/appointment',
       features: [
         { icon: Clock, text: 'Jadwal personal one-on-one yang fleksibel', description: 'Atur waktu konsultasi sesuai kebutuhan klien dengan buffer time otomatis dan zona waktu yang akurat' },
         { icon: Calendar, text: 'Integrasi kalender real-time multi-platform', description: 'Sinkronisasi otomatis dengan Google Calendar, Outlook, dan Apple Calendar - hindari double booking selamanya' },
@@ -279,7 +283,7 @@ const ProductShowcase: React.FC = () => {
   ];
 
   return (
-    <section className="py-32 bg-background">
+    <section id="product-showcase" className="py-32 bg-background">
       <div className="container mx-auto px-4 md:px-6">
         <div className="max-w-3xl mx-auto text-center mb-20 animate-fade-in">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
@@ -319,8 +323,8 @@ const ProductShowcase: React.FC = () => {
                 </div>
                 
                 <div className="flex flex-col sm:flex-row gap-3">
-                  <Button size="lg" className="bg-primary hover:bg-primary/90">
-                    Pelajari selengkapnya
+                  <Button asChild size="lg" className="bg-primary hover:bg-primary/90">
+                    <a href={product.url}>Pelajari selengkapnya</a>
                   </Button>
                 </div>
               </div>
