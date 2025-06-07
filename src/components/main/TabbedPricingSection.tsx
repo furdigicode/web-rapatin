@@ -44,10 +44,10 @@ const TabbedPricingSection: React.FC = () => {
         platformFee: '1%',
         description: 'Biaya platform dari harga tiket event',
         paymentGateway: [
-          { method: 'QRIS', fee: '0.7%' },
-          { method: 'Virtual Account', fee: '0.7%' },
+          { method: 'QRIS', fee: '0.77%' },
+          { method: 'Virtual Account', fee: 'Rp 4.440' },
           { method: 'Credit Card', fee: '2.9% + Rp 2.000' },
-          { method: 'E-Wallet', fee: '0.7%' }
+          { method: 'E-Wallet', fee: '1,7%' }
         ]
       }
     },
