@@ -2,7 +2,6 @@
 import React from 'react';
 import Navbar from '@/components/Navbar';
 import MainHeroSection from '@/components/main/MainHeroSection';
-import BrandCarousel from '@/components/main/BrandCarousel';
 import ProductShowcase from '@/components/main/ProductShowcase';
 import TestimonialSection from '@/components/TestimonialSection';
 import TabbedPricingSection from '@/components/main/TabbedPricingSection';
@@ -13,7 +12,6 @@ const MainPage = () => {
     <div className="min-h-screen">
       <Navbar />
       <MainHeroSection />
-      <BrandCarousel />
       <ProductShowcase />
       <TestimonialSection />
       <TabbedPricingSection />
