@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -32,27 +33,23 @@ const TabbedPricingSection: React.FC = () => {
     },
     event: {
       title: 'Event Management',
-      plans: [
-        {
-          name: 'Starter',
-          price: '15.000',
-          duration: 'per event',
-          features: ['Hingga 50 peserta', 'Registration form', 'Email notifications', 'Basic analytics']
-        },
-        {
-          name: 'Professional',
-          price: '25.000',
-          duration: 'per event',
-          features: ['Hingga 200 peserta', 'Registration form', 'Email notifications', 'Basic analytics', 'Custom landing page', 'Live chat support'],
-          popular: true
-        },
-        {
-          name: 'Enterprise',
-          price: '50.000',
-          duration: 'per event',
-          features: ['Unlimited peserta', 'Registration form', 'Email notifications', 'Advanced analytics', 'Custom landing page', 'Live chat support', 'White label', 'API access']
-        }
-      ]
+      features: [
+        'Semua fitur Zoom meeting',
+        'Customizable event registration page',
+        'Event reminder email atau WhatsApp',
+        'Digital certificate by Certifier',
+        'Report & analytics'
+      ],
+      pricing: {
+        platformFee: '1%',
+        description: 'Biaya platform dari harga tiket event',
+        paymentGateway: [
+          { method: 'QRIS', fee: '0.7%' },
+          { method: 'Virtual Account', fee: '0.7%' },
+          { method: 'Credit Card', fee: '2.9% + Rp 2.000' },
+          { method: 'E-Wallet', fee: '0.7%' }
+        ]
+      }
     },
     appointment: {
       title: 'Appointment Booking',
@@ -163,46 +160,113 @@ const TabbedPricingSection: React.FC = () => {
             </div>
           </TabsContent>
           
-          {Object.entries(pricingData).filter(([key]) => key !== 'meeting').map(([key, data]) => (
-            <TabsContent key={key} value={key}>
-              <div className="grid md:grid-cols-3 gap-8">
-                {data.plans.map((plan, index) => (
-                  <Card key={index} className={`glass hover:shadow-elevation transition-all duration-300 animate-fade-in ${plan.popular ? 'ring-2 ring-primary relative' : ''}`} style={{animationDelay: `${index * 0.1}s`}}>
-                    {plan.popular && (
-                      <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                        <div className="bg-primary text-white px-4 py-1 rounded-full text-sm font-medium">
-                          Paling Populer
-                        </div>
+          <TabsContent value="event">
+            <div className="grid md:grid-cols-2 gap-8">
+              {/* Features Column */}
+              <Card className="glass">
+                <CardHeader>
+                  <CardTitle className="text-xl font-semibold">Fitur yang Anda Dapatkan</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ul className="space-y-3">
+                    {pricingData.event.features.map((feature, index) => (
+                      <li key={index} className="flex items-start">
+                        <Check size={16} className="text-primary mt-0.5 mr-3 flex-shrink-0" />
+                        <span className="text-sm">{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+
+              {/* Pricing Column */}
+              <Card className="glass">
+                <CardHeader>
+                  <CardTitle className="text-xl font-semibold">Biaya Berbasis Penggunaan</CardTitle>
+                  <p className="text-sm text-muted-foreground mt-2">
+                    Anda hanya dikenakan biaya ketika peserta membeli tiket event berbayar. Event gratis tidak dikenakan biaya.
+                  </p>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-6">
+                    {/* Platform Fee */}
+                    <div className="border-b pb-4">
+                      <h3 className="font-semibold text-lg mb-2">Biaya Platform</h3>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm">Biaya platform dari harga tiket</span>
+                        <span className="font-bold text-xl text-primary">{pricingData.event.pricing.platformFee}</span>
                       </div>
-                    )}
-                    <CardHeader className="text-center pb-4">
-                      <CardTitle className="text-xl font-semibold">{plan.name}</CardTitle>
-                      <div className="mt-4">
-                        <span className="text-3xl font-bold">Rp {plan.price}</span>
-                        <span className="text-muted-foreground ml-2">{plan.duration}</span>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="pt-0">
-                      <ul className="space-y-3 mb-6">
-                        {plan.features.map((feature, featureIndex) => (
-                          <li key={featureIndex} className="flex items-start">
-                            <Check size={16} className="text-primary mt-0.5 mr-3 flex-shrink-0" />
-                            <span className="text-sm">{feature}</span>
-                          </li>
+                    </div>
+
+                    {/* Payment Gateway Fees */}
+                    <div>
+                      <h3 className="font-semibold text-lg mb-3">Biaya Payment Gateway</h3>
+                      <div className="space-y-2">
+                        {pricingData.event.pricing.paymentGateway.map((gateway, index) => (
+                          <div key={index} className="flex justify-between items-center py-2 border-b border-muted last:border-b-0">
+                            <span className="text-sm">{gateway.method}</span>
+                            <span className="font-medium">{gateway.fee}</span>
+                          </div>
                         ))}
-                      </ul>
-                      <Button 
-                        className={`w-full ${plan.popular ? 'bg-primary hover:bg-primary/90' : ''}`}
-                        variant={plan.popular ? 'default' : 'outline'}
-                      >
-                        Mulai dengan {plan.name}
-                      </Button>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </TabsContent>
-          ))}
+                      </div>
+                    </div>
+
+                    {/* Important Note */}
+                    <div className="bg-accent/20 p-4 rounded-lg">
+                      <p className="text-sm text-muted-foreground">
+                        <strong>Catatan:</strong> Biaya payment gateway ditanggung oleh pembeli tiket, bukan organizer event.
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className="mt-6 text-center">
+                    <Button size="lg" className="w-full md:w-auto px-8">
+                      Mulai Buat Event
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="appointment">
+            <div className="grid md:grid-cols-3 gap-8">
+              {pricingData.appointment.plans.map((plan, index) => (
+                <Card key={index} className={`glass hover:shadow-elevation transition-all duration-300 animate-fade-in ${plan.popular ? 'ring-2 ring-primary relative' : ''}`} style={{animationDelay: `${index * 0.1}s`}}>
+                  {plan.popular && (
+                    <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                      <div className="bg-primary text-white px-4 py-1 rounded-full text-sm font-medium">
+                        Paling Populer
+                      </div>
+                    </div>
+                  )}
+                  <CardHeader className="text-center pb-4">
+                    <CardTitle className="text-xl font-semibold">{plan.name}</CardTitle>
+                    <div className="mt-4">
+                      <span className="text-3xl font-bold">Rp {plan.price}</span>
+                      <span className="text-muted-foreground ml-2">{plan.duration}</span>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="pt-0">
+                    <ul className="space-y-3 mb-6">
+                      {plan.features.map((feature, featureIndex) => (
+                        <li key={featureIndex} className="flex items-start">
+                          <Check size={16} className="text-primary mt-0.5 mr-3 flex-shrink-0" />
+                          <span className="text-sm">{feature}</span>
+                        </li>
+                      ))}
+                    </ul>
+                    <Button 
+                      className={`w-full ${plan.popular ? 'bg-primary hover:bg-primary/90' : ''}`}
+                      variant={plan.popular ? 'default' : 'outline'}
+                    >
+                      Mulai dengan {plan.name}
+                    </Button>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </TabsContent>
         </Tabs>
         
         <div className="text-center mt-12 animate-fade-in">
