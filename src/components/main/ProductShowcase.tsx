@@ -197,7 +197,7 @@ const ProductShowcase: React.FC = () => {
       description: 'Sistem manajemen event lengkap untuk webinar, workshop, dan acara virtual dengan kapasitas besar.',
       mockup: <EventManagementMockup />,
       features: [
-        { icon: Users, text: 'Large event hosting' },
+        { icon: Users, text: 'Up-to 10.000 attendees' },
         { icon: Settings, text: 'Registration management' },
         { icon: BarChart, text: 'Attendee tracking' },
         { icon: Video, text: 'Live streaming capabilities' }
