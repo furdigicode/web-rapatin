@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { useEffect } from "react";
 import Index from "./pages/Index";
+import MainPage from "./pages/MainPage";
 import NotFound from "./pages/NotFound";
 import FAQ from "./pages/FAQ";
 import TentangKami from "./pages/TentangKami";
@@ -51,6 +52,7 @@ const AppRoutes = () => {
     <Routes>
       {/* Public Routes */}
       <Route path="/" element={<Index />} />
+      <Route path="/main-page" element={<MainPage />} />
       <Route path="/faq" element={<FAQ />} />
       <Route path="/appointment" element={<Appointment />} />
       

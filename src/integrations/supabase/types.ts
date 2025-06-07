@@ -90,51 +90,6 @@ export type Database = {
         }
         Relationships: []
       }
-      reseller_applications: {
-        Row: {
-          created_at: string
-          email: string
-          has_sold_zoom: boolean
-          id: string
-          monthly_target: number
-          name: string
-          reason: string
-          selling_experience: string | null
-          selling_plan: string
-          status: string
-          updated_at: string
-          whatsapp: string
-        }
-        Insert: {
-          created_at?: string
-          email: string
-          has_sold_zoom?: boolean
-          id?: string
-          monthly_target: number
-          name: string
-          reason: string
-          selling_experience?: string | null
-          selling_plan: string
-          status?: string
-          updated_at?: string
-          whatsapp: string
-        }
-        Update: {
-          created_at?: string
-          email?: string
-          has_sold_zoom?: boolean
-          id?: string
-          monthly_target?: number
-          name?: string
-          reason?: string
-          selling_experience?: string | null
-          selling_plan?: string
-          status?: string
-          updated_at?: string
-          whatsapp?: string
-        }
-        Relationships: []
-      }
     }
     Views: {
       [_ in never]: never
