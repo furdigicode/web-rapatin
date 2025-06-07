@@ -214,7 +214,7 @@ const TabbedPricingSection: React.FC = () => {
                     {/* Important Note */}
                     <div className="bg-accent/20 p-4 rounded-lg">
                       <p className="text-sm text-muted-foreground">
-                        <strong>Catatan:</strong> Biaya payment gateway ditanggung oleh pembeli tiket, bukan organizer event.
+                        <strong>Catatan:</strong> Biaya payment gateway dapat diatur apakah ditanggung oleh pembeli tiket atau organizer event.
                       </p>
                     </div>
                   </div>
