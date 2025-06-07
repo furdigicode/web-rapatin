@@ -1,10 +1,9 @@
-
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Check } from 'lucide-react';
+import { Check, Calendar, Users, Clock } from 'lucide-react';
 
 const TabbedPricingSection: React.FC = () => {
   const pricingData = {
@@ -93,10 +92,37 @@ const TabbedPricingSection: React.FC = () => {
         </div>
         
         <Tabs defaultValue="meeting" className="max-w-6xl mx-auto">
-          <TabsList className="grid w-full grid-cols-3 mb-12">
-            <TabsTrigger value="meeting" className="text-sm md:text-base">Meeting Scheduling</TabsTrigger>
-            <TabsTrigger value="event" className="text-sm md:text-base">Event Management</TabsTrigger>
-            <TabsTrigger value="appointment" className="text-sm md:text-base">Appointment Booking</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-3 mb-12 h-auto p-1 bg-muted/50 backdrop-blur-sm">
+            <TabsTrigger 
+              value="meeting" 
+              className="flex flex-col items-center justify-center gap-1 px-2 py-3 sm:px-4 sm:py-4 h-auto min-h-[60px] text-xs sm:text-sm md:text-base data-[state=active]:bg-background data-[state=active]:shadow-lg transition-all duration-200"
+            >
+              <Calendar className="w-4 h-4 sm:w-5 sm:h-5" />
+              <span className="leading-tight text-center">
+                <span className="hidden sm:inline">Meeting Scheduling</span>
+                <span className="sm:hidden">Meeting</span>
+              </span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="event" 
+              className="flex flex-col items-center justify-center gap-1 px-2 py-3 sm:px-4 sm:py-4 h-auto min-h-[60px] text-xs sm:text-sm md:text-base data-[state=active]:bg-background data-[state=active]:shadow-lg transition-all duration-200"
+            >
+              <Users className="w-4 h-4 sm:w-5 sm:h-5" />
+              <span className="leading-tight text-center">
+                <span className="hidden sm:inline">Event Management</span>
+                <span className="sm:hidden">Event</span>
+              </span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="appointment" 
+              className="flex flex-col items-center justify-center gap-1 px-2 py-3 sm:px-4 sm:py-4 h-auto min-h-[60px] text-xs sm:text-sm md:text-base data-[state=active]:bg-background data-[state=active]:shadow-lg transition-all duration-200"
+            >
+              <Clock className="w-4 h-4 sm:w-5 sm:h-5" />
+              <span className="leading-tight text-center">
+                <span className="hidden sm:inline">Appointment Booking</span>
+                <span className="sm:hidden">Appointment</span>
+              </span>
+            </TabsTrigger>
           </TabsList>
           
           <TabsContent value="meeting">
