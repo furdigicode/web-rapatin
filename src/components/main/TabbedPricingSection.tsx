@@ -36,12 +36,9 @@ const TabbedPricingSection: React.FC = () => {
       features: [
         'Semua fitur Zoom meeting',
         'Customizable event registration page',
-        'Distribusi otomatis Zoom link dan passcode',
-        'Pembayaran otomatis & lengkap',
         'Event reminder email atau WhatsApp',
         'Digital certificate by Certifier',
-        'Laporan kehadiran peserta',
-        'Analitik & statistik acara'
+        'Report & analytics'
       ],
       pricing: {
         platformFee: '1%',
@@ -104,7 +101,7 @@ const TabbedPricingSection: React.FC = () => {
               {/* Features Column */}
               <Card className="glass">
                 <CardHeader>
-                  <CardTitle className="text-xl font-semibold">Fitur yang Anda Dapatkan</CardTitle>
+                  <CardTitle className="text-xl font-semibold">Fitur Zoom yang Anda Dapatkan</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <ul className="space-y-3">
@@ -168,7 +165,7 @@ const TabbedPricingSection: React.FC = () => {
               {/* Features Column */}
               <Card className="glass">
                 <CardHeader>
-                  <CardTitle className="text-xl font-semibold">Fitur Zoom yang Anda Dapatkan</CardTitle>
+                  <CardTitle className="text-xl font-semibold">Fitur yang Anda Dapatkan</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <ul className="space-y-3">
