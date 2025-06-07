@@ -25,8 +25,8 @@ const TabbedPricingSection: React.FC = () => {
         'Tetapkan hingga 99 Co-Host'
       ],
       plans: [
-        { name: '100 Peserta', price: '20.000' },
-        { name: '300 Peserta', price: '40.000', popular: true },
+        { name: '100 Peserta', price: '20.000', popular: true },
+        { name: '300 Peserta', price: '40.000'},
         { name: '500 Peserta', price: '70.000' },
         { name: '1000 Peserta', price: '130.000' }
       ]
@@ -34,8 +34,8 @@ const TabbedPricingSection: React.FC = () => {
     event: {
       title: 'Event Management',
       features: [
-        'Semua fitur Zoom meeting',
-        'Customizable event registration page',
+        'Ruang Zoom siap pakai & semua fitur premiumnya',
+        'Kustomisasi halaman pendaftaran acara',
         'Pembayaran otomatis dan metode pembayaran lengkap',
         'Distribusi otomatis Zoom link dan passcode',
         'Event reminder email atau WhatsApp',
