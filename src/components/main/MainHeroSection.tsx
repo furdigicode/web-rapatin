@@ -43,7 +43,7 @@ const MainHeroSection: React.FC = () => {
           </div>
           <div className="flex items-center gap-2 text-sm justify-center">
             <Clock size={18} className="text-primary" />
-            <span>Appointment</span>
+            <span>Appointment Booking</span>
           </div>
           <div className="flex items-center gap-2 text-sm justify-center">
             <CreditCard size={18} className="text-primary" />
