@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -123,6 +122,9 @@ const TabbedPricingSection: React.FC = () => {
               <Card className="glass">
                 <CardHeader>
                   <CardTitle className="text-xl font-semibold">Pilih Paket</CardTitle>
+                  <p className="text-sm text-muted-foreground mt-2">
+                    Harga berlaku per rapat per tanggal. Anda hanya membayar saat menggunakan layanan.
+                  </p>
                 </CardHeader>
                 <CardContent>
                   <Table>
@@ -130,8 +132,6 @@ const TabbedPricingSection: React.FC = () => {
                       <TableRow>
                         <TableHead>Peserta</TableHead>
                         <TableHead>Harga</TableHead>
-                        <TableHead>Durasi</TableHead>
-                        <TableHead></TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -148,22 +148,16 @@ const TabbedPricingSection: React.FC = () => {
                           <TableCell className="font-bold">
                             Rp {plan.price}
                           </TableCell>
-                          <TableCell className="text-muted-foreground">
-                            /rapat/tanggal
-                          </TableCell>
-                          <TableCell>
-                            <Button 
-                              size="sm"
-                              variant={plan.popular ? 'default' : 'outline'}
-                              className="w-full"
-                            >
-                              Pilih
-                            </Button>
-                          </TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
                   </Table>
+                  
+                  <div className="mt-6 text-center">
+                    <Button size="lg" className="w-full md:w-auto px-8">
+                      Daftar Sekarang
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             </div>
