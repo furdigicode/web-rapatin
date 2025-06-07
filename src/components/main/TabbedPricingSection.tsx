@@ -101,7 +101,7 @@ const TabbedPricingSection: React.FC = () => {
               {/* Features Column */}
               <Card className="glass">
                 <CardHeader>
-                  <CardTitle className="text-xl font-semibold">Fitur Zoom yang Anda Dapatkan</CardTitle>
+                  <CardTitle className="text-xl font-semibold">Fitur yang Anda Dapatkan</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <ul className="space-y-3">
@@ -268,15 +268,6 @@ const TabbedPricingSection: React.FC = () => {
             </div>
           </TabsContent>
         </Tabs>
-        
-        <div className="text-center mt-12 animate-fade-in">
-          <p className="text-muted-foreground mb-4">
-            <strong>Gratis:</strong> Trial 7 hari untuk semua produk
-          </p>
-          <p className="text-sm text-muted-foreground">
-            Biaya payment processing ditanggung oleh end user (2.9% + Rp 2.000)
-          </p>
-        </div>
       </div>
     </section>
   );
