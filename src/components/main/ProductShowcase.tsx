@@ -2,7 +2,7 @@
 import React from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Video, Calendar, Clock, CreditCard, Users, BarChart, MessageSquare, Settings, Play, Download, CheckCircle, User, DollarSign, FileText } from 'lucide-react';
+import { Video, Calendar, BanknoteArrowDown, Proportions, CreditCard, Users, BarChart, MessageSquare, Settings, Play, Download, CheckCircle, User, DollarSign, FileText } from 'lucide-react';
 
 const MeetingSchedulingMockup = () => (
   <div className="glass rounded-xl overflow-hidden shadow-elevation border border-white/40 mx-auto max-w-md">
@@ -181,14 +181,14 @@ const ProductShowcase: React.FC = () => {
     {
       id: 'meeting',
       title: 'Meeting Scheduling',
-      subtitle: 'Jadwalkan meeting dengan integrasi Zoom yang mudah',
+      subtitle: 'Jadwalkan meeting dengan infrastruktur Zoom yang mudah',
       description: 'Platform meeting scheduling yang terintegrasi dengan Zoom untuk meeting profesional tanpa perlu akun berbayar.',
       mockup: <MeetingSchedulingMockup />,
       features: [
-        { icon: Video, text: 'Zoom integration built-in' },
+        { icon: Video, text: 'Unlock semua fitur Zoom' },
         { icon: Calendar, text: 'Easy scheduling interface' },
-        { icon: Clock, text: 'Calendar sync otomatis' },
-        { icon: MessageSquare, text: 'Automated reminders' }
+        { icon: Proportions, text: 'Kualitas video Full HD 1080p' },
+        { icon: BanknoteArrowDown, text: 'Ekonomis, tanpa langganan Zoom sendiri' }
       ]
     },
     {
@@ -245,7 +245,7 @@ const ProductShowcase: React.FC = () => {
                   <p className="text-muted-foreground text-lg leading-relaxed">{product.description}</p>
                 </div>
                 
-                <div className="grid grid-cols-1 sm:grid-cols-1 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {product.features.map((feature, featureIndex) => (
                     <div key={featureIndex} className="flex items-center space-x-3">
                       <div className="flex-shrink-0 w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
