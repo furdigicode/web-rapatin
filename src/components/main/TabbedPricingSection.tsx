@@ -1,91 +1,34 @@
+
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Check } from 'lucide-react';
 
 const TabbedPricingSection: React.FC = () => {
   const pricingData = {
     meeting: {
       title: 'Meeting Scheduling',
+      features: [
+        'Rekaman Cloud (akses 72 jam)',
+        'Durasi rapat tak terbatas',
+        'Akses seharian (00.00 - 23.59)',
+        'Berbagi layar',
+        'Interpretasi Bahasa',
+        'Smart Recording',
+        'Ringkasan Rapat',
+        'AI Companion',
+        'Polling, Tanya Jawab, Survei',
+        'Sistem pendaftaran',
+        'Live streaming ke YouTube',
+        'Tetapkan hingga 99 Co-Host'
+      ],
       plans: [
-        {
-          name: '100 Peserta',
-          price: '20.000',
-          duration: '/rapat/tanggal',
-          features: [
-            'Rekaman Cloud (akses 72 jam)',
-            'Durasi rapat tak terbatas',
-            'Akses seharian (00.00 - 23.59)',
-            'Berbagi layar',
-            'Interpretasi Bahasa',
-            'Smart Recording',
-            'Ringkasan Rapat',
-            'AI Companion',
-            'Polling, Tanya Jawab, Survei',
-            'Sistem pendaftaran',
-            'Live streaming ke YouTube',
-            'Tetapkan hingga 99 Co-Host'
-          ]
-        },
-        {
-          name: '300 Peserta',
-          price: '40.000',
-          duration: '/rapat/tanggal',
-          features: [
-            'Rekaman Cloud (akses 72 jam)',
-            'Durasi rapat tak terbatas',
-            'Akses seharian (00.00 - 23.59)',
-            'Berbagi layar',
-            'Interpretasi Bahasa',
-            'Smart Recording',
-            'Ringkasan Rapat',
-            'AI Companion',
-            'Polling, Tanya Jawab, Survei',
-            'Sistem pendaftaran',
-            'Live streaming ke YouTube',
-            'Tetapkan hingga 99 Co-Host'
-          ],
-          popular: true
-        },
-        {
-          name: '500 Peserta',
-          price: '70.000',
-          duration: '/rapat/tanggal',
-          features: [
-            'Rekaman Cloud (akses 72 jam)',
-            'Durasi rapat tak terbatas',
-            'Akses seharian (00.00 - 23.59)',
-            'Berbagi layar',
-            'Interpretasi Bahasa',
-            'Smart Recording',
-            'Ringkasan Rapat',
-            'AI Companion',
-            'Polling, Tanya Jawab, Survei',
-            'Sistem pendaftaran',
-            'Live streaming ke YouTube',
-            'Tetapkan hingga 99 Co-Host'
-          ]
-        },
-        {
-          name: '1000 Peserta',
-          price: '130.000',
-          duration: '/rapat/tanggal',
-          features: [
-            'Rekaman Cloud (akses 72 jam)',
-            'Durasi rapat tak terbatas',
-            'Akses seharian (00.00 - 23.59)',
-            'Berbagi layar',
-            'Interpretasi Bahasa',
-            'Smart Recording',
-            'Ringkasan Rapat',
-            'AI Companion',
-            'Polling, Tanya Jawab, Survei',
-            'Sistem pendaftaran',
-            'Live streaming ke YouTube',
-            'Tetapkan hingga 99 Co-Host'
-          ]
-        }
+        { name: '100 Peserta', price: '20.000' },
+        { name: '300 Peserta', price: '40.000', popular: true },
+        { name: '500 Peserta', price: '70.000' },
+        { name: '1000 Peserta', price: '130.000' }
       ]
     },
     event: {
@@ -157,9 +100,78 @@ const TabbedPricingSection: React.FC = () => {
             <TabsTrigger value="appointment" className="text-sm md:text-base">Appointment Booking</TabsTrigger>
           </TabsList>
           
-          {Object.entries(pricingData).map(([key, data]) => (
+          <TabsContent value="meeting">
+            <div className="grid md:grid-cols-2 gap-8">
+              {/* Features Column */}
+              <Card className="glass">
+                <CardHeader>
+                  <CardTitle className="text-xl font-semibold">Fitur yang Anda Dapatkan</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ul className="space-y-3">
+                    {pricingData.meeting.features.map((feature, index) => (
+                      <li key={index} className="flex items-start">
+                        <Check size={16} className="text-primary mt-0.5 mr-3 flex-shrink-0" />
+                        <span className="text-sm">{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+
+              {/* Pricing Column */}
+              <Card className="glass">
+                <CardHeader>
+                  <CardTitle className="text-xl font-semibold">Pilih Paket</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Peserta</TableHead>
+                        <TableHead>Harga</TableHead>
+                        <TableHead>Durasi</TableHead>
+                        <TableHead></TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {pricingData.meeting.plans.map((plan, index) => (
+                        <TableRow key={index} className={plan.popular ? 'bg-primary/5' : ''}>
+                          <TableCell className="font-medium">
+                            {plan.name}
+                            {plan.popular && (
+                              <div className="text-xs text-primary font-medium mt-1">
+                                Paling Populer
+                              </div>
+                            )}
+                          </TableCell>
+                          <TableCell className="font-bold">
+                            Rp {plan.price}
+                          </TableCell>
+                          <TableCell className="text-muted-foreground">
+                            /rapat/tanggal
+                          </TableCell>
+                          <TableCell>
+                            <Button 
+                              size="sm"
+                              variant={plan.popular ? 'default' : 'outline'}
+                              className="w-full"
+                            >
+                              Pilih
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+          
+          {Object.entries(pricingData).filter(([key]) => key !== 'meeting').map(([key, data]) => (
             <TabsContent key={key} value={key}>
-              <div className={`grid gap-8 ${key === 'meeting' ? 'md:grid-cols-4' : 'md:grid-cols-3'}`}>
+              <div className="grid md:grid-cols-3 gap-8">
                 {data.plans.map((plan, index) => (
                   <Card key={index} className={`glass hover:shadow-elevation transition-all duration-300 animate-fade-in ${plan.popular ? 'ring-2 ring-primary relative' : ''}`} style={{animationDelay: `${index * 0.1}s`}}>
                     {plan.popular && (
