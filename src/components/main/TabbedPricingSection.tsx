@@ -40,7 +40,8 @@ const TabbedPricingSection: React.FC = () => {
         'Distribusi otomatis Zoom link dan passcode',
         'Event reminder email atau WhatsApp',
         'Digital certificate by Certifier',
-        'Report & analytics'
+        'Laporan kehadiran peserta',
+        'Statistik & analisis acara'
       ],
       pricing: {
         platformFee: '1%',
