@@ -10,7 +10,7 @@ interface AnimatedTextProps {
 
 const AnimatedText: React.FC<AnimatedTextProps> = ({ 
   words, 
-  interval = 3000, 
+  interval = 5000, 
   className = "" 
 }) => {
   const { currentWord, isTyping } = useAnimatedText(words, interval);
