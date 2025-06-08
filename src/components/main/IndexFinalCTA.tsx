@@ -44,10 +44,10 @@ const IndexFinalCTA = () => {
   ];
 
   return (
-    <section className="py-20 bg-gradient-to-br from-primary/5 via-secondary/5 to-accent/5">
+    <section className="py-20 bg-accent/10">
       <div className="container mx-auto px-4 md:px-6">
         <div className="glass rounded-3xl p-8 md:p-12 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4 text-primary">
             Satu Platform untuk Semua Kebutuhan Penjadwalan Anda
           </h2>
           <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-3xl mx-auto">
