@@ -356,7 +356,7 @@ const ProductShowcase: React.FC = () => {
                     ) : (
                       <Button 
                         size="lg" 
-                        className="bg-muted hover:bg-muted/80 text-muted-foreground"
+                        className="bg-primary hover:bg-primary/90"
                         onClick={() => handleComingSoon(product.title)}
                       >
                         Daftar Waiting List
