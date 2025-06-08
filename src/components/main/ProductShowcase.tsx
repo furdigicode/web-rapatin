@@ -137,7 +137,7 @@ const EventManagementMockup = () => (
           <div className="text-sm font-medium mb-3">Event Statistics</div>
           <div className="grid grid-cols-2 gap-3 text-xs">
             <div className="bg-blue-50 p-2 rounded">
-              <div className="font-bold text-blue-600">₹2.4M</div>
+              <div className="font-bold text-blue-600">IDR 2.4M</div>
               <div className="text-gray-600">Revenue</div>
             </div>
             <div className="bg-green-50 p-2 rounded">
