@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Instagram, Facebook, Twitter, Mail } from 'lucide-react';
 
@@ -16,7 +15,7 @@ const Footer: React.FC = () => {
               />
             </a>
             <p className="text-muted-foreground mb-4 text-sm">
-              Jadwalkan rapat tanpa memerlukan akun Zoom berbayar. Bayar sesuai penggunaan, tanpa langganan.
+              Platform terlengkap untuk semua kebutuhan penjadwalan Anda. Kelola meeting, event, dan appointment dalam satu tempat dengan sistem bayar sesuai pakai tanpa komitmen berlangganan.
             </p>
             <div className="flex space-x-4">
               <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
