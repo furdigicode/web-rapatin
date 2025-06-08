@@ -95,17 +95,6 @@ const BirdSendForm: React.FC<BirdSendFormProps> = ({ onSuccess, onError }) => {
         </div>
       )}
 
-      <div className="text-xs text-center text-muted-foreground">
-        Powered by{' '}
-        <a 
-          href="https://birdsend.co/?utm_source=form&utm_medium=" 
-          target="_blank" 
-          rel="noopener noreferrer"
-          className="underline hover:no-underline"
-        >
-          BirdSend Email Marketing Tool
-        </a>
-      </div>
     </div>
   );
 };
