@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Calendar, CreditCard, Users, Clock } from 'lucide-react';
 import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
+import AnimatedText from "@/components/ui/animated-text";
 
 const MainHeroSection: React.FC = () => {
   const autoplayPlugin = React.useMemo(() => Autoplay({
@@ -30,7 +31,7 @@ const MainHeroSection: React.FC = () => {
           <span className="text-xs font-medium text-primary text-center">Platform terlengkap untuk semua kebutuhan penjadwalan</span>
         </div>
         <h1 className="text-5xl md:text-5xl lg:text-6xl font-bold tracking-tight text-foreground text-center mb-4 max-w-4xl animate-fade-in">
-          <span className="text-primary">Pay-as-you-go</span> meeting scheduling platform
+          <span className="text-primary">Pay-as-you-go</span> <AnimatedText words={['meeting', 'event', 'appointment']} className="text-primary" /> scheduling platform
         </h1>
         <p className="text-lg md:text-xl text-muted-foreground max-w-2xl text-center mb-8 animate-fade-in">
           Kelola meeting, event, dan appointment dengan satu platform. Bayar sesuai penggunaan tanpa biaya berlangganan. Tanpa komitmen.
