@@ -354,16 +354,14 @@ const ProductShowcase: React.FC = () => {
                         <a href={product.url}>Pelajari selengkapnya</a>
                       </Button>
                     ) : (
-                      <>
-                        <Button 
-                          size="lg" 
-                          className="bg-muted hover:bg-muted/80 text-muted-foreground"
-                          onClick={() => handleComingSoon(product.title)}
-                        >
-                          Daftar Waiting List
-                        </Button>
-                        <p className="text-muted-foreground">Coming Soon</p>
-                      </>
+                      <Button 
+                        size="lg" 
+                        className="bg-muted hover:bg-muted/80 text-muted-foreground"
+                        onClick={() => handleComingSoon(product.title)}
+                      >
+                        Daftar Waiting List
+                      </Button>
+                      <p>Coming Soon</p>
                     )}
                   </div>
                 </div>
