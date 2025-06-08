@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { useEffect } from "react";
 import Index from "./pages/Index";
 import MainPage from "./pages/MainPage";
+import MeetingScheduling from "./pages/MeetingScheduling";
 import NotFound from "./pages/NotFound";
 import FAQ from "./pages/FAQ";
 import TentangKami from "./pages/TentangKami";
@@ -53,6 +54,7 @@ const AppRoutes = () => {
       {/* Public Routes */}
       <Route path="/" element={<Index />} />
       <Route path="/main-page" element={<MainPage />} />
+      <Route path="/meeting-scheduling" element={<MeetingScheduling />} />
       <Route path="/faq" element={<FAQ />} />
       <Route path="/appointment" element={<Appointment />} />
       

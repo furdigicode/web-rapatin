@@ -1,26 +1,20 @@
 
 import React from 'react';
 import Navbar from '@/components/Navbar';
-import HeroSection from '@/components/HeroSection';
-import FeatureSection from '@/components/FeatureSection';
-import HowItWorksSection from '@/components/HowItWorksSection';
-import PricingSection from '@/components/PricingSection';
+import MainHeroSection from '@/components/main/MainHeroSection';
+import ProductShowcase from '@/components/main/ProductShowcase';
 import TestimonialSection from '@/components/TestimonialSection';
-import DashboardPreview from '@/components/DashboardPreview';
-import FinalCTA from '@/components/FinalCTA';
+import TabbedPricingSection from '@/components/main/TabbedPricingSection';
 import Footer from '@/components/Footer';
 
 const Index = () => {
   return (
     <div className="min-h-screen">
       <Navbar />
-      <HeroSection />
-      <FeatureSection />
-      <HowItWorksSection />
-      <PricingSection />
+      <MainHeroSection />
+      <ProductShowcase />
       <TestimonialSection />
-      <DashboardPreview />
-      <FinalCTA />
+      <TabbedPricingSection />
       <Footer />
     </div>
   );
