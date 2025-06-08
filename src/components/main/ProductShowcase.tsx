@@ -1,8 +1,8 @@
-
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Video, Calendar, DollarSign, Proportions, CreditCard, Users, BarChart, MessageSquare, Settings, Play, Download, CheckCircle, User, FileText, Clock, ClipboardList, Bell, Smartphone, UserCheck, Zap, Shield, MonitorPlay } from 'lucide-react';
+import ComingSoonModal from "@/components/ui/coming-soon-modal";
 
 const MeetingSchedulingMockup = () => (
   <div className="glass rounded-xl overflow-hidden shadow-elevation border border-white/40 mx-auto max-w-lg">
@@ -234,6 +234,28 @@ const AppointmentBookingMockup = () => (
 );
 
 const ProductShowcase: React.FC = () => {
+  const [comingSoonModal, setComingSoonModal] = useState<{
+    isOpen: boolean;
+    productName: string;
+  }>({
+    isOpen: false,
+    productName: '',
+  });
+
+  const handleComingSoon = (productName: string) => {
+    setComingSoonModal({
+      isOpen: true,
+      productName,
+    });
+  };
+
+  const closeModal = () => {
+    setComingSoonModal({
+      isOpen: false,
+      productName: '',
+    });
+  };
+
   const products = [
     {
       id: 'meeting',
@@ -242,6 +264,7 @@ const ProductShowcase: React.FC = () => {
       description: 'Platform meeting scheduling yang terintegrasi dengan Zoom untuk meeting profesional tanpa perlu akun berbayar.',
       mockup: <MeetingSchedulingMockup />,
       url: 'https://rapatin.id/meeting-scheduling',
+      isAvailable: true,
       features: [
         { icon: Video, text: 'Unlock semua fitur Zoom Professional', description: 'Akses fitur premium Zoom tanpa langganan sendiri - recording cloud, breakout rooms, dan fitur enterprise lainnya' },
         { icon: MonitorPlay, text: 'Kualitas video Full HD 1080p dengan audio jernih', description: 'Video berkualitas tinggi dengan teknologi noise reduction untuk meeting profesional yang sempurna' },
@@ -257,6 +280,7 @@ const ProductShowcase: React.FC = () => {
       description: 'Sistem manajemen event lengkap untuk webinar, workshop, dan acara virtual dengan kapasitas besar.',
       mockup: <EventManagementMockup />,
       url: '/event-management',
+      isAvailable: false,
       features: [
         { icon: Users, text: 'Hingga 10.000 peserta per event', description: 'Cocok untuk webinar, kelas online, dan seminar berskala besar dengan infrastruktur cloud yang stabil' },
         { icon: ClipboardList, text: 'Formulir pendaftaran fleksibel', description: 'Kumpulkan data peserta sesuai kebutuhan Anda - custom fields, validasi otomatis, dan integrasi database' },
@@ -272,6 +296,7 @@ const ProductShowcase: React.FC = () => {
       description: 'Platform appointment booking untuk konsultasi, coaching, atau layanan profesional dengan sistem pembayaran terintegrasi.',
       mockup: <AppointmentBookingMockup />,
       url: '/appointment',
+      isAvailable: false,
       features: [
         { icon: Clock, text: 'Jadwal personal one-on-one yang fleksibel', description: 'Atur waktu konsultasi sesuai kebutuhan klien dengan buffer time otomatis dan zona waktu yang akurat' },
         { icon: Calendar, text: 'Integrasi kalender real-time multi-platform', description: 'Sinkronisasi otomatis dengan Google Calendar, Outlook, dan Apple Calendar - hindari double booking selamanya' },
@@ -283,56 +308,74 @@ const ProductShowcase: React.FC = () => {
   ];
 
   return (
-    <section id="product-showcase" className="py-32 bg-background">
-      <div className="container mx-auto px-4 md:px-6">
-        <div className="max-w-3xl mx-auto text-center mb-20 animate-fade-in">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Tiga Produk Utama dalam <span className="text-primary">Satu Platform</span>
-          </h2>
-          <p className="text-lg text-muted-foreground">
-            Semua kebutuhan penjadwalan Anda tersedia dalam satu platform yang mudah digunakan
-          </p>
-        </div>
-        
-        <div className="space-y-40">
-          {products.map((product, index) => (
-            <div key={product.id} className={`flex flex-col ${index % 2 === 1 ? 'lg:flex-row-reverse' : 'lg:flex-row'} items-center gap-16 animate-fade-in`} style={{animationDelay: `${index * 0.2}s`}}>
-              <div className="lg:w-1/2 relative">
-                {product.mockup}
-                <div className="absolute -z-10 -bottom-6 -right-6 w-full h-full rounded-xl bg-primary/10"></div>
-              </div>
-              <div className="lg:w-1/2 space-y-6">
-                <div>
-                  <h3 className="text-3xl font-bold mb-2">{product.title}</h3>
-                  <p className="text-xl text-primary mb-4">{product.subtitle}</p>
-                  <p className="text-muted-foreground text-lg leading-relaxed">{product.description}</p>
+    <>
+      <section id="product-showcase" className="py-32 bg-background">
+        <div className="container mx-auto px-4 md:px-6">
+          <div className="max-w-3xl mx-auto text-center mb-20 animate-fade-in">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+              Tiga Produk Utama dalam <span className="text-primary">Satu Platform</span>
+            </h2>
+            <p className="text-lg text-muted-foreground">
+              Semua kebutuhan penjadwalan Anda tersedia dalam satu platform yang mudah digunakan
+            </p>
+          </div>
+          
+          <div className="space-y-40">
+            {products.map((product, index) => (
+              <div key={product.id} className={`flex flex-col ${index % 2 === 1 ? 'lg:flex-row-reverse' : 'lg:flex-row'} items-center gap-16 animate-fade-in`} style={{animationDelay: `${index * 0.2}s`}}>
+                <div className="lg:w-1/2 relative">
+                  {product.mockup}
+                  <div className="absolute -z-10 -bottom-6 -right-6 w-full h-full rounded-xl bg-primary/10"></div>
                 </div>
-                
-                <div className="space-y-4">
-                  {product.features.map((feature, featureIndex) => (
-                    <div key={featureIndex} className="flex items-start space-x-3">
-                      <div className="flex-shrink-0 w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center mt-1">
-                        <feature.icon size={16} className="text-primary" />
+                <div className="lg:w-1/2 space-y-6">
+                  <div>
+                    <h3 className="text-3xl font-bold mb-2">{product.title}</h3>
+                    <p className="text-xl text-primary mb-4">{product.subtitle}</p>
+                    <p className="text-muted-foreground text-lg leading-relaxed">{product.description}</p>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    {product.features.map((feature, featureIndex) => (
+                      <div key={featureIndex} className="flex items-start space-x-3">
+                        <div className="flex-shrink-0 w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center mt-1">
+                          <feature.icon size={16} className="text-primary" />
+                        </div>
+                        <div className="flex-1">
+                          <h4 className="text-sm font-semibold mb-1">{feature.text}</h4>
+                          <p className="text-xs text-muted-foreground leading-relaxed">{feature.description}</p>
+                        </div>
                       </div>
-                      <div className="flex-1">
-                        <h4 className="text-sm font-semibold mb-1">{feature.text}</h4>
-                        <p className="text-xs text-muted-foreground leading-relaxed">{feature.description}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                
-                <div className="flex flex-col sm:flex-row gap-3">
-                  <Button asChild size="lg" className="bg-primary hover:bg-primary/90">
-                    <a href={product.url}>Pelajari selengkapnya</a>
-                  </Button>
+                    ))}
+                  </div>
+                  
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    {product.isAvailable ? (
+                      <Button asChild size="lg" className="bg-primary hover:bg-primary/90">
+                        <a href={product.url}>Pelajari selengkapnya</a>
+                      </Button>
+                    ) : (
+                      <Button 
+                        size="lg" 
+                        className="bg-muted hover:bg-muted/80 text-muted-foreground"
+                        onClick={() => handleComingSoon(product.title)}
+                      >
+                        Coming Soon
+                      </Button>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
+
+      <ComingSoonModal
+        isOpen={comingSoonModal.isOpen}
+        onClose={closeModal}
+        productName={comingSoonModal.productName}
+      />
+    </>
   );
 };
 
