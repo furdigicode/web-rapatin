@@ -62,13 +62,7 @@ const Navbar: React.FC = () => {
           
           {isHomePage ? (
             <>
-              <a href="#features" className="text-sm font-medium hover:text-primary transition-colors">Fitur</a>
-              <button 
-                onClick={() => scrollToSection('cara-kerja')} 
-                className="text-sm font-medium hover:text-primary transition-colors cursor-pointer"
-              >
-                Cara Kerja
-              </button>
+              <a href="#product-showcase" className="text-sm font-medium hover:text-primary transition-colors">Produk</a>
               <a href="#pricing" className="text-sm font-medium hover:text-primary transition-colors">Harga</a>
               <button 
                 onClick={() => scrollToSection('testimonials')} 
@@ -79,11 +73,8 @@ const Navbar: React.FC = () => {
             </>
           ) : (
             <>
-              <Link to="/#features" className="text-sm font-medium hover:text-primary transition-colors">
-                Fitur
-              </Link>
-              <Link to="/#cara-kerja" className="text-sm font-medium hover:text-primary transition-colors">
-                Cara Kerja
+              <Link to="/#product-showcase" className="text-sm font-medium hover:text-primary transition-colors">
+                Produk
               </Link>
               <Link to="/#pricing" className="text-sm font-medium hover:text-primary transition-colors">
                 Harga
@@ -136,23 +127,17 @@ const Navbar: React.FC = () => {
             {isHomePage ? (
               <>
                 <button 
-                  onClick={() => scrollToSection('cara-kerja')} 
-                  className="block w-full text-left text-sm font-medium hover:text-primary transition-colors py-2 cursor-pointer"
-                >
-                  Cara Kerja
-                </button>
-                <button 
                   onClick={() => scrollToSection('testimonials')} 
                   className="block w-full text-left text-sm font-medium hover:text-primary transition-colors py-2 cursor-pointer"
                 >
                   Testimoni
                 </button>
                 <a 
-                  href="#features" 
+                  href="#product-showcase" 
                   className="block text-sm font-medium hover:text-primary transition-colors py-2"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
-                  Fitur
+                  Produk
                 </a>
                 <a 
                   href="#pricing" 
@@ -165,18 +150,11 @@ const Navbar: React.FC = () => {
             ) : (
               <>
                 <Link 
-                  to="/#features" 
+                  to="/#product-showcase" 
                   className="block text-sm font-medium hover:text-primary transition-colors py-2"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
-                  Fitur
-                </Link>
-                <Link 
-                  to="/#cara-kerja" 
-                  className="block text-sm font-medium hover:text-primary transition-colors py-2"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  Cara Kerja
+                  Produk
                 </Link>
                 <Link 
                   to="/#pricing" 
