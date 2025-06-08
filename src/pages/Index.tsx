@@ -5,7 +5,7 @@ import MainHeroSection from '@/components/main/MainHeroSection';
 import ProductShowcase from '@/components/main/ProductShowcase';
 import TestimonialSection from '@/components/TestimonialSection';
 import TabbedPricingSection from '@/components/main/TabbedPricingSection';
-import FinalCTA from '@/components/FinalCTA';
+import IndexFinalCTA from '@/components/main/IndexFinalCTA';
 import Footer from '@/components/Footer';
 
 const Index = () => {
@@ -16,7 +16,7 @@ const Index = () => {
       <ProductShowcase />
       <TabbedPricingSection />
       <TestimonialSection />
-      <FinalCTA />
+      <IndexFinalCTA />
       <Footer />
     </div>
   );
