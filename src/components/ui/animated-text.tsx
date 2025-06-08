@@ -13,16 +13,17 @@ const AnimatedText: React.FC<AnimatedTextProps> = ({
   interval = 3000, 
   className = "" 
 }) => {
-  const { currentWord, isVisible } = useAnimatedText(words, interval);
+  const { currentWord, isTyping } = useAnimatedText(words, interval);
 
   return (
     <span 
-      className={`inline-block text-transition ${
-        isVisible ? 'animate-text-fade-in' : 'animate-text-fade-out'
-      } ${className}`}
+      className={`inline-block ${className}`}
       style={{ minWidth: '200px' }}
     >
       {currentWord}
+      {isTyping && (
+        <span className="animate-pulse ml-1 text-primary">|</span>
+      )}
     </span>
   );
 };
