@@ -356,11 +356,12 @@ const ProductShowcase: React.FC = () => {
                     ) : (
                       <Button 
                         size="lg" 
-                        className="bg-primary hover:bg-primary/90"
+                        className="bg-muted hover:bg-muted/80 text-muted-foreground"
                         onClick={() => handleComingSoon(product.title)}
                       >
-                        Coming Soon
+                        Daftar Waiting List
                       </Button>
+                      <p>Coming Soon</p>
                     )}
                   </div>
                 </div>
