@@ -263,7 +263,7 @@ const ProductShowcase: React.FC = () => {
       subtitle: 'Jadwalkan meeting dengan infrastruktur Zoom yang mudah',
       description: 'Platform meeting scheduling yang terintegrasi dengan Zoom untuk meeting profesional tanpa perlu akun berbayar.',
       mockup: <MeetingSchedulingMockup />,
-      url: 'https://rapatin.id/meeting-scheduling',
+      url: '/meeting-scheduling',
       isAvailable: true,
       features: [
         { icon: Video, text: 'Unlock semua fitur Zoom Professional', description: 'Akses fitur premium Zoom tanpa langganan sendiri - recording cloud, breakout rooms, dan fitur enterprise lainnya' },
