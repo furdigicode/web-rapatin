@@ -43,7 +43,7 @@ const TabbedPricingSection: React.FC = () => {
         'Statistik & analisis acara'
       ],
       pricing: {
-        platformFee: '1%',
+        platformFee: '1.5%',
         description: 'Biaya platform dari harga tiket event',
         paymentGateway: [
           { method: 'QRIS', fee: '0.77%' },
