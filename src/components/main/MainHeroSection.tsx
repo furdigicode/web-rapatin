@@ -1,7 +1,6 @@
-
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { Calendar, CreditCard, Users, Clock } from 'lucide-react';
+import { CreditCard, X, Shield, Infinity } from 'lucide-react';
 import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
 import AnimatedText from "@/components/ui/animated-text";
@@ -46,20 +45,20 @@ const MainHeroSection: React.FC = () => {
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-10 max-w-4xl w-full mx-auto pt-2 animate-fade-in">
           <div className="flex items-center gap-2 text-sm justify-center">
-            <Calendar size={18} className="text-primary" />
-            <span>Meeting Zoom</span>
-          </div>
-          <div className="flex items-center gap-2 text-sm justify-center">
-            <Users size={18} className="text-primary" />
-            <span>Event Management</span>
-          </div>
-          <div className="flex items-center gap-2 text-sm justify-center">
-            <Clock size={18} className="text-primary" />
-            <span>Appointment Booking</span>
-          </div>
-          <div className="flex items-center gap-2 text-sm justify-center">
             <CreditCard size={18} className="text-primary" />
-            <span>Pay-as-you-go</span>
+            <span>Pay as you go</span>
+          </div>
+          <div className="flex items-center gap-2 text-sm justify-center">
+            <X size={18} className="text-primary" />
+            <span>Tanpa langganan</span>
+          </div>
+          <div className="flex items-center gap-2 text-sm justify-center">
+            <Shield size={18} className="text-primary" />
+            <span>Uji coba gratis</span>
+          </div>
+          <div className="flex items-center gap-2 text-sm justify-center">
+            <Infinity size={18} className="text-primary" />
+            <span>All-in-one platform</span>
           </div>
         </div>
         <div className="max-w-full mt-8 mb-10 animate-slide-in-right">
