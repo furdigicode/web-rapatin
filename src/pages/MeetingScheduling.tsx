@@ -1,26 +1,22 @@
 
 import React from 'react';
+import ProductPageLayout from '@/components/layout/ProductPageLayout';
 import MeetingSchedulingNavbar from '@/components/MeetingSchedulingNavbar';
-import HeroSection from '@/components/HeroSection';
-import FeatureSection from '@/components/FeatureSection';
-import HowItWorksSection from '@/components/HowItWorksSection';
+import MeetingHeroSection from '@/components/meeting/MeetingHeroSection';
+import MeetingFeatureSection from '@/components/meeting/MeetingFeatureSection';
+import MeetingHowItWorksSection from '@/components/meeting/MeetingHowItWorksSection';
 import PricingSection from '@/components/PricingSection';
 import TestimonialSection from '@/components/TestimonialSection';
 import DashboardPreview from '@/components/DashboardPreview';
 import FinalCTA from '@/components/FinalCTA';
 import Footer from '@/components/Footer';
 
-const MeetingScheduling = () => {
+const MeetingScheduling: React.FC = () => {
   return (
-    <div className="min-h-screen">
-      <MeetingSchedulingNavbar />
-      <HeroSection />
-      <div id="features">
-        <FeatureSection />
-      </div>
-      <div id="how-it-works">
-        <HowItWorksSection />
-      </div>
+    <ProductPageLayout navbar={<MeetingSchedulingNavbar />}>
+      <MeetingHeroSection />
+      <MeetingFeatureSection />
+      <MeetingHowItWorksSection />
       <div id="pricing">
         <PricingSection />
       </div>
@@ -30,7 +26,7 @@ const MeetingScheduling = () => {
       <DashboardPreview />
       <FinalCTA />
       <Footer />
-    </div>
+    </ProductPageLayout>
   );
 };
 
