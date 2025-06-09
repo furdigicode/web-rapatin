@@ -1,6 +1,6 @@
 
 import React from 'react';
-import Navbar from '@/components/Navbar';
+import MeetingSchedulingNavbar from '@/components/MeetingSchedulingNavbar';
 import HeroSection from '@/components/HeroSection';
 import FeatureSection from '@/components/FeatureSection';
 import HowItWorksSection from '@/components/HowItWorksSection';
@@ -13,12 +13,20 @@ import Footer from '@/components/Footer';
 const MeetingScheduling = () => {
   return (
     <div className="min-h-screen">
-      <Navbar />
+      <MeetingSchedulingNavbar />
       <HeroSection />
-      <FeatureSection />
-      <HowItWorksSection />
-      <PricingSection />
-      <TestimonialSection />
+      <div id="features">
+        <FeatureSection />
+      </div>
+      <div id="how-it-works">
+        <HowItWorksSection />
+      </div>
+      <div id="pricing">
+        <PricingSection />
+      </div>
+      <div id="testimonials">
+        <TestimonialSection />
+      </div>
       <DashboardPreview />
       <FinalCTA />
       <Footer />
