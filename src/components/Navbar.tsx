@@ -116,22 +116,8 @@ const Navbar: React.FC = () => {
               Home
             </Link>
             
-            <Link 
-              to="/appointment" 
-              className="block text-sm font-medium hover:text-primary transition-colors py-2"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              Appointment Booking
-            </Link>
-            
             {isHomePage ? (
               <>
-                <button 
-                  onClick={() => scrollToSection('testimonials')} 
-                  className="block w-full text-left text-sm font-medium hover:text-primary transition-colors py-2 cursor-pointer"
-                >
-                  Testimoni
-                </button>
                 <a 
                   href="#product-showcase" 
                   className="block text-sm font-medium hover:text-primary transition-colors py-2"
@@ -146,6 +132,12 @@ const Navbar: React.FC = () => {
                 >
                   Harga
                 </a>
+                <button 
+                  onClick={() => scrollToSection('testimonials')} 
+                  className="block w-full text-left text-sm font-medium hover:text-primary transition-colors py-2 cursor-pointer"
+                >
+                  Testimoni
+                </button>
               </>
             ) : (
               <>
