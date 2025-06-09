@@ -55,27 +55,30 @@ const TabbedPricingSection: React.FC = () => {
     },
     appointment: {
       title: 'Appointment Booking',
-      plans: [
-        {
-          name: 'Basic',
-          price: '8.000',
-          duration: 'per booking',
-          features: ['Durasi hingga 30 menit', 'Payment collection', 'Email reminder', 'Client database']
-        },
-        {
-          name: 'Professional',
-          price: '15.000',
-          duration: 'per booking',
-          features: ['Durasi hingga 60 menit', 'Payment collection', 'Email reminder', 'Client database', 'WhatsApp reminder', 'Custom forms'],
-          popular: true
-        },
-        {
-          name: 'Premium',
-          price: '25.000',
-          duration: 'per booking',
-          features: ['Durasi hingga 120 menit', 'Payment collection', 'Email reminder', 'Client database', 'WhatsApp reminder', 'Custom forms', 'Recording storage', 'Analytics dashboard']
-        }
-      ]
+      features: [
+        'Durasi hingga 30 menit per sesi',
+        'Integrasi Zoom/Google Meet otomatis',
+        'Payment collection terintegrasi',
+        'Email & WhatsApp reminder otomatis',
+        'Custom booking form',
+        'Client database dan manajemen',
+        'Calendar sync multi-platform',
+        'Recording cloud storage',
+        'Multi-participant support',
+        'Custom branding',
+        'Analytics dashboard lengkap',
+        'Mobile-friendly booking page'
+      ],
+      pricing: {
+        platformFee: 'Rp 10.000',
+        description: 'Biaya flat per booking appointment (30 menit)',
+        paymentGateway: [
+          { method: 'QRIS', fee: '0.77%' },
+          { method: 'Virtual Account', fee: 'Rp 4.440' },
+          { method: 'Credit Card', fee: '2.9% + Rp 2.000' },
+          { method: 'E-Wallet', fee: '1,7%' }
+        ]
+      }
     }
   };
 
@@ -259,41 +262,72 @@ const TabbedPricingSection: React.FC = () => {
           </TabsContent>
           
           <TabsContent value="appointment">
-            <div className="grid md:grid-cols-3 gap-8">
-              {pricingData.appointment.plans.map((plan, index) => (
-                <Card key={index} className={`glass hover:shadow-elevation transition-all duration-300 animate-fade-in ${plan.popular ? 'ring-2 ring-primary relative' : ''}`} style={{animationDelay: `${index * 0.1}s`}}>
-                  {plan.popular && (
-                    <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                      <div className="bg-primary text-white px-4 py-1 rounded-full text-sm font-medium">
-                        Paling Populer
+            <div className="grid md:grid-cols-2 gap-8">
+              {/* Features Column */}
+              <Card className="glass">
+                <CardHeader>
+                  <CardTitle className="text-xl font-semibold">Fitur yang Anda Dapatkan</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ul className="space-y-3">
+                    {pricingData.appointment.features.map((feature, index) => (
+                      <li key={index} className="flex items-start">
+                        <Check size={16} className="text-primary mt-0.5 mr-3 flex-shrink-0" />
+                        <span className="text-sm">{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+
+              {/* Pricing Column */}
+              <Card className="glass">
+                <CardHeader>
+                  <CardTitle className="text-xl font-semibold">Biaya Flat Per Booking</CardTitle>
+                  <p className="text-sm text-muted-foreground mt-2">
+                    Anda hanya dikenakan biaya ketika klien melakukan booking appointment berbayar. Tidak ada biaya bulanan.
+                  </p>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-6">
+                    {/* Platform Fee */}
+                    <div className="border-b pb-4">
+                      <h3 className="font-semibold text-lg mb-2">Biaya Platform</h3>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm">Biaya flat per booking appointment</span>
+                        <span className="font-bold text-xl text-primary">{pricingData.appointment.pricing.platformFee}</span>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-1">Untuk sesi hingga 30 menit</p>
+                    </div>
+
+                    {/* Payment Gateway Fees */}
+                    <div>
+                      <h3 className="font-semibold text-lg mb-3">Biaya Payment Gateway</h3>
+                      <div className="space-y-2">
+                        {pricingData.appointment.pricing.paymentGateway.map((gateway, index) => (
+                          <div key={index} className="flex justify-between items-center py-2 border-b border-muted last:border-b-0">
+                            <span className="text-sm">{gateway.method}</span>
+                            <span className="font-medium">{gateway.fee}</span>
+                          </div>
+                        ))}
                       </div>
                     </div>
-                  )}
-                  <CardHeader className="text-center pb-4">
-                    <CardTitle className="text-xl font-semibold">{plan.name}</CardTitle>
-                    <div className="mt-4">
-                      <span className="text-3xl font-bold">Rp {plan.price}</span>
-                      <span className="text-muted-foreground ml-2">{plan.duration}</span>
+
+                    {/* Important Note */}
+                    <div className="bg-accent/20 p-4 rounded-lg">
+                      <p className="text-sm text-muted-foreground">
+                        <strong>Catatan:</strong> Biaya payment gateway dapat diatur apakah ditanggung oleh klien atau service provider.
+                      </p>
                     </div>
-                  </CardHeader>
-                  <CardContent className="pt-0">
-                    <ul className="space-y-3 mb-6">
-                      {plan.features.map((feature, featureIndex) => (
-                        <li key={featureIndex} className="flex items-start">
-                          <Check size={16} className="text-primary mt-0.5 mr-3 flex-shrink-0" />
-                          <span className="text-sm">{feature}</span>
-                        </li>
-                      ))}
-                    </ul>
-                    <Button 
-                      className={`w-full ${plan.popular ? 'bg-primary hover:bg-primary/90' : ''}`}
-                      variant={plan.popular ? 'default' : 'outline'}
-                    >
-                      Mulai dengan {plan.name}
+                  </div>
+                  
+                  <div className="mt-6 text-center">
+                    <Button size="lg" className="w-full md:w-auto px-8">
+                      Mulai Appointment Booking
                     </Button>
-                  </CardContent>
-                </Card>
-              ))}
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           </TabsContent>
         </Tabs>
