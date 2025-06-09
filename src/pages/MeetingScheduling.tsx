@@ -1,5 +1,6 @@
 
 import React from 'react';
+import SEO from '@/components/SEO';
 import ProductPageLayout from '@/components/layout/ProductPageLayout';
 import MeetingSchedulingNavbar from '@/components/MeetingSchedulingNavbar';
 import MeetingHeroSection from '@/components/meeting/MeetingHeroSection';
@@ -13,20 +14,28 @@ import Footer from '@/components/Footer';
 
 const MeetingScheduling: React.FC = () => {
   return (
-    <ProductPageLayout navbar={<MeetingSchedulingNavbar />}>
-      <MeetingHeroSection />
-      <MeetingFeatureSection />
-      <MeetingHowItWorksSection />
-      <div id="pricing">
-        <PricingSection />
-      </div>
-      <div id="testimonials">
-        <TestimonialSection />
-      </div>
-      <DashboardPreview />
-      <FinalCTA />
-      <Footer />
-    </ProductPageLayout>
+    <>
+      <SEO
+        title="Meeting Scheduling - Jadwalkan Rapat Zoom Tanpa Langganan | Rapatin"
+        description="Jadwalkan rapat Zoom dengan mudah tanpa langganan bulanan. Bayar sesuai penggunaan berdasarkan jumlah peserta. Fitur lengkap: rekaman cloud, durasi unlimited, AI companion."
+        keywords="zoom meeting, jadwal rapat, meeting scheduling, zoom tanpa langganan, bayar per rapat, rekaman cloud, rapat online"
+        url="https://rapatin.id/meeting-scheduling"
+      />
+      <ProductPageLayout navbar={<MeetingSchedulingNavbar />}>
+        <MeetingHeroSection />
+        <MeetingFeatureSection />
+        <MeetingHowItWorksSection />
+        <div id="pricing">
+          <PricingSection />
+        </div>
+        <div id="testimonials">
+          <TestimonialSection />
+        </div>
+        <DashboardPreview />
+        <FinalCTA />
+        <Footer />
+      </ProductPageLayout>
+    </>
   );
 };
 
