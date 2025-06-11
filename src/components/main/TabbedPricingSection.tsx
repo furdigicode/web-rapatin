@@ -1,11 +1,25 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Check, Calendar, Users, Clock } from 'lucide-react';
+import ComingSoonModal from '@/components/ui/coming-soon-modal';
 
 const TabbedPricingSection: React.FC = () => {
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState('');
+
+  const handleOpenModal = (productName: string) => {
+    setSelectedProduct(productName);
+    setModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setModalOpen(false);
+    setSelectedProduct('');
+  };
+
   const pricingData = {
     meeting: {
       title: 'Meeting Scheduling',
@@ -211,7 +225,7 @@ const TabbedPricingSection: React.FC = () => {
                 </CardContent>
               </Card>
 
-              {/* Pricing Column */}
+              {/* Updated Pricing Column for event with modal trigger */}
               <Card className="glass">
                 <CardHeader>
                   <CardTitle className="text-xl font-semibold">Biaya Berbasis Penggunaan</CardTitle>
@@ -252,7 +266,11 @@ const TabbedPricingSection: React.FC = () => {
                   </div>
                   
                   <div className="mt-6 text-center">
-                    <Button size="lg" className="w-full md:w-auto px-8">
+                    <Button 
+                      size="lg" 
+                      className="w-full md:w-auto px-8"
+                      onClick={() => handleOpenModal('Event Management')}
+                    >
                       Mulai Buat Event
                     </Button>
                   </div>
@@ -280,7 +298,7 @@ const TabbedPricingSection: React.FC = () => {
                 </CardContent>
               </Card>
 
-              {/* Pricing Column */}
+              {/* Updated Pricing Column for appointment with modal trigger */}
               <Card className="glass">
                 <CardHeader>
                   <CardTitle className="text-xl font-semibold">Biaya Flat Per Booking</CardTitle>
@@ -322,7 +340,11 @@ const TabbedPricingSection: React.FC = () => {
                   </div>
                   
                   <div className="mt-6 text-center">
-                    <Button size="lg" className="w-full md:w-auto px-8">
+                    <Button 
+                      size="lg" 
+                      className="w-full md:w-auto px-8"
+                      onClick={() => handleOpenModal('Appointment Booking')}
+                    >
                       Mulai Appointment Booking
                     </Button>
                   </div>
@@ -331,6 +353,12 @@ const TabbedPricingSection: React.FC = () => {
             </div>
           </TabsContent>
         </Tabs>
+
+        <ComingSoonModal
+          isOpen={modalOpen}
+          onClose={handleCloseModal}
+          productName={selectedProduct}
+        />
       </div>
     </section>
   );
