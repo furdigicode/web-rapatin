@@ -53,7 +53,7 @@ const FreeTrialModal: React.FC<FreeTrialModalProps> = ({ isOpen, onClose }) => {
           
           <div className="bg-accent/20 rounded-lg p-4 space-y-3">
             <div className="text-center text-sm font-medium text-muted-foreground">
-              Gunakan kode promo:
+              Gunakan kode referal:
             </div>
             <div className="flex items-center justify-center gap-2">
               <div className="bg-background border-2 border-primary rounded-lg px-4 py-2 font-mono text-lg font-bold text-primary">
@@ -87,7 +87,7 @@ const FreeTrialModal: React.FC<FreeTrialModalProps> = ({ isOpen, onClose }) => {
               Uji Coba Sekarang
             </Button>
             <p className="text-xs text-center text-muted-foreground">
-              Masukkan kode promo saat registrasi untuk mendapatkan saldo gratis
+              Masukkan kode referal saat registrasi untuk mendapatkan saldo gratis
             </p>
           </div>
         </div>
