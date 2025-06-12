@@ -211,7 +211,7 @@ const TabbedPricingSection: React.FC = () => {
                       className="w-full md:w-auto px-8"
                       onClick={handleFreeTrialRegistration}
                     >
-                      Daftar Sekarang
+                      Buat Jadwal Sekarang
                     </Button>
                   </div>
                 </CardContent>
