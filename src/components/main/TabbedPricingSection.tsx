@@ -5,10 +5,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Check, Calendar, Users, Clock } from 'lucide-react';
 import ComingSoonModal from '@/components/ui/coming-soon-modal';
+import FreeTrialModal from '@/components/ui/free-trial-modal';
 
 const TabbedPricingSection: React.FC = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState('');
+  const [freeTrialModalOpen, setFreeTrialModalOpen] = useState(false);
 
   const handleOpenModal = (productName: string) => {
     setSelectedProduct(productName);
@@ -18,6 +20,13 @@ const TabbedPricingSection: React.FC = () => {
   const handleCloseModal = () => {
     setModalOpen(false);
     setSelectedProduct('');
+  };
+
+  const handleFreeTrialRegistration = () => {
+    if (typeof window.fbq === 'function') {
+      window.fbq('track', 'CTAClick');
+    }
+    setFreeTrialModalOpen(true);
   };
 
   const pricingData = {
@@ -197,7 +206,11 @@ const TabbedPricingSection: React.FC = () => {
                   </Table>
                   
                   <div className="mt-6 text-center">
-                    <Button size="lg" className="w-full md:w-auto px-8">
+                    <Button 
+                      size="lg" 
+                      className="w-full md:w-auto px-8"
+                      onClick={handleFreeTrialRegistration}
+                    >
                       Daftar Sekarang
                     </Button>
                   </div>
@@ -358,6 +371,11 @@ const TabbedPricingSection: React.FC = () => {
           isOpen={modalOpen}
           onClose={handleCloseModal}
           productName={selectedProduct}
+        />
+
+        <FreeTrialModal
+          isOpen={freeTrialModalOpen}
+          onClose={() => setFreeTrialModalOpen(false)}
         />
       </div>
     </section>
