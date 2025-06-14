@@ -12,7 +12,7 @@ interface FreeTrialModalProps {
 
 const FreeTrialModal: React.FC<FreeTrialModalProps> = ({ isOpen, onClose }) => {
   const [copied, setCopied] = useState(false);
-  const promoCode = "RAPATIN25";
+  const promoCode = "RAPATIN50";
 
   const handleCopy = async () => {
     try {
@@ -44,7 +44,7 @@ const FreeTrialModal: React.FC<FreeTrialModalProps> = ({ isOpen, onClose }) => {
         <div className="space-y-6 py-4">
           <div className="text-center">
             <div className="text-3xl font-bold text-primary mb-2">
-              Saldo Gratis Rp 25.000
+              Saldo Gratis Rp 50.000
             </div>
             <p className="text-muted-foreground">
               untuk uji coba semua fitur platform
