@@ -47,7 +47,7 @@ const FreeTrialModal: React.FC<FreeTrialModalProps> = ({ isOpen, onClose }) => {
               Saldo Gratis Rp 50.000
             </div>
             <p className="text-muted-foreground">
-              untuk uji coba semua fitur platform
+              untuk uji coba jadwalkan rapat
             </p>
           </div>
           
@@ -87,7 +87,7 @@ const FreeTrialModal: React.FC<FreeTrialModalProps> = ({ isOpen, onClose }) => {
               Uji Coba Sekarang
             </Button>
             <p className="text-xs text-center text-muted-foreground">
-              Masukkan kode referal saat registrasi untuk mendapatkan saldo gratis
+              Masukkan kode referal saat registrasi untuk mendapatkan saldo gratis, kalau tidak suka, tidak akan rugi
             </p>
           </div>
         </div>
