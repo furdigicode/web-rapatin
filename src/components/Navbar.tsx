@@ -1,8 +1,10 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Menu, X, Home, HelpCircle } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import FreeTrialModal from '@/components/ui/free-trial-modal';
+import { preserveURLParams } from "@/hooks/useURLParams";
 
 const Navbar: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -46,7 +48,7 @@ const Navbar: React.FC = () => {
       >
         <div className="container mx-auto px-4 md:px-6 flex items-center justify-between">
           <div className="flex items-center">
-            <a href="/" className="flex items-center">
+            <a href={preserveURLParams('/')} className="flex items-center">
               <img 
                 src="/lovable-uploads/2daea350-0851-4dd8-8f79-ee07aaaad905.png" 
                 alt="Rapatin Logo" 
@@ -56,7 +58,7 @@ const Navbar: React.FC = () => {
           </div>
 
           <nav className="hidden md:flex items-center space-x-8">
-            <Link to="/" className="text-sm font-medium hover:text-primary transition-colors flex items-center">
+            <Link to={preserveURLParams('/')} className="text-sm font-medium hover:text-primary transition-colors flex items-center">
               Home
             </Link>
             
@@ -73,13 +75,13 @@ const Navbar: React.FC = () => {
               </>
             ) : (
               <>
-                <Link to="/#product-showcase" className="text-sm font-medium hover:text-primary transition-colors">
+                <Link to={preserveURLParams('/#product-showcase')} className="text-sm font-medium hover:text-primary transition-colors">
                   Produk
                 </Link>
-                <Link to="/#pricing" className="text-sm font-medium hover:text-primary transition-colors">
+                <Link to={preserveURLParams('/#pricing')} className="text-sm font-medium hover:text-primary transition-colors">
                   Harga
                 </Link>
-                <Link to="/#testimonials" className="text-sm font-medium hover:text-primary transition-colors">
+                <Link to={preserveURLParams('/#testimonials')} className="text-sm font-medium hover:text-primary transition-colors">
                   Testimoni
                 </Link>
               </>
@@ -109,7 +111,7 @@ const Navbar: React.FC = () => {
           <div className="md:hidden glass animate-fade-in">
             <div className="py-4 px-6 space-y-4">
               <Link 
-                to="/" 
+                to={preserveURLParams('/')} 
                 className="flex items-center text-sm font-medium hover:text-primary transition-colors py-2"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
@@ -142,21 +144,21 @@ const Navbar: React.FC = () => {
               ) : (
                 <>
                   <Link 
-                    to="/#product-showcase" 
+                    to={preserveURLParams('/#product-showcase')} 
                     className="block text-sm font-medium hover:text-primary transition-colors py-2"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     Produk
                   </Link>
                   <Link 
-                    to="/#pricing" 
+                    to={preserveURLParams('/#pricing')} 
                     className="block text-sm font-medium hover:text-primary transition-colors py-2"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     Harga
                   </Link>
                   <Link 
-                    to="/#testimonials" 
+                    to={preserveURLParams('/#testimonials')} 
                     className="block text-sm font-medium hover:text-primary transition-colors py-2"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >

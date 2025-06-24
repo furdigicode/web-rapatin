@@ -3,6 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Video, Calendar, DollarSign, Proportions, CreditCard, Users, BarChart, MessageSquare, Settings, Play, Download, CheckCircle, User, FileText, Clock, ClipboardList, Bell, Smartphone, UserCheck, Zap, Shield, MonitorPlay } from 'lucide-react';
 import ComingSoonModal from "@/components/ui/coming-soon-modal";
+import { preserveURLParams } from "@/hooks/useURLParams";
 
 const MeetingSchedulingMockup = () => (
   <div className="glass rounded-xl overflow-hidden shadow-elevation border border-white/40 mx-auto max-w-lg">
@@ -351,7 +352,7 @@ const ProductShowcase: React.FC = () => {
                   <div className="flex flex-col sm:flex-row gap-3">
                     {product.isAvailable ? (
                       <Button asChild size="lg" className="bg-primary hover:bg-primary/90">
-                        <a href={product.url}>Pelajari selengkapnya</a>
+                        <a href={preserveURLParams(product.url)}>Pelajari selengkapnya</a>
                       </Button>
                     ) : (
                       <Button 
