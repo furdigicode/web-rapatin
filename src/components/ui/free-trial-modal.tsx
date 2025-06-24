@@ -4,19 +4,33 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Copy, Check, Gift } from 'lucide-react';
 import { cn } from "@/lib/utils";
+import { useURLParams } from "@/hooks/useURLParams";
+import { formatRupiah } from "@/utils/formatRupiah";
 
 interface FreeTrialModalProps {
   isOpen: boolean;
   onClose: () => void;
+  referralCode?: string;
+  amount?: number;
 }
 
-const FreeTrialModal: React.FC<FreeTrialModalProps> = ({ isOpen, onClose }) => {
+const FreeTrialModal: React.FC<FreeTrialModalProps> = ({ 
+  isOpen, 
+  onClose, 
+  referralCode: propReferralCode,
+  amount: propAmount 
+}) => {
   const [copied, setCopied] = useState(false);
-  const promoCode = "RAPATIN50";
+  const urlParams = useURLParams();
+  
+  // Use props if provided, otherwise use URL params
+  const referralCode = propReferralCode || urlParams.referralCode;
+  const amount = propAmount || urlParams.amount;
+  const formattedAmount = formatRupiah(amount);
 
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(promoCode);
+      await navigator.clipboard.writeText(referralCode);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
@@ -44,7 +58,7 @@ const FreeTrialModal: React.FC<FreeTrialModalProps> = ({ isOpen, onClose }) => {
         <div className="space-y-6 py-4">
           <div className="text-center">
             <div className="text-3xl font-bold text-primary mb-2">
-              Saldo Gratis Rp 50.000
+              Saldo Gratis {formattedAmount}
             </div>
             <p className="text-muted-foreground">
               untuk uji coba jadwalkan rapat
@@ -57,7 +71,7 @@ const FreeTrialModal: React.FC<FreeTrialModalProps> = ({ isOpen, onClose }) => {
             </div>
             <div className="flex items-center justify-center gap-2">
               <div className="bg-background border-2 border-primary rounded-lg px-4 py-2 font-mono text-lg font-bold text-primary">
-                {promoCode}
+                {referralCode}
               </div>
               <Button
                 variant="outline"
