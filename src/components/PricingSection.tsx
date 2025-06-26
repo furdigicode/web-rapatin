@@ -1,184 +1,147 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { Check } from 'lucide-react';
-import CountdownTimer from '@/components/ui/countdown-timer';
+import { Check, Video, Mic, Users, Globe, Clock, Calendar, BarChart, MessageSquare, Share2, UserPlus, Zap, FileText, Languages, VideoIcon } from 'lucide-react';
+import { Card } from "@/components/ui/card";
 import FreeTrialModal from '@/components/ui/free-trial-modal';
-import { formatRupiah } from '@/utils/formatRupiah';
-import { useCountdown } from '@/hooks/useCountdown';
 
 const PricingSection: React.FC = () => {
   const [modalOpen, setModalOpen] = useState(false);
-  const { isPromoActive } = useCountdown();
+
+  const features = [
+    // Core features
+    { name: "Rekaman Cloud (akses 72 jam)", icon: <VideoIcon size={18} /> },
+    { name: "Durasi rapat tak terbatas", icon: <Clock size={18} /> },
+    { name: "Akses seharian (00.00 - 23.59)", icon: <Calendar size={18} /> },
+    { name: "Berbagi layar", icon: <Share2 size={18} /> },
+    
+    // Communication features
+    { name: "Interpretasi Bahasa", icon: <Languages size={18} /> },
+    { name: "Smart Recording", icon: <Zap size={18} /> },
+    { name: "Ringkasan Rapat", icon: <FileText size={18} /> },
+    { name: "AI Companion", icon: <MessageSquare size={18} /> },
+    
+    // Engagement features
+    { name: "Polling, Tanya Jawab, Survei", icon: <BarChart size={18} /> },
+    { name: "Sistem pendaftaran", icon: <UserPlus size={18} /> },
+    { name: "Live streaming ke YouTube", icon: <Video size={18} /> },
+    { name: "Tetapkan hingga 99 Co-Host", icon: <Users size={18} /> },
+  ];
+  
+  const plans = [
+    { participants: "100 Peserta", price: "Rp 20.000" },
+    { participants: "300 Peserta", price: "Rp 40.000", bestSeller: true },
+    { participants: "500 Peserta", price: "Rp 70.000" },
+    { participants: "1000 Peserta", price: "Rp 130.000" }
+  ];
 
   const handleRegistration = () => {
-    if (typeof window.fbq === 'function') {
-      window.fbq('track', 'CTAClick');
-    }
     setModalOpen(true);
   };
-
-  const pricingPlans = [
-    { name: '100 Peserta', originalPrice: 20000, promoPrice: 10000, popular: true },
-    { name: '300 Peserta', originalPrice: 40000, promoPrice: 25000 },
-    { name: '500 Peserta', originalPrice: 70000, promoPrice: 55000 },
-    { name: '1000 Peserta', originalPrice: 130000, promoPrice: 100000 }
-  ];
-
-  const premiumFeatures = [
-    'Rekaman Cloud (akses 72 jam)',
-    'Durasi rapat tak terbatas',
-    'Akses seharian (00.00 - 23.59)',
-    'Berbagi layar',
-    'Interpretasi Bahasa',
-    'Smart Recording',
-    'Ringkasan Rapat',
-    'AI Companion',
-    'Polling, Tanya Jawab, Survei',
-    'Sistem pendaftaran',
-    'Live streaming ke YouTube',
-    'Tetapkan hingga 99 Co-Host'
-  ];
-
+  
   return (
     <>
-      <section id="pricing" className="py-20 bg-gradient-to-b from-accent/30 to-background">
-        <div className="container mx-auto px-4 md:px-6">
+      <section id="pricing" className="py-20 bg-background w-full">
+        <div className="container mx-auto px-4 md:px-6 max-w-full">
           <div className="max-w-3xl mx-auto text-center mb-16 animate-fade-in">
+            <div className="inline-flex items-center py-1 px-4 bg-accent rounded-full mb-4">
+              <span className="text-xs font-medium text-primary">Harga Transparan</span>
+            </div>
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              Harga Transparan <span className="text-primary">Bayar Sesuai Pakai</span>
+              Harga Bayar-Per-Rapat
             </h2>
-            <p className="text-lg text-muted-foreground">
-              Tidak ada langganan bulanan. Bayar hanya untuk rapat yang Anda jadwalkan berdasarkan jumlah peserta.
+            <p className="text-muted-foreground text-lg">
+              Tanpa langganan, tanpa komitmen. Hanya bayar untuk rapat yang Anda jadwalkan, berdasarkan jumlah peserta dan jumlah hari.
             </p>
           </div>
-
-          {/* Premium Features Section */}
-          <div className="max-w-6xl mx-auto mb-16">
-            <div className="grid lg:grid-cols-2 gap-12 items-center">
-              {/* Features List */}
-              <div className="animate-fade-in">
-                <h3 className="text-2xl font-bold mb-6 text-center lg:text-left">
-                  Semua Fitur <span className="text-primary">Premium</span>
-                </h3>
-                <div className="grid md:grid-cols-2 gap-4">
-                  {premiumFeatures.map((feature, index) => (
-                    <div key={index} className="flex items-start gap-3">
-                      <Check size={18} className="text-primary mt-0.5 flex-shrink-0" />
-                      <span className="text-sm">{feature}</span>
+          
+          <Card className="max-w-7xl mx-auto p-6 md:p-8 animate-fade-in shadow-elevation">
+            <div className="grid md:grid-cols-2 gap-8">
+              <div className="bg-accent/20 rounded-xl p-6 relative">
+                <div className="flex items-center justify-center h-full">
+                  <div className="relative w-full max-w-md aspect-video bg-gradient-to-br from-primary/10 to-primary/5 rounded-xl border border-primary/20 p-6 shadow-md">
+                    <div className="absolute top-2 left-2 right-2 flex items-center justify-between bg-primary/10 rounded-t-lg p-2">
+                      <div className="flex items-center gap-2">
+                        <Video size={16} className="text-primary" />
+                        <span className="text-xs font-medium">Rapatin Meeting</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <div className="h-2 w-2 rounded-full bg-red-500"></div>
+                        <div className="h-2 w-2 rounded-full bg-yellow-500"></div>
+                        <div className="h-2 w-2 rounded-full bg-green-500"></div>
+                      </div>
                     </div>
-                  ))}
+                    
+                    <div className="grid grid-cols-3 gap-4 mt-12">
+                      {features.slice(0, 9).map((feature, idx) => (
+                        <div key={idx} className="flex items-center justify-center bg-white/80 rounded-full h-10 w-10 shadow-sm mx-auto">
+                          <div className="text-primary">
+                            {feature.icon}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    
+                    <div className="absolute bottom-2 left-2 right-2 flex items-center justify-center gap-4 bg-primary/10 rounded-b-lg p-2">
+                      <Mic size={16} className="text-primary" />
+                      <Video size={16} className="text-primary" />
+                      <Share2 size={16} className="text-primary" />
+                      <Users size={16} className="text-primary" />
+                    </div>
+                  </div>
                 </div>
               </div>
-
-              {/* Illustration */}
-              <div className="animate-fade-in flex justify-center lg:justify-end">
-                <div className="relative">
-                  <img 
-                    src="/lovable-uploads/90dcfcfe-cb9e-46e1-88a3-5cf6472dd222.png" 
-                    alt="Interface Zoom Meeting dengan fitur premium"
-                    className="rounded-lg shadow-2xl max-w-full h-auto"
-                  />
-                  <div className="absolute -bottom-4 -right-4 w-8 h-8 bg-primary rounded-full animate-pulse"></div>
+              
+              <div>
+                <div className="mb-6">
+                  <h3 className="text-2xl font-bold mb-4">
+                    Semua Fitur Premium
+                  </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+                    {features.map((feature, index) => (
+                      <div key={index} className="flex items-start">
+                        <Check size={18} className="mr-2 mt-0.5 text-primary" />
+                        <span className="text-sm">{feature.name}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                
+                <div>
+                  <h3 className="text-2xl font-bold mb-4">
+                    Harga Rapat
+                  </h3>
+                  <div className="grid grid-cols-2 gap-4 mb-6">
+                    {plans.map((plan, index) => (
+                      <div 
+                        key={index} 
+                        className={`p-4 rounded-lg border relative ${
+                          index === 1 ? "border-primary bg-primary/5" : "border-border"
+                        }`}
+                      >
+                        {plan.bestSeller && (
+                          <div className="absolute -top-3 -right-3 bg-orange-500 text-white text-xs font-medium px-3 py-1 rounded-full shadow-sm">
+                            Best Seller
+                          </div>
+                        )}
+                        <p className="font-medium text-sm mb-1">{plan.participants}</p>
+                        <p className="text-xl font-bold mb-1">{plan.price}</p>
+                        <p className="text-xs text-muted-foreground">/rapat/tanggal</p>
+                      </div>
+                    ))}
+                  </div>
+                  
+                  <div className="mt-8">
+                    <Button 
+                      className="w-full rounded-lg bg-primary hover:bg-primary/90 text-white"
+                      onClick={handleRegistration}
+                    >
+                      Daftar Sekarang
+                    </Button>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-          
-          <div className="max-w-4xl mx-auto">
-            <Card className="glass relative">
-              {isPromoActive && (
-                <div className="absolute -top-3 left-4 z-10">
-                  <Badge className="bg-gradient-to-r from-red-500 to-pink-500 text-white px-3 py-1 animate-pulse">
-                    🚀 Promo Terbatas Waktu
-                  </Badge>
-                </div>
-              )}
-              <CardHeader className="pt-6 text-center">
-                <CardTitle className="text-2xl font-bold">Paket Meeting Scheduling</CardTitle>
-                <p className="text-muted-foreground mt-2">
-                  Harga berlaku per rapat per tanggal. Anda hanya membayar saat menggunakan layanan.
-                </p>
-                {isPromoActive && (
-                  <>
-                    <div className="bg-gradient-to-r from-primary/10 to-accent/10 p-4 rounded-lg border border-primary/20 mt-4">
-                      <p className="text-sm font-medium text-primary">
-                        ⚡ Harga Khusus Masa Launching - Hemat hingga 50%!
-                      </p>
-                    </div>
-                    <div className="mt-6">
-                      <CountdownTimer />
-                    </div>
-                  </>
-                )}
-              </CardHeader>
-              <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="text-center">Jumlah Peserta</TableHead>
-                      <TableHead className="text-center">Harga per Rapat</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {pricingPlans.map((plan, index) => (
-                      <TableRow key={index} className={plan.popular ? 'bg-primary/5 border-primary/20' : ''}>
-                        <TableCell className="text-center font-medium">
-                          <div>
-                            {plan.name}
-                            {plan.popular && (
-                              <div className="text-xs text-primary font-medium mt-1 flex items-center justify-center gap-1">
-                                ⭐ Paling Populer
-                              </div>
-                            )}
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-center">
-                          <div className="flex flex-col items-center">
-                            {isPromoActive ? (
-                              <>
-                                <div className="flex items-center gap-2 mb-1">
-                                  <span className="font-bold text-xl text-primary">
-                                    {formatRupiah(plan.promoPrice)}
-                                  </span>
-                                  <Badge variant="destructive" className="text-xs px-1.5 py-0.5">
-                                    HEMAT
-                                  </Badge>
-                                </div>
-                                <span className="text-sm text-muted-foreground line-through">
-                                  {formatRupiah(plan.originalPrice)}
-                                </span>
-                              </>
-                            ) : (
-                              <span className="font-bold text-xl">
-                                {formatRupiah(plan.originalPrice)}
-                              </span>
-                            )}
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-                
-                <div className="mt-8 text-center">
-                  <Button 
-                    size="lg" 
-                    className={`px-8 ${isPromoActive ? 'bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70' : ''}`}
-                    onClick={handleRegistration}
-                  >
-                    {isPromoActive ? '🚀 Mulai dengan Harga Promo!' : 'Mulai Menjadwalkan Rapat'}
-                  </Button>
-                  <p className="text-sm text-muted-foreground mt-4">
-                    Daftar gratis • Isi saldo sesuai kebutuhan • Bayar per rapat
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+          </Card>
         </div>
       </section>
 
