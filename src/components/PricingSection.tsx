@@ -112,7 +112,7 @@ const PricingSection: React.FC = () => {
                 
                 <div>
                   <h3 className="text-2xl font-bold mb-4">
-                    Harga Rapat
+                    Harga Rapat Zoom
                   </h3>
                   <div className="grid grid-cols-1 gap-4 mb-6">
                     {plans.map((plan, index) => (
