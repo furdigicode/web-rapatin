@@ -1,11 +1,19 @@
+
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Check, Video, Mic, Users, Globe, Clock, Calendar, BarChart, MessageSquare, Share2, UserPlus, Zap, FileText, Languages, VideoIcon } from 'lucide-react';
 import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import FreeTrialModal from '@/components/ui/free-trial-modal';
+import CountdownTimer from '@/components/ui/countdown-timer';
+import { formatRupiah } from '@/utils/formatRupiah';
 
 const PricingSection: React.FC = () => {
   const [modalOpen, setModalOpen] = useState(false);
+
+  // Set promo end date to July 31, 2025, 23:59
+  const promoEndDate = new Date('2025-07-31T23:59:59');
+  const isPromoActive = new Date() < promoEndDate;
 
   const features = [
     // Core features
@@ -28,10 +36,10 @@ const PricingSection: React.FC = () => {
   ];
   
   const plans = [
-    { participants: "100 Peserta", price: "Rp 20.000" },
-    { participants: "300 Peserta", price: "Rp 40.000", bestSeller: true },
-    { participants: "500 Peserta", price: "Rp 70.000" },
-    { participants: "1000 Peserta", price: "Rp 130.000" }
+    { participants: "100 Peserta", originalPrice: 20000, promoPrice: 10000, popular: true },
+    { participants: "300 Peserta", originalPrice: 40000, promoPrice: 25000 },
+    { participants: "500 Peserta", originalPrice: 70000, promoPrice: 55000 },
+    { participants: "1000 Peserta", originalPrice: 130000, promoPrice: 100000 }
   ];
 
   const handleRegistration = () => {
@@ -92,40 +100,58 @@ const PricingSection: React.FC = () => {
               </div>
               
               <div>
-                <div className="mb-6">
-                  <h3 className="text-2xl font-bold mb-4">
-                    Semua Fitur Premium
-                  </h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
-                    {features.map((feature, index) => (
-                      <div key={index} className="flex items-start">
-                        <Check size={18} className="mr-2 mt-0.5 text-primary" />
-                        <span className="text-sm">{feature.name}</span>
-                      </div>
-                    ))}
+                {isPromoActive && (
+                  <div className="mb-6 text-center">
+                    <div className="bg-gradient-to-r from-red-500 to-pink-500 text-white p-4 rounded-lg mb-4">
+                      <h3 className="font-bold text-lg mb-2">🚀 Promo Launching - Hemat hingga 50%!</h3>
+                      <p className="text-sm mb-3">Penawaran terbatas berakhir dalam:</p>
+                      <CountdownTimer targetDate={promoEndDate} />
+                    </div>
                   </div>
-                </div>
+                )}
                 
                 <div>
                   <h3 className="text-2xl font-bold mb-4">
                     Harga Rapat
                   </h3>
-                  <div className="grid grid-cols-2 gap-4 mb-6">
+                  <div className="grid grid-cols-1 gap-4 mb-6">
                     {plans.map((plan, index) => (
                       <div 
                         key={index} 
                         className={`p-4 rounded-lg border relative ${
-                          index === 1 ? "border-primary bg-primary/5" : "border-border"
+                          plan.popular ? "border-primary bg-primary/5" : "border-border"
                         }`}
                       >
-                        {plan.bestSeller && (
+                        {plan.popular && (
                           <div className="absolute -top-3 -right-3 bg-orange-500 text-white text-xs font-medium px-3 py-1 rounded-full shadow-sm">
                             Best Seller
                           </div>
                         )}
-                        <p className="font-medium text-sm mb-1">{plan.participants}</p>
-                        <p className="text-xl font-bold mb-1">{plan.price}</p>
-                        <p className="text-xs text-muted-foreground">/rapat/tanggal</p>
+                        <div className="flex justify-between items-center">
+                          <div>
+                            <p className="font-medium text-sm mb-1">{plan.participants}</p>
+                            <p className="text-xs text-muted-foreground">/rapat/tanggal</p>
+                          </div>
+                          <div className="text-right">
+                            {isPromoActive ? (
+                              <div className="flex flex-col items-end">
+                                <div className="flex items-center gap-2 mb-1">
+                                  <span className="font-bold text-lg text-primary">
+                                    {formatRupiah(plan.promoPrice)}
+                                  </span>
+                                  <Badge variant="destructive" className="text-xs px-1.5 py-0.5">
+                                    HEMAT
+                                  </Badge>
+                                </div>
+                                <span className="text-sm text-muted-foreground line-through">
+                                  {formatRupiah(plan.originalPrice)}
+                                </span>
+                              </div>
+                            ) : (
+                              <p className="text-xl font-bold">{formatRupiah(plan.originalPrice)}</p>
+                            )}
+                          </div>
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -135,10 +161,25 @@ const PricingSection: React.FC = () => {
                       className="w-full rounded-lg bg-primary hover:bg-primary/90 text-white"
                       onClick={handleRegistration}
                     >
-                      Daftar Sekarang
+                      {isPromoActive ? '🚀 Daftar Sekarang - Harga Promo!' : 'Daftar Sekarang'}
                     </Button>
                   </div>
                 </div>
+              </div>
+            </div>
+            
+            {/* Semua Fitur Premium Section - Moved below the illustration */}
+            <div className="mt-12 pt-8 border-t border-border">
+              <h3 className="text-2xl font-bold mb-6 text-center">
+                Semua Fitur Premium
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-4xl mx-auto">
+                {features.map((feature, index) => (
+                  <div key={index} className="flex items-start">
+                    <Check size={18} className="mr-2 mt-0.5 text-primary" />
+                    <span className="text-sm">{feature.name}</span>
+                  </div>
+                ))}
               </div>
             </div>
           </Card>
