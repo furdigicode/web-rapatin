@@ -66,42 +66,9 @@ const PricingSection: React.FC = () => {
             <div className="grid md:grid-cols-2 gap-8">
               <div className="bg-accent/20 rounded-xl p-6 relative">
                 <div className="flex flex-col h-full">
-                  <div className="flex items-center justify-center mb-6">
-                    <div className="relative w-full max-w-md aspect-video bg-gradient-to-br from-primary/10 to-primary/5 rounded-xl border border-primary/20 p-6 shadow-md">
-                      <div className="absolute top-2 left-2 right-2 flex items-center justify-between bg-primary/10 rounded-t-lg p-2">
-                        <div className="flex items-center gap-2">
-                          <Video size={16} className="text-primary" />
-                          <span className="text-xs font-medium">Rapatin Meeting</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <div className="h-2 w-2 rounded-full bg-red-500"></div>
-                          <div className="h-2 w-2 rounded-full bg-yellow-500"></div>
-                          <div className="h-2 w-2 rounded-full bg-green-500"></div>
-                        </div>
-                      </div>
-                      
-                      <div className="grid grid-cols-3 gap-4 mt-12">
-                        {features.slice(0, 9).map((feature, idx) => (
-                          <div key={idx} className="flex items-center justify-center bg-white/80 rounded-full h-10 w-10 shadow-sm mx-auto">
-                            <div className="text-primary">
-                              {feature.icon}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                      
-                      <div className="absolute bottom-2 left-2 right-2 flex items-center justify-center gap-4 bg-primary/10 rounded-b-lg p-2">
-                        <Mic size={16} className="text-primary" />
-                        <Video size={16} className="text-primary" />
-                        <Share2 size={16} className="text-primary" />
-                        <Users size={16} className="text-primary" />
-                      </div>
-                    </div>
-                  </div>
-                  
                   <div className="mt-4">
                     <h3 className="text-xl font-bold mb-4 text-center">
-                      Semua Fitur Premium
+                      Akses ke Semua Fitur Premium
                     </h3>
                     <div className="grid grid-cols-1 gap-3 max-w-md mx-auto">
                       {features.map((feature, index) => (
