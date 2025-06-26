@@ -15,23 +15,23 @@ const CountdownTimer: React.FC<CountdownTimerProps> = ({ targetDate, className =
   }
 
   return (
-    <div className={`flex items-center justify-center gap-2 ${className}`}>
-      <div className="flex items-center gap-1 bg-red-500 text-white px-2 py-1 rounded text-sm font-mono">
+    <div className={`flex items-center justify-center gap-1 md:gap-2 ${className}`}>
+      <div className="flex items-center gap-0.5 md:gap-1 bg-red-500 text-white px-1.5 md:px-2 py-1 rounded text-xs md:text-sm font-mono">
         <span className="font-bold">{days.toString().padStart(2, '0')}</span>
         <span className="text-xs">hari</span>
       </div>
-      <span className="text-red-500">:</span>
-      <div className="flex items-center gap-1 bg-red-500 text-white px-2 py-1 rounded text-sm font-mono">
+      <span className="text-red-500 text-xs md:text-sm">:</span>
+      <div className="flex items-center gap-0.5 md:gap-1 bg-red-500 text-white px-1.5 md:px-2 py-1 rounded text-xs md:text-sm font-mono">
         <span className="font-bold">{hours.toString().padStart(2, '0')}</span>
         <span className="text-xs">jam</span>
       </div>
-      <span className="text-red-500">:</span>
-      <div className="flex items-center gap-1 bg-red-500 text-white px-2 py-1 rounded text-sm font-mono">
+      <span className="text-red-500 text-xs md:text-sm">:</span>
+      <div className="flex items-center gap-0.5 md:gap-1 bg-red-500 text-white px-1.5 md:px-2 py-1 rounded text-xs md:text-sm font-mono">
         <span className="font-bold">{minutes.toString().padStart(2, '0')}</span>
         <span className="text-xs">mnt</span>
       </div>
-      <span className="text-red-500">:</span>
-      <div className="flex items-center gap-1 bg-red-500 text-white px-2 py-1 rounded text-sm font-mono">
+      <span className="text-red-500 text-xs md:text-sm">:</span>
+      <div className="flex items-center gap-0.5 md:gap-1 bg-red-500 text-white px-1.5 md:px-2 py-1 rounded text-xs md:text-sm font-mono">
         <span className="font-bold">{seconds.toString().padStart(2, '0')}</span>
         <span className="text-xs">dtk</span>
       </div>
