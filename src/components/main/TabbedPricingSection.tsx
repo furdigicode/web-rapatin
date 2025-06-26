@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,12 +7,15 @@ import { Badge } from "@/components/ui/badge";
 import { Check, Calendar, Users, Clock } from 'lucide-react';
 import ComingSoonModal from '@/components/ui/coming-soon-modal';
 import FreeTrialModal from '@/components/ui/free-trial-modal';
+import CountdownTimer from '@/components/ui/countdown-timer';
 import { formatRupiah } from '@/utils/formatRupiah';
+import { useCountdown } from '@/hooks/useCountdown';
 
 const TabbedPricingSection: React.FC = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState('');
   const [freeTrialModalOpen, setFreeTrialModalOpen] = useState(false);
+  const { isPromoActive } = useCountdown();
 
   const handleOpenModal = (productName: string) => {
     setSelectedProduct(productName);
@@ -175,21 +177,30 @@ const TabbedPricingSection: React.FC = () => {
 
               {/* Pricing Column */}
               <Card className="glass relative">
-                <div className="absolute -top-3 left-4 z-10">
-                  <Badge className="bg-gradient-to-r from-red-500 to-pink-500 text-white px-3 py-1 animate-pulse">
-                    🚀 Promo Launching
-                  </Badge>
-                </div>
+                {isPromoActive && (
+                  <div className="absolute -top-3 left-4 z-10">
+                    <Badge className="bg-gradient-to-r from-red-500 to-pink-500 text-white px-3 py-1 animate-pulse">
+                      🚀 Promo Terbatas Waktu
+                    </Badge>
+                  </div>
+                )}
                 <CardHeader className="pt-6">
                   <CardTitle className="text-xl font-semibold">Pilih Paket</CardTitle>
                   <p className="text-sm text-muted-foreground mt-2">
                     Harga berlaku per rapat per tanggal. Anda hanya membayar saat menggunakan layanan.
                   </p>
-                  <div className="bg-gradient-to-r from-primary/10 to-accent/10 p-3 rounded-lg border border-primary/20">
-                    <p className="text-sm font-medium text-primary">
-                      ⚡ Harga Khusus Masa Launching - Hemat hingga 50%!
-                    </p>
-                  </div>
+                  {isPromoActive && (
+                    <>
+                      <div className="bg-gradient-to-r from-primary/10 to-accent/10 p-3 rounded-lg border border-primary/20">
+                        <p className="text-sm font-medium text-primary">
+                          ⚡ Harga Khusus Masa Launching - Hemat hingga 50%!
+                        </p>
+                      </div>
+                      <div className="mt-4">
+                        <CountdownTimer />
+                      </div>
+                    </>
+                  )}
                 </CardHeader>
                 <CardContent>
                   <Table>
@@ -212,17 +223,25 @@ const TabbedPricingSection: React.FC = () => {
                           </TableCell>
                           <TableCell>
                             <div className="flex flex-col items-start">
-                              <div className="flex items-center gap-2 mb-1">
-                                <span className="font-bold text-lg text-primary">
-                                  {formatRupiah(plan.promoPrice)}
+                              {isPromoActive ? (
+                                <>
+                                  <div className="flex items-center gap-2 mb-1">
+                                    <span className="font-bold text-lg text-primary">
+                                      {formatRupiah(plan.promoPrice)}
+                                    </span>
+                                    <Badge variant="destructive" className="text-xs px-1.5 py-0.5">
+                                      HEMAT
+                                    </Badge>
+                                  </div>
+                                  <span className="text-sm text-muted-foreground line-through">
+                                    {formatRupiah(plan.originalPrice)}
+                                  </span>
+                                </>
+                              ) : (
+                                <span className="font-bold text-lg">
+                                  {formatRupiah(plan.originalPrice)}
                                 </span>
-                                <Badge variant="destructive" className="text-xs px-1.5 py-0.5">
-                                  HEMAT
-                                </Badge>
-                              </div>
-                              <span className="text-sm text-muted-foreground line-through">
-                                {formatRupiah(plan.originalPrice)}
-                              </span>
+                              )}
                             </div>
                           </TableCell>
                         </TableRow>
@@ -233,10 +252,10 @@ const TabbedPricingSection: React.FC = () => {
                   <div className="mt-6 text-center">
                     <Button 
                       size="lg" 
-                      className="w-full md:w-auto px-8 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
+                      className={`w-full md:w-auto px-8 ${isPromoActive ? 'bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70' : ''}`}
                       onClick={handleFreeTrialRegistration}
                     >
-                      🚀 Buat Jadwal Sekarang - Harga Promo!
+                      {isPromoActive ? '🚀 Buat Jadwal Sekarang - Harga Promo!' : 'Buat Jadwal Sekarang'}
                     </Button>
                   </div>
                 </CardContent>
