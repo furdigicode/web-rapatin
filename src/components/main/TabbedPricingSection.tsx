@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Check, Calendar, Users, Clock } from 'lucide-react';
 import ComingSoonModal from '@/components/ui/coming-soon-modal';
@@ -108,24 +109,24 @@ const TabbedPricingSection: React.FC = () => {
   };
 
   return (
-    <section id="pricing" className="py-12 md:py-20 bg-gradient-to-b from-accent/30 to-background">
+    <section id="pricing" className="py-20 bg-gradient-to-b from-accent/30 to-background">
       <div className="container mx-auto px-4 md:px-6">
-        <div className="max-w-3xl mx-auto text-center mb-12 md:mb-16 animate-fade-in">
-          <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-4">
+        <div className="max-w-3xl mx-auto text-center mb-16 animate-fade-in">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">
             Harga Transparan untuk <span className="text-primary">Setiap Produk</span>
           </h2>
-          <p className="text-base md:text-lg text-muted-foreground">
+          <p className="text-lg text-muted-foreground">
             Pilih produk yang sesuai kebutuhan Anda. Bayar hanya untuk yang Anda gunakan.
           </p>
         </div>
         
         <Tabs defaultValue="meeting" className="max-w-6xl mx-auto">
-          <TabsList className="grid w-full grid-cols-3 mb-8 md:mb-12 h-auto p-1 bg-muted/50 backdrop-blur-sm">
+          <TabsList className="grid w-full grid-cols-3 mb-12 h-auto p-1 bg-muted/50 backdrop-blur-sm">
             <TabsTrigger 
               value="meeting" 
-              className="flex flex-col items-center justify-center gap-1 px-1 sm:px-2 md:px-4 py-2 sm:py-3 md:py-4 h-auto min-h-[50px] sm:min-h-[60px] text-xs sm:text-sm md:text-base data-[state=active]:bg-background data-[state=active]:shadow-lg transition-all duration-200"
+              className="flex flex-col items-center justify-center gap-1 px-2 py-3 sm:px-4 sm:py-4 h-auto min-h-[60px] text-xs sm:text-sm md:text-base data-[state=active]:bg-background data-[state=active]:shadow-lg transition-all duration-200"
             >
-              <Calendar className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5" />
+              <Calendar className="w-4 h-4 sm:w-5 sm:h-5" />
               <span className="leading-tight text-center">
                 <span className="hidden sm:inline">Meeting Scheduling</span>
                 <span className="sm:hidden">Meeting</span>
@@ -133,9 +134,9 @@ const TabbedPricingSection: React.FC = () => {
             </TabsTrigger>
             <TabsTrigger 
               value="event" 
-              className="flex flex-col items-center justify-center gap-1 px-1 sm:px-2 md:px-4 py-2 sm:py-3 md:py-4 h-auto min-h-[50px] sm:min-h-[60px] text-xs sm:text-sm md:text-base data-[state=active]:bg-background data-[state=active]:shadow-lg transition-all duration-200"
+              className="flex flex-col items-center justify-center gap-1 px-2 py-3 sm:px-4 sm:py-4 h-auto min-h-[60px] text-xs sm:text-sm md:text-base data-[state=active]:bg-background data-[state=active]:shadow-lg transition-all duration-200"
             >
-              <Users className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5" />
+              <Users className="w-4 h-4 sm:w-5 sm:h-5" />
               <span className="leading-tight text-center">
                 <span className="hidden sm:inline">Event Management</span>
                 <span className="sm:hidden">Event</span>
@@ -143,9 +144,9 @@ const TabbedPricingSection: React.FC = () => {
             </TabsTrigger>
             <TabsTrigger 
               value="appointment" 
-              className="flex flex-col items-center justify-center gap-1 px-1 sm:px-2 md:px-4 py-2 sm:py-3 md:py-4 h-auto min-h-[50px] sm:min-h-[60px] text-xs sm:text-sm md:text-base data-[state=active]:bg-background data-[state=active]:shadow-lg transition-all duration-200"
+              className="flex flex-col items-center justify-center gap-1 px-2 py-3 sm:px-4 sm:py-4 h-auto min-h-[60px] text-xs sm:text-sm md:text-base data-[state=active]:bg-background data-[state=active]:shadow-lg transition-all duration-200"
             >
-              <Clock className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5" />
+              <Clock className="w-4 h-4 sm:w-5 sm:h-5" />
               <span className="leading-tight text-center">
                 <span className="hidden sm:inline">Appointment Booking</span>
                 <span className="sm:hidden">Appointment</span>
@@ -154,11 +155,11 @@ const TabbedPricingSection: React.FC = () => {
           </TabsList>
           
           <TabsContent value="meeting">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
+            <div className="grid md:grid-cols-2 gap-8">
               {/* Features Column */}
-              <Card className="glass order-2 lg:order-1">
+              <Card className="glass">
                 <CardHeader>
-                  <CardTitle className="text-lg md:text-xl font-semibold">Fitur yang Anda Dapatkan</CardTitle>
+                  <CardTitle className="text-xl font-semibold">Fitur yang Anda Dapatkan</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <ul className="space-y-3">
@@ -173,71 +174,69 @@ const TabbedPricingSection: React.FC = () => {
               </Card>
 
               {/* Pricing Column */}
-              <Card className="glass relative order-1 lg:order-2">
-                <div className="absolute -top-2 md:-top-3 left-4 z-10">
-                  <Badge className="bg-gradient-to-r from-red-500 to-pink-500 text-white px-2 md:px-3 py-1 animate-pulse text-xs">
+              <Card className="glass relative">
+                <div className="absolute -top-3 left-4 z-10">
+                  <Badge className="bg-gradient-to-r from-red-500 to-pink-500 text-white px-3 py-1 animate-pulse">
                     🚀 Promo Launching
                   </Badge>
                 </div>
-                <CardHeader className="pt-6 md:pt-8">
-                  <CardTitle className="text-lg md:text-xl font-semibold">Pilih Paket</CardTitle>
-                  <p className="text-xs md:text-sm text-muted-foreground mt-2">
+                <CardHeader className="pt-6">
+                  <CardTitle className="text-xl font-semibold">Pilih Paket</CardTitle>
+                  <p className="text-sm text-muted-foreground mt-2">
                     Harga berlaku per rapat per tanggal. Anda hanya membayar saat menggunakan layanan.
                   </p>
-                  <div className="bg-gradient-to-r from-primary/10 to-accent/10 p-2 md:p-3 rounded-lg border border-primary/20">
-                    <p className="text-xs md:text-sm font-medium text-primary">
+                  <div className="bg-gradient-to-r from-primary/10 to-accent/10 p-3 rounded-lg border border-primary/20">
+                    <p className="text-sm font-medium text-primary">
                       ⚡ Harga Khusus Masa Launching - Hemat hingga 50%!
                     </p>
                   </div>
                 </CardHeader>
                 <CardContent>
-                  {/* Replace Table with Card Layout for Mobile */}
-                  <div className="space-y-3 md:space-y-4">
-                    {pricingData.meeting.plans.map((plan, index) => (
-                      <div 
-                        key={index} 
-                        className={`p-3 md:p-4 rounded-lg border transition-all duration-200 ${
-                          plan.popular ? 'bg-primary/5 border-primary/20 ring-1 ring-primary/10' : 'border-border hover:border-primary/20'
-                        }`}
-                      >
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <div className="font-medium text-sm md:text-base">
-                              {plan.name}
-                              {plan.popular && (
-                                <div className="text-xs text-primary font-medium mt-1 flex items-center gap-1">
-                                  ⭐ Paling Populer
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                          <div className="text-right">
-                            <div className="flex flex-col items-end">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Peserta</TableHead>
+                        <TableHead>Harga</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {pricingData.meeting.plans.map((plan, index) => (
+                        <TableRow key={index} className={plan.popular ? 'bg-primary/5 border-primary/20' : ''}>
+                          <TableCell className="font-medium">
+                            {plan.name}
+                            {plan.popular && (
+                              <div className="text-xs text-primary font-medium mt-1 flex items-center gap-1">
+                                ⭐ Paling Populer
+                              </div>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex flex-col items-start">
                               <div className="flex items-center gap-2 mb-1">
-                                <span className="font-bold text-base md:text-lg text-primary">
+                                <span className="font-bold text-lg text-primary">
                                   {formatRupiah(plan.promoPrice)}
                                 </span>
                                 <Badge variant="destructive" className="text-xs px-1.5 py-0.5">
                                   HEMAT
                                 </Badge>
                               </div>
-                              <span className="text-xs md:text-sm text-muted-foreground line-through">
+                              <span className="text-sm text-muted-foreground line-through">
                                 {formatRupiah(plan.originalPrice)}
                               </span>
                             </div>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
                   
                   <div className="mt-6 text-center">
                     <Button 
                       size="lg" 
-                      className="w-full md:w-auto px-6 md:px-8 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-sm md:text-base h-11 md:h-12"
+                      className="w-full md:w-auto px-8 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
                       onClick={handleFreeTrialRegistration}
                     >
-                      🚀 Buat Jadwal Sekarang - Harga Promo!
+                      🚀 Buat Jadwal Sekarang!
                     </Button>
                   </div>
                 </CardContent>
@@ -246,11 +245,11 @@ const TabbedPricingSection: React.FC = () => {
           </TabsContent>
           
           <TabsContent value="event">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
+            <div className="grid md:grid-cols-2 gap-8">
               {/* Features Column */}
               <Card className="glass">
                 <CardHeader>
-                  <CardTitle className="text-lg md:text-xl font-semibold">Fitur yang Anda Dapatkan</CardTitle>
+                  <CardTitle className="text-xl font-semibold">Fitur yang Anda Dapatkan</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <ul className="space-y-3">
@@ -267,38 +266,38 @@ const TabbedPricingSection: React.FC = () => {
               {/* Updated Pricing Column for event with modal trigger */}
               <Card className="glass">
                 <CardHeader>
-                  <CardTitle className="text-lg md:text-xl font-semibold">Biaya Berbasis Penggunaan</CardTitle>
-                  <p className="text-xs md:text-sm text-muted-foreground mt-2">
+                  <CardTitle className="text-xl font-semibold">Biaya Berbasis Penggunaan</CardTitle>
+                  <p className="text-sm text-muted-foreground mt-2">
                     Anda hanya dikenakan biaya ketika peserta membeli tiket event berbayar. Event gratis tidak dikenakan biaya.
                   </p>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4 md:space-y-6">
+                  <div className="space-y-6">
                     {/* Platform Fee */}
                     <div className="border-b pb-4">
-                      <h3 className="font-semibold text-base md:text-lg mb-2">Biaya Platform</h3>
+                      <h3 className="font-semibold text-lg mb-2">Biaya Platform</h3>
                       <div className="flex justify-between items-center">
-                        <span className="text-xs md:text-sm">Biaya platform dari harga tiket</span>
-                        <span className="font-bold text-lg md:text-xl text-primary">{pricingData.event.pricing.platformFee}</span>
+                        <span className="text-sm">Biaya platform dari harga tiket</span>
+                        <span className="font-bold text-xl text-primary">{pricingData.event.pricing.platformFee}</span>
                       </div>
                     </div>
 
                     {/* Payment Gateway Fees */}
                     <div>
-                      <h3 className="font-semibold text-base md:text-lg mb-3">Biaya Payment Gateway</h3>
+                      <h3 className="font-semibold text-lg mb-3">Biaya Payment Gateway</h3>
                       <div className="space-y-2">
                         {pricingData.event.pricing.paymentGateway.map((gateway, index) => (
                           <div key={index} className="flex justify-between items-center py-2 border-b border-muted last:border-b-0">
-                            <span className="text-xs md:text-sm">{gateway.method}</span>
-                            <span className="font-medium text-sm">{gateway.fee}</span>
+                            <span className="text-sm">{gateway.method}</span>
+                            <span className="font-medium">{gateway.fee}</span>
                           </div>
                         ))}
                       </div>
                     </div>
 
                     {/* Important Note */}
-                    <div className="bg-accent/20 p-3 md:p-4 rounded-lg">
-                      <p className="text-xs md:text-sm text-muted-foreground">
+                    <div className="bg-accent/20 p-4 rounded-lg">
+                      <p className="text-sm text-muted-foreground">
                         <strong>Catatan:</strong> Biaya payment gateway dapat diatur apakah ditanggung oleh pembeli tiket atau organizer event.
                       </p>
                     </div>
@@ -307,7 +306,7 @@ const TabbedPricingSection: React.FC = () => {
                   <div className="mt-6 text-center">
                     <Button 
                       size="lg" 
-                      className="w-full md:w-auto px-6 md:px-8 text-sm md:text-base h-11 md:h-12"
+                      className="w-full md:w-auto px-8"
                       onClick={() => handleOpenModal('Event Management')}
                     >
                       Mulai Buat Event
@@ -319,11 +318,11 @@ const TabbedPricingSection: React.FC = () => {
           </TabsContent>
           
           <TabsContent value="appointment">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
+            <div className="grid md:grid-cols-2 gap-8">
               {/* Features Column */}
               <Card className="glass">
                 <CardHeader>
-                  <CardTitle className="text-lg md:text-xl font-semibold">Fitur yang Anda Dapatkan</CardTitle>
+                  <CardTitle className="text-xl font-semibold">Fitur yang Anda Dapatkan</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <ul className="space-y-3">
@@ -340,39 +339,39 @@ const TabbedPricingSection: React.FC = () => {
               {/* Updated Pricing Column for appointment with modal trigger */}
               <Card className="glass">
                 <CardHeader>
-                  <CardTitle className="text-lg md:text-xl font-semibold">Biaya Flat Per Booking</CardTitle>
-                  <p className="text-xs md:text-sm text-muted-foreground mt-2">
+                  <CardTitle className="text-xl font-semibold">Biaya Flat Per Booking</CardTitle>
+                  <p className="text-sm text-muted-foreground mt-2">
                     Anda hanya dikenakan biaya ketika klien melakukan booking appointment berbayar. Tidak ada biaya bulanan.
                   </p>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4 md:space-y-6">
+                  <div className="space-y-6">
                     {/* Platform Fee */}
                     <div className="border-b pb-4">
-                      <h3 className="font-semibold text-base md:text-lg mb-2">Biaya Platform</h3>
+                      <h3 className="font-semibold text-lg mb-2">Biaya Platform</h3>
                       <div className="flex justify-between items-center">
-                        <span className="text-xs md:text-sm">Biaya flat per booking appointment</span>
-                        <span className="font-bold text-lg md:text-xl text-primary">{pricingData.appointment.pricing.platformFee}</span>
+                        <span className="text-sm">Biaya flat per booking appointment</span>
+                        <span className="font-bold text-xl text-primary">{pricingData.appointment.pricing.platformFee}</span>
                       </div>
                       <p className="text-xs text-muted-foreground mt-1">Untuk sesi hingga 30 menit</p>
                     </div>
 
                     {/* Payment Gateway Fees */}
                     <div>
-                      <h3 className="font-semibold text-base md:text-lg mb-3">Biaya Payment Gateway</h3>
+                      <h3 className="font-semibold text-lg mb-3">Biaya Payment Gateway</h3>
                       <div className="space-y-2">
                         {pricingData.appointment.pricing.paymentGateway.map((gateway, index) => (
                           <div key={index} className="flex justify-between items-center py-2 border-b border-muted last:border-b-0">
-                            <span className="text-xs md:text-sm">{gateway.method}</span>
-                            <span className="font-medium text-sm">{gateway.fee}</span>
+                            <span className="text-sm">{gateway.method}</span>
+                            <span className="font-medium">{gateway.fee}</span>
                           </div>
                         ))}
                       </div>
                     </div>
 
                     {/* Important Note */}
-                    <div className="bg-accent/20 p-3 md:p-4 rounded-lg">
-                      <p className="text-xs md:text-sm text-muted-foreground">
+                    <div className="bg-accent/20 p-4 rounded-lg">
+                      <p className="text-sm text-muted-foreground">
                         <strong>Catatan:</strong> Biaya payment gateway dapat diatur apakah ditanggung oleh klien atau service provider.
                       </p>
                     </div>
@@ -381,7 +380,7 @@ const TabbedPricingSection: React.FC = () => {
                   <div className="mt-6 text-center">
                     <Button 
                       size="lg" 
-                      className="w-full md:w-auto px-6 md:px-8 text-sm md:text-base h-11 md:h-12"
+                      className="w-full md:w-auto px-8"
                       onClick={() => handleOpenModal('Appointment Booking')}
                     >
                       Mulai Appointment Booking
