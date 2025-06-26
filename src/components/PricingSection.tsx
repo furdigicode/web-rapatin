@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Check } from 'lucide-react';
 import CountdownTimer from '@/components/ui/countdown-timer';
 import FreeTrialModal from '@/components/ui/free-trial-modal';
 import { formatRupiah } from '@/utils/formatRupiah';
@@ -27,6 +28,21 @@ const PricingSection: React.FC = () => {
     { name: '1000 Peserta', originalPrice: 130000, promoPrice: 100000 }
   ];
 
+  const premiumFeatures = [
+    'Rekaman Cloud (akses 72 jam)',
+    'Durasi rapat tak terbatas',
+    'Akses seharian (00.00 - 23.59)',
+    'Berbagi layar',
+    'Interpretasi Bahasa',
+    'Smart Recording',
+    'Ringkasan Rapat',
+    'AI Companion',
+    'Polling, Tanya Jawab, Survei',
+    'Sistem pendaftaran',
+    'Live streaming ke YouTube',
+    'Tetapkan hingga 99 Co-Host'
+  ];
+
   return (
     <>
       <section id="pricing" className="py-20 bg-gradient-to-b from-accent/30 to-background">
@@ -38,6 +54,38 @@ const PricingSection: React.FC = () => {
             <p className="text-lg text-muted-foreground">
               Tidak ada langganan bulanan. Bayar hanya untuk rapat yang Anda jadwalkan berdasarkan jumlah peserta.
             </p>
+          </div>
+
+          {/* Premium Features Section */}
+          <div className="max-w-6xl mx-auto mb-16">
+            <div className="grid lg:grid-cols-2 gap-12 items-center">
+              {/* Features List */}
+              <div className="animate-fade-in">
+                <h3 className="text-2xl font-bold mb-6 text-center lg:text-left">
+                  Semua Fitur <span className="text-primary">Premium</span>
+                </h3>
+                <div className="grid md:grid-cols-2 gap-4">
+                  {premiumFeatures.map((feature, index) => (
+                    <div key={index} className="flex items-start gap-3">
+                      <Check size={18} className="text-primary mt-0.5 flex-shrink-0" />
+                      <span className="text-sm">{feature}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Illustration */}
+              <div className="animate-fade-in flex justify-center lg:justify-end">
+                <div className="relative">
+                  <img 
+                    src="/lovable-uploads/90dcfcfe-cb9e-46e1-88a3-5cf6472dd222.png" 
+                    alt="Interface Zoom Meeting dengan fitur premium"
+                    className="rounded-lg shadow-2xl max-w-full h-auto"
+                  />
+                  <div className="absolute -bottom-4 -right-4 w-8 h-8 bg-primary rounded-full animate-pulse"></div>
+                </div>
+              </div>
+            </div>
           </div>
           
           <div className="max-w-4xl mx-auto">
