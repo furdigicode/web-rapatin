@@ -21,6 +21,7 @@ const PricingSection: React.FC = () => {
     { name: "Durasi rapat tak terbatas", icon: <Clock size={22} /> },
     { name: "Akses seharian (00.00 - 23.59)", icon: <Calendar size={22} /> },
     { name: "Berbagi layar", icon: <Share2 size={22} /> },
+    { name: "Kualitas Video Full HD 1080p", icon: <Share2 size={22} /> },
     
     // Communication features
     { name: "Interpretasi Bahasa", icon: <Languages size={22} /> },
