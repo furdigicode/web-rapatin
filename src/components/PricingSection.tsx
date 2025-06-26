@@ -17,22 +17,22 @@ const PricingSection: React.FC = () => {
 
   const features = [
     // Core features
-    { name: "Rekaman Cloud (akses 72 jam)", icon: <VideoIcon size={18} /> },
-    { name: "Durasi rapat tak terbatas", icon: <Clock size={18} /> },
-    { name: "Akses seharian (00.00 - 23.59)", icon: <Calendar size={18} /> },
-    { name: "Berbagi layar", icon: <Share2 size={18} /> },
+    { name: "Rekaman Cloud (akses 72 jam)", icon: <VideoIcon size={22} /> },
+    { name: "Durasi rapat tak terbatas", icon: <Clock size={22} /> },
+    { name: "Akses seharian (00.00 - 23.59)", icon: <Calendar size={22} /> },
+    { name: "Berbagi layar", icon: <Share2 size={22} /> },
     
     // Communication features
-    { name: "Interpretasi Bahasa", icon: <Languages size={18} /> },
-    { name: "Smart Recording", icon: <Zap size={18} /> },
-    { name: "Ringkasan Rapat", icon: <FileText size={18} /> },
-    { name: "AI Companion", icon: <MessageSquare size={18} /> },
+    { name: "Interpretasi Bahasa", icon: <Languages size={22} /> },
+    { name: "Smart Recording", icon: <Zap size={22} /> },
+    { name: "Ringkasan Rapat", icon: <FileText size={22} /> },
+    { name: "AI Companion", icon: <MessageSquare size={22} /> },
     
     // Engagement features
-    { name: "Polling, Tanya Jawab, Survei", icon: <BarChart size={18} /> },
-    { name: "Sistem pendaftaran", icon: <UserPlus size={18} /> },
-    { name: "Live streaming ke YouTube", icon: <Video size={18} /> },
-    { name: "Tetapkan hingga 99 Co-Host", icon: <Users size={18} /> },
+    { name: "Polling, Tanya Jawab, Survei", icon: <BarChart size={22} /> },
+    { name: "Sistem pendaftaran", icon: <UserPlus size={22} /> },
+    { name: "Live streaming ke YouTube", icon: <Video size={22} /> },
+    { name: "Tetapkan hingga 99 Co-Host", icon: <Users size={22} /> },
   ];
   
   const plans = [
@@ -68,12 +68,12 @@ const PricingSection: React.FC = () => {
                 <div className="flex flex-col h-full">
                   <div className="mt-4">
                     <h3 className="text-2xl font-bold mb-4 text-center">
-                      Semua Fitur Premium
+                      Akses Semua Fitur Premium
                     </h3>
                     <div className="grid grid-cols-1 gap-2 max-w-md mx-auto">
                       {features.map((feature, index) => (
                         <div key={index} className="flex items-start">
-                          <Check size={20} className="mr-2 mt-0.5 text-primary flex-shrink-0" />
+                          <Check size={22} className="mr-2 mt-0.5 text-primary flex-shrink-0" />
                           <span className="text-xs">{feature.name}</span>
                         </div>
                       ))}
