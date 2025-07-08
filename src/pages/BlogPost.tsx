@@ -198,7 +198,7 @@ const BlogPost = () => {
         {/* Hero Section with Cover Image */}
         <div className="relative">
           {post.cover_image ? (
-            <div className="relative h-[50vh] md:h-[60vh] overflow-hidden">
+            <div className="relative h-[40vh] md:h-[50vh] overflow-hidden">
               <img 
                 src={post.cover_image} 
                 alt={post.title}
@@ -207,10 +207,10 @@ const BlogPost = () => {
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
               
               {/* Hero Content Overlay */}
-              <div className="absolute bottom-0 left-0 right-0 p-6 md:p-12 text-white">
+              <div className="absolute bottom-0 left-0 right-0 px-4 py-6 md:px-6 md:py-12 text-white">
                 <div className="container mx-auto max-w-4xl">
                   {/* Breadcrumb */}
-                  <nav className="flex items-center space-x-2 text-sm mb-4 text-white/80">
+                  <nav className="flex items-center space-x-2 text-sm mb-3 text-white/80">
                     <Link to="/" className="hover:text-white flex items-center">
                       <Home size={14} className="mr-1" />
                       Home
@@ -223,11 +223,11 @@ const BlogPost = () => {
                     </Badge>
                   </nav>
                   
-                  <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold mb-4 leading-tight">
+                  <h1 className="text-xl md:text-3xl lg:text-4xl font-bold mb-3 leading-tight">
                     {post.title}
                   </h1>
                   
-                  <div className="flex items-center gap-6 text-sm text-white/90">
+                  <div className="flex flex-wrap items-center gap-4 text-sm text-white/90">
                     <div className="flex items-center gap-2">
                       <User size={16} />
                       <span>{post.author}</span>
@@ -245,10 +245,10 @@ const BlogPost = () => {
               </div>
             </div>
           ) : (
-            <div className="bg-gradient-to-br from-primary/10 to-primary/5 py-16 md:py-24">
+            <div className="bg-gradient-to-br from-primary/10 to-primary/5 py-12 md:py-16">
               <div className="container mx-auto px-4 max-w-4xl">
                 {/* Breadcrumb */}
-                <nav className="flex items-center space-x-2 text-sm mb-6 text-muted-foreground">
+                <nav className="flex items-center space-x-2 text-sm mb-4 text-muted-foreground">
                   <Link to="/" className="hover:text-foreground flex items-center">
                     <Home size={14} className="mr-1" />
                     Home
@@ -259,11 +259,11 @@ const BlogPost = () => {
                   <Badge variant="outline">{post.category}</Badge>
                 </nav>
                 
-                <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6 leading-tight">
+                <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-4 leading-tight">
                   {post.title}
                 </h1>
                 
-                <div className="flex items-center gap-6 text-sm text-muted-foreground">
+                <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
                   <div className="flex items-center gap-2">
                     <User size={16} />
                     <span>{post.author}</span>
@@ -283,12 +283,12 @@ const BlogPost = () => {
         </div>
 
         {/* Main Content */}
-        <div className="container mx-auto px-4 py-12">
-          <div className="max-w-6xl mx-auto">
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-12">
+        <div className="container mx-auto px-4 py-8 md:py-12">
+          <div className="max-w-4xl mx-auto">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
               {/* Main Article Content */}
-              <article className="lg:col-span-3">
-                <div className="flex items-center justify-between mb-8">
+              <article className="lg:col-span-2">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
                   <Button variant="outline" asChild>
                     <Link to="/blog" className="flex items-center gap-2">
                       <ArrowLeft size={16} />
@@ -299,11 +299,11 @@ const BlogPost = () => {
                   <div className="flex items-center gap-2">
                     <Button variant="outline" size="sm" onClick={sharePost}>
                       <Share2 size={16} className="mr-2" />
-                      Bagikan
+                      <span className="hidden sm:inline">Bagikan</span>
                     </Button>
                     <Button variant="outline" size="sm">
                       <Bookmark size={16} className="mr-2" />
-                      Simpan
+                      <span className="hidden sm:inline">Simpan</span>
                     </Button>
                   </div>
                 </div>
@@ -314,42 +314,40 @@ const BlogPost = () => {
                   dangerouslySetInnerHTML={{ __html: post.content }}
                 />
 
-                <Separator className="my-12" />
+                <Separator className="my-8 md:my-12" />
 
                 {/* Article Footer */}
-                <div className="flex items-center justify-between py-6">
-                  <div className="flex items-center gap-4">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between py-4 gap-4">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
                     <Badge variant="outline">{post.category}</Badge>
                     <span className="text-sm text-muted-foreground">
                       Dipublikasikan {formatDate(post.created_at)}
                     </span>
                   </div>
                   
-                  <div className="flex items-center gap-2">
-                    <Button variant="outline" size="sm" onClick={sharePost}>
-                      <Share2 size={16} className="mr-2" />
-                      Bagikan Artikel
-                    </Button>
-                  </div>
+                  <Button variant="outline" size="sm" onClick={sharePost} className="w-full sm:w-auto">
+                    <Share2 size={16} className="mr-2" />
+                    Bagikan Artikel
+                  </Button>
                 </div>
               </article>
 
               {/* Sidebar */}
-              <aside className="lg:col-span-1">
-                <div className="sticky top-24 space-y-8">
+              <aside className="lg:col-span-1 order-first lg:order-last">
+                <div className="sticky top-24 space-y-6">
                   {/* Author Card */}
                   <Card>
-                    <CardContent className="p-6">
+                    <CardContent className="p-4 md:p-6">
                       <div className="text-center">
-                        <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                          <User size={24} className="text-primary" />
+                        <div className="w-12 h-12 md:w-16 md:h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3">
+                          <User size={20} className="text-primary md:w-6 md:h-6" />
                         </div>
-                        <h3 className="font-semibold mb-2">{post.author}</h3>
-                        <p className="text-sm text-muted-foreground mb-4">
+                        <h3 className="font-semibold mb-2 text-sm md:text-base">{post.author}</h3>
+                        <p className="text-xs md:text-sm text-muted-foreground mb-3">
                           Penulis konten berkualitas di Rapatin Blog
                         </p>
-                        <Button variant="outline" size="sm" className="w-full">
-                          <Eye size={14} className="mr-2" />
+                        <Button variant="outline" size="sm" className="w-full text-xs md:text-sm">
+                          <Eye size={12} className="mr-2 md:w-4 md:h-4" />
                           Lihat Profil
                         </Button>
                       </div>
@@ -359,9 +357,9 @@ const BlogPost = () => {
                   {/* Related Articles */}
                   {relatedPosts.length > 0 && (
                     <Card>
-                      <CardContent className="p-6">
-                        <h3 className="font-semibold mb-4">Artikel Terkait</h3>
-                        <div className="space-y-4">
+                      <CardContent className="p-4 md:p-6">
+                        <h3 className="font-semibold mb-3 text-sm md:text-base">Artikel Terkait</h3>
+                        <div className="space-y-3">
                           {relatedPosts.map((relatedPost) => (
                             <Link 
                               key={relatedPost.id}
@@ -373,11 +371,11 @@ const BlogPost = () => {
                                   <img 
                                     src={relatedPost.cover_image}
                                     alt={relatedPost.title}
-                                    className="w-16 h-16 rounded-lg object-cover flex-shrink-0"
+                                    className="w-12 h-12 md:w-16 md:h-16 rounded-lg object-cover flex-shrink-0"
                                   />
                                 )}
                                 <div className="flex-1 min-w-0">
-                                  <h4 className="font-medium text-sm group-hover:text-primary transition-colors line-clamp-2 mb-1">
+                                  <h4 className="font-medium text-xs md:text-sm group-hover:text-primary transition-colors line-clamp-2 mb-1">
                                     {relatedPost.title}
                                   </h4>
                                   <p className="text-xs text-muted-foreground">
@@ -393,20 +391,20 @@ const BlogPost = () => {
                   )}
 
                   {/* Popular Categories */}
-                  <Card>
-                    <CardContent className="p-6">
-                      <h3 className="font-semibold mb-4">Kategori Popular</h3>
+                  <Card className="lg:block hidden">
+                    <CardContent className="p-4 md:p-6">
+                      <h3 className="font-semibold mb-3 text-sm md:text-base">Kategori Popular</h3>
                       <div className="flex flex-wrap gap-2">
-                        <Badge variant="outline" className="cursor-pointer hover:bg-primary hover:text-primary-foreground">
+                        <Badge variant="outline" className="cursor-pointer hover:bg-primary hover:text-primary-foreground text-xs">
                           Tips Meeting
                         </Badge>
-                        <Badge variant="outline" className="cursor-pointer hover:bg-primary hover:text-primary-foreground">
+                        <Badge variant="outline" className="cursor-pointer hover:bg-primary hover:text-primary-foreground text-xs">
                           Produktivitas
                         </Badge>
-                        <Badge variant="outline" className="cursor-pointer hover:bg-primary hover:text-primary-foreground">
+                        <Badge variant="outline" className="cursor-pointer hover:bg-primary hover:text-primary-foreground text-xs">
                           Tutorial
                         </Badge>
-                        <Badge variant="outline" className="cursor-pointer hover:bg-primary hover:text-primary-foreground">
+                        <Badge variant="outline" className="cursor-pointer hover:bg-primary hover:text-primary-foreground text-xs">
                           Bisnis
                         </Badge>
                       </div>
