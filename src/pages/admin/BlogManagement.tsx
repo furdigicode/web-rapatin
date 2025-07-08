@@ -391,67 +391,74 @@ const BlogManagement = () => {
             <TabsTrigger value="settings">Pengaturan</TabsTrigger>
           </TabsList>
           
-          <TabsContent value="content" className="space-y-6">
-            <div className="space-y-2">
-              <Label htmlFor="title">Judul Artikel</Label>
-              <Input
-                id="title"
-                value={formData.title}
-                onChange={(e) => handleInputChange('title', e.target.value)}
-                placeholder="Masukkan judul artikel"
-                className="text-lg"
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label>Cover Image</Label>
-              <div className="flex items-start gap-4">
-                {formData.coverImage && (
-                  <div className="w-1/3">
-                    <img 
-                      src={formData.coverImage} 
-                      alt="Cover preview" 
-                      className="w-full h-auto rounded-md border object-cover aspect-[16/9]" 
-                    />
-                  </div>
-                )}
-                <div className={formData.coverImage ? "w-2/3" : "w-full"}>
-                  <div className="flex gap-2">
-                    <Input
-                      value={formData.coverImage}
-                      onChange={(e) => handleInputChange('coverImage', e.target.value)}
-                      placeholder="URL gambar cover"
-                      className="flex-1"
-                    />
-                    <Button type="button" variant="outline" onClick={handleImageUpload}>
-                      Upload
-                    </Button>
-                  </div>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Ukuran ideal: 1200x627 piksel (rasio 1.91:1)
-                  </p>
+          <TabsContent value="content">
+            <Card>
+              <CardHeader>
+                <CardTitle>Konten Artikel</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="space-y-2">
+                  <Label htmlFor="title">Judul Artikel</Label>
+                  <Input
+                    id="title"
+                    value={formData.title}
+                    onChange={(e) => handleInputChange('title', e.target.value)}
+                    placeholder="Masukkan judul artikel"
+                    className="text-lg"
+                  />
                 </div>
-              </div>
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="excerpt">Ringkasan</Label>
-              <Textarea
-                id="excerpt"
-                value={formData.excerpt}
-                onChange={(e) => handleInputChange('excerpt', e.target.value)}
-                placeholder="Masukkan ringkasan artikel (akan ditampilkan di halaman blog)"
-                rows={2}
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="content">Konten</Label>
-              <RichTextEditor 
-                value={formData.content}
-                onChange={(value) => handleInputChange('content', value)}
-              />
-            </div>
+                
+                <div className="space-y-2">
+                  <Label>Cover Image</Label>
+                  <div className="flex items-start gap-4">
+                    {formData.coverImage && (
+                      <div className="w-1/3">
+                        <img 
+                          src={formData.coverImage} 
+                          alt="Cover preview" 
+                          className="w-full h-auto rounded-md border object-cover aspect-[16/9]" 
+                        />
+                      </div>
+                    )}
+                    <div className={formData.coverImage ? "w-2/3" : "w-full"}>
+                      <div className="flex gap-2">
+                        <Input
+                          value={formData.coverImage}
+                          onChange={(e) => handleInputChange('coverImage', e.target.value)}
+                          placeholder="URL gambar cover"
+                          className="flex-1"
+                        />
+                        <Button type="button" variant="outline" onClick={handleImageUpload}>
+                          Upload
+                        </Button>
+                      </div>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Ukuran ideal: 1200x627 piksel (rasio 1.91:1)
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="excerpt">Ringkasan</Label>
+                  <Textarea
+                    id="excerpt"
+                    value={formData.excerpt}
+                    onChange={(e) => handleInputChange('excerpt', e.target.value)}
+                    placeholder="Masukkan ringkasan artikel (akan ditampilkan di halaman blog)"
+                    rows={2}
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="content">Konten</Label>
+                  <RichTextEditor 
+                    value={formData.content}
+                    onChange={(value) => handleInputChange('content', value)}
+                  />
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
           
           <TabsContent value="seo">
