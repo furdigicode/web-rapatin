@@ -460,3 +460,58 @@
   background: hsl(var(--muted));
   font-weight: bold;
 }
+
+/* Enhanced Blog Layout Styles */
+.prose-lg {
+  font-size: 1.125rem;
+  line-height: 1.8;
+}
+
+.prose-lg h1 {
+  font-size: 2.25rem;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+}
+
+.prose-lg h2 {
+  font-size: 1.875rem;
+  margin-top: 1.75rem;
+  margin-bottom: 0.875rem;
+}
+
+.prose-lg h3 {
+  font-size: 1.5rem;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.prose-lg p {
+  margin-top: 1.25rem;
+  margin-bottom: 1.25rem;
+}
+
+/* Line clamp utility */
+.line-clamp-2 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+/* Hero image overlay improvements */
+.hero-overlay {
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.7) 0%,
+    rgba(0, 0, 0, 0.3) 50%,
+    rgba(0, 0, 0, 0.1) 70%,
+    transparent 100%
+  );
+}
+
+/* Smooth transitions for interactive elements */
+.transition-all {
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 300ms;
+}
