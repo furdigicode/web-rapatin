@@ -1,226 +1,88 @@
 
-import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import React from 'react';
+import { useParams, Link } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { Separator } from '@/components/ui/separator';
-import { supabase } from '@/integrations/supabase/client';
-import { BlogPost as BlogPostType } from '@/types/BlogTypes';
+import { Button } from '@/components/ui/button';
+import { Calendar, User, ArrowLeft } from 'lucide-react';
 
-// Import refactored components
-import BlogPostSkeleton from '@/components/blog/BlogPostSkeleton';
-import BlogPostNotFound from '@/components/blog/BlogPostNotFound';
-import BlogBreadcrumb from '@/components/blog/BlogBreadcrumb';
-import BlogPostMeta from '@/components/blog/BlogPostMeta';
-import ShareButtons from '@/components/blog/ShareButtons';
-import AuthorBio from '@/components/blog/AuthorBio';
-import RelatedPosts from '@/components/blog/RelatedPosts';
-import PostNavigation from '@/components/blog/PostNavigation';
-
-interface RelatedPost {
-  id: string;
-  title: string;
-  slug: string;
-  coverImage: string;
-  category: string;
-}
-
-interface SupabaseBlogPost {
-  id: string;
-  title: string;
-  slug: string;
-  excerpt: string;
-  content: string;
-  cover_image: string;
-  category: string;
-  author: string;
-  created_at: string;
-  status: 'draft' | 'published' | 'scheduled';
-  published_at: string;
-  seo_title: string;
-  meta_description: string;
-  focus_keyword: string;
-}
+// Static blog data (same as in Blog.tsx)
+const blogPosts = [
+  {
+    id: '1',
+    title: '5 Tips Efektif untuk Meeting Online yang Produktif',
+    slug: '5-tips-efektif-meeting-online-produktif',
+    excerpt: 'Pelajari 5 tips terbaik untuk membuat meeting online Anda lebih produktif dan efisien. Dari persiapan hingga follow-up yang tepat.',
+    coverImage: '/lovable-uploads/meeting-productivity.jpg',
+    category: 'Tips & Tricks',
+    author: 'Admin',
+    date: '8 Juli 2025',
+    content: `
+      <h2>Meeting Online yang Lebih Produktif</h2>
+      <p>Meeting online telah menjadi bagian integral dari kehidupan kerja modern. Namun, tidak semua meeting online berjalan dengan efektif. Berikut adalah 5 tips yang dapat membantu Anda membuat meeting online yang lebih produktif:</p>
+      
+      <h3>1. Persiapan yang Matang</h3>
+      <p>Sebelum meeting dimulai, pastikan Anda telah:</p>
+      <ul>
+        <li>Menyiapkan agenda yang jelas</li>
+        <li>Mengirim undangan dengan detail lengkap</li>
+        <li>Testing audio dan video sebelum meeting</li>
+      </ul>
+      
+      <h3>2. Gunakan Fitur Mute dengan Bijak</h3>
+      <p>Mute mikrofon ketika tidak berbicara untuk menghindari noise yang mengganggu. Aktifkan kembali ketika akan berbicara.</p>
+      
+      <h3>3. Batasi Durasi Meeting</h3>
+      <p>Meeting yang efektif sebaiknya tidak lebih dari 60 menit. Untuk diskusi panjang, bagi menjadi beberapa sesi.</p>
+      
+      <h3>4. Gunakan Fitur Screen Sharing</h3>
+      <p>Manfaatkan fitur screen sharing untuk presentasi yang lebih interaktif dan jelas.</p>
+      
+      <h3>5. Follow-up yang Tepat</h3>
+      <p>Setelah meeting, kirim summary dan action items kepada semua peserta untuk memastikan semua poin penting tercatat.</p>
+      
+      <p>Dengan menerapkan tips-tips di atas, meeting online Anda akan menjadi lebih efektif dan produktif!</p>
+    `
+  }
+];
 
 const BlogPost = () => {
   const { slug } = useParams<{ slug: string }>();
-  const [post, setPost] = useState<BlogPostType | null>(null);
-  const [relatedPosts, setRelatedPosts] = useState<RelatedPost[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [notFound, setNotFound] = useState(false);
-  
-  useEffect(() => {
-    // Reset state when slug changes
-    setPost(null);
-    setRelatedPosts([]);
-    setIsLoading(true);
-    setNotFound(false);
-    
-    const fetchBlogPost = async () => {
-      try {
-        // Fetch the blog post from Supabase
-        const { data, error } = await supabase
-          .from('blog_posts')
-          .select('*')
-          .eq('slug', slug)
-          .eq('status', 'published')
-          .single();
-        
-        if (error || !data) {
-          console.error('Error fetching blog post:', error);
-          setNotFound(true);
-          setIsLoading(false);
-          return;
-        }
-        
-        // Transform Supabase data to our BlogPost type
-        const blogPost: BlogPostType = {
-          id: data.id,
-          title: data.title,
-          slug: data.slug,
-          excerpt: data.excerpt || '',
-          content: data.content || '',
-          coverImage: data.cover_image || '',
-          category: data.category || '',
-          author: data.author || 'Admin',
-          date: new Date(data.created_at).toLocaleDateString('id-ID', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-          }),
-          status: (data.status as 'draft' | 'published' | 'scheduled'),
-          publishedAt: data.published_at || '',
-          seoTitle: data.seo_title || data.title,
-          metaDescription: data.meta_description || data.excerpt || '',
-          focusKeyword: data.focus_keyword || '',
-        };
-        
-        setPost(blogPost);
-        
-        // Fetch related posts (posts in the same category)
-        const { data: relatedData, error: relatedError } = await supabase
-          .from('blog_posts')
-          .select('id, title, slug, cover_image, category')
-          .eq('status', 'published')
-          .eq('category', data.category)
-          .neq('id', data.id)
-          .limit(2);
-        
-        if (!relatedError && relatedData && relatedData.length > 0) {
-          const formattedRelatedPosts = relatedData.map((related: any) => ({
-            id: related.id,
-            title: related.title,
-            slug: related.slug,
-            coverImage: related.cover_image || '',
-            category: related.category || '',
-          }));
-          
-          setRelatedPosts(formattedRelatedPosts);
-        }
-        
-        // Add schema markup for blog post
-        const script = document.createElement('script');
-        script.type = 'application/ld+json';
-        script.text = JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "BlogPosting",
-          "headline": blogPost.title,
-          "description": blogPost.excerpt,
-          "author": {
-            "@type": "Person",
-            "name": blogPost.author
-          },
-          "datePublished": data.published_at || data.created_at,
-          "image": blogPost.coverImage,
-          "publisher": {
-            "@type": "Organization",
-            "name": "Rapatin",
-            "logo": {
-              "@type": "ImageObject",
-              "url": "https://rapatin.id/logo.png"
-            }
-          },
-          "mainEntityOfPage": {
-            "@type": "WebPage",
-            "@id": `https://rapatin.id/blog/${blogPost.slug}`
-          }
-        });
-        document.head.appendChild(script);
-        
-        // Add meta tags for SEO and social sharing
-        const metaTags = [
-          { name: "description", content: blogPost.metaDescription },
-          { property: "og:title", content: blogPost.seoTitle },
-          { property: "og:description", content: blogPost.metaDescription },
-          { property: "og:image", content: blogPost.coverImage },
-          { property: "og:type", content: "article" },
-          { property: "og:url", content: `https://rapatin.id/blog/${blogPost.slug}` },
-          { name: "twitter:card", content: "summary_large_image" },
-          { name: "twitter:title", content: blogPost.seoTitle },
-          { name: "twitter:description", content: blogPost.metaDescription },
-          { name: "twitter:image", content: blogPost.coverImage }
-        ];
-        
-        // Remove existing meta tags to avoid duplicates
-        document.querySelectorAll('meta[property^="og:"], meta[name^="twitter:"], meta[name="description"]')
-          .forEach(tag => tag.remove());
-        
-        // Add new meta tags
-        metaTags.forEach(tag => {
-          const metaTag = document.createElement('meta');
-          Object.entries(tag).forEach(([key, value]) => {
-            metaTag.setAttribute(key, value);
-          });
-          document.head.appendChild(metaTag);
-        });
-        
-        // Set document title
-        document.title = `${blogPost.seoTitle} | Blog Rapatin`;
-      } catch (err) {
-        console.error('Error in blog post fetch:', err);
-        setNotFound(true);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    
-    if (slug) {
-      fetchBlogPost();
-    }
-    
-    return () => {
-      // Clean up
-      document.querySelectorAll('meta[property^="og:"], meta[name^="twitter:"], meta[name="description"]')
-        .forEach(tag => tag.remove());
-      const jsonLdScript = document.querySelector('script[type="application/ld+json"]');
-      if (jsonLdScript?.parentNode) {
-        jsonLdScript.parentNode.removeChild(jsonLdScript);
-      }
-      document.title = 'Rapatin';
-    };
-  }, [slug]);
-  
-  if (isLoading) {
-    return <BlogPostSkeleton />;
+  const post = blogPosts.find(p => p.slug === slug);
+
+  if (!post) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
+        <main className="flex-grow pt-28 pb-20">
+          <div className="container mx-auto px-4 text-center">
+            <h1 className="text-3xl md:text-4xl font-bold mb-4">Artikel Tidak Ditemukan</h1>
+            <p className="text-lg text-muted-foreground mb-8">Maaf, artikel yang Anda cari tidak ditemukan.</p>
+            <Button asChild>
+              <Link to="/blog">Kembali ke Blog</Link>
+            </Button>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
   }
-  
-  if (notFound) {
-    return <BlogPostNotFound />;
-  }
-  
-  if (!post) return null;
-  
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
       
       <main className="flex-grow pt-28 pb-20">
         <div className="container mx-auto px-4">
-          {/* Breadcrumb */}
-          <BlogBreadcrumb title={post.title} />
-          
-          {/* Article Content */}
           <div className="max-w-4xl mx-auto">
+            {/* Back Button */}
+            <Button variant="outline" asChild className="mb-6">
+              <Link to="/blog" className="flex items-center gap-2">
+                <ArrowLeft size={16} />
+                Kembali ke Blog
+              </Link>
+            </Button>
+
             {/* Cover Image */}
             {post.coverImage && (
               <img 
@@ -231,33 +93,42 @@ const BlogPost = () => {
             )}
             
             {/* Title */}
-            <h1 className="text-3xl md:text-4xl font-bold mb-4">{post.title}</h1>
+            <h1 className="text-3xl md:text-4xl font-bold mb-6">{post.title}</h1>
             
-            {/* Article Metadata */}
-            <BlogPostMeta post={post} />
+            {/* Meta Info */}
+            <div className="flex items-center gap-6 mb-8 text-sm text-muted-foreground">
+              <div className="flex items-center gap-2">
+                <User size={16} />
+                <span>{post.author}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Calendar size={16} />
+                <span>{post.date}</span>
+              </div>
+              <span className="bg-primary/10 text-primary px-2 py-1 rounded-full text-xs">
+                {post.category}
+              </span>
+            </div>
             
-            {/* Article Content */}
+            {/* Content */}
             <div 
-              className="prose max-w-none mb-10"
+              className="prose max-w-none mb-10 text-foreground"
               dangerouslySetInnerHTML={{ __html: post.content }}
+              style={{
+                fontSize: '16px',
+                lineHeight: '1.6'
+              }}
             />
 
-            <div>
-              <h3 className="text-lg font-semibold mb-2">Bagikan</h3>
+            {/* Back Button Bottom */}
+            <div className="pt-8 border-t">
+              <Button variant="outline" asChild>
+                <Link to="/blog" className="flex items-center gap-2">
+                  <ArrowLeft size={16} />
+                  Kembali ke Blog
+                </Link>
+              </Button>
             </div>
-            {/* Article Actions */}
-            <ShareButtons />
-            
-            <Separator className="my-10" />
-            
-            {/* Author */}
-            <AuthorBio author={post.author} />
-            
-            {/* Related Posts */}
-            <RelatedPosts posts={relatedPosts} />
-            
-            {/* Pagination */}
-            <PostNavigation relatedPosts={relatedPosts} />
           </div>
         </div>
       </main>

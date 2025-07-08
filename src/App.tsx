@@ -25,7 +25,7 @@ import SyaratKetentuan from "./pages/SyaratKetentuan";
 import KebijakanPrivasi from "./pages/KebijakanPrivasi";
 import MenjadiReseller from "./pages/MenjadiReseller";
 
-// Blog Pages
+// Blog Pages (Simple static version)
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
 
@@ -42,8 +42,6 @@ const AppRoutes = () => {
   const location = useLocation();
 
   useEffect(() => {
-    // Remove Crisp initialization
-    
     // Track page view with Meta Pixel for non-admin pages
     if (typeof window.fbq === 'function') {
       window.fbq('track', 'PageView');
@@ -72,7 +70,7 @@ const AppRoutes = () => {
       <Route path="/tentang-kami" element={<TentangKami />} />
       <Route path="/kontak" element={<Kontak />} />
       
-      {/* Blog Pages */}
+      {/* Blog Pages - Simple static version */}
       <Route path="/blog" element={<Blog />} />
       <Route path="/blog/:slug" element={<BlogPost />} />
       
