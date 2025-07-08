@@ -150,12 +150,8 @@ const BlogPost = () => {
             
             {/* Content */}
             <div 
-              className="prose max-w-none mb-10 text-foreground"
+              className="blog-content max-w-none mb-10"
               dangerouslySetInnerHTML={{ __html: post.content }}
-              style={{
-                fontSize: '16px',
-                lineHeight: '1.6'
-              }}
             />
 
             {/* Back Button Bottom */}
