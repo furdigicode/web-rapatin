@@ -29,12 +29,64 @@ CREATE TABLE IF NOT EXISTS blog_posts (
 
 -- Insert default categories
 INSERT INTO blog_categories (name, slug, description) VALUES
-  ('Tutorial', 'tutorial', 'Step-by-step guides and tutorials'),
-  ('Tips & Tricks', 'tips-tricks', 'Useful tips and tricks'),
-  ('News', 'news', 'Latest news and updates'),
-  ('Review', 'review', 'Product and service reviews'),
-  ('Technology', 'technology', 'Technology-related articles')
+  ('Tutorial', 'tutorial', 'Panduan step-by-step untuk menggunakan platform meeting online'),
+  ('Tips & Tricks', 'tips-tricks', 'Tips dan trik untuk meeting online yang lebih efektif'),
+  ('Berita', 'berita', 'Berita terbaru dan update platform'),
+  ('Produktivitas', 'produktivitas', 'Tips meningkatkan produktivitas dalam meeting virtual')
 ON CONFLICT (slug) DO NOTHING;
+
+-- Insert sample blog post
+INSERT INTO blog_posts (
+  title, 
+  slug, 
+  excerpt, 
+  content, 
+  cover_image, 
+  category, 
+  author, 
+  status, 
+  published_at,
+  seo_title,
+  meta_description,
+  focus_keyword
+) VALUES (
+  '5 Tips Efektif untuk Meeting Online yang Produktif',
+  '5-tips-efektif-meeting-online-produktif',
+  'Pelajari 5 tips terbaik untuk membuat meeting online Anda lebih produktif dan efisien. Dari persiapan hingga follow-up yang tepat.',
+  '<h2>Meeting Online yang Lebih Produktif</h2>
+
+<p>Meeting online telah menjadi bagian integral dari kehidupan kerja modern. Namun, tidak semua meeting online berjalan dengan efektif. Berikut adalah 5 tips yang dapat membantu Anda membuat meeting online yang lebih produktif:</p>
+
+<h3>1. Persiapan yang Matang</h3>
+<p>Sebelum meeting dimulai, pastikan Anda telah:</p>
+<ul>
+<li>Menyiapkan agenda yang jelas</li>
+<li>Mengirim undangan dengan detail lengkap</li>
+<li>Testing audio dan video sebelum meeting</li>
+</ul>
+
+<h3>2. Gunakan Fitur Mute dengan Bijak</h3>
+<p>Mute mikrofon ketika tidak berbicara untuk menghindari noise yang mengganggu. Aktifkan kembali ketika akan berbicara.</p>
+
+<h3>3. Batasi Durasi Meeting</h3>
+<p>Meeting yang efektif sebaiknya tidak lebih dari 60 menit. Untuk diskusi panjang, bagi menjadi beberapa sesi.</p>
+
+<h3>4. Gunakan Fitur Screen Sharing</h3>
+<p>Manfaatkan fitur screen sharing untuk presentasi yang lebih interaktif dan jelas.</p>
+
+<h3>5. Follow-up yang Tepat</h3>
+<p>Setelah meeting, kirim summary dan action items kepada semua peserta untuk memastikan semua poin penting tercatat.</p>
+
+<p>Dengan menerapkan tips-tips di atas, meeting online Anda akan menjadi lebih efektif dan produktif!</p>',
+  '/lovable-uploads/meeting-productivity.jpg',
+  'Tips & Tricks',
+  'Admin',
+  'published',
+  NOW(),
+  '5 Tips Meeting Online Produktif - Panduan Lengkap',
+  'Pelajari 5 tips terbaik untuk meeting online yang produktif dan efisien. Tingkatkan efektivitas meeting virtual Anda dengan panduan lengkap ini.',
+  'meeting online produktif'
+) ON CONFLICT (slug) DO NOTHING;
 
 -- Enable RLS
 ALTER TABLE blog_categories ENABLE ROW LEVEL SECURITY;
