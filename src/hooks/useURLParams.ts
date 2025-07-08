@@ -19,8 +19,8 @@ export const useURLParams = (): URLParams => {
     const refParam = searchParams.get('ref');
     const amountParam = searchParams.get('amount');
     
-    let referralCode = 'RAPATIN50';
-    let amount = 50000;
+    let referralCode = 'TRIAL25';
+    let amount = 25000;
     
     // If URL has parameters, use them and store in localStorage
     if (refParam && refParam.trim() !== '') {
@@ -43,8 +43,8 @@ export const useURLParams = (): URLParams => {
         const stored = localStorage.getItem(STORAGE_KEY);
         if (stored) {
           const parsed = JSON.parse(stored);
-          referralCode = parsed.referralCode || 'RAPATIN50';
-          amount = parsed.amount || 50000;
+          referralCode = parsed.referralCode || 'TRIAL25';
+          amount = parsed.amount || 25000;
         }
       } catch (error) {
         console.log('Error reading stored params:', error);
@@ -65,8 +65,8 @@ export const getCurrentParams = (): URLParams => {
     if (stored) {
       const parsed = JSON.parse(stored);
       return {
-        referralCode: parsed.referralCode || 'RAPATIN50',
-        amount: parsed.amount || 50000
+        referralCode: parsed.referralCode || 'TRIAL25',
+        amount: parsed.amount || 25000
       };
     }
   } catch (error) {
@@ -74,8 +74,8 @@ export const getCurrentParams = (): URLParams => {
   }
   
   return {
-    referralCode: 'RAPATIN50',
-    amount: 50000
+    referralCode: 'TRIAL25',
+    amount: 25000
   };
 };
 
@@ -84,15 +84,15 @@ export const preserveURLParams = (basePath: string): string => {
   const params = getCurrentParams();
   
   // Don't add default parameters to avoid cluttering URLs
-  if (params.referralCode === 'RAPATIN50' && params.amount === 50000) {
+  if (params.referralCode === 'TRIAL25' && params.amount === 25000) {
     return basePath;
   }
   
   const searchParams = new URLSearchParams();
-  if (params.referralCode !== 'RAPATIN50') {
+  if (params.referralCode !== 'TRIAL25') {
     searchParams.set('ref', params.referralCode);
   }
-  if (params.amount !== 50000) {
+  if (params.amount !== 25000) {
     searchParams.set('amount', params.amount.toString());
   }
   
