@@ -397,7 +397,7 @@ const BlogManagement = () => {
   const renderBlogForm = (action: 'create' | 'edit') => {
     return (
       <div className="space-y-8">
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 p-4 sm:p-6 border-b">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
           <h2 className="text-2xl font-bold">
             {action === 'create' ? 'Buat Artikel Baru' : 'Edit Artikel'}
           </h2>
