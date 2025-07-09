@@ -21,7 +21,7 @@ const Login = () => {
     
     // Simple mock login - in real app, this would validate against a backend
     setTimeout(() => {
-      if (email === 'admin@rapatin.id' && password === 'admin123') {
+      if (email === 'rapatinapp@gmail.com' && password === 'Andalus123!') {
         // Store auth token in localStorage
         localStorage.setItem('adminAuth', 'true');
         
@@ -73,7 +73,7 @@ const Login = () => {
                   <Input
                     id="email"
                     type="email"
-                    placeholder="admin@rapatin.id"
+                    placeholder="rapatinapp@gmail.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="pl-10"

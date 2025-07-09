@@ -117,7 +117,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title }) => {
             {isSidebarOpen && (
               <div className="text-sm">
                 <div className="font-medium">Admin</div>
-                <div className="text-muted-foreground text-xs">admin@rapatin.id</div>
+                <div className="text-muted-foreground text-xs">rapatinapp@gmail.com</div>
               </div>
             )}
             <button
