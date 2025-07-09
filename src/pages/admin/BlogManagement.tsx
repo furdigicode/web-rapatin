@@ -173,12 +173,12 @@ const BlogManagement = () => {
       console.log("📦 Update payload:", updateData);
       
       // Perform the update with detailed error handling
-      const { data: updatedData, error, count } = await supabase
+      const { data: updatedData, error } = await supabase
         .from('blog_posts')
         .update(updateData)
         .eq('id', postData.id)
         .select('*')
-        .single();
+        .maybeSingle();
       
       if (error) {
         console.error("❌ Supabase update error:", error);

@@ -69,12 +69,14 @@ export const useAdminAuth = (): UseAdminAuthReturn => {
   const login = useCallback(async (email: string, password: string) => {
     setIsLoading(true);
     try {
-      console.log('Attempting login for:', email);
+      console.log('Attempting admin login for:', email);
+      
+      // First authenticate with admin-auth function
       const { data, error } = await supabase.functions.invoke('admin-auth', {
         body: { action: 'login', email, password }
       });
 
-      console.log('Login response:', { data, error });
+      console.log('Admin auth response:', { data, error });
 
       if (error) {
         console.error('Supabase function error:', error);
@@ -83,15 +85,43 @@ export const useAdminAuth = (): UseAdminAuthReturn => {
       }
 
       if (!data?.success) {
-        console.error('Login failed:', data?.error);
+        console.error('Admin login failed:', data?.error);
         setIsLoading(false);
         return { success: false, error: data?.error || 'Login failed' };
+      }
+
+      // Now create a Supabase auth session for the admin user
+      const { error: authError } = await supabase.auth.signInWithPassword({
+        email: email,
+        password: 'admin-session' // Use a consistent password for admin session
+      });
+
+      // If admin user doesn't exist in Supabase auth, create them
+      if (authError?.message?.includes('Invalid login credentials')) {
+        console.log('Creating Supabase auth user for admin...');
+        const { error: signUpError } = await supabase.auth.signUp({
+          email: email,
+          password: 'admin-session',
+          options: {
+            emailRedirectTo: `${window.location.origin}/admin`
+          }
+        });
+        
+        if (signUpError) {
+          console.error('Failed to create admin auth user:', signUpError);
+        } else {
+          // Try to sign in again after creating the user
+          await supabase.auth.signInWithPassword({
+            email: email,
+            password: 'admin-session'
+          });
+        }
       }
 
       setStoredToken(data.token);
       setAdmin(data.admin);
       setIsLoading(false);
-      console.log('Login successful for:', data.admin.email);
+      console.log('Admin login successful for:', data.admin.email);
       return { success: true };
     } catch (error) {
       console.error('Login error:', error);
@@ -111,6 +141,9 @@ export const useAdminAuth = (): UseAdminAuthReturn => {
         console.error('Logout error:', error);
       }
     }
+    
+    // Also sign out from Supabase auth
+    await supabase.auth.signOut();
     
     setStoredToken(null);
     setAdmin(null);
