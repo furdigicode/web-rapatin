@@ -12,6 +12,7 @@ import {
   Bookmark, Eye, ChevronRight, Home, ArrowUp, Mail, 
   MessageCircle, Send, Facebook, Twitter, Link2 
 } from 'lucide-react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { supabase } from '@/integrations/supabase/client';
 import { format } from 'date-fns';
 import { id as localeId } from 'date-fns/locale';
@@ -25,6 +26,14 @@ interface BlogPostData {
   category: string;
   author: string;
   created_at: string;
+  author_data: {
+    id: string;
+    name: string;
+    bio: string | null;
+    avatar_url: string | null;
+    specialization: string | null;
+    slug: string;
+  } | null;
 }
 
 interface RelatedPostData {
@@ -57,7 +66,12 @@ const BlogPost = () => {
       try {
         const { data, error } = await supabase
           .from('blog_posts')
-          .select('id, title, slug, content, cover_image, category, author, created_at')
+          .select(`
+            id, title, slug, content, cover_image, category, author, created_at,
+            author_data:authors!blog_posts_author_id_fkey (
+              id, name, bio, avatar_url, specialization, slug
+            )
+          `)
           .eq('slug', slug)
           .eq('status', 'published')
           .single();
@@ -382,12 +396,22 @@ const BlogPost = () => {
                   <Card>
                     <CardContent className="p-4 md:p-6">
                       <div className="text-center">
-                        <div className="w-12 h-12 md:w-16 md:h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3">
-                          <User size={20} className="text-primary md:w-6 md:h-6" />
-                        </div>
-                        <h3 className="font-semibold mb-2 text-sm md:text-base">{post.author}</h3>
+                        <Avatar className="w-12 h-12 md:w-16 md:h-16 mx-auto mb-3">
+                          <AvatarImage src={post.author_data?.avatar_url || undefined} alt={post.author_data?.name || post.author} />
+                          <AvatarFallback>
+                            <User size={20} className="text-primary md:w-6 md:h-6" />
+                          </AvatarFallback>
+                        </Avatar>
+                        <h3 className="font-semibold mb-2 text-sm md:text-base">
+                          {post.author_data?.name || post.author}
+                        </h3>
+                        {post.author_data?.specialization && (
+                          <p className="text-xs text-primary font-medium mb-2">
+                            {post.author_data.specialization}
+                          </p>
+                        )}
                         <p className="text-xs md:text-sm text-muted-foreground mb-3">
-                          Penulis konten berkualitas di Rapatin Blog
+                          {post.author_data?.bio || 'Penulis konten berkualitas di Rapatin Blog'}
                         </p>
                         <Button variant="outline" size="sm" className="w-full text-xs md:text-sm">
                           <Eye size={12} className="mr-2 md:w-4 md:h-4" />
