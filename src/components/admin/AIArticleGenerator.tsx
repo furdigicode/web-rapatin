@@ -180,6 +180,31 @@ const AIArticleGenerator: React.FC<AIArticleGeneratorProps> = ({
           />
         </div>
 
+        {/* Additional Keywords */}
+        <div className="space-y-2">
+          <Label>Keywords Tambahan (Opsional)</Label>
+          <div className="flex gap-2">
+            <Input
+              value={keywordInput}
+              onChange={(e) => setKeywordInput(e.target.value)}
+              placeholder="Tambahkan keyword pendukung"
+              onKeyPress={(e) => e.key === 'Enter' && addKeyword()}
+            />
+            <Button type="button" variant="outline" onClick={addKeyword}>
+              Tambah
+            </Button>
+          </div>
+          {formData.additionalKeywords && formData.additionalKeywords.length > 0 && (
+            <div className="flex flex-wrap gap-2 mt-2">
+              {formData.additionalKeywords.map((keyword, index) => (
+                <Badge key={index} variant="secondary" className="cursor-pointer" onClick={() => removeKeyword(index)}>
+                  {keyword} ×
+                </Badge>
+              ))}
+            </div>
+          )}
+        </div>
+        
         {/* Optional Title */}
         <div className="space-y-2">
           <Label htmlFor="suggestedTitle">Judul yang Diinginkan (Opsional)</Label>
@@ -236,31 +261,6 @@ const AIArticleGenerator: React.FC<AIArticleGeneratorProps> = ({
               </SelectContent>
             </Select>
           </div>
-        </div>
-
-        {/* Additional Keywords */}
-        <div className="space-y-2">
-          <Label>Keywords Tambahan (Opsional)</Label>
-          <div className="flex gap-2">
-            <Input
-              value={keywordInput}
-              onChange={(e) => setKeywordInput(e.target.value)}
-              placeholder="Tambahkan keyword pendukung"
-              onKeyPress={(e) => e.key === 'Enter' && addKeyword()}
-            />
-            <Button type="button" variant="outline" onClick={addKeyword}>
-              Tambah
-            </Button>
-          </div>
-          {formData.additionalKeywords && formData.additionalKeywords.length > 0 && (
-            <div className="flex flex-wrap gap-2 mt-2">
-              {formData.additionalKeywords.map((keyword, index) => (
-                <Badge key={index} variant="secondary" className="cursor-pointer" onClick={() => removeKeyword(index)}>
-                  {keyword} ×
-                </Badge>
-              ))}
-            </div>
-          )}
         </div>
 
         {/* Target Audience */}
