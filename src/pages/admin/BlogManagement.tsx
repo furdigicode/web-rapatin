@@ -148,7 +148,12 @@ const BlogManagement = () => {
 
   const updatePostMutation = useMutation({
     mutationFn: async (postData: BlogPostFormData & { id: string }) => {
-      console.log("Updating post with data:", postData);
+      console.log("🔄 Starting update for post ID:", postData.id);
+      console.log("📝 Form data:", postData);
+      
+      // Check if we have proper authentication
+      const { data: { session } } = await supabase.auth.getSession();
+      console.log("🔐 Auth session:", session ? "Found" : "Missing");
       
       const updateData = {
         title: postData.title,
@@ -165,31 +170,40 @@ const BlogManagement = () => {
         focus_keyword: postData.focusKeyword
       };
       
-      console.log("Final update data:", updateData);
+      console.log("📦 Update payload:", updateData);
       
-      const { error } = await supabase
+      // Perform the update with detailed error handling
+      const { data: updatedData, error, count } = await supabase
         .from('blog_posts')
         .update(updateData)
-        .eq('id', postData.id);
+        .eq('id', postData.id)
+        .select('*')
+        .single();
       
       if (error) {
-        console.error("Supabase update error:", error);
-        throw error;
+        console.error("❌ Supabase update error:", error);
+        console.error("Error details:", {
+          code: error.code,
+          message: error.message,
+          details: error.details,
+          hint: error.hint
+        });
+        throw new Error(`Update failed: ${error.message}`);
       }
       
-      const { data: verifyData, error: verifyError } = await supabase
-        .from('blog_posts')
-        .select('*')
-        .eq('id', postData.id)
-        .single();
-        
-      if (verifyError) {
-        console.error("Verification error:", verifyError);
-        throw verifyError;
-      } else {
-        console.log("Updated post in database:", verifyData);
-        return verifyData;
+      if (!updatedData) {
+        console.error("❌ No data returned from update");
+        throw new Error("Update completed but no data was returned");
       }
+      
+      console.log("✅ Update successful:", updatedData);
+      console.log("🔍 Verifying changes:", {
+        titleChanged: updatedData.title === postData.title,
+        excerptChanged: updatedData.excerpt === postData.excerpt,
+        updatedAt: updatedData.updated_at
+      });
+      
+      return updatedData;
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['blog-posts'] });
