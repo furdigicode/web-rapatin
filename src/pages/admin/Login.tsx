@@ -95,6 +95,7 @@ const Login = () => {
                   <Input
                     id="password"
                     type="password"
+                    placeholder="Masukkan Password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="pl-10"
