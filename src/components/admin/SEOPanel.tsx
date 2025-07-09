@@ -199,9 +199,9 @@ const SEOPanel: React.FC<SEOPanelProps> = ({
         
         {/* SEO Title */}
         <div className="space-y-2">
-          <div className="flex justify-between">
-            <Label htmlFor="seo-title">SEO Title</Label>
-            <span className={`text-xs ${
+          <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
+            <Label htmlFor="seo-title" className="text-sm font-medium">SEO Title</Label>
+            <span className={`text-xs font-medium ${
               seoTitleLength > 60 ? 'text-red-500' : (seoTitleLength < 30 ? 'text-yellow-500' : 'text-green-500')
             }`}>
               {seoTitleLength}/60
@@ -212,7 +212,7 @@ const SEOPanel: React.FC<SEOPanelProps> = ({
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="Enter SEO title"
-            className={`border ${
+            className={`w-full border ${
               seoTitleLength > 60 ? 'border-red-300' : (seoTitleLength < 30 ? 'border-yellow-300' : 'border-green-300')
             }`}
           />
@@ -220,20 +220,22 @@ const SEOPanel: React.FC<SEOPanelProps> = ({
         
         {/* Slug */}
         <div className="space-y-2">
-          <div className="flex justify-between items-center">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
             <Label htmlFor="slug" className="flex items-center gap-2">
               <LinkIcon size={14} />
               Slug
             </Label>
             <button 
               onClick={handleSlugGenerate}
-              className="text-xs text-primary hover:underline"
+              className="text-xs text-primary hover:underline self-start sm:self-auto"
             >
               Generate from title
             </button>
           </div>
-          <div className="flex items-center">
-            <span className="px-3 py-2 bg-muted border-y border-l rounded-l-md text-muted-foreground">
+          
+          {/* Desktop Layout */}
+          <div className="hidden sm:flex items-center">
+            <span className="px-3 py-2 bg-muted border-y border-l rounded-l-md text-muted-foreground text-sm">
               rapatin.id/blog/
             </span>
             <Input
@@ -243,13 +245,27 @@ const SEOPanel: React.FC<SEOPanelProps> = ({
               className="rounded-l-none"
             />
           </div>
+          
+          {/* Mobile Layout */}
+          <div className="sm:hidden space-y-2">
+            <div className="text-sm text-muted-foreground px-3 py-2 bg-muted rounded-md border">
+              rapatin.id/blog/
+            </div>
+            <Input
+              id="slug-mobile"
+              value={slug}
+              onChange={(e) => setSlug(e.target.value.replace(/\s+/g, '-').toLowerCase())}
+              placeholder="article-slug"
+              className="w-full"
+            />
+          </div>
         </div>
         
         {/* Meta Description */}
         <div className="space-y-2">
-          <div className="flex justify-between">
-            <Label htmlFor="meta-description">Meta Description</Label>
-            <span className={`text-xs ${
+          <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
+            <Label htmlFor="meta-description" className="text-sm font-medium">Meta Description</Label>
+            <span className={`text-xs font-medium ${
               metaDescLength > 160 ? 'text-red-500' : (metaDescLength < 120 ? 'text-yellow-500' : 'text-green-500')
             }`}>
               {metaDescLength}/160
@@ -260,7 +276,8 @@ const SEOPanel: React.FC<SEOPanelProps> = ({
             value={metaDescription}
             onChange={(e) => setMetaDescription(e.target.value)}
             placeholder="Enter meta description"
-            className={`border ${
+            rows={3}
+            className={`w-full border resize-none ${
               metaDescLength > 160 ? 'border-red-300' : (metaDescLength < 120 ? 'border-yellow-300' : 'border-green-300')
             }`}
           />
@@ -283,10 +300,18 @@ const SEOPanel: React.FC<SEOPanelProps> = ({
         {/* Google Snippet Preview */}
         <div className="space-y-2 pt-2">
           <Label className="text-sm font-medium">Google Search Preview</Label>
-          <div className="border p-4 rounded-md space-y-1">
-            <div className="text-blue-600 text-lg truncate font-medium">{title || 'SEO Title'}</div>
-            <div className="text-green-700 text-xs">rapatin.id/blog/{slug || 'article-slug'}</div>
-            <div className="text-sm text-gray-600 line-clamp-2">{metaDescription || 'Meta description will appear here. Make sure to write a compelling description that encourages users to click.'}</div>
+          <div className="border p-3 sm:p-4 rounded-md space-y-1 bg-white">
+            <div className="text-blue-600 text-base sm:text-lg truncate font-medium leading-tight">
+              {title || 'SEO Title'}
+            </div>
+            <div className="text-green-700 text-xs sm:text-sm truncate">
+              rapatin.id/blog/{slug || 'article-slug'}
+            </div>
+            <div className="text-xs sm:text-sm text-gray-600 leading-relaxed">
+              <div className="line-clamp-3 sm:line-clamp-2">
+                {metaDescription || 'Meta description will appear here. Make sure to write a compelling description that encourages users to click.'}
+              </div>
+            </div>
           </div>
         </div>
         

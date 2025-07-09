@@ -600,10 +600,102 @@ const BlogManagement = () => {
             ) : (
               blogPosts.map((post) => (
                 <Card key={post.id} className={post.status === 'draft' ? 'border-dashed' : ''}>
-                  <CardContent className="p-6">
-                    <div className="flex gap-6">
+                  <CardContent className="p-4 sm:p-6">
+                    {/* Mobile Layout */}
+                    <div className="sm:hidden">
                       {post.coverImage && (
-                        <div className="hidden sm:block w-32 h-32 rounded-md overflow-hidden flex-shrink-0">
+                        <div className="w-full h-48 rounded-md overflow-hidden mb-4">
+                          <img 
+                            src={post.coverImage} 
+                            alt={post.title} 
+                            className="w-full h-full object-cover" 
+                          />
+                        </div>
+                      )}
+                      
+                      <div className="space-y-3">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className={`px-2 py-0.5 text-xs rounded-full ${
+                            post.status === 'published' 
+                              ? 'bg-green-100 text-green-800' 
+                              : post.status === 'scheduled'
+                              ? 'bg-blue-100 text-blue-800'
+                              : 'bg-amber-100 text-amber-800'
+                          }`}>
+                            {post.status === 'published' 
+                              ? 'Published' 
+                              : post.status === 'scheduled'
+                              ? 'Scheduled'
+                              : 'Draft'
+                            }
+                          </span>
+                          <span className="text-xs text-muted-foreground">{post.date}</span>
+                          <span className="text-xs text-muted-foreground">•</span>
+                          <span className="text-xs text-muted-foreground">{post.category}</span>
+                        </div>
+                        
+                        <h3 className="text-lg font-semibold">{post.title}</h3>
+                        <p className="text-sm text-muted-foreground line-clamp-2">{post.excerpt}</p>
+                        
+                        <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+                          <div className="flex items-center gap-1">
+                            <User size={12} />
+                            <span>{post.author}</span>
+                          </div>
+                          {post.slug && (
+                            <div className="flex items-center gap-1">
+                              <LinkIcon size={12} />
+                              <span className="truncate max-w-[150px]">/blog/{post.slug}</span>
+                            </div>
+                          )}
+                        </div>
+                        
+                        {/* Mobile Action Buttons - Horizontal */}
+                        <div className="flex flex-wrap gap-2 pt-2">
+                          <Button variant="outline" size="sm" className="h-9 gap-1.5 flex-1 min-w-[80px]" title="Lihat">
+                            <Eye size={14} />
+                            <span>Lihat</span>
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="h-9 gap-1.5 flex-1 min-w-[80px]" 
+                            onClick={() => handleStartEdit(post)}
+                            title="Edit"
+                          >
+                            <Edit size={14} />
+                            <span>Edit</span>
+                          </Button>
+                          {post.status === 'draft' && (
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              className="h-9 gap-1.5 text-green-600 hover:text-green-700 flex-1 min-w-[80px]" 
+                              onClick={() => handlePublishPost(post.id as string)}
+                              title="Publikasikan"
+                            >
+                              <ArrowRight size={14} />
+                              <span>Publish</span>
+                            </Button>
+                          )}
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="h-9 gap-1.5 text-destructive hover:text-destructive flex-1 min-w-[80px]" 
+                            onClick={() => handleDeleteClick(post.id as string)}
+                            title="Hapus"
+                          >
+                            <Trash size={14} />
+                            <span>Hapus</span>
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Desktop Layout */}
+                    <div className="hidden sm:flex gap-6">
+                      {post.coverImage && (
+                        <div className="w-32 h-32 rounded-md overflow-hidden flex-shrink-0">
                           <img 
                             src={post.coverImage} 
                             alt={post.title} 
