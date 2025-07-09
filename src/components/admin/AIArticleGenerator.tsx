@@ -20,6 +20,7 @@ interface AIArticleGeneratorProps {
 
 interface GenerationRequest {
   targetKeyword: string;
+  additionalKeywords?: string[];
   title?: string;
   tone: 'professional' | 'casual' | 'educational';
   length: 'short' | 'medium' | 'long';
@@ -38,6 +39,7 @@ const AIArticleGenerator: React.FC<AIArticleGeneratorProps> = ({
   
   const [formData, setFormData] = useState<GenerationRequest>({
     targetKeyword: currentFormData.focusKeyword || '',
+    additionalKeywords: [],
     title: currentFormData.title || '',
     tone: 'professional',
     length: 'medium',
@@ -47,6 +49,7 @@ const AIArticleGenerator: React.FC<AIArticleGeneratorProps> = ({
   });
   
   const [outlineInput, setOutlineInput] = useState('');
+  const [keywordInput, setKeywordInput] = useState('');
 
   const handleInputChange = (field: keyof GenerationRequest, value: any) => {
     setFormData({ ...formData, [field]: value });
@@ -65,6 +68,21 @@ const AIArticleGenerator: React.FC<AIArticleGeneratorProps> = ({
   const removeOutlinePoint = (index: number) => {
     const newPoints = formData.outlinePoints?.filter((_, i) => i !== index) || [];
     setFormData({ ...formData, outlinePoints: newPoints });
+  };
+
+  const addKeyword = () => {
+    if (keywordInput.trim()) {
+      setFormData({
+        ...formData,
+        additionalKeywords: [...(formData.additionalKeywords || []), keywordInput.trim()]
+      });
+      setKeywordInput('');
+    }
+  };
+
+  const removeKeyword = (index: number) => {
+    const newKeywords = formData.additionalKeywords?.filter((_, i) => i !== index) || [];
+    setFormData({ ...formData, additionalKeywords: newKeywords });
   };
 
   const generateArticle = async () => {
@@ -218,6 +236,31 @@ const AIArticleGenerator: React.FC<AIArticleGeneratorProps> = ({
               </SelectContent>
             </Select>
           </div>
+        </div>
+
+        {/* Additional Keywords */}
+        <div className="space-y-2">
+          <Label>Keywords Tambahan (Opsional)</Label>
+          <div className="flex gap-2">
+            <Input
+              value={keywordInput}
+              onChange={(e) => setKeywordInput(e.target.value)}
+              placeholder="Tambahkan keyword pendukung"
+              onKeyPress={(e) => e.key === 'Enter' && addKeyword()}
+            />
+            <Button type="button" variant="outline" onClick={addKeyword}>
+              Tambah
+            </Button>
+          </div>
+          {formData.additionalKeywords && formData.additionalKeywords.length > 0 && (
+            <div className="flex flex-wrap gap-2 mt-2">
+              {formData.additionalKeywords.map((keyword, index) => (
+                <Badge key={index} variant="secondary" className="cursor-pointer" onClick={() => removeKeyword(index)}>
+                  {keyword} ×
+                </Badge>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Target Audience */}

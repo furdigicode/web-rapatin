@@ -11,6 +11,7 @@ const corsHeaders = {
 
 interface ArticleRequest {
   targetKeyword: string;
+  additionalKeywords?: string[];
   title?: string;
   tone: 'professional' | 'casual' | 'educational';
   length: 'short' | 'medium' | 'long';
@@ -30,7 +31,7 @@ interface ArticleResponse {
 }
 
 const generateSEOOptimizedArticle = async (request: ArticleRequest): Promise<ArticleResponse> => {
-  const { targetKeyword, title, tone, length, audience, outlinePoints, provider } = request;
+  const { targetKeyword, additionalKeywords, title, tone, length, audience, outlinePoints, provider } = request;
   
   const wordCount = length === 'short' ? '800-1200' : length === 'medium' ? '1500-2000' : '2500-3500';
   
@@ -71,15 +72,17 @@ Return response in JSON format with these exact fields:
   const userPrompt = `Create an SEO-optimized article about: ${targetKeyword}
 
 ${title ? `Suggested title: ${title}` : ''}
+${additionalKeywords && additionalKeywords.length > 0 ? `Also include these related keywords naturally: ${additionalKeywords.join(', ')}` : ''}
 ${outlinePoints ? `Include these points: ${outlinePoints.join(', ')}` : ''}
 
 Requirements:
 - Write in Indonesian language
-- Focus on keyword: ${targetKeyword}
+- Focus on primary keyword: ${targetKeyword}
+${additionalKeywords && additionalKeywords.length > 0 ? `- Naturally incorporate additional keywords: ${additionalKeywords.join(', ')}` : ''}
 - Make it engaging and informative
 - Include practical tips and actionable advice
 - Add FAQ section for better SEO
-- Ensure natural keyword placement`;
+- Ensure natural keyword placement without keyword stuffing`;
 
   if (provider === 'openai' && openAIApiKey) {
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
