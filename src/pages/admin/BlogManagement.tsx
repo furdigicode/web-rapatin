@@ -118,7 +118,7 @@ const BlogManagement = () => {
           author: postData.author,
           author_id: postData.author_id || 'da51c3a0-4e84-4fe2-adfe-bd681a2fda2f',
           status: postData.status,
-          published_at: postData.status === 'published' ? new Date().toISOString() : postData.publishedAt,
+          published_at: postData.status === 'published' ? new Date().toISOString() : (postData.publishedAt || null),
           seo_title: postData.seoTitle,
           meta_description: postData.metaDescription,
           focus_keyword: postData.focusKeyword
@@ -168,7 +168,7 @@ const BlogManagement = () => {
         category: postData.category,
         author: postData.author,
         status: postData.status,
-        published_at: postData.status === 'published' && !postData.publishedAt ? new Date().toISOString() : postData.publishedAt,
+        published_at: postData.status === 'published' && !postData.publishedAt ? new Date().toISOString() : (postData.publishedAt || null),
         seo_title: postData.seoTitle,
         meta_description: postData.metaDescription,
         focus_keyword: postData.focusKeyword
@@ -325,7 +325,7 @@ const BlogManagement = () => {
       author: post.author,
       author_id: post.author_id,
       status: post.status,
-      publishedAt: post.publishedAt ? post.publishedAt : '',
+      publishedAt: post.publishedAt || null,
       seoTitle: post.seoTitle,
       metaDescription: post.metaDescription,
       focusKeyword: post.focusKeyword

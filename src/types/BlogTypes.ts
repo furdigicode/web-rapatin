@@ -27,7 +27,7 @@ export interface BlogPostFormData {
   author: string; // Legacy field
   author_id: string; // New FK to authors table
   status: 'draft' | 'published' | 'scheduled';
-  publishedAt: string;
+  publishedAt: string | null;
   seoTitle: string;
   metaDescription: string;
   focusKeyword: string;
@@ -43,7 +43,7 @@ export const defaultBlogPostFormData: BlogPostFormData = {
   author: 'Admin',
   author_id: 'da51c3a0-4e84-4fe2-adfe-bd681a2fda2f',
   status: 'draft',
-  publishedAt: '',
+  publishedAt: null,
   seoTitle: '',
   metaDescription: '',
   focusKeyword: ''
