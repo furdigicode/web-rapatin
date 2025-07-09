@@ -327,8 +327,7 @@ const BlogPost = () => {
         </div>
 
         {/* Main Content */}
-        <div className="container mx-auto px-4 py-8 md:py-12">
-          <div className="max-w-4xl mx-auto">
+        <div className="container mx-auto px-4 py-8 md:py-12 max-w-4xl">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
               {/* Main Article Content */}
               <article className="lg:col-span-2">
@@ -457,7 +456,6 @@ const BlogPost = () => {
                 </div>
               </aside>
             </div>
-          </div>
         </div>
       </main>
 

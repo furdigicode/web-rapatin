@@ -17,6 +17,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { DeleteConfirmation } from '@/components/blog/DeleteConfirmation';
 import AIArticleGenerator from '@/components/admin/AIArticleGenerator';
 import AdminPageHeader from '@/components/admin/AdminPageHeader';
+import AuthorSelector from '@/components/admin/AuthorSelector';
 
 const BlogManagement = () => {
   const { toast } = useToast();
@@ -537,17 +538,10 @@ const BlogManagement = () => {
                   </select>
                 </div>
                 
-                <div className="space-y-2">
-                  <Label htmlFor="author" className="flex items-center gap-2">
-                    <User size={14} />
-                    Penulis
-                  </Label>
-                  <Input
-                    id="author"
-                    value={formData.author}
-                    onChange={(e) => handleInputChange('author', e.target.value)}
-                  />
-                </div>
+                <AuthorSelector
+                  selectedAuthorId={formData.author_id}
+                  onAuthorChange={(authorId) => handleInputChange('author_id', authorId)}
+                />
                 
                 <div className="space-y-2">
                   <Label htmlFor="status">Status Publikasi</Label>
