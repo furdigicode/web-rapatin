@@ -19,10 +19,50 @@ interface AdminLayoutProps {
 }
 
 const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title }) => {
-  const [isSidebarOpen, setIsSidebarOpen] = React.useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = React.useState(false); // Default closed on mobile
+  const [isMobile, setIsMobile] = React.useState(false);
   const location = useLocation();
   const { toast } = useToast();
   const { logout, admin } = useAdminAuth();
+
+  // Detect mobile screen size
+  React.useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+      if (window.innerWidth >= 768) {
+        setIsSidebarOpen(true); // Auto-open on desktop
+      }
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Auto-close sidebar on route change in mobile
+  React.useEffect(() => {
+    if (isMobile) {
+      setIsSidebarOpen(false);
+    }
+  }, [location.pathname, isMobile]);
+
+  // Click outside to close on mobile
+  React.useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (isMobile && isSidebarOpen) {
+        const sidebar = document.getElementById('admin-sidebar');
+        const trigger = document.getElementById('mobile-trigger');
+        
+        if (sidebar && !sidebar.contains(event.target as Node) && 
+            trigger && !trigger.contains(event.target as Node)) {
+          setIsSidebarOpen(false);
+        }
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isMobile, isSidebarOpen]);
 
   const handleLogout = async () => {
     await logout();
@@ -48,9 +88,18 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title }) => {
   ];
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex relative">
+      {/* Mobile Overlay */}
+      {isMobile && isSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-30 md:hidden"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+      
       {/* Sidebar */}
       <aside 
+        id="admin-sidebar"
         className={`bg-card border-r border-border fixed md:static top-0 bottom-0 left-0 z-40 flex flex-col transition-all duration-300 ease-in-out ${
           isSidebarOpen ? 'w-64' : 'w-0 md:w-16 overflow-hidden'
         }`}
@@ -128,19 +177,25 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title }) => {
         <header className="h-16 border-b flex items-center justify-between px-4 bg-card">
           <div className="flex items-center">
             <button 
+              id="mobile-trigger"
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="md:hidden mr-2 w-10 h-10 flex items-center justify-center text-muted-foreground hover:text-foreground"
+              className="md:hidden mr-2 w-10 h-10 flex items-center justify-center text-muted-foreground hover:text-foreground rounded-md hover:bg-accent transition-colors"
             >
               {isSidebarOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
-            <h1 className="text-xl font-bold">{title}</h1>
+            <h1 className="text-lg md:text-xl font-bold truncate">{title}</h1>
           </div>
           
           <div className="flex items-center gap-2">
-            <Button asChild variant="outline" size="sm">
+            <Button asChild variant="outline" size="sm" className="hidden sm:flex">
               <a href="/" target="_blank" className="flex items-center gap-2">
                 <Home size={16} />
-                <span>Lihat Website</span>
+                <span className="hidden md:inline">Lihat Website</span>
+              </a>
+            </Button>
+            <Button asChild variant="outline" size="sm" className="sm:hidden">
+              <a href="/" target="_blank" className="flex items-center justify-center">
+                <Home size={16} />
               </a>
             </Button>
           </div>
