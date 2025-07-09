@@ -62,7 +62,6 @@ const AppSidebar = () => {
             alt="Rapatin Logo" 
             className="h-8" 
           />
-          <span className="font-bold">Admin</span>
         </div>
       </SidebarHeader>
 
