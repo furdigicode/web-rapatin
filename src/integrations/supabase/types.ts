@@ -79,6 +79,48 @@ export type Database = {
         }
         Relationships: []
       }
+      authors: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          created_at: string
+          email: string | null
+          id: string
+          is_active: boolean
+          name: string
+          slug: string
+          social_links: Json | null
+          specialization: string | null
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          slug: string
+          social_links?: Json | null
+          specialization?: string | null
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          slug?: string
+          social_links?: Json | null
+          specialization?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       blog_categories: {
         Row: {
           created_at: string
@@ -106,6 +148,7 @@ export type Database = {
       blog_posts: {
         Row: {
           author: string
+          author_id: string
           category: string
           content: string
           cover_image: string | null
@@ -123,6 +166,7 @@ export type Database = {
         }
         Insert: {
           author?: string
+          author_id: string
           category: string
           content: string
           cover_image?: string | null
@@ -140,6 +184,7 @@ export type Database = {
         }
         Update: {
           author?: string
+          author_id?: string
           category?: string
           content?: string
           cover_image?: string | null
@@ -155,7 +200,15 @@ export type Database = {
           title?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "blog_posts_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "authors"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {

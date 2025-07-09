@@ -14,6 +14,8 @@ import { BlogPostFormData } from '@/types/BlogTypes';
 interface AIArticleGeneratorProps {
   onArticleGenerated: (articleData: Partial<BlogPostFormData>) => void;
   currentFormData: BlogPostFormData;
+  selectedAuthorId?: string;
+  onAuthorChange?: (authorId: string) => void;
 }
 
 interface GenerationRequest {

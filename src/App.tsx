@@ -33,6 +33,7 @@ import BlogPost from "./pages/BlogPost";
 import AdminLogin from "./pages/admin/Login";
 import AdminDashboard from "./pages/admin/Dashboard";
 import BlogManagement from "./pages/admin/BlogManagement";
+import ContentManagement from "./pages/admin/ContentManagement";
 import ProtectedRoute from "./components/admin/ProtectedRoute";
 
 import WhatsAppWidget from "./components/WhatsAppWidget";
@@ -79,6 +80,7 @@ const AppRoutes = () => {
       <Route path="/admin/login" element={<AdminLogin />} />
       <Route path="/admin/dashboard" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
       <Route path="/admin/blog" element={<ProtectedRoute><BlogManagement /></ProtectedRoute>} />
+      <Route path="/admin/content" element={<ProtectedRoute><ContentManagement /></ProtectedRoute>} />
       
       {/* 404 Catch-all Route */}
       <Route path="*" element={<NotFound />} />

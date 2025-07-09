@@ -7,7 +7,8 @@ export interface BlogPost {
   content: string;
   coverImage: string;
   category: string;
-  author: string;
+  author: string; // Legacy field for display
+  author_id: string; // New FK to authors table
   date: string;
   status: 'draft' | 'published' | 'scheduled';
   publishedAt: string;
@@ -23,7 +24,8 @@ export interface BlogPostFormData {
   content: string;
   coverImage: string;
   category: string;
-  author: string;
+  author: string; // Legacy field
+  author_id: string; // New FK to authors table
   status: 'draft' | 'published' | 'scheduled';
   publishedAt: string;
   seoTitle: string;
@@ -39,6 +41,7 @@ export const defaultBlogPostFormData: BlogPostFormData = {
   coverImage: '',
   category: '',
   author: 'Admin',
+  author_id: 'da51c3a0-4e84-4fe2-adfe-bd681a2fda2f',
   status: 'draft',
   publishedAt: '',
   seoTitle: '',

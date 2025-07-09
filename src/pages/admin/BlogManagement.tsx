@@ -82,6 +82,7 @@ const BlogManagement = () => {
         coverImage: post.cover_image || '',
         category: post.category || '',
         author: post.author || 'Admin',
+        author_id: post.author_id || '',
         date: new Date(post.created_at).toLocaleDateString('id-ID', { 
           year: 'numeric', 
           month: 'long', 
@@ -114,6 +115,7 @@ const BlogManagement = () => {
           cover_image: postData.coverImage,
           category: postData.category,
           author: postData.author,
+          author_id: postData.author_id || 'da51c3a0-4e84-4fe2-adfe-bd681a2fda2f',
           status: postData.status,
           published_at: postData.status === 'published' ? new Date().toISOString() : postData.publishedAt,
           seo_title: postData.seoTitle,
@@ -320,6 +322,7 @@ const BlogManagement = () => {
       coverImage: post.coverImage,
       category: post.category,
       author: post.author,
+      author_id: post.author_id,
       status: post.status,
       publishedAt: post.publishedAt ? post.publishedAt : '',
       seoTitle: post.seoTitle,
