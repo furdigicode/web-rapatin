@@ -9,7 +9,8 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { 
   Calendar, User, ArrowLeft, Loader2, Clock, Share2, 
-  Bookmark, Eye, ChevronRight, Home, ArrowUp 
+  Bookmark, Eye, ChevronRight, Home, ArrowUp, Mail, 
+  MessageCircle, Send, Facebook, Twitter, Link2 
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { format } from 'date-fns';
@@ -131,6 +132,31 @@ const BlogPost = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const generateSharingURL = (platform: string) => {
+    if (!post) return '';
+    
+    const url = encodeURIComponent(window.location.href);
+    const title = encodeURIComponent(post.title);
+    const text = encodeURIComponent(`Baca artikel menarik: ${post.title}`);
+    
+    switch (platform) {
+      case 'email':
+        return `mailto:?subject=${title}&body=${text}%0A%0A${url}`;
+      case 'whatsapp':
+        return `https://wa.me/?text=${text}%0A%0A${url}`;
+      case 'telegram':
+        return `https://t.me/share/url?url=${url}&text=${text}`;
+      case 'facebook':
+        return `https://www.facebook.com/sharer/sharer.php?u=${url}`;
+      case 'twitter':
+        return `https://twitter.com/intent/tweet?text=${text}&url=${url}`;
+      case 'threads':
+        return `https://threads.net/intent/post?text=${text}%20${url}`;
+      default:
+        return '';
+    }
+  };
+
   const sharePost = async () => {
     if (navigator.share && post) {
       try {
@@ -145,6 +171,22 @@ const BlogPost = () => {
       }
     } else {
       navigator.clipboard.writeText(window.location.href);
+    }
+  };
+
+  const shareToSocial = (platform: string) => {
+    const url = generateSharingURL(platform);
+    if (url) {
+      window.open(url, '_blank', 'noopener,noreferrer');
+    }
+  };
+
+  const copyURL = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      // You could add a toast notification here
+    } catch (err) {
+      console.error('Failed to copy URL:', err);
     }
   };
 
@@ -227,6 +269,12 @@ const BlogPost = () => {
                     {post.title}
                   </h1>
                   
+                  <div className="mb-4">
+                    <Badge variant="secondary" className="bg-white/20 text-white border-white/30">
+                      {post.category}
+                    </Badge>
+                  </div>
+                  
                   <div className="flex flex-wrap items-center gap-4 text-sm text-white/90">
                     <div className="flex items-center gap-2">
                       <User size={16} />
@@ -263,6 +311,10 @@ const BlogPost = () => {
                   {post.title}
                 </h1>
                 
+                <div className="mb-4">
+                  <Badge variant="outline">{post.category}</Badge>
+                </div>
+                
                 <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
                   <div className="flex items-center gap-2">
                     <User size={16} />
@@ -297,10 +349,26 @@ const BlogPost = () => {
                   </Button>
                   
                   <div className="flex items-center gap-2">
-                    <Button variant="outline" size="sm" onClick={sharePost}>
-                      <Share2 size={16} className="mr-2" />
-                      <span className="hidden sm:inline">Bagikan</span>
-                    </Button>
+                    <div className="flex items-center gap-1">
+                      <Button variant="outline" size="sm" onClick={() => shareToSocial('email')} title="Bagikan via Email">
+                        <Mail size={16} />
+                      </Button>
+                      <Button variant="outline" size="sm" onClick={() => shareToSocial('whatsapp')} title="Bagikan via WhatsApp">
+                        <MessageCircle size={16} />
+                      </Button>
+                      <Button variant="outline" size="sm" onClick={() => shareToSocial('telegram')} title="Bagikan via Telegram">
+                        <Send size={16} />
+                      </Button>
+                      <Button variant="outline" size="sm" onClick={() => shareToSocial('facebook')} title="Bagikan via Facebook">
+                        <Facebook size={16} />
+                      </Button>
+                      <Button variant="outline" size="sm" onClick={() => shareToSocial('twitter')} title="Bagikan via Twitter">
+                        <Twitter size={16} />
+                      </Button>
+                      <Button variant="outline" size="sm" onClick={copyURL} title="Salin Link">
+                        <Link2 size={16} />
+                      </Button>
+                    </div>
                     <Button variant="outline" size="sm">
                       <Bookmark size={16} className="mr-2" />
                       <span className="hidden sm:inline">Simpan</span>
@@ -325,15 +393,31 @@ const BlogPost = () => {
                     </span>
                   </div>
                   
-                  <Button variant="outline" size="sm" onClick={sharePost} className="w-full sm:w-auto">
-                    <Share2 size={16} className="mr-2" />
-                    Bagikan Artikel
-                  </Button>
+                  <div className="flex items-center gap-1">
+                    <Button variant="outline" size="sm" onClick={() => shareToSocial('email')} title="Bagikan via Email">
+                      <Mail size={16} />
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={() => shareToSocial('whatsapp')} title="Bagikan via WhatsApp">
+                      <MessageCircle size={16} />
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={() => shareToSocial('telegram')} title="Bagikan via Telegram">
+                      <Send size={16} />
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={() => shareToSocial('facebook')} title="Bagikan via Facebook">
+                      <Facebook size={16} />
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={() => shareToSocial('twitter')} title="Bagikan via Twitter">
+                      <Twitter size={16} />
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={copyURL} title="Salin Link">
+                      <Link2 size={16} />
+                    </Button>
+                  </div>
                 </div>
               </article>
 
               {/* Sidebar */}
-              <aside className="lg:col-span-1 order-first lg:order-last">
+              <aside className="lg:col-span-1">
                 <div className="sticky top-24 space-y-6">
                   {/* Author Card */}
                   <Card>
