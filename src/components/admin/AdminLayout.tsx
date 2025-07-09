@@ -83,7 +83,6 @@ const AppSidebar = () => {
         </SidebarGroup>
 
         <SidebarGroup>
-          <SidebarGroupLabel>Content Management</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
@@ -154,7 +153,6 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title }) => {
           <header className="h-16 border-b flex items-center justify-between px-4 bg-card">
             <div className="flex items-center">
               <SidebarTrigger className="mr-2" />
-              <h1 className="text-lg md:text-xl font-bold truncate">{title}</h1>
             </div>
             
             <div className="flex items-center gap-2">
