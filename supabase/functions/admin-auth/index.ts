@@ -182,29 +182,64 @@ async function handleLogout(token: string) {
 
 async function handleSetup(email: string, password: string) {
   try {
+    console.log('Starting admin setup for email:', email)
+    
     // Hash password
     const passwordHash = await bcrypt.hash(password, 10)
+    console.log('Password hashed successfully')
     
-    // Update admin user with proper hash
-    const { error } = await supabase
+    // Check if admin user exists
+    const { data: existingAdmin, error: checkError } = await supabase
       .from('admin_users')
-      .update({ password_hash: passwordHash })
+      .select('id, email, password_hash')
       .eq('email', email)
+      .single()
 
-    if (error) {
+    if (checkError && checkError.code !== 'PGRST116') {
+      console.error('Error checking existing admin:', checkError)
       return new Response(
-        JSON.stringify({ error: 'Setup failed' }),
+        JSON.stringify({ error: 'Setup check failed', details: checkError.message }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
+    let result
+    if (existingAdmin) {
+      // Update existing admin
+      console.log('Updating existing admin user')
+      result = await supabase
+        .from('admin_users')
+        .update({ password_hash: passwordHash })
+        .eq('email', email)
+    } else {
+      // Create new admin
+      console.log('Creating new admin user')
+      result = await supabase
+        .from('admin_users')
+        .insert({ 
+          email: email, 
+          password_hash: passwordHash,
+          is_active: true 
+        })
+    }
+
+    if (result.error) {
+      console.error('Database operation failed:', result.error)
+      return new Response(
+        JSON.stringify({ error: 'Setup failed', details: result.error.message }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    console.log('Admin setup completed successfully')
     return new Response(
       JSON.stringify({ success: true }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   } catch (error) {
+    console.error('Setup error:', error)
     return new Response(
-      JSON.stringify({ error: 'Setup failed' }),
+      JSON.stringify({ error: 'Setup failed', details: error.message }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   }

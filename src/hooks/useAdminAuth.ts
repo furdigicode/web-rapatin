@@ -69,11 +69,21 @@ export const useAdminAuth = (): UseAdminAuthReturn => {
   const login = useCallback(async (email: string, password: string) => {
     setIsLoading(true);
     try {
+      console.log('Attempting login for:', email);
       const { data, error } = await supabase.functions.invoke('admin-auth', {
         body: { action: 'login', email, password }
       });
 
-      if (error || !data?.success) {
+      console.log('Login response:', { data, error });
+
+      if (error) {
+        console.error('Supabase function error:', error);
+        setIsLoading(false);
+        return { success: false, error: 'Connection error' };
+      }
+
+      if (!data?.success) {
+        console.error('Login failed:', data?.error);
         setIsLoading(false);
         return { success: false, error: data?.error || 'Login failed' };
       }
@@ -81,6 +91,7 @@ export const useAdminAuth = (): UseAdminAuthReturn => {
       setStoredToken(data.token);
       setAdmin(data.admin);
       setIsLoading(false);
+      console.log('Login successful for:', data.admin.email);
       return { success: true };
     } catch (error) {
       console.error('Login error:', error);
@@ -108,13 +119,20 @@ export const useAdminAuth = (): UseAdminAuthReturn => {
   // Setup admin password on first run
   const setupAdmin = useCallback(async () => {
     try {
-      await supabase.functions.invoke('admin-auth', {
+      console.log('Setting up admin user...');
+      const { data, error } = await supabase.functions.invoke('admin-auth', {
         body: { 
           action: 'setup', 
           email: 'rapatinapp@gmail.com', 
           password: 'Andalus123!' 
         }
       });
+      
+      if (error) {
+        console.error('Admin setup function error:', error);
+      } else {
+        console.log('Admin setup response:', data);
+      }
     } catch (error) {
       console.error('Admin setup error:', error);
     }
