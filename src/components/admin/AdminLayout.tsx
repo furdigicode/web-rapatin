@@ -3,44 +3,26 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
   LayoutDashboard, 
-  FolderOpen, 
   FileText, 
-  Users,
   LogOut,
+  Menu,
+  X,
   Home
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarMenuSub,
-  SidebarMenuSubButton,
-  SidebarMenuSubItem,
-  SidebarProvider,
-  SidebarTrigger,
-  SidebarInset,
-  useSidebar,
-} from "@/components/ui/sidebar";
 
 interface AdminLayoutProps {
   children: React.ReactNode;
   title: string;
 }
 
-const AppSidebar = () => {
+const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title }) => {
+  const [isSidebarOpen, setIsSidebarOpen] = React.useState(true);
   const location = useLocation();
-  const { logout, admin } = useAdminAuth();
   const { toast } = useToast();
+  const { logout, admin } = useAdminAuth();
 
   const handleLogout = async () => {
     await logout();
@@ -50,135 +32,124 @@ const AppSidebar = () => {
     });
   };
 
-  const isContentActive = location.pathname === '/admin/blog' || location.pathname === '/admin/content';
-  const isContentGroupOpen = isContentActive;
+  const navItems = [
+    { 
+      icon: <LayoutDashboard size={20} />, 
+      label: 'Dashboard', 
+      path: '/admin/dashboard',
+      active: location.pathname === '/admin/dashboard'
+    },
+    { 
+      icon: <FileText size={20} />, 
+      label: 'Blog', 
+      path: '/admin/blog',
+      active: location.pathname === '/admin/blog'
+    }
+  ];
 
   return (
-    <Sidebar>
-      <SidebarHeader>
-        <div className="flex items-center gap-2 px-2 py-2">
-          <img 
-            src="/lovable-uploads/2daea350-0851-4dd8-8f79-ee07aaaad905.png" 
-            alt="Rapatin Logo" 
-            className="h-8" 
-          />
-          <span className="font-bold">Admin</span>
+    <div className="min-h-screen flex">
+      {/* Sidebar */}
+      <aside 
+        className={`bg-card border-r border-border fixed md:static top-0 bottom-0 left-0 z-40 flex flex-col transition-all duration-300 ease-in-out ${
+          isSidebarOpen ? 'w-64' : 'w-0 md:w-16 overflow-hidden'
+        }`}
+      >
+        <div className="p-4 flex items-center justify-between border-b">
+          {isSidebarOpen ? (
+            <Link to="/admin/dashboard" className="flex items-center">
+              <img 
+                src="/lovable-uploads/2daea350-0851-4dd8-8f79-ee07aaaad905.png" 
+                alt="Rapatin Logo" 
+                className="h-8 mr-2" 
+              />
+            </Link>
+          ) : (
+            <span className="w-8 h-8 flex items-center justify-center">
+              <img 
+                src="/lovable-uploads/2daea350-0851-4dd8-8f79-ee07aaaad905.png" 
+                alt="Logo" 
+                className="h-6" 
+              />
+            </span>
+          )}
+          <button 
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            className="text-muted-foreground hover:text-foreground md:flex hidden"
+          >
+            {isSidebarOpen ? <X size={18} /> : <Menu size={18} />}
+          </button>
         </div>
-      </SidebarHeader>
-
-      <SidebarContent>
-        <SidebarGroup>
-          <SidebarMenu>
-            <SidebarMenuItem>
-              <SidebarMenuButton 
-                asChild 
-                isActive={location.pathname === '/admin/dashboard'}
-              >
-                <Link to="/admin/dashboard">
-                  <LayoutDashboard />
-                  <span>Dashboard</span>
+        
+        <nav className="flex-1 overflow-y-auto py-4">
+          <ul className="space-y-1 px-2">
+            {navItems.map((item, index) => (
+              <li key={index}>
+                <Link
+                  to={item.path}
+                  className={`flex items-center ${
+                    isSidebarOpen ? 'px-3' : 'justify-center px-1'
+                  } py-2 rounded-md transition-colors ${
+                    item.active 
+                      ? 'bg-primary/10 text-primary' 
+                      : 'hover:bg-accent hover:text-foreground'
+                  }`}
+                >
+                  <span className="mr-3">{item.icon}</span>
+                  {isSidebarOpen && <span>{item.label}</span>}
                 </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          </SidebarMenu>
-        </SidebarGroup>
-
-        <SidebarGroup>
-          <SidebarGroupLabel>Content Management</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton isActive={isContentActive}>
-                  <FolderOpen />
-                  <span>Content</span>
-                </SidebarMenuButton>
-                <SidebarMenuSub>
-                  <SidebarMenuSubItem>
-                    <SidebarMenuSubButton 
-                      asChild 
-                      isActive={location.pathname === '/admin/blog'}
-                    >
-                      <Link to="/admin/blog">
-                        <FileText />
-                        <span>Blog</span>
-                      </Link>
-                    </SidebarMenuSubButton>
-                  </SidebarMenuSubItem>
-                  <SidebarMenuSubItem>
-                    <SidebarMenuSubButton 
-                      asChild 
-                      isActive={location.pathname === '/admin/content'}
-                    >
-                      <Link to="/admin/content">
-                        <Users />
-                        <span>Author</span>
-                      </Link>
-                    </SidebarMenuSubButton>
-                  </SidebarMenuSubItem>
-                </SidebarMenuSub>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-      </SidebarContent>
-
-      <SidebarFooter>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <div className="flex items-center justify-between px-2 py-2">
+              </li>
+            ))}
+          </ul>
+        </nav>
+        
+        <div className="p-4 border-t">
+          <div className={`flex ${isSidebarOpen ? 'justify-between' : 'justify-center'} items-center`}>
+            {isSidebarOpen && (
               <div className="text-sm">
                 <div className="font-medium">Admin</div>
                 <div className="text-muted-foreground text-xs">{admin?.email}</div>
               </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={handleLogout}
-                className="h-8 w-8"
-              >
-                <LogOut size={16} />
-              </Button>
-            </div>
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarFooter>
-    </Sidebar>
-  );
-};
-
-const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title }) => {
-  return (
-    <SidebarProvider>
-      <div className="min-h-screen flex w-full">
-        <AppSidebar />
-        <SidebarInset>
-          <header className="h-16 border-b flex items-center justify-between px-4 bg-card">
-            <div className="flex items-center">
-              <SidebarTrigger className="mr-2" />
-              <h1 className="text-lg md:text-xl font-bold truncate">{title}</h1>
-            </div>
-            
-            <div className="flex items-center gap-2">
-              <Button asChild variant="outline" size="sm" className="hidden sm:flex">
-                <a href="/" target="_blank" className="flex items-center gap-2">
-                  <Home size={16} />
-                  <span className="hidden md:inline">Lihat Website</span>
-                </a>
-              </Button>
-              <Button asChild variant="outline" size="sm" className="sm:hidden">
-                <a href="/" target="_blank" className="flex items-center justify-center">
-                  <Home size={16} />
-                </a>
-              </Button>
-            </div>
-          </header>
+            )}
+            <button
+              onClick={handleLogout}
+              className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-accent text-muted-foreground hover:text-foreground"
+              title="Logout"
+            >
+              <LogOut size={18} />
+            </button>
+          </div>
+        </div>
+      </aside>
+      
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col">
+        <header className="h-16 border-b flex items-center justify-between px-4 bg-card">
+          <div className="flex items-center">
+            <button 
+              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+              className="md:hidden mr-2 w-10 h-10 flex items-center justify-center text-muted-foreground hover:text-foreground"
+            >
+              {isSidebarOpen ? <X size={20} /> : <Menu size={20} />}
+            </button>
+            <h1 className="text-xl font-bold">{title}</h1>
+          </div>
           
-          <main className="flex-1 overflow-auto p-6">
-            {children}
-          </main>
-        </SidebarInset>
+          <div className="flex items-center gap-2">
+            <Button asChild variant="outline" size="sm">
+              <a href="/" target="_blank" className="flex items-center gap-2">
+                <Home size={16} />
+                <span>Lihat Website</span>
+              </a>
+            </Button>
+          </div>
+        </header>
+        
+        <main className="flex-1 overflow-auto p-6">
+          {children}
+        </main>
       </div>
-    </SidebarProvider>
+    </div>
   );
 };
 
