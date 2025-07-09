@@ -1,6 +1,6 @@
 
-import React, { useEffect } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import React from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   FileText, 
@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { useAdminAuth } from "@/hooks/useAdminAuth";
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -19,25 +20,16 @@ interface AdminLayoutProps {
 
 const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title }) => {
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(true);
-  const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
+  const { logout, admin } = useAdminAuth();
 
-  // Check auth on mount
-  useEffect(() => {
-    const isAuthenticated = localStorage.getItem('adminAuth') === 'true';
-    if (!isAuthenticated && location.pathname !== '/admin/login') {
-      navigate('/admin/login');
-    }
-  }, [navigate, location.pathname]);
-
-  const handleLogout = () => {
-    localStorage.removeItem('adminAuth');
+  const handleLogout = async () => {
+    await logout();
     toast({
       title: "Logout berhasil",
       description: "Anda telah keluar dari sistem",
     });
-    navigate('/admin/login');
   };
 
   const navItems = [
@@ -117,7 +109,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title }) => {
             {isSidebarOpen && (
               <div className="text-sm">
                 <div className="font-medium">Admin</div>
-                <div className="text-muted-foreground text-xs">rapatinapp@gmail.com</div>
+                <div className="text-muted-foreground text-xs">{admin?.email}</div>
               </div>
             )}
             <button

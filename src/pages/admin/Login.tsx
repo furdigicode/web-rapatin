@@ -1,45 +1,49 @@
 
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Lock, User } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
+import { useAdminAuth } from "@/hooks/useAdminAuth";
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
+  const { login, isLoading, isAuthenticated } = useAdminAuth();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    if (isAuthenticated) {
+      const from = (location.state as any)?.from?.pathname || '/admin/dashboard';
+      navigate(from, { replace: true });
+    }
+  }, [isAuthenticated, navigate, location.state]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
     
-    // Simple mock login - in real app, this would validate against a backend
-    setTimeout(() => {
-      if (email === 'rapatinapp@gmail.com' && password === 'Andalus123!') {
-        // Store auth token in localStorage
-        localStorage.setItem('adminAuth', 'true');
-        
-        toast({
-          title: "Login berhasil",
-          description: "Selamat datang di Admin Dashboard",
-        });
-        
-        navigate('/admin/dashboard');
-      } else {
-        toast({
-          variant: "destructive",
-          title: "Login gagal",
-          description: "Email atau password salah",
-        });
-      }
-      setIsLoading(false);
-    }, 1000);
+    const result = await login(email, password);
+    
+    if (result.success) {
+      toast({
+        title: "Login berhasil",
+        description: "Selamat datang di Admin Dashboard",
+      });
+      
+      const from = (location.state as any)?.from?.pathname || '/admin/dashboard';
+      navigate(from, { replace: true });
+    } else {
+      toast({
+        variant: "destructive",
+        title: "Login gagal",
+        description: result.error || "Email atau password salah",
+      });
+    }
   };
 
   return (
