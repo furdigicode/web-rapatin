@@ -73,7 +73,7 @@ const Login = () => {
                   <Input
                     id="email"
                     type="email"
-                    placeholder="rapatinapp@gmail.com"
+                    placeholder="Masukkan Email Administrator"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="pl-10"
