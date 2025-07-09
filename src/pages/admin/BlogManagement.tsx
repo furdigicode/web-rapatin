@@ -602,10 +602,10 @@ const BlogManagement = () => {
         renderBlogForm('edit')
       ) : (
         <div className="space-y-6">
-          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 p-4 sm:p-6">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 p-6 border-b bg-card">
             <div className="space-y-1">
-              <h2 className="text-2xl font-bold">Manajemen Artikel</h2>
-              <p className="text-muted-foreground">Kelola semua artikel blog Anda</p>
+              <h1 className="text-2xl font-bold">Manajemen Artikel</h1>
+              <p className="text-muted-foreground">Kelola semua artikel blog dan konten website</p>
             </div>
             <Button onClick={() => setIsCreating(true)} className="gap-2 w-full sm:w-auto">
               <Plus size={16} />

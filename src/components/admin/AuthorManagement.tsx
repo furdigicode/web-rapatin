@@ -225,12 +225,12 @@ const AuthorManagement: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-2xl font-bold">Kelola Penulis</h2>
-          <p className="text-muted-foreground">Kelola data penulis artikel</p>
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 p-6 border-b bg-card">
+        <div className="space-y-1">
+          <h1 className="text-2xl font-bold">Kelola Penulis</h1>
+          <p className="text-muted-foreground">Kelola data penulis artikel dan informasi profil</p>
         </div>
-        <Button onClick={() => setIsFormOpen(true)} className="gap-2">
+        <Button onClick={() => setIsFormOpen(true)} className="gap-2 w-full sm:w-auto">
           <Plus size={16} />
           Tambah Penulis
         </Button>
