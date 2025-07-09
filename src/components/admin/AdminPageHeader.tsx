@@ -13,7 +13,7 @@ const AdminPageHeader: React.FC<AdminPageHeaderProps> = ({
   children 
 }) => {
   return (
-    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 p-6 border-b bg-card">
+    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 mb-6">
       <div className="space-y-1">
         <h1 className="text-2xl font-bold">{title}</h1>
         <p className="text-muted-foreground">{description}</p>

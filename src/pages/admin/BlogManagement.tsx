@@ -16,6 +16,7 @@ import { BlogPost, BlogPostFormData, defaultBlogPostFormData } from '@/types/Blo
 import { supabase } from '@/integrations/supabase/client';
 import { DeleteConfirmation } from '@/components/blog/DeleteConfirmation';
 import AIArticleGenerator from '@/components/admin/AIArticleGenerator';
+import AdminPageHeader from '@/components/admin/AdminPageHeader';
 
 const BlogManagement = () => {
   const { toast } = useToast();
@@ -602,16 +603,15 @@ const BlogManagement = () => {
         renderBlogForm('edit')
       ) : (
         <div className="space-y-6">
-          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 p-6 border-b bg-card">
-            <div className="space-y-1">
-              <h1 className="text-2xl font-bold">Manajemen Artikel</h1>
-              <p className="text-muted-foreground">Kelola semua artikel blog dan konten website</p>
-            </div>
+          <AdminPageHeader 
+            title="Manajemen Artikel" 
+            description="Kelola semua artikel blog dan konten website"
+          >
             <Button onClick={() => setIsCreating(true)} className="gap-2 w-full sm:w-auto">
               <Plus size={16} />
               Tambah Artikel
             </Button>
-          </div>
+          </AdminPageHeader>
           
           <div className="space-y-4">
             {blogPosts.length === 0 ? (
