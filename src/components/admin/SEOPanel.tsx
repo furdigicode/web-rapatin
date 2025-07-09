@@ -300,15 +300,20 @@ const SEOPanel: React.FC<SEOPanelProps> = ({
         {/* Google Snippet Preview */}
         <div className="space-y-2 pt-2">
           <Label className="text-sm font-medium">Google Search Preview</Label>
-          <div className="border p-3 sm:p-4 rounded-md space-y-1 bg-white">
-            <div className="text-blue-600 text-base sm:text-lg truncate font-medium leading-tight">
+          <div className="border p-3 sm:p-4 rounded-md space-y-1 bg-white max-w-full overflow-hidden">
+            <div className="text-blue-600 text-sm sm:text-base font-medium leading-tight break-words">
               {title || 'SEO Title'}
             </div>
-            <div className="text-green-700 text-xs sm:text-sm truncate">
+            <div className="text-green-700 text-xs sm:text-sm break-all">
               rapatin.id/blog/{slug || 'article-slug'}
             </div>
             <div className="text-xs sm:text-sm text-gray-600 leading-relaxed">
-              <div className="line-clamp-3 sm:line-clamp-2">
+              <div className="break-words" style={{
+                display: '-webkit-box',
+                WebkitLineClamp: window.innerWidth < 640 ? 3 : 2,
+                WebkitBoxOrient: 'vertical',
+                overflow: 'hidden'
+              }}>
                 {metaDescription || 'Meta description will appear here. Make sure to write a compelling description that encourages users to click.'}
               </div>
             </div>
