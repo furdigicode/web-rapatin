@@ -90,33 +90,52 @@ export const useAdminAuth = (): UseAdminAuthReturn => {
         return { success: false, error: data?.error || 'Login failed' };
       }
 
-      // Now create a Supabase auth session for the admin user
-      const { error: authError } = await supabase.auth.signInWithPassword({
+      // Create a Supabase auth session using the admin credentials
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
         email: email,
-        password: 'admin-session' // Use a consistent password for admin session
+        password: password // Use the actual admin password
       });
 
       // If admin user doesn't exist in Supabase auth, create them
       if (authError?.message?.includes('Invalid login credentials')) {
         console.log('Creating Supabase auth user for admin...');
-        const { error: signUpError } = await supabase.auth.signUp({
+        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
           email: email,
-          password: 'admin-session',
+          password: password,
           options: {
-            emailRedirectTo: `${window.location.origin}/admin`
+            emailRedirectTo: `${window.location.origin}/admin/dashboard`
           }
         });
         
         if (signUpError) {
           console.error('Failed to create admin auth user:', signUpError);
-        } else {
-          // Try to sign in again after creating the user
-          await supabase.auth.signInWithPassword({
-            email: email,
-            password: 'admin-session'
-          });
+          setIsLoading(false);
+          return { success: false, error: 'Failed to create auth session' };
         }
+        
+        // If signup successful, try to sign in
+        if (signUpData.user) {
+          const { error: retryAuthError } = await supabase.auth.signInWithPassword({
+            email: email,
+            password: password
+          });
+          
+          if (retryAuthError) {
+            console.error('Failed to sign in after signup:', retryAuthError);
+          }
+        }
+      } else if (authError) {
+        console.error('Auth session creation failed:', authError);
+        setIsLoading(false);
+        return { success: false, error: 'Failed to create auth session' };
       }
+
+      // Verify we have a valid session
+      const { data: sessionData } = await supabase.auth.getSession();
+      console.log('Supabase session created:', { 
+        hasSession: !!sessionData.session, 
+        hasUser: !!sessionData.session?.user 
+      });
 
       setStoredToken(data.token);
       setAdmin(data.admin);
