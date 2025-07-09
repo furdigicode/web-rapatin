@@ -269,11 +269,6 @@ const BlogPost = () => {
                     {post.title}
                   </h1>
                   
-                  <div className="mb-4">
-                    <Badge variant="secondary" className="bg-white/20 text-white border-white/30">
-                      {post.category}
-                    </Badge>
-                  </div>
                   
                   <div className="flex flex-wrap items-center gap-4 text-sm text-white/90">
                     <div className="flex items-center gap-2">
@@ -311,9 +306,6 @@ const BlogPost = () => {
                   {post.title}
                 </h1>
                 
-                <div className="mb-4">
-                  <Badge variant="outline">{post.category}</Badge>
-                </div>
                 
                 <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
                   <div className="flex items-center gap-2">
@@ -382,38 +374,6 @@ const BlogPost = () => {
                   dangerouslySetInnerHTML={{ __html: post.content }}
                 />
 
-                <Separator className="my-8 md:my-12" />
-
-                {/* Article Footer */}
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between py-4 gap-4">
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
-                    <Badge variant="outline">{post.category}</Badge>
-                    <span className="text-sm text-muted-foreground">
-                      Dipublikasikan {formatDate(post.created_at)}
-                    </span>
-                  </div>
-                  
-                  <div className="flex items-center gap-1">
-                    <Button variant="outline" size="sm" onClick={() => shareToSocial('email')} title="Bagikan via Email">
-                      <Mail size={16} />
-                    </Button>
-                    <Button variant="outline" size="sm" onClick={() => shareToSocial('whatsapp')} title="Bagikan via WhatsApp">
-                      <MessageCircle size={16} />
-                    </Button>
-                    <Button variant="outline" size="sm" onClick={() => shareToSocial('telegram')} title="Bagikan via Telegram">
-                      <Send size={16} />
-                    </Button>
-                    <Button variant="outline" size="sm" onClick={() => shareToSocial('facebook')} title="Bagikan via Facebook">
-                      <Facebook size={16} />
-                    </Button>
-                    <Button variant="outline" size="sm" onClick={() => shareToSocial('twitter')} title="Bagikan via Twitter">
-                      <Twitter size={16} />
-                    </Button>
-                    <Button variant="outline" size="sm" onClick={copyURL} title="Salin Link">
-                      <Link2 size={16} />
-                    </Button>
-                  </div>
-                </div>
               </article>
 
               {/* Sidebar */}
