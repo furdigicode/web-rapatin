@@ -384,15 +384,22 @@ const BlogManagement = () => {
   const renderBlogForm = (action: 'create' | 'edit') => {
     return (
       <div className="space-y-8">
-        <div className="flex justify-between items-center">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 p-4 sm:p-6 border-b">
           <h2 className="text-2xl font-bold">
             {action === 'create' ? 'Buat Artikel Baru' : 'Edit Artikel'}
           </h2>
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={() => action === 'create' ? setIsCreating(false) : setIsEditing(null)}>
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+            <Button 
+              variant="outline" 
+              onClick={() => action === 'create' ? setIsCreating(false) : setIsEditing(null)}
+              className="w-full sm:w-auto order-2 sm:order-1"
+            >
               Batal
             </Button>
-            <Button onClick={action === 'create' ? handleCreatePost : handleUpdatePost}>
+            <Button 
+              onClick={action === 'create' ? handleCreatePost : handleUpdatePost}
+              className="w-full sm:w-auto order-1 sm:order-2"
+            >
               {action === 'create' ? 'Simpan Artikel' : 'Perbarui Artikel'}
             </Button>
           </div>
@@ -575,12 +582,12 @@ const BlogManagement = () => {
         renderBlogForm('edit')
       ) : (
         <div className="space-y-6">
-          <div className="flex justify-between items-center">
-            <div>
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 p-4 sm:p-6">
+            <div className="space-y-1">
               <h2 className="text-2xl font-bold">Manajemen Artikel</h2>
               <p className="text-muted-foreground">Kelola semua artikel blog Anda</p>
             </div>
-            <Button onClick={() => setIsCreating(true)} className="gap-2">
+            <Button onClick={() => setIsCreating(true)} className="gap-2 w-full sm:w-auto">
               <Plus size={16} />
               Tambah Artikel
             </Button>
@@ -588,10 +595,10 @@ const BlogManagement = () => {
           
           <div className="space-y-4">
             {blogPosts.length === 0 ? (
-              <Card>
-                <CardContent className="p-6 text-center">
-                  <p className="text-muted-foreground mb-4">Belum ada artikel. Klik tombol di atas untuk membuat artikel pertama Anda.</p>
-                  <Button onClick={() => setIsCreating(true)} className="gap-2">
+                <Card>
+                <CardContent className="p-6 sm:p-8 text-center">
+                  <p className="text-muted-foreground mb-6">Belum ada artikel. Klik tombol di atas untuk membuat artikel pertama Anda.</p>
+                  <Button onClick={() => setIsCreating(true)} className="gap-2 w-full sm:w-auto">
                     <Plus size={16} />
                     Tambah Artikel
                   </Button>
