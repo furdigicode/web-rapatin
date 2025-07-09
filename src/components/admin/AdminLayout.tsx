@@ -105,7 +105,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title }) => {
         }`}
       >
         <div className="p-4 flex items-center justify-between border-b">
-          {isSidebarOpen ? (
+          {isSidebarOpen && (
             <Link to="/admin/dashboard" className="flex items-center">
               <img 
                 src="/lovable-uploads/2daea350-0851-4dd8-8f79-ee07aaaad905.png" 
@@ -114,14 +114,6 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title }) => {
               />
               <span className="font-bold">Admin</span>
             </Link>
-          ) : (
-            <span className="w-8 h-8 flex items-center justify-center">
-              <img 
-                src="/lovable-uploads/2daea350-0851-4dd8-8f79-ee07aaaad905.png" 
-                alt="Logo" 
-                className="h-6" 
-              />
-            </span>
           )}
           <button 
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
