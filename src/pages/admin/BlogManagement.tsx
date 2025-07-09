@@ -15,6 +15,7 @@ import SEOPanel from '@/components/admin/SEOPanel';
 import { BlogPost, BlogPostFormData, defaultBlogPostFormData } from '@/types/BlogTypes';
 import { supabase } from '@/integrations/supabase/client';
 import { DeleteConfirmation } from '@/components/blog/DeleteConfirmation';
+import AIArticleGenerator from '@/components/admin/AIArticleGenerator';
 
 const BlogManagement = () => {
   const { toast } = useToast();
@@ -381,6 +382,14 @@ const BlogManagement = () => {
     }
   };
 
+  const handleAIArticleGenerated = (articleData: Partial<BlogPostFormData>) => {
+    setFormData({
+      ...formData,
+      ...articleData,
+      category: articleData.category || formData.category || (categories.length > 0 ? categories[0] : '')
+    });
+  };
+
   const renderBlogForm = (action: 'create' | 'edit') => {
     return (
       <div className="space-y-8">
@@ -407,10 +416,18 @@ const BlogManagement = () => {
 
         <Tabs defaultValue="content">
           <TabsList>
+            <TabsTrigger value="ai-generator">AI Generator</TabsTrigger>
             <TabsTrigger value="content">Konten</TabsTrigger>
             <TabsTrigger value="seo">SEO</TabsTrigger>
             <TabsTrigger value="settings">Pengaturan</TabsTrigger>
           </TabsList>
+          
+          <TabsContent value="ai-generator">
+            <AIArticleGenerator 
+              onArticleGenerated={handleAIArticleGenerated}
+              currentFormData={formData}
+            />
+          </TabsContent>
           
           <TabsContent value="content">
             <Card>
