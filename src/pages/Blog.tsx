@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Card, CardContent } from '@/components/ui/card';
-import { Calendar, User, Loader2 } from 'lucide-react';
+import { Calendar, User, Clock, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { format } from 'date-fns';
 import { id as localeId } from 'date-fns/locale';
@@ -18,6 +18,7 @@ interface BlogPost {
   category: string;
   author: string;
   created_at: string;
+  content: string;
 }
 
 const Blog = () => {
@@ -39,6 +40,7 @@ const Blog = () => {
             category, 
             author,
             created_at,
+            content,
             authors!inner(name)
           `)
           .eq('status', 'published')
@@ -70,6 +72,18 @@ const Blog = () => {
     } catch {
       return 'Tanggal tidak valid';
     }
+  };
+
+  const calculateReadingTime = (content: string) => {
+    // Strip HTML tags and count words
+    const plainText = content.replace(/<[^>]*>/g, '');
+    const wordCount = plainText.trim().split(/\s+/).length;
+    
+    // Average reading speed: 225 words per minute
+    const readingTimeMinutes = Math.ceil(wordCount / 225);
+    
+    // Minimum 1 minute
+    return Math.max(1, readingTimeMinutes);
   };
 
   if (loading) {
@@ -155,6 +169,10 @@ const Blog = () => {
                         <div className="flex items-center">
                           <Calendar size={14} className="mr-1" />
                           <span>{formatDate(post.created_at)}</span>
+                        </div>
+                        <div className="flex items-center">
+                          <Clock size={14} className="mr-1" />
+                          <span>{calculateReadingTime(post.content)} menit baca</span>
                         </div>
                       </div>
                       
