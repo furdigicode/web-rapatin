@@ -23,9 +23,6 @@ export default defineConfig(({ mode }) => ({
     },
   },
   build: {
-    emptyOutDir: false, // ✅ jangan hapus dist saat build
-    rollupOptions: {
-      external: ['react-quill']
-    }
+    emptyOutDir: true,
   },
 }));

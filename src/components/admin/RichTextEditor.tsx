@@ -1,5 +1,5 @@
-import React, { useMemo, useEffect, useState } from 'react';
-import { Skeleton } from '@/components/ui/skeleton';
+import React from 'react';
+import { Textarea } from '@/components/ui/textarea';
 
 interface RichTextEditorProps {
   value: string;
@@ -12,94 +12,18 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
   onChange,
   placeholder = "Tulis konten artikel di sini..."
 }) => {
-  const [ReactQuill, setReactQuill] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [hasError, setHasError] = useState(false);
-  
-  const modules = useMemo(() => ({
-    toolbar: {
-      container: [
-        [{ 'header': [1, 2, 3, false] }],
-        ['bold', 'italic', 'underline', 'strike'],
-        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-        [{ 'script': 'sub'}, { 'script': 'super' }],
-        [{ 'indent': '-1'}, { 'indent': '+1' }],
-        ['blockquote', 'code-block'],
-        [{ 'align': [] }],
-        ['link', 'image'],
-        [{ 'color': [] }, { 'background': [] }],
-        ['clean']
-      ],
-    },
-    clipboard: {
-      matchVisual: false,
-    }
-  }), []);
-
-  const formats = [
-    'header',
-    'bold', 'italic', 'underline', 'strike',
-    'list', 'bullet', 'indent',
-    'script',
-    'blockquote', 'code-block',
-    'align',
-    'link', 'image',
-    'color', 'background',
-    'clean'
-  ];
-
-  useEffect(() => {
-    const loadReactQuill = async () => {
-      try {
-        setIsLoading(true);
-        const { default: QuillComponent } = await import('react-quill');
-        await import('react-quill/dist/quill.snow.css');
-        setReactQuill(() => QuillComponent);
-        setIsLoading(false);
-      } catch (error) {
-        console.error('Failed to load ReactQuill:', error);
-        setHasError(true);
-        setIsLoading(false);
-      }
-    };
-
-    loadReactQuill();
-  }, []);
-
-  if (isLoading) {
-    return (
-      <div className="rich-text-editor">
-        <Skeleton className="h-[300px] w-full" />
-      </div>
-    );
-  }
-
-  if (hasError || !ReactQuill) {
-    return (
-      <div className="rich-text-editor">
-        <textarea
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          placeholder={placeholder}
-          className="w-full min-h-[300px] p-3 border border-input rounded-md bg-background text-foreground resize-none focus:outline-none focus:ring-2 focus:ring-ring"
-        />
-      </div>
-    );
-  }
-
   return (
     <div className="rich-text-editor">
-      <ReactQuill
-        theme="snow"
+      <Textarea
         value={value}
-        onChange={onChange}
+        onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        modules={modules}
-        formats={formats}
-        style={{
-          minHeight: '300px',
-        }}
+        className="min-h-[300px] resize-y font-mono text-sm"
+        rows={15}
       />
+      <div className="mt-2 text-xs text-muted-foreground">
+        💡 Tip: Anda bisa menggunakan HTML tags untuk formatting (contoh: &lt;h2&gt;, &lt;p&gt;, &lt;strong&gt;, &lt;em&gt;, &lt;ul&gt;, &lt;ol&gt;, &lt;li&gt;)
+      </div>
     </div>
   );
 };
