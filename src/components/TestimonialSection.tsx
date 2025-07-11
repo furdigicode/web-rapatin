@@ -140,7 +140,7 @@ const TestimonialSection = () => {
               slidesToScroll: 1,
               loop: true 
             }} 
-            plugins={[autoplayPlugin]}
+            plugins={[autoplayPlugin as any]}
             className="w-full relative"
           >
             <CarouselContent>

@@ -78,7 +78,7 @@ const HeroSection: React.FC = () => {
               loop: true,
               dragFree: true,
               containScroll: false
-            }} plugins={[autoplayPlugin]} className="w-full">
+            }} plugins={[autoplayPlugin as any]} className="w-full">
               <CarouselContent className="py-4">
                 {[...Array(2)].map((_, copy) => <React.Fragment key={`copy-${copy}`}>
                 <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
