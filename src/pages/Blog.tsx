@@ -30,12 +30,29 @@ const Blog = () => {
       try {
         const { data, error } = await supabase
           .from('blog_posts')
-          .select('id, title, slug, excerpt, cover_image, category, author, created_at')
+          .select(`
+            id, 
+            title, 
+            slug, 
+            excerpt, 
+            cover_image, 
+            category, 
+            author,
+            created_at,
+            authors!inner(name)
+          `)
           .eq('status', 'published')
           .order('created_at', { ascending: false });
 
         if (error) throw error;
-        setBlogPosts(data || []);
+        
+        // Transform data to include author name from authors table
+        const transformedData = (data || []).map(post => ({
+          ...post,
+          author: post.authors?.name || post.author || 'Admin'
+        }));
+        
+        setBlogPosts(transformedData);
       } catch (err) {
         setError('Gagal memuat artikel blog');
         console.error('Error fetching blog posts:', err);

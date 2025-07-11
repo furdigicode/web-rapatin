@@ -62,7 +62,10 @@ const BlogManagement = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('blog_posts')
-        .select('*')
+        .select(`
+          *,
+          authors!inner(name)
+        `)
         .order('created_at', { ascending: false });
       
       if (error) {
@@ -83,7 +86,7 @@ const BlogManagement = () => {
         content: post.content || '',
         coverImage: post.cover_image || '',
         category: post.category || '',
-        author: post.author || 'Admin',
+        author: post.authors?.name || post.author || 'Admin',
         author_id: post.author_id || '',
         date: new Date(post.created_at).toLocaleDateString('id-ID', { 
           year: 'numeric', 
@@ -107,6 +110,17 @@ const BlogManagement = () => {
 
   const createPostMutation = useMutation({
     mutationFn: async (postData: BlogPostFormData) => {
+      // Get author name if author_id is provided
+      let authorName = postData.author;
+      if (postData.author_id) {
+        const { data: authorData } = await supabase
+          .from('authors')
+          .select('name')
+          .eq('id', postData.author_id)
+          .single();
+        authorName = authorData?.name || postData.author;
+      }
+
       const { data, error } = await supabase
         .from('blog_posts')
         .insert({
@@ -116,7 +130,7 @@ const BlogManagement = () => {
           content: postData.content,
           cover_image: postData.coverImage,
           category: postData.category,
-          author: postData.author,
+          author: authorName,
           author_id: postData.author_id || 'da51c3a0-4e84-4fe2-adfe-bd681a2fda2f',
           status: postData.status,
           published_at: postData.status === 'published' ? new Date().toISOString() : (postData.publishedAt || null),
@@ -160,6 +174,17 @@ const BlogManagement = () => {
       const { data: { session } } = await supabase.auth.getSession();
       console.log("🔐 Auth session:", session ? "Found" : "Missing");
       
+      // Get author name if author_id is provided
+      let authorName = postData.author;
+      if (postData.author_id) {
+        const { data: authorData } = await supabase
+          .from('authors')
+          .select('name')
+          .eq('id', postData.author_id)
+          .single();
+        authorName = authorData?.name || postData.author;
+      }
+
       const updateData = {
         title: postData.title,
         slug: postData.slug,
@@ -167,7 +192,8 @@ const BlogManagement = () => {
         content: postData.content,
         cover_image: postData.coverImage,
         category: postData.category,
-        author: postData.author,
+        author: authorName,
+        author_id: postData.author_id,
         status: postData.status,
         published_at: postData.status === 'published' && !postData.publishedAt ? new Date().toISOString() : (postData.publishedAt || null),
         seo_title: postData.seoTitle,
