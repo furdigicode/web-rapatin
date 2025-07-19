@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
@@ -154,7 +153,7 @@ const Blog = () => {
               {blogPosts.map((post) => (
                 <Link to={`/blog/${post.slug}`} key={post.id}>
                   <Card className="h-full hover:shadow-lg transition-all duration-300">
-                    <div className="aspect-video overflow-hidden">
+                    <div className="aspect-video overflow-hidden rounded-t-lg">
                       <img 
                         src={post.cover_image || 'https://via.placeholder.com/600x400?text=Rapatin'} 
                         alt={post.title} 
