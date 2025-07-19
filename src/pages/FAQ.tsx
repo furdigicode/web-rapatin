@@ -1,5 +1,6 @@
 
 import React, { useState } from "react";
+import SEO from "@/components/SEO";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { 
@@ -104,8 +105,30 @@ const FAQ = () => {
     ? faqs 
     : faqs.filter(faq => faq.category === selectedCategory);
 
+  // Create FAQ structured data for rich snippets
+  const faqStructuredData = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": faqs.map(faq => ({
+      "@type": "Question",
+      "name": faq.question,
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": faq.answer
+      }
+    }))
+  };
+
   return (
     <div className="min-h-screen">
+      <SEO
+        title="FAQ - Pertanyaan Umum Rapatin | Panduan Meeting Online"
+        description="Temukan jawaban lengkap pertanyaan seputar Rapatin. Panduan pembayaran, fitur meeting, rekaman cloud, dan dukungan teknis 24/7."
+        keywords="faq rapatin, pertanyaan meeting online, bantuan zoom scheduling, panduan pembayaran meeting"
+        canonicalUrl="https://rapatin.id/faq"
+        type="website"
+        structuredData={faqStructuredData}
+      />
       <Navbar />
       
       <main className="pt-28 pb-20">

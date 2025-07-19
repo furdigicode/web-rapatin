@@ -14,6 +14,7 @@ interface SEOProps {
   publishedTime?: string;
   modifiedTime?: string;
   articleSection?: string;
+  structuredData?: object;
 }
 
 const SEO: React.FC<SEOProps> = ({
@@ -27,10 +28,34 @@ const SEO: React.FC<SEOProps> = ({
   author,
   publishedTime,
   modifiedTime,
-  articleSection
+  articleSection,
+  structuredData
 }) => {
   const fullImageUrl = image.startsWith('http') ? image : `https://rapatin.id${image}`;
   const pageUrl = canonicalUrl || url;
+  
+  // Default organization structured data
+  const defaultStructuredData = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Rapatin",
+    "url": "https://rapatin.id",
+    "logo": "https://rapatin.id/lovable-uploads/b85c0fd2-b1c7-4ba8-8938-bf1ac3bdeb28.png",
+    "description": "Platform meeting online pay-as-you-go terpercaya di Indonesia",
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "telephone": "+62-877-8898-0084",
+      "contactType": "customer service",
+      "email": "halo@rapatin.id"
+    },
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "Semarang",
+      "addressCountry": "Indonesia"
+    }
+  };
+
+  const finalStructuredData = structuredData || defaultStructuredData;
   
   return (
     <Helmet>
@@ -48,6 +73,7 @@ const SEO: React.FC<SEOProps> = ({
       <meta property="og:title" content={title} />
       <meta property="og:description" content={description} />
       <meta property="og:image" content={fullImageUrl} />
+      <meta property="og:site_name" content="Rapatin" />
       {articleSection && <meta property="article:section" content={articleSection} />}
       {publishedTime && <meta property="article:published_time" content={publishedTime} />}
       {modifiedTime && <meta property="article:modified_time" content={modifiedTime} />}
@@ -65,6 +91,12 @@ const SEO: React.FC<SEOProps> = ({
       {/* Additional SEO meta tags */}
       <meta name="robots" content="index, follow" />
       <meta name="googlebot" content="index, follow" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      
+      {/* Structured Data */}
+      <script type="application/ld+json">
+        {JSON.stringify(finalStructuredData)}
+      </script>
     </Helmet>
   );
 };

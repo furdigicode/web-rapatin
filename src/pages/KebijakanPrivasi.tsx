@@ -1,5 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
+import SEO from '@/components/SEO';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 
@@ -108,6 +109,13 @@ const KebijakanPrivasi = () => {
 
   return (
     <div className="min-h-screen">
+      <SEO
+        title="Kebijakan Privasi - Rapatin Lindungi Data Pengguna Meeting Online"
+        description="Kebijakan privasi Rapatin dalam melindungi data pribadi pengguna meeting online. Keamanan informasi dan transparansi penggunaan data."
+        keywords="kebijakan privasi rapatin, keamanan data meeting, perlindungan privasi zoom"
+        canonicalUrl="https://rapatin.id/kebijakan-privasi"
+        type="website"
+      />
       <Navbar />
       
       <main className="pt-28 pb-20">

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import SEO from '@/components/SEO';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Mail, MapPin, MessageSquare, MessageCircle } from 'lucide-react';
@@ -13,6 +14,7 @@ const defaultContactData = {
   address: "Desa Tempel, Jatisari, Mijen, Kota Semarang",
   livechat: "Dukungan langsung melalui livechat di aplikasi"
 };
+
 const Kontak = () => {
   const {
     toast
@@ -32,7 +34,15 @@ const Kontak = () => {
       window.$crisp.push(['do', 'chat:open']);
     }
   };
-  return <div className="min-h-screen">
+  return (
+    <div className="min-h-screen">
+      <SEO
+        title="Hubungi Kami - Customer Service Rapatin 24/7 | Dukungan Meeting"
+        description="Butuh bantuan meeting online? Hubungi customer service Rapatin via WhatsApp, email, live chat. Dukungan teknis dan konsultasi 24/7."
+        keywords="kontak rapatin, customer service meeting, bantuan zoom, support rapatin whatsapp"
+        canonicalUrl="https://rapatin.id/kontak"
+        type="website"
+      />
       <Navbar />
       
       <main className="pt-28 pb-20">
@@ -104,6 +114,8 @@ const Kontak = () => {
       </main>
       
       <Footer />
-    </div>;
+    </div>
+  );
 };
+
 export default Kontak;

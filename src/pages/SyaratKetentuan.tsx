@@ -1,5 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
+import SEO from '@/components/SEO';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 
@@ -76,6 +77,13 @@ const SyaratKetentuan = () => {
 
   return (
     <div className="min-h-screen">
+      <SEO
+        title="Syarat & Ketentuan - Rapatin Platform Meeting Online Terpercaya"
+        description="Baca syarat ketentuan penggunaan layanan Rapatin. Kebijakan meeting online, pembayaran, hak pengguna, dan tanggung jawab platform."
+        keywords="syarat ketentuan rapatin, tos meeting online, kebijakan penggunaan zoom"
+        canonicalUrl="https://rapatin.id/syarat-ketentuan"
+        type="website"
+      />
       <Navbar />
       
       <main className="pt-28 pb-20">

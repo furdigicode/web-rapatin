@@ -1,5 +1,5 @@
-
 import React, { useEffect, useState } from 'react';
+import SEO from '@/components/SEO';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Users, Award, TrendingUp, Heart, Book } from 'lucide-react';
@@ -115,6 +115,13 @@ const TentangKami = () => {
 
   return (
     <div className="min-h-screen">
+      <SEO
+        title="Tentang Kami - Rapatin Platform Meeting Online Terpercaya Indonesia"
+        description="Kenali visi misi Rapatin dalam menghadirkan solusi meeting online pay-as-you-go yang terjangkau. Tim berpengalaman untuk kemudahan rapat virtual."
+        keywords="tentang rapatin, tim rapatin, visi misi meeting online, platform rapat indonesia"
+        canonicalUrl="https://rapatin.id/tentang-kami"
+        type="website"
+      />
       <Navbar />
       
       <main className="pt-28 pb-20">

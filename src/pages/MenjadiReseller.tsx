@@ -1,4 +1,5 @@
 import React from 'react';
+import SEO from '@/components/SEO';
 import { Button } from "@/components/ui/button";
 import { DollarSign, Shield, BarChart as ChartBar, Users, Headphones, ArrowRight, CheckCircle2, Calendar, Video, Calculator, CreditCard, TrendingUp, Wallet, CreditCard as CardIcon, Link, Share2 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
@@ -98,7 +99,15 @@ const MenjadiReseller = () => {
     }
   ];
   
-  return <div className="min-h-screen">
+  return (
+    <div className="min-h-screen">
+      <SEO
+        title="Program Reseller Rapatin - Peluang Bisnis Meeting Online Menguntungkan"
+        description="Bergabung program reseller Rapatin dengan harga khusus 75% lebih murah. Bisnis meeting online tanpa modal besar dan komitmen bulanan."
+        keywords="reseller rapatin, bisnis meeting online, peluang usaha zoom, affiliate program meeting"
+        canonicalUrl="https://rapatin.id/menjadi-reseller"
+        type="website"
+      />
       <Navbar />
       
       {/* Hero Section */}
@@ -502,7 +511,8 @@ const MenjadiReseller = () => {
       </section>
       
       <Footer />
-    </div>;
+    </div>
+  );
 };
 
 export default MenjadiReseller;
