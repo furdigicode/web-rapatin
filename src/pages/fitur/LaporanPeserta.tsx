@@ -1,100 +1,127 @@
 
 import React from 'react';
-import FeatureLayout from '@/components/FeatureLayout';
+import SEO from '@/components/SEO';
+import ProductPageLayout from '@/components/layout/ProductPageLayout';
+import Navbar from '@/components/Navbar';
+import GenericHeroSection from '@/components/shared/GenericHeroSection';
+import GenericFeatureGrid from '@/components/shared/GenericFeatureGrid';
+import GenericStepsSection from '@/components/shared/GenericStepsSection';
+import TestimonialSection from '@/components/TestimonialSection';
 import FinalCTA from '@/components/FinalCTA';
-import { Card, CardContent } from '@/components/ui/card';
-import { FileText, Users, Clock, Download, BarChart, Filter } from 'lucide-react';
+import Footer from '@/components/Footer';
+import { 
+  FileText, 
+  BarChart3, 
+  Download, 
+  Clock,
+  Users,
+  TrendingUp,
+  Filter,
+  Calendar
+} from 'lucide-react';
 
 const LaporanPeserta = () => {
+  const heroData = {
+    badge: "📊 Analytics Detail",
+    title: "Laporan Peserta - Insights Meeting yang Mendalam",
+    subtitle: "Dapatkan laporan lengkap tentang partisipasi peserta, durasi kehadiran, dan analytics meeting untuk evaluasi yang lebih baik.",
+    ctaPrimary: "Lihat Demo Laporan",
+    ctaSecondary: "Mulai Gratis",
+    image: "/lovable-uploads/e7e34560-7715-4bb4-9fa9-26f74f4090b8.png",
+    imageAlt: "Laporan Peserta Meeting"
+  };
+
   const features = [
     {
-      icon: <Users />,
-      title: 'Data Kehadiran',
-      description: 'Ketahui siapa saja yang hadir dalam rapat Anda dengan detail lengkap.'
+      icon: FileText,
+      title: "Laporan Komprehensif",
+      description: "Laporan detail tentang setiap peserta: waktu masuk, keluar, durasi kehadiran, dan tingkat partisipasi."
     },
     {
-      icon: <Clock />,
-      title: 'Waktu Partisipasi',
-      description: 'Lacak berapa lama setiap peserta bergabung dalam rapat Anda.'
+      icon: BarChart3,
+      title: "Analytics Visual",
+      description: "Grafik dan chart yang mudah dipahami untuk melihat tren partisipasi dan engagement peserta."
     },
     {
-      icon: <Download />,
-      title: 'Ekspor Data',
-      description: 'Unduh laporan dalam format CSV atau PDF untuk analisis lebih lanjut.'
+      icon: Download,
+      title: "Export Multi Format",
+      description: "Download laporan dalam format PDF, Excel, atau CSV untuk analisis lebih lanjut atau dokumentasi."
     },
     {
-      icon: <BarChart />,
-      title: 'Visualisasi Data',
-      description: 'Lihat grafik partisipasi peserta untuk mendapatkan wawasan yang lebih baik.'
+      icon: Clock,
+      title: "Tracking Waktu Real-time",
+      description: "Pelacakan waktu kehadiran secara real-time dengan akurasi tinggi untuk setiap peserta."
     },
     {
-      icon: <Filter />,
-      title: 'Filter Laporan',
-      description: 'Saring laporan berdasarkan tanggal, durasi, atau peserta.'
+      icon: Users,
+      title: "Profil Peserta Detail",
+      description: "Informasi lengkap peserta termasuk frekuensi kehadiran dan tingkat engagement historical."
+    },
+    {
+      icon: TrendingUp,
+      title: "Analisis Tren",
+      description: "Identifikasi pola kehadiran dan engagement untuk meningkatkan efektivitas meeting mendatang."
+    },
+    {
+      icon: Filter,
+      title: "Filter & Pencarian",
+      description: "Filter laporan berdasarkan tanggal, peserta, durasi, atau kriteria lainnya dengan mudah."
+    },
+    {
+      icon: Calendar,
+      title: "Laporan Terjadwal",
+      description: "Atur laporan otomatis yang dikirim secara berkala via email untuk monitoring rutin."
+    }
+  ];
+
+  const steps = [
+    {
+      number: "01",
+      title: "Meeting Berlangsung",
+      description: "Sistem otomatis merekam data partisipasi setiap peserta selama meeting berlangsung."
+    },
+    {
+      number: "02", 
+      title: "Data Ter-compile",
+      description: "Setelah meeting selesai, semua data partisipasi dikompilasi menjadi laporan terstruktur."
+    },
+    {
+      number: "03",
+      title: "Generate Laporan", 
+      description: "Akses laporan melalui dashboard dengan berbagai format visualisasi yang informatif."
+    },
+    {
+      number: "04",
+      title: "Analisis & Action",
+      description: "Gunakan insights dari laporan untuk meningkatkan engagement dan efektivitas meeting."
     }
   ];
 
   return (
-    <FeatureLayout
-      title="Laporan Peserta"
-      description="Dapatkan laporan kehadiran otomatis untuk setiap rapat untuk melacak partisipasi."
-      icon={FileText}
-    >
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
-        {features.map((feature, index) => (
-          <Card key={index} className="glass hover:shadow-elevation transition-all duration-300">
-            <CardContent className="p-6">
-              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4 text-primary">
-                {feature.icon}
-              </div>
-              <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
-              <p className="text-muted-foreground">{feature.description}</p>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-      
-      <div className="mt-16 glass p-8 rounded-xl max-w-4xl mx-auto">
-        <h2 className="text-2xl font-bold mb-6">Contoh Laporan Peserta</h2>
-        <div className="overflow-x-auto">
-          <table className="w-full border-collapse">
-            <thead>
-              <tr className="bg-primary/10">
-                <th className="border p-3 text-left">Nama</th>
-                <th className="border p-3 text-left">Email</th>
-                <th className="border p-3 text-left">Waktu Masuk</th>
-                <th className="border p-3 text-left">Waktu Keluar</th>
-                <th className="border p-3 text-left">Durasi</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td className="border p-3">Budi Santoso</td>
-                <td className="border p-3">budi@contoh.com</td>
-                <td className="border p-3">10:00 WIB</td>
-                <td className="border p-3">11:30 WIB</td>
-                <td className="border p-3">1j 30m</td>
-              </tr>
-              <tr>
-                <td className="border p-3">Siti Rahayu</td>
-                <td className="border p-3">siti@contoh.com</td>
-                <td className="border p-3">10:05 WIB</td>
-                <td className="border p-3">11:30 WIB</td>
-                <td className="border p-3">1j 25m</td>
-              </tr>
-              <tr>
-                <td className="border p-3">Agus Wijaya</td>
-                <td className="border p-3">agus@contoh.com</td>
-                <td className="border p-3">10:15 WIB</td>
-                <td className="border p-3">11:25 WIB</td>
-                <td className="border p-3">1j 10m</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-      <FinalCTA />
-    </FeatureLayout>
+    <div className="min-h-screen">
+      <SEO
+        title="Laporan Peserta - Analytics Meeting yang Mendalam | Rapatin"
+        description="Dapatkan laporan lengkap tentang partisipasi peserta, durasi kehadiran, dan analytics meeting. Export ke PDF/Excel untuk evaluasi yang lebih baik."
+        keywords="laporan peserta meeting, analytics meeting, tracking kehadiran, report attendance, evaluasi meeting, partisipasi peserta"
+        url="https://rapatin.id/fitur/laporan-peserta"
+      />
+      <ProductPageLayout navbar={<Navbar />}>
+        <GenericHeroSection {...heroData} />
+        <GenericFeatureGrid 
+          title="Fitur Laporan yang Powerful"
+          subtitle="Analytics mendalam untuk evaluasi meeting yang lebih efektif"
+          features={features}
+        />
+        <GenericStepsSection
+          title="Cara Kerja Laporan Peserta"
+          subtitle="Otomatis dan akurat untuk setiap meeting"
+          steps={steps}
+        />
+        <TestimonialSection />
+        <FinalCTA />
+        <Footer />
+      </ProductPageLayout>
+    </div>
   );
 };
 

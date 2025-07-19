@@ -1,8 +1,8 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import SEO from '@/components/SEO';
 import { Card, CardContent } from '@/components/ui/card';
 import { Calendar, User, Clock, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
@@ -94,6 +94,12 @@ const Blog = () => {
   if (loading) {
     return (
       <div className="min-h-screen flex flex-col">
+        <SEO
+          title="Blog Rapatin - Tips & Artikel Meeting Online Terpercaya"
+          description="Baca artikel dan tips terbaru seputar meeting online, zoom scheduling, dan produktivitas dari para ahli. Panduan lengkap untuk optimasi rapat virtual Anda."
+          keywords="blog meeting online, tips zoom, artikel rapat virtual, panduan meeting, zoom scheduling tips, produktivitas rapat"
+          url="https://rapatin.id/blog"
+        />
         <Navbar />
         <main className="flex-grow pt-28 pb-20">
           <div className="container mx-auto px-4">
@@ -116,6 +122,12 @@ const Blog = () => {
   if (error) {
     return (
       <div className="min-h-screen flex flex-col">
+        <SEO
+          title="Blog Rapatin - Tips & Artikel Meeting Online Terpercaya"
+          description="Baca artikel dan tips terbaru seputar meeting online, zoom scheduling, dan produktivitas dari para ahli. Panduan lengkap untuk optimasi rapat virtual Anda."
+          keywords="blog meeting online, tips zoom, artikel rapat virtual, panduan meeting, zoom scheduling tips, produktivitas rapat"
+          url="https://rapatin.id/blog"
+        />
         <Navbar />
         <main className="flex-grow pt-28 pb-20">
           <div className="container mx-auto px-4">
@@ -137,6 +149,12 @@ const Blog = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
+      <SEO
+        title="Blog Rapatin - Tips & Artikel Meeting Online Terpercaya"
+        description="Baca artikel dan tips terbaru seputar meeting online, zoom scheduling, dan produktivitas dari para ahli. Panduan lengkap untuk optimasi rapat virtual Anda."
+        keywords="blog meeting online, tips zoom, artikel rapat virtual, panduan meeting, zoom scheduling tips, produktivitas rapat"
+        url="https://rapatin.id/blog"
+      />
       <Navbar />
       
       <main className="flex-grow pt-28 pb-20">

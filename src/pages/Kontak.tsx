@@ -1,6 +1,8 @@
+
 import React, { useEffect, useState } from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import SEO from '@/components/SEO';
 import { Mail, MapPin, MessageSquare, MessageCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -13,10 +15,9 @@ const defaultContactData = {
   address: "Desa Tempel, Jatisari, Mijen, Kota Semarang",
   livechat: "Dukungan langsung melalui livechat di aplikasi"
 };
+
 const Kontak = () => {
-  const {
-    toast
-  } = useToast();
+  const { toast } = useToast();
   const [contactData, setContactData] = useState(defaultContactData);
 
   // Load contact data from localStorage
@@ -26,13 +27,22 @@ const Kontak = () => {
       setContactData(JSON.parse(savedData));
     }
   }, []);
+
   const openLiveChat = () => {
     // Functionality to open CRISP chat
     if (window.$crisp) {
       window.$crisp.push(['do', 'chat:open']);
     }
   };
-  return <div className="min-h-screen">
+
+  return (
+    <div className="min-h-screen">
+      <SEO
+        title="Hubungi Kami - Customer Service Rapatin 24/7"
+        description="Butuh bantuan dengan layanan meeting online Rapatin? Hubungi customer service kami via email, WhatsApp, atau live chat. Dukungan 24/7 siap membantu Anda."
+        keywords="kontak rapatin, customer service, bantuan meeting online, support rapatin, whatsapp rapatin, email support"
+        url="https://rapatin.id/kontak"
+      />
       <Navbar />
       
       <main className="pt-28 pb-20">
@@ -95,7 +105,6 @@ const Kontak = () => {
                   </div>
                   <h3 className="text-lg font-semibold mb-2">Live Chat</h3>
                   <p className="text-muted-foreground mb-3">{contactData.livechat}</p>
-                  
                 </CardContent>
               </Card>
             </div>
@@ -104,6 +113,8 @@ const Kontak = () => {
       </main>
       
       <Footer />
-    </div>;
+    </div>
+  );
 };
+
 export default Kontak;
