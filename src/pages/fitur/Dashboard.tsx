@@ -1,5 +1,5 @@
-
 import React from 'react';
+import SEO from '@/components/SEO';
 import FeatureLayout from '@/components/FeatureLayout';
 import FinalCTA from '@/components/FinalCTA';
 import { Card, CardContent } from '@/components/ui/card';
@@ -40,26 +40,35 @@ const Dashboard = () => {
   ];
 
   return (
-    <FeatureLayout
-      title="Dashboard Intuitif"
-      description="Buat atau edit jadwal dengan antarmuka modern kami yang dirancang untuk kemudahan penggunaan."
-      icon={LayoutDashboard}
-    >
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
-        {features.map((feature, index) => (
-          <Card key={index} className="glass hover:shadow-elevation transition-all duration-300">
-            <CardContent className="p-6">
-              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4 text-primary">
-                {feature.icon}
-              </div>
-              <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
-              <p className="text-muted-foreground">{feature.description}</p>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-      <FinalCTA />
-    </FeatureLayout>
+    <>
+      <SEO
+        title="Dashboard Meeting Online - Interface Modern Rapatin | Kelola Rapat Mudah"
+        description="Dashboard intuitif untuk penjadwalan, kustomisasi, akses rekaman, dan laporan rapat. Antarmuka modern untuk kemudahan penggunaan."
+        keywords="dashboard meeting, interface zoom, kelola jadwal rapat, laporan meeting online"
+        canonicalUrl="https://rapatin.id/fitur/dashboard"
+        type="website"
+      />
+      <FeatureLayout
+        title="Dashboard Intuitif"
+        description="Buat atau edit jadwal dengan antarmuka modern kami yang dirancang untuk kemudahan penggunaan."
+        icon={LayoutDashboard}
+      >
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
+          {features.map((feature, index) => (
+            <Card key={index} className="glass hover:shadow-elevation transition-all duration-300">
+              <CardContent className="p-6">
+                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4 text-primary">
+                  {feature.icon}
+                </div>
+                <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
+                <p className="text-muted-foreground">{feature.description}</p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+        <FinalCTA />
+      </FeatureLayout>
+    </>
   );
 };
 

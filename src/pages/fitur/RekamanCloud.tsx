@@ -1,5 +1,5 @@
-
 import React from 'react';
+import SEO from '@/components/SEO';
 import FeatureLayout from '@/components/FeatureLayout';
 import FinalCTA from '@/components/FinalCTA';
 import { Card, CardContent } from '@/components/ui/card';
@@ -40,26 +40,35 @@ const RekamanCloud = () => {
   ];
 
   return (
-    <FeatureLayout
-      title="Rekaman Cloud"
-      description="Rekaman otomatis disimpan dan tersedia untuk diunduh selama 72 jam melalui dashboard Anda."
-      icon={CloudLightning}
-    >
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
-        {features.map((feature, index) => (
-          <Card key={index} className="glass hover:shadow-elevation transition-all duration-300">
-            <CardContent className="p-6">
-              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4 text-primary">
-                {feature.icon}
-              </div>
-              <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
-              <p className="text-muted-foreground">{feature.description}</p>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-      <FinalCTA />
-    </FeatureLayout>
+    <>
+      <SEO
+        title="Rekaman Cloud Otomatis - Simpan & Unduh Rekaman Meeting | Rapatin"
+        description="Rekaman rapat otomatis disimpan di cloud selama 72 jam. Notifikasi email, unduh kapan saja, keamanan terjamin dengan enkripsi."
+        keywords="rekaman cloud, recording meeting otomatis, unduh rekaman zoom, cloud storage rapat"
+        canonicalUrl="https://rapatin.id/fitur/rekaman-cloud"
+        type="website"
+      />
+      <FeatureLayout
+        title="Rekaman Cloud"
+        description="Rekaman otomatis disimpan dan tersedia untuk diunduh selama 72 jam melalui dashboard Anda."
+        icon={CloudLightning}
+      >
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
+          {features.map((feature, index) => (
+            <Card key={index} className="glass hover:shadow-elevation transition-all duration-300">
+              <CardContent className="p-6">
+                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4 text-primary">
+                  {feature.icon}
+                </div>
+                <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
+                <p className="text-muted-foreground">{feature.description}</p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+        <FinalCTA />
+      </FeatureLayout>
+    </>
   );
 };
 

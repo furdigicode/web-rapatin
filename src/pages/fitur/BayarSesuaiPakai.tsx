@@ -1,5 +1,5 @@
-
 import React from 'react';
+import SEO from '@/components/SEO';
 import FeatureLayout from '@/components/FeatureLayout';
 import FinalCTA from '@/components/FinalCTA';
 import { Card, CardContent } from '@/components/ui/card';
@@ -40,26 +40,35 @@ const BayarSesuaiPakai = () => {
   ];
 
   return (
-    <FeatureLayout
-      title="Model Bayar Sesuai Pakai"
-      description="Top up saldo akun Anda dan bayar hanya untuk rapat yang Anda jadwalkan. Tanpa langganan bulanan atau biaya tersembunyi."
-      icon={BadgeDollarSign}
-    >
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
-        {features.map((feature, index) => (
-          <Card key={index} className="glass hover:shadow-elevation transition-all duration-300">
-            <CardContent className="p-6">
-              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4 text-primary">
-                {feature.icon}
-              </div>
-              <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
-              <p className="text-muted-foreground">{feature.description}</p>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-      <FinalCTA />
-    </FeatureLayout>
+    <>
+      <SEO
+        title="Bayar Sesuai Pakai - Model Pricing Fleksibel Rapatin | Tanpa Langganan"
+        description="Top up saldo dan bayar hanya untuk rapat yang dijadwalkan. Tanpa langganan bulanan, harga transparan berdasarkan peserta dan durasi."
+        keywords="bayar sesuai pakai, zoom tanpa langganan, pricing fleksibel meeting, top up saldo rapat"
+        canonicalUrl="https://rapatin.id/fitur/bayar-sesuai-pakai"
+        type="website"
+      />
+      <FeatureLayout
+        title="Model Bayar Sesuai Pakai"
+        description="Top up saldo akun Anda dan bayar hanya untuk rapat yang Anda jadwalkan. Tanpa langganan bulanan atau biaya tersembunyi."
+        icon={BadgeDollarSign}
+      >
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
+          {features.map((feature, index) => (
+            <Card key={index} className="glass hover:shadow-elevation transition-all duration-300">
+              <CardContent className="p-6">
+                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4 text-primary">
+                  {feature.icon}
+                </div>
+                <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
+                <p className="text-muted-foreground">{feature.description}</p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+        <FinalCTA />
+      </FeatureLayout>
+    </>
   );
 };
 
