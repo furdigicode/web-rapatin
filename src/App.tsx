@@ -36,8 +36,6 @@ import BlogManagement from "./pages/admin/BlogManagement";
 import ContentManagement from "./pages/admin/ContentManagement";
 import ProtectedRoute from "./components/admin/ProtectedRoute";
 
-import WhatsAppWidget from "./components/WhatsAppWidget";
-
 const queryClient = new QueryClient();
 
 const AppRoutes = () => {
@@ -96,7 +94,6 @@ const App = () => {
         <Sonner />
         <BrowserRouter>
           <AppRoutes />
-          <WhatsAppWidget />
         </BrowserRouter>
       </QueryClientProvider>
     </HelmetProvider>
