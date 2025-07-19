@@ -25,110 +25,77 @@ const RekamanCloud = () => {
     badge: "☁️ Cloud Storage",
     title: "Rekaman Cloud - Simpan & Akses Meeting Kapan Saja",
     subtitle: "Rekam meeting otomatis dan simpan di cloud storage yang aman. Akses, bagikan, dan kelola rekaman meeting dengan mudah dari mana saja.",
-    primaryCTA: {
-      text: "Mulai Rekam Meeting",
-      href: "#"
-    },
-    secondaryCTA: {
-      text: "Lihat Demo",
-      href: "#"
-    },
-    highlights: [
-      { icon: "Cloud", text: "Auto Storage" },
-      { icon: "Play", text: "HD Quality" },
-      { icon: "Download", text: "Download Fleksibel" },
-      { icon: "Shield", text: "Keamanan Terjamin" }
-    ],
-    image: {
-      src: "/lovable-uploads/c64ceec2-7c79-4671-912e-b179358001aa.png",
-      alt: "Cloud Recording Storage"
-    }
+    ctaPrimary: "Mulai Rekam Meeting",
+    ctaSecondary: "Lihat Demo",
+    image: "/lovable-uploads/c64ceec2-7c79-4671-912e-b179358001aa.png",
+    imageAlt: "Cloud Recording Storage"
   };
 
-  const featureContent = {
-    badge: "☁️ Fitur Unggulan",
-    title: "Fitur Cloud Recording Terdepan",
-    subtitle: "Solusi penyimpanan dan akses rekaman meeting yang aman dan mudah",
-    features: [
-      {
-        icon: "Cloud",
-        title: "Auto Cloud Storage",
-        description: "Rekaman meeting otomatis tersimpan di cloud storage yang aman dengan backup redundan.",
-        delay: "delay-100"
-      },
-      {
-        icon: "Play",
-        title: "HD Video Quality", 
-        description: "Rekaman berkualitas tinggi dengan audio jernih dan video HD untuk pengalaman viewing terbaik.",
-        delay: "delay-200"
-      },
-      {
-        icon: "Download",
-        title: "Download Fleksibel",
-        description: "Download rekaman dalam berbagai format dan kualitas sesuai kebutuhan penyimpanan lokal.",
-        delay: "delay-300"
-      },
-      {
-        icon: "Shield",
-        title: "Keamanan Terjamin",
-        description: "Enkripsi end-to-end untuk semua rekaman dengan kontrol akses yang ketat dan audit trail.",
-        delay: "delay-100"
-      },
-      {
-        icon: "Search",
-        title: "Pencarian Cerdas",
-        description: "Cari rekaman dengan mudah berdasarkan tanggal, judul, peserta, atau kata kunci dalam transkrip.",
-        delay: "delay-200"
-      },
-      {
-        icon: "Share2",
-        title: "Berbagi Mudah",
-        description: "Bagikan rekaman dengan link aman, kontrol akses, dan masa berlaku yang dapat diatur.",
-        delay: "delay-300"
-      }
-    ],
-    useCases: {
-      title: "Perfect untuk <span class='text-primary'>Semua Kebutuhan</span>",
-      items: [
-        { icon: "Building", title: "Corporate" },
-        { icon: "GraduationCap", title: "Training" },
-        { icon: "Users", title: "Webinar" },
-        { icon: "FileText", title: "Documentation" }
-      ]
+  const features = [
+    {
+      icon: Cloud,
+      title: "Auto Cloud Storage",
+      description: "Rekaman meeting otomatis tersimpan di cloud storage yang aman dengan backup redundan."
+    },
+    {
+      icon: Play,
+      title: "HD Video Quality", 
+      description: "Rekaman berkualitas tinggi dengan audio jernih dan video HD untuk pengalaman viewing terbaik."
+    },
+    {
+      icon: Download,
+      title: "Download Fleksibel",
+      description: "Download rekaman dalam berbagai format dan kualitas sesuai kebutuhan penyimpanan lokal."
+    },
+    {
+      icon: Shield,
+      title: "Keamanan Terjamin",
+      description: "Enkripsi end-to-end untuk semua rekaman dengan kontrol akses yang ketat dan audit trail."
+    },
+    {
+      icon: Search,
+      title: "Pencarian Cerdas",
+      description: "Cari rekaman dengan mudah berdasarkan tanggal, judul, peserta, atau kata kunci dalam transkrip."
+    },
+    {
+      icon: Share2,
+      title: "Berbagi Mudah",
+      description: "Bagikan rekaman dengan link aman, kontrol akses, dan masa berlaku yang dapat diatur."
+    },
+    {
+      icon: HardDrive,
+      title: "Storage Unlimited",
+      description: "Kapasitas penyimpanan yang besar tanpa batasan waktu untuk semua rekaman meeting Anda."
+    },
+    {
+      icon: Zap,
+      title: "Proses Cepat",
+      description: "Rekaman tersedia segera setelah meeting selesai dengan processing time yang minimal."
     }
-  };
+  ];
 
-  const stepsContent = {
-    badge: "🎬 Proses Mudah",
-    title: "Cara Kerja Rekaman Cloud",
-    subtitle: "Otomatis, aman, dan mudah diakses",
-    steps: [
-      {
-        number: 1,
-        icon: "Record",
-        title: "Aktifkan Recording",
-        description: "Nyalakan fitur recording saat membuat meeting atau selama meeting berlangsung."
-      },
-      {
-        number: 2,
-        icon: "Video", 
-        title: "Meeting Terekam",
-        description: "Sistem otomatis merekam seluruh meeting dengan kualitas HD dan audio jernih."
-      },
-      {
-        number: 3,
-        icon: "Upload",
-        title: "Otomatis ke Cloud", 
-        description: "Rekaman otomatis diupload dan tersimpan aman di cloud storage setelah meeting."
-      },
-      {
-        number: 4,
-        icon: "Play",
-        title: "Akses Kapan Saja",
-        description: "Akses, tonton, download, atau bagikan rekaman dari dashboard Anda kapan pun dibutuhkan."
-      }
-    ]
-  };
+  const steps = [
+    {
+      number: "01",
+      title: "Aktifkan Recording",
+      description: "Nyalakan fitur recording saat membuat meeting atau selama meeting berlangsung."
+    },
+    {
+      number: "02", 
+      title: "Meeting Terekam",
+      description: "Sistem otomatis merekam seluruh meeting dengan kualitas HD dan audio jernih."
+    },
+    {
+      number: "03",
+      title: "Otomatis ke Cloud", 
+      description: "Rekaman otomatis diupload dan tersimpan aman di cloud storage setelah meeting."
+    },
+    {
+      number: "04",
+      title: "Akses Kapan Saja",
+      description: "Akses, tonton, download, atau bagikan rekaman dari dashboard Anda kapan pun dibutuhkan."
+    }
+  ];
 
   return (
     <div className="min-h-screen">
@@ -139,9 +106,17 @@ const RekamanCloud = () => {
         url="https://rapatin.id/fitur/rekaman-cloud"
       />
       <ProductPageLayout navbar={<Navbar />}>
-        <GenericHeroSection content={heroData} />
-        <GenericFeatureGrid content={featureContent} />
-        <GenericStepsSection content={stepsContent} />
+        <GenericHeroSection {...heroData} />
+        <GenericFeatureGrid 
+          title="Fitur Rekaman Cloud Terdepan"
+          subtitle="Teknologi cloud recording yang aman, cepat, dan mudah digunakan"
+          features={features}
+        />
+        <GenericStepsSection
+          title="Cara Kerja Rekaman Cloud"
+          subtitle="Proses otomatis yang simpel dan efisien"
+          steps={steps}
+        />
         <TestimonialSection />
         <FinalCTA />
         <Footer />
