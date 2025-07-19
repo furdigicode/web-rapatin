@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Sparkles, CheckCircle, XCircle } from 'lucide-react';
+import { Loader2, Sparkles, CheckCircle, Image as ImageIcon } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from '@/integrations/supabase/client';
 import { BlogPostFormData } from '@/types/BlogTypes';
@@ -36,6 +37,7 @@ const AIArticleGenerator: React.FC<AIArticleGeneratorProps> = ({
   const { toast } = useToast();
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationComplete, setGenerationComplete] = useState(false);
+  const [generatedCoverImage, setGeneratedCoverImage] = useState<string>('');
   
   const [formData, setFormData] = useState<GenerationRequest>({
     targetKeyword: currentFormData.focusKeyword || '',
@@ -97,6 +99,7 @@ const AIArticleGenerator: React.FC<AIArticleGeneratorProps> = ({
 
     setIsGenerating(true);
     setGenerationComplete(false);
+    setGeneratedCoverImage('');
 
     try {
       console.log('Generating article with:', formData);
@@ -115,6 +118,11 @@ const AIArticleGenerator: React.FC<AIArticleGeneratorProps> = ({
 
       console.log('Generated article:', data);
 
+      // Store generated cover image for preview
+      if (data.coverImageUrl) {
+        setGeneratedCoverImage(data.coverImageUrl);
+      }
+
       // Map AI response to form data
       const articleData: Partial<BlogPostFormData> = {
         title: data.title,
@@ -124,6 +132,7 @@ const AIArticleGenerator: React.FC<AIArticleGeneratorProps> = ({
         metaDescription: data.metaDescription,
         focusKeyword: data.focusKeyword,
         slug: data.slug,
+        coverImage: data.coverImageUrl || '', // Include the generated cover image
       };
 
       onArticleGenerated(articleData);
@@ -131,7 +140,7 @@ const AIArticleGenerator: React.FC<AIArticleGeneratorProps> = ({
 
       toast({
         title: "Artikel berhasil dibuat!",
-        description: `Artikel "${data.title}" telah dibuat dengan optimasi SEO`,
+        description: `Artikel "${data.title}" telah dibuat dengan optimasi SEO dan cover image`,
       });
 
     } catch (error: any) {
@@ -165,10 +174,33 @@ const AIArticleGenerator: React.FC<AIArticleGeneratorProps> = ({
           AI Article Generator
         </CardTitle>
         <p className="text-sm text-muted-foreground">
-          Generate artikel yang dioptimasi SEO menggunakan AI
+          Generate artikel yang dioptimasi SEO dengan cover image otomatis menggunakan AI
         </p>
       </CardHeader>
       <CardContent className="space-y-6">
+        {/* Generated Cover Image Preview */}
+        {generatedCoverImage && (
+          <div className="space-y-2">
+            <Label className="flex items-center gap-2">
+              <ImageIcon className="h-4 w-4" />
+              Cover Image yang Dibuat AI
+            </Label>
+            <div className="relative">
+              <img 
+                src={generatedCoverImage} 
+                alt="Generated cover image" 
+                className="w-full h-48 object-cover rounded-md border shadow-sm"
+              />
+              <div className="absolute top-2 right-2 bg-green-500 text-white px-2 py-1 rounded-full text-xs font-medium">
+                Auto Generated
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Cover image ini akan otomatis digunakan untuk artikel yang dibuat.
+            </p>
+          </div>
+        )}
+
         {/* Target Keyword */}
         <div className="space-y-2">
           <Label htmlFor="targetKeyword">Keyword Target *</Label>
@@ -309,7 +341,7 @@ const AIArticleGenerator: React.FC<AIArticleGeneratorProps> = ({
           {isGenerating ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Sedang membuat artikel...
+              Sedang membuat artikel & cover image...
             </>
           ) : generationComplete ? (
             <>
@@ -319,7 +351,7 @@ const AIArticleGenerator: React.FC<AIArticleGeneratorProps> = ({
           ) : (
             <>
               <Sparkles className="mr-2 h-4 w-4" />
-              Generate Artikel
+              Generate Artikel + Cover Image
             </>
           )}
         </Button>
@@ -332,19 +364,20 @@ const AIArticleGenerator: React.FC<AIArticleGeneratorProps> = ({
               <span className="text-sm font-medium">Artikel berhasil dibuat!</span>
             </div>
             <p className="text-xs text-green-600 mt-1">
-              Artikel telah dioptimasi SEO dan siap untuk dipublikasikan. Periksa tab Konten untuk melihat hasil.
+              Artikel telah dioptimasi SEO dengan cover image otomatis dan siap untuk dipublikasikan. Periksa tab Konten untuk melihat hasil.
             </p>
           </div>
         )}
 
-        {/* SEO Tips */}
+        {/* Enhanced SEO Tips */}
         <div className="p-4 bg-blue-50 border border-blue-200 rounded-md">
-          <h4 className="text-sm font-medium text-blue-800 mb-2">Tips SEO:</h4>
+          <h4 className="text-sm font-medium text-blue-800 mb-2">Fitur AI Generator:</h4>
           <ul className="text-xs text-blue-600 space-y-1">
-            <li>• Gunakan keyword target di judul dan paragraf pertama</li>
-            <li>• Artikel akan include struktur H1, H2, H3 yang SEO-friendly</li>
-            <li>• FAQ section akan ditambahkan untuk featured snippets</li>
-            <li>• Meta description akan dioptimasi untuk CTR tinggi</li>
+            <li>• Artikel SEO-optimized dengan struktur H1, H2, H3 yang tepat</li>
+            <li>• Cover image otomatis dari Unsplash berdasarkan keyword</li>
+            <li>• Meta description dan SEO title yang dioptimasi</li>
+            <li>• FAQ section untuk featured snippets Google</li>
+            <li>• Konten dalam bahasa Indonesia yang engaging</li>
           </ul>
         </div>
       </CardContent>

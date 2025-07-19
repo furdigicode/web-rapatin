@@ -1,3 +1,4 @@
+
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
@@ -28,7 +29,43 @@ interface ArticleResponse {
   metaDescription: string;
   focusKeyword: string;
   slug: string;
+  coverImageUrl: string;
+  coverImageAlt: string;
 }
+
+const searchCoverImage = async (keyword: string): Promise<{ imageUrl: string; altText: string }> => {
+  try {
+    const response = await fetch('https://mepznzrijuoyvjcmkspf.supabase.co/functions/v1/unsplash-image-search', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        query: keyword,
+        orientation: 'landscape',
+        per_page: 5
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Cover image search failed: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return {
+      imageUrl: data.imageUrl,
+      altText: data.altText
+    };
+  } catch (error) {
+    console.error('Error searching cover image:', error);
+    
+    // Fallback to a default image
+    return {
+      imageUrl: 'https://images.unsplash.com/photo-1649972904349-6e44c42644a7?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&h=630&q=80',
+      altText: 'Blog cover image'
+    };
+  }
+};
 
 const generateSEOOptimizedArticle = async (request: ArticleRequest): Promise<ArticleResponse> => {
   const { targetKeyword, additionalKeywords, title, tone, length, audience, outlinePoints, provider } = request;
@@ -84,6 +121,8 @@ ${additionalKeywords && additionalKeywords.length > 0 ? `- Naturally incorporate
 - Add FAQ section for better SEO
 - Ensure natural keyword placement without keyword stuffing`;
 
+  let articleData: any;
+
   if (provider === 'openai' && openAIApiKey) {
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -108,9 +147,10 @@ ${additionalKeywords && additionalKeywords.length > 0 ? `- Naturally incorporate
     // Parse JSON response
     const jsonMatch = content.match(/\{[\s\S]*\}/);
     if (jsonMatch) {
-      return JSON.parse(jsonMatch[0]);
+      articleData = JSON.parse(jsonMatch[0]);
+    } else {
+      throw new Error('Failed to parse AI response');
     }
-    throw new Error('Failed to parse AI response');
     
   } else if (provider === 'anthropic' && anthropicApiKey) {
     const response = await fetch('https://api.anthropic.com/v1/messages', {
@@ -139,12 +179,23 @@ ${additionalKeywords && additionalKeywords.length > 0 ? `- Naturally incorporate
     // Parse JSON response
     const jsonMatch = content.match(/\{[\s\S]*\}/);
     if (jsonMatch) {
-      return JSON.parse(jsonMatch[0]);
+      articleData = JSON.parse(jsonMatch[0]);
+    } else {
+      throw new Error('Failed to parse AI response');
     }
-    throw new Error('Failed to parse AI response');
+  } else {
+    throw new Error(`No valid API key found for provider: ${provider}`);
   }
+
+  // Search for cover image based on the target keyword
+  console.log('Searching cover image for keyword:', targetKeyword);
+  const coverImage = await searchCoverImage(targetKeyword);
   
-  throw new Error(`No valid API key found for provider: ${provider}`);
+  return {
+    ...articleData,
+    coverImageUrl: coverImage.imageUrl,
+    coverImageAlt: coverImage.altText
+  };
 };
 
 serve(async (req) => {
@@ -174,7 +225,7 @@ serve(async (req) => {
     }
     
     const article = await generateSEOOptimizedArticle(request);
-    console.log('Generated article:', article.title);
+    console.log('Generated article with cover image:', article.title);
     
     return new Response(JSON.stringify(article), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
