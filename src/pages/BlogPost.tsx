@@ -1,8 +1,8 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import SEO from '@/components/SEO';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -26,6 +26,7 @@ interface BlogPostData {
   category: string;
   author: string;
   created_at: string;
+  excerpt: string | null;
   author_data: {
     id: string;
     name: string;
@@ -72,7 +73,7 @@ const BlogPost = () => {
         const { data, error } = await supabase
           .from('blog_posts')
           .select(`
-            id, title, slug, content, cover_image, category, author, created_at,
+            id, title, slug, content, cover_image, category, author, created_at, excerpt,
             author_data:authors!blog_posts_author_id_fkey (
               id, name, bio, avatar_url, specialization, slug
             )
@@ -145,6 +146,21 @@ const BlogPost = () => {
     const wordsPerMinute = 200;
     const wordCount = content.replace(/<[^>]*>/g, '').split(/\s+/).length;
     return Math.ceil(wordCount / wordsPerMinute);
+  };
+
+  const generateMetaDescription = (content: string, excerpt: string | null) => {
+    if (excerpt) return excerpt;
+    
+    const plainText = content.replace(/<[^>]*>/g, '').trim();
+    return plainText.length > 160 ? plainText.substring(0, 157) + '...' : plainText;
+  };
+
+  const generateKeywords = (title: string, category: string) => {
+    const baseKeywords = ['rapatin', 'meeting online', 'video conference', 'produktivitas'];
+    const titleWords = title.toLowerCase().split(' ').filter(word => word.length > 3);
+    const categoryKeywords = [category.toLowerCase()];
+    
+    return [...baseKeywords, ...titleWords, ...categoryKeywords].join(', ');
   };
 
   const scrollToTop = () => {
@@ -245,8 +261,25 @@ const BlogPost = () => {
     );
   }
 
+  const currentUrl = `https://rapatin.id/blog/${post.slug}`;
+  const metaDescription = generateMetaDescription(post.content, post.excerpt);
+  const keywords = generateKeywords(post.title, post.category);
+
   return (
     <div className="min-h-screen flex flex-col">
+      <SEO
+        title={`${post.title} | Rapatin Blog`}
+        description={metaDescription}
+        keywords={keywords}
+        image={post.cover_image || undefined}
+        url={currentUrl}
+        canonicalUrl={currentUrl}
+        type="article"
+        author={post.author_data?.name || post.author}
+        publishedTime={new Date(post.created_at).toISOString()}
+        articleSection={post.category}
+      />
+      
       <Navbar />
       
       {/* Reading Progress Bar */}
@@ -288,7 +321,6 @@ const BlogPost = () => {
                     {post.title}
                   </h1>
                   
-                  
                   <div className="flex flex-wrap items-center gap-4 text-sm text-white/90">
                     <div className="flex items-center gap-2">
                       <User size={16} />
@@ -325,7 +357,6 @@ const BlogPost = () => {
                   {post.title}
                 </h1>
                 
-                
                 <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
                   <div className="flex items-center gap-2">
                     <User size={16} />
@@ -344,6 +375,38 @@ const BlogPost = () => {
             </div>
           )}
         </div>
+
+        {/* Structured Data JSON-LD */}
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Article",
+            "headline": post.title,
+            "description": metaDescription,
+            "image": post.cover_image ? `https://rapatin.id${post.cover_image}` : "https://rapatin.id/lovable-uploads/b85c0fd2-b1c7-4ba8-8938-bf1ac3bdeb28.png",
+            "author": {
+              "@type": "Person",
+              "name": post.author_data?.name || post.author,
+              "url": post.author_data?.slug ? `https://rapatin.id/author/${post.author_data.slug}` : undefined
+            },
+            "publisher": {
+              "@type": "Organization",
+              "name": "Rapatin",
+              "logo": {
+                "@type": "ImageObject",
+                "url": "https://rapatin.id/lovable-uploads/b85c0fd2-b1c7-4ba8-8938-bf1ac3bdeb28.png"
+              }
+            },
+            "datePublished": new Date(post.created_at).toISOString(),
+            "dateModified": new Date(post.created_at).toISOString(),
+            "mainEntityOfPage": {
+              "@type": "WebPage",
+              "@id": currentUrl
+            },
+            "articleSection": post.category,
+            "url": currentUrl
+          })}
+        </script>
 
         {/* Main Content */}
         <div className="container mx-auto px-4 py-8 md:py-12 max-w-4xl">
