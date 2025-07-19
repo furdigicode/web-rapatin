@@ -1,129 +1,65 @@
 
 import React from 'react';
-import SEO from '@/components/SEO';
-import ProductPageLayout from '@/components/layout/ProductPageLayout';
-import Navbar from '@/components/Navbar';
-import GenericHeroSection from '@/components/shared/GenericHeroSection';
-import GenericFeatureGrid from '@/components/shared/GenericFeatureGrid';
-import GenericStepsSection from '@/components/shared/GenericStepsSection';
-import DashboardPreview from '@/components/DashboardPreview';
-import TestimonialSection from '@/components/TestimonialSection';
+import FeatureLayout from '@/components/FeatureLayout';
 import FinalCTA from '@/components/FinalCTA';
-import Footer from '@/components/Footer';
-import { 
-  BarChart3, 
-  Calendar, 
-  Settings, 
-  Users,
-  FileText,
-  Bell,
-  Zap,
-  Shield
-} from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { LayoutDashboard, Calendar, Users, Clock, Settings, BarChart, Video, FileText, Users2, ClipboardList } from 'lucide-react';
 
 const Dashboard = () => {
-  const heroData = {
-    badge: "🎯 Kontrol Penuh",
-    title: "Dashboard Intuitif - Kelola Meeting dengan Mudah",
-    subtitle: "Dashboard modern dan user-friendly untuk mengelola semua kebutuhan meeting online Anda. Penjadwalan, laporan, dan kontrol penuh dalam satu tempat.",
-    ctaPrimary: "Lihat Demo Dashboard",
-    ctaSecondary: "Mulai Gratis",
-    image: "/lovable-uploads/90dcfcfe-cb9e-46e1-88a3-5cf6472dd222.png",
-    imageAlt: "Dashboard Rapatin Interface"
-  };
-
   const features = [
     {
-      icon: BarChart3,
-      title: "Analytics & Laporan",
-      description: "Pantau statistik meeting, partisipasi peserta, dan analisis mendalam tentang performa meeting Anda."
+      icon: <Calendar />,
+      title: 'Penjadwalan Mudah',
+      description: 'Buat dan kelola jadwal rapat dengan antarmuka yang intuitif dan mudah digunakan.'
     },
     {
-      icon: Calendar,
-      title: "Manajemen Jadwal",
-      description: "Kelola semua jadwal meeting dalam satu tempat. Kalender terintegrasi dengan reminder otomatis."
+      icon: <Settings />,
+      title: 'Kustomisasi Lengkap',
+      description: 'Sesuaikan pengaturan rapat seperti passcode, language interpretation, dan fitur lainnya.'
     },
     {
-      icon: Settings,
-      title: "Kustomisasi Lengkap",
-      description: "Atur preferensi meeting, template, dan pengaturan sesuai kebutuhan organisasi Anda."
+      icon: <Video />,
+      title: 'Akses File Rekaman',
+      description: 'Lihat dan bagikan akses file rekaman rapat dan dapat langsung diunduh.'
     },
     {
-      icon: Users,
-      title: "Manajemen Peserta",
-      description: "Kelola daftar peserta, undangan, dan hak akses dengan mudah dan terorganisir."
+      icon: <FileText />,
+      title: 'Laporan Rapat',
+      description: 'Dapatkan ringkasan lengkap setiap rapat yang dijalankan, termasuk topik, waktu, dan durasi.'
     },
     {
-      icon: FileText,
-      title: "Riwayat Meeting",
-      description: "Akses semua rekaman, notulen, dan file meeting yang tersimpan dengan pencarian cepat."
+      icon: <Users2 />,
+      title: 'Laporan Peserta',
+      description: 'Pantau siapa saja yang hadir dalam rapat Anda lengkap dengan waktu masuk dan durasinya.'
     },
     {
-      icon: Bell,
-      title: "Notifikasi Real-time",
-      description: "Dapatkan pemberitahuan penting tentang meeting, peserta, dan aktivitas lainnya."
-    },
-    {
-      icon: Zap,
-      title: "Quick Actions",
-      description: "Akses cepat untuk membuat meeting baru, undang peserta, atau mulai meeting mendadak."
-    },
-    {
-      icon: Shield,
-      title: "Keamanan Terjamin",
-      description: "Dashboard dengan enkripsi end-to-end dan kontrol akses untuk menjaga privasi data Anda."
-    }
-  ];
-
-  const steps = [
-    {
-      number: "01",
-      title: "Login ke Dashboard",
-      description: "Akses dashboard Rapatin dengan akun Anda. Interface yang bersih dan mudah dipahami."
-    },
-    {
-      number: "02", 
-      title: "Atur Preferensi",
-      description: "Kustomisasi dashboard sesuai kebutuhan. Atur template meeting dan notifikasi."
-    },
-    {
-      number: "03",
-      title: "Kelola Meeting", 
-      description: "Jadwalkan meeting baru, kelola peserta, dan pantau semua aktivitas dari satu tempat."
-    },
-    {
-      number: "04",
-      title: "Analisis & Laporan",
-      description: "Pantau performa meeting dengan analytics dan buat laporan untuk evaluasi."
+      icon: <ClipboardList />,
+      title: 'Ringkasan Rapat',
+      description: 'Lihat poin-poin penting dan kesimpulan rapat secara ringkas untuk referensi dan tindak lanjut.'
     }
   ];
 
   return (
-    <div className="min-h-screen">
-      <SEO
-        title="Dashboard Intuitif - Kelola Meeting Online dengan Mudah | Rapatin"
-        description="Dashboard modern dan user-friendly untuk mengelola semua kebutuhan meeting online Anda. Analytics, penjadwalan, laporan, dan kontrol penuh dalam satu platform."
-        keywords="dashboard meeting, kelola rapat online, manajemen meeting, kontrol rapat, analytics meeting, dashboard zoom"
-        url="https://rapatin.id/fitur/dashboard"
-      />
-      <ProductPageLayout navbar={<Navbar />}>
-        <GenericHeroSection {...heroData} />
-        <GenericFeatureGrid 
-          title="Fitur Dashboard yang Powerful"
-          subtitle="Semua yang Anda butuhkan untuk mengelola meeting dengan efisien"
-          features={features}
-        />
-        <DashboardPreview />
-        <GenericStepsSection
-          title="Cara Menggunakan Dashboard"
-          subtitle="Mulai kelola meeting Anda dengan mudah"
-          steps={steps}
-        />
-        <TestimonialSection />
-        <FinalCTA />
-        <Footer />
-      </ProductPageLayout>
-    </div>
+    <FeatureLayout
+      title="Dashboard Intuitif"
+      description="Buat atau edit jadwal dengan antarmuka modern kami yang dirancang untuk kemudahan penggunaan."
+      icon={LayoutDashboard}
+    >
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
+        {features.map((feature, index) => (
+          <Card key={index} className="glass hover:shadow-elevation transition-all duration-300">
+            <CardContent className="p-6">
+              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4 text-primary">
+                {feature.icon}
+              </div>
+              <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
+              <p className="text-muted-foreground">{feature.description}</p>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+      <FinalCTA />
+    </FeatureLayout>
   );
 };
 
