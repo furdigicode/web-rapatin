@@ -55,6 +55,11 @@ const BlogPost = () => {
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [readingProgress, setReadingProgress] = useState(0);
 
+  // Auto scroll to top when slug changes
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [slug]);
+
   useEffect(() => {
     const fetchBlogPost = async () => {
       if (!slug) {
