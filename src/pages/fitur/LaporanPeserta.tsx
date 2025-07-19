@@ -25,77 +25,110 @@ const LaporanPeserta = () => {
     badge: "📊 Analytics Detail",
     title: "Laporan Peserta - Insights Meeting yang Mendalam",
     subtitle: "Dapatkan laporan lengkap tentang partisipasi peserta, durasi kehadiran, dan analytics meeting untuk evaluasi yang lebih baik.",
-    ctaPrimary: "Lihat Demo Laporan",
-    ctaSecondary: "Mulai Gratis",
-    image: "/lovable-uploads/e7e34560-7715-4bb4-9fa9-26f74f4090b8.png",
-    imageAlt: "Laporan Peserta Meeting"
+    primaryCTA: {
+      text: "Lihat Demo Laporan",
+      href: "#"
+    },
+    secondaryCTA: {
+      text: "Mulai Gratis",
+      href: "#"
+    },
+    highlights: [
+      { icon: "FileText", text: "Laporan Detail" },
+      { icon: "BarChart3", text: "Analytics Visual" },
+      { icon: "Download", text: "Export Multi Format" },
+      { icon: "Clock", text: "Real-time Tracking" }
+    ],
+    image: {
+      src: "/lovable-uploads/e7e34560-7715-4bb4-9fa9-26f74f4090b8.png",
+      alt: "Laporan Peserta Meeting"
+    }
   };
 
-  const features = [
-    {
-      icon: FileText,
-      title: "Laporan Komprehensif",
-      description: "Laporan detail tentang setiap peserta: waktu masuk, keluar, durasi kehadiran, dan tingkat partisipasi."
-    },
-    {
-      icon: BarChart3,
-      title: "Analytics Visual",
-      description: "Grafik dan chart yang mudah dipahami untuk melihat tren partisipasi dan engagement peserta."
-    },
-    {
-      icon: Download,
-      title: "Export Multi Format",
-      description: "Download laporan dalam format PDF, Excel, atau CSV untuk analisis lebih lanjut atau dokumentasi."
-    },
-    {
-      icon: Clock,
-      title: "Tracking Waktu Real-time",
-      description: "Pelacakan waktu kehadiran secara real-time dengan akurasi tinggi untuk setiap peserta."
-    },
-    {
-      icon: Users,
-      title: "Profil Peserta Detail",
-      description: "Informasi lengkap peserta termasuk frekuensi kehadiran dan tingkat engagement historical."
-    },
-    {
-      icon: TrendingUp,
-      title: "Analisis Tren",
-      description: "Identifikasi pola kehadiran dan engagement untuk meningkatkan efektivitas meeting mendatang."
-    },
-    {
-      icon: Filter,
-      title: "Filter & Pencarian",
-      description: "Filter laporan berdasarkan tanggal, peserta, durasi, atau kriteria lainnya dengan mudah."
-    },
-    {
-      icon: Calendar,
-      title: "Laporan Terjadwal",
-      description: "Atur laporan otomatis yang dikirim secara berkala via email untuk monitoring rutin."
+  const featureContent = {
+    badge: "📈 Fitur Analytics",
+    title: "Fitur Laporan yang Powerful",
+    subtitle: "Analytics mendalam untuk evaluasi meeting yang lebih efektif",
+    features: [
+      {
+        icon: "FileText",
+        title: "Laporan Komprehensif",
+        description: "Laporan detail tentang setiap peserta: waktu masuk, keluar, durasi kehadiran, dan tingkat partisipasi.",
+        delay: "delay-100"
+      },
+      {
+        icon: "BarChart3",
+        title: "Analytics Visual",
+        description: "Grafik dan chart yang mudah dipahami untuk melihat tren partisipasi dan engagement peserta.",
+        delay: "delay-200"
+      },
+      {
+        icon: "Download",
+        title: "Export Multi Format",
+        description: "Download laporan dalam format PDF, Excel, atau CSV untuk analisis lebih lanjut atau dokumentasi.",
+        delay: "delay-300"
+      },
+      {
+        icon: "Clock",
+        title: "Tracking Waktu Real-time",
+        description: "Pelacakan waktu kehadiran secara real-time dengan akurasi tinggi untuk setiap peserta.",
+        delay: "delay-100"
+      },
+      {
+        icon: "Users",
+        title: "Profil Peserta Detail",
+        description: "Informasi lengkap peserta termasuk frekuensi kehadiran dan tingkat engagement historical.",
+        delay: "delay-200"
+      },
+      {
+        icon: "TrendingUp",
+        title: "Analisis Tren",
+        description: "Identifikasi pola kehadiran dan engagement untuk meningkatkan efektivitas meeting mendatang.",
+        delay: "delay-300"
+      }
+    ],
+    useCases: {
+      title: "Ideal untuk <span class='text-primary'>Berbagai Kebutuhan</span>",
+      items: [
+        { icon: "Building", title: "HR & Training" },
+        { icon: "GraduationCap", title: "Education" },
+        { icon: "Users", title: "Team Lead" },
+        { icon: "BarChart3", title: "Analytics" }
+      ]
     }
-  ];
+  };
 
-  const steps = [
-    {
-      number: "01",
-      title: "Meeting Berlangsung",
-      description: "Sistem otomatis merekam data partisipasi setiap peserta selama meeting berlangsung."
-    },
-    {
-      number: "02", 
-      title: "Data Ter-compile",
-      description: "Setelah meeting selesai, semua data partisipasi dikompilasi menjadi laporan terstruktur."
-    },
-    {
-      number: "03",
-      title: "Generate Laporan", 
-      description: "Akses laporan melalui dashboard dengan berbagai format visualisasi yang informatif."
-    },
-    {
-      number: "04",
-      title: "Analisis & Action",
-      description: "Gunakan insights dari laporan untuk meningkatkan engagement dan efektivitas meeting."
-    }
-  ];
+  const stepsContent = {
+    badge: "⚡ Otomatis",
+    title: "Cara Kerja Laporan Peserta",
+    subtitle: "Otomatis dan akurat untuk setiap meeting",
+    steps: [
+      {
+        number: 1,
+        icon: "Play",
+        title: "Meeting Berlangsung",
+        description: "Sistem otomatis merekam data partisipasi setiap peserta selama meeting berlangsung."
+      },
+      {
+        number: 2,
+        icon: "Database", 
+        title: "Data Ter-compile",
+        description: "Setelah meeting selesai, semua data partisipasi dikompilasi menjadi laporan terstruktur."
+      },
+      {
+        number: 3,
+        icon: "FileBarChart",
+        title: "Generate Laporan", 
+        description: "Akses laporan melalui dashboard dengan berbagai format visualisasi yang informatif."
+      },
+      {
+        number: 4,
+        icon: "TrendingUp",
+        title: "Analisis & Action",
+        description: "Gunakan insights dari laporan untuk meningkatkan engagement dan efektivitas meeting."
+      }
+    ]
+  };
 
   return (
     <div className="min-h-screen">
@@ -106,17 +139,9 @@ const LaporanPeserta = () => {
         url="https://rapatin.id/fitur/laporan-peserta"
       />
       <ProductPageLayout navbar={<Navbar />}>
-        <GenericHeroSection {...heroData} />
-        <GenericFeatureGrid 
-          title="Fitur Laporan yang Powerful"
-          subtitle="Analytics mendalam untuk evaluasi meeting yang lebih efektif"
-          features={features}
-        />
-        <GenericStepsSection
-          title="Cara Kerja Laporan Peserta"
-          subtitle="Otomatis dan akurat untuk setiap meeting"
-          steps={steps}
-        />
+        <GenericHeroSection content={heroData} />
+        <GenericFeatureGrid content={featureContent} />
+        <GenericStepsSection content={stepsContent} />
         <TestimonialSection />
         <FinalCTA />
         <Footer />
