@@ -58,14 +58,7 @@ const SitemapXML = () => {
       document.head.innerHTML = '<meta charset="UTF-8"><title>Sitemap</title>';
       document.body.innerHTML = `<pre>${sitemapContent}</pre>`;
       
-      // Set response headers if possible
-      try {
-        if (document.contentType) {
-          document.contentType = 'application/xml';
-        }
-      } catch (e) {
-        // Silently ignore if not supported
-      }
+      // Note: Cannot set content type from client-side
     }
   }, [sitemapContent, loading]);
 
