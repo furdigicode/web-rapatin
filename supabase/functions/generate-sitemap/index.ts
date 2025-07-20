@@ -35,11 +35,11 @@ serve(async (req) => {
 
     console.log(`Found ${blogPosts?.length || 0} published blog posts`);
 
-    // Generate sitemap XML - ensure no leading whitespace
+    // Generate sitemap XML with no leading whitespace whatsoever
     const currentDate = new Date().toISOString().split('T')[0];
     
-    // Build sitemap string without any leading whitespace
-    const sitemapContent = [
+    // Build sitemap with strict formatting - no leading spaces or newlines
+    const sitemapLines: string[] = [
       '<?xml version="1.0" encoding="UTF-8"?>',
       '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
       '  <!-- Home Page -->',
@@ -92,9 +92,14 @@ serve(async (req) => {
         const formattedDate = new Date(lastmod).toISOString().split('T')[0];
         
         // Escape any special characters in slug
-        const escapedSlug = post.slug.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        const escapedSlug = post.slug
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&apos;');
         
-        sitemapContent.push(
+        sitemapLines.push(
           '  <url>',
           `    <loc>https://rapatin.id/blog/${escapedSlug}</loc>`,
           `    <lastmod>${formattedDate}</lastmod>`,
@@ -106,7 +111,7 @@ serve(async (req) => {
     }
 
     // Add company pages
-    sitemapContent.push(
+    sitemapLines.push(
       '  ',
       '  <!-- Company Pages -->',
       '  <url>',
@@ -148,25 +153,29 @@ serve(async (req) => {
       '</urlset>'
     );
 
-    // Join all parts with newlines
-    const sitemap = sitemapContent.join('\n');
+    // Join with newlines to create final XML
+    const sitemap = sitemapLines.join('\n');
     
     console.log('Sitemap generated successfully');
     console.log('First 200 characters:', sitemap.substring(0, 200));
+    console.log('Sitemap length:', sitemap.length);
 
-    // Return XML response with proper headers including CORS
+    // Return clean XML response with aggressive cache-busting
     return new Response(sitemap, {
       headers: {
         ...corsHeaders,
         'Content-Type': 'application/xml; charset=utf-8',
-        'Cache-Control': 'public, max-age=3600', // Cache for 1 hour
+        'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
+        'Pragma': 'no-cache',
+        'Expires': '0',
+        'X-Content-Type-Options': 'nosniff',
       },
     });
 
   } catch (error) {
     console.error('Error generating sitemap:', error);
     
-    // Return fallback static sitemap on error
+    // Return clean fallback sitemap on error
     const fallbackSitemap = [
       '<?xml version="1.0" encoding="UTF-8"?>',
       '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
@@ -189,7 +198,9 @@ serve(async (req) => {
       headers: {
         ...corsHeaders,
         'Content-Type': 'application/xml; charset=utf-8',
-        'Cache-Control': 'public, max-age=300', // Cache for 5 minutes on error
+        'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
+        'Pragma': 'no-cache',
+        'Expires': '0',
       },
     });
   }
