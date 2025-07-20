@@ -36,6 +36,9 @@ import BlogManagement from "./pages/admin/BlogManagement";
 import ContentManagement from "./pages/admin/ContentManagement";
 import ProtectedRoute from "./components/admin/ProtectedRoute";
 
+// Sitemap
+import SitemapXML from "./pages/SitemapXML";
+
 const queryClient = new QueryClient();
 
 const AppRoutes = () => {
@@ -73,6 +76,9 @@ const AppRoutes = () => {
       {/* Blog Pages - Simple static version */}
       <Route path="/blog" element={<Blog />} />
       <Route path="/blog/:slug" element={<BlogPost />} />
+      
+      {/* Sitemap */}
+      <Route path="/sitemap.xml" element={<SitemapXML />} />
       
       {/* Admin Routes */}
       <Route path="/admin/login" element={<AdminLogin />} />

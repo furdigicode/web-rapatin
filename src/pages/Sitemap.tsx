@@ -59,7 +59,8 @@ const Sitemap = () => {
     );
   }
 
-  const sitemapUrl = `https://mepznzrijuoyvjcmkspf.supabase.co/functions/v1/generate-sitemap`;
+  const directSupabaseUrl = `https://mepznzrijuoyvjcmkspf.supabase.co/functions/v1/generate-sitemap`;
+  const websiteUrl = `https://rapatin.id/sitemap.xml`;
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -74,6 +75,7 @@ const Sitemap = () => {
               <p>• Updates in real-time when new articles are published</p>
               <p>• Includes proper lastmod dates for SEO optimization</p>
               <p>• Cached for 1 hour for better performance</p>
+              <p>• Accessible via both direct Supabase URL and website URL</p>
             </div>
           </div>
 
@@ -86,26 +88,27 @@ const Sitemap = () => {
 
           <div className="bg-white rounded-lg shadow-lg p-6">
             <h2 className="text-xl font-semibold mb-4">Access Links</h2>
-            <div className="space-y-4">
+            <div className="space-y-6">
+              
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Live Sitemap URL:
+                  Website Sitemap URL (Recommended for Google Search Console):
                 </label>
                 <div className="flex items-center space-x-2">
                   <input 
                     type="text" 
-                    value={sitemapUrl}
+                    value={websiteUrl}
                     readOnly 
                     className="flex-1 p-2 border border-gray-300 rounded text-sm font-mono"
                   />
                   <button
-                    onClick={() => navigator.clipboard.writeText(sitemapUrl)}
+                    onClick={() => navigator.clipboard.writeText(websiteUrl)}
                     className="bg-primary text-white px-3 py-2 rounded text-sm hover:bg-primary/90"
                   >
                     Copy
                   </button>
                   <a 
-                    href={sitemapUrl}
+                    href={websiteUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="bg-green-600 text-white px-3 py-2 rounded text-sm hover:bg-green-700"
@@ -114,10 +117,39 @@ const Sitemap = () => {
                   </a>
                 </div>
               </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Direct Supabase URL (For testing):
+                </label>
+                <div className="flex items-center space-x-2">
+                  <input 
+                    type="text" 
+                    value={directSupabaseUrl}
+                    readOnly 
+                    className="flex-1 p-2 border border-gray-300 rounded text-sm font-mono"
+                  />
+                  <button
+                    onClick={() => navigator.clipboard.writeText(directSupabaseUrl)}
+                    className="bg-primary text-white px-3 py-2 rounded text-sm hover:bg-primary/90"
+                  >
+                    Copy
+                  </button>
+                  <a 
+                    href={directSupabaseUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="bg-blue-600 text-white px-3 py-2 rounded text-sm hover:bg-blue-700"
+                  >
+                    Test Direct
+                  </a>
+                </div>
+              </div>
               
-              <div className="text-sm text-gray-600">
-                <p className="mb-2"><strong>For Google Search Console:</strong></p>
-                <p>Use the live sitemap URL above to submit to Google Search Console for automatic indexing of your content.</p>
+              <div className="text-sm text-gray-600 bg-blue-50 p-4 rounded">
+                <p className="mb-2"><strong>Untuk Google Search Console:</strong></p>
+                <p className="mb-2">Gunakan URL website (<code>https://rapatin.id/sitemap.xml</code>) untuk submit ke Google Search Console.</p>
+                <p><strong>Untuk Testing:</strong> Gunakan URL Supabase langsung untuk memastikan edge function berjalan dengan baik.</p>
               </div>
             </div>
           </div>

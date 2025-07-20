@@ -2,15 +2,15 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+};
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    return new Response(null, { 
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-      }
-    });
+    return new Response(null, { headers: corsHeaders });
   }
 
   try {
@@ -154,9 +154,10 @@ serve(async (req) => {
     console.log('Sitemap generated successfully');
     console.log('First 200 characters:', sitemap.substring(0, 200));
 
-    // Return XML response with proper headers
+    // Return XML response with proper headers including CORS
     return new Response(sitemap, {
       headers: {
+        ...corsHeaders,
         'Content-Type': 'application/xml; charset=utf-8',
         'Cache-Control': 'public, max-age=3600', // Cache for 1 hour
       },
@@ -186,6 +187,7 @@ serve(async (req) => {
 
     return new Response(fallbackSitemap, {
       headers: {
+        ...corsHeaders,
         'Content-Type': 'application/xml; charset=utf-8',
         'Cache-Control': 'public, max-age=300', // Cache for 5 minutes on error
       },
