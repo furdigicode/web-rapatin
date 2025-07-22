@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -13,6 +12,7 @@ import FAQ from "./pages/FAQ";
 import TentangKami from "./pages/TentangKami";
 import Kontak from "./pages/Kontak";
 import Appointment from "./pages/Appointment";
+import SewaZoomHarian from "./pages/SewaZoomHarian";
 
 // Feature Pages
 import BayarSesuaiPakai from "./pages/fitur/BayarSesuaiPakai";
@@ -57,6 +57,7 @@ const AppRoutes = () => {
       <Route path="/" element={<Index />} />
       <Route path="/main-page" element={<MainPage />} />
       <Route path="/meeting-scheduling" element={<MeetingScheduling />} />
+      <Route path="/sewa-zoom-harian" element={<SewaZoomHarian />} />
       <Route path="/faq" element={<FAQ />} />
       <Route path="/appointment" element={<Appointment />} />
       
