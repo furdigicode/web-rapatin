@@ -16,8 +16,8 @@ const MeetingScheduling: React.FC = () => {
   return (
     <>
       <SEO
-        title="Meeting Scheduling - Jadwalkan Rapat Zoom Tanpa Langganan | Rapatin"
-        description="Jadwalkan rapat Zoom dengan mudah tanpa langganan bulanan. Bayar sesuai penggunaan berdasarkan jumlah peserta. Fitur lengkap: rekaman cloud, durasi unlimited, AI companion."
+        title="Meeting Scheduling - Jadwalkan Rapat Zoom Harian Tanpa Langganan | Rapatin"
+        description="Alternatif sewa zoom harian. Jadwalkan rapat Zoom dengan mudah tanpa langganan bulanan. Bayar sesuai penggunaan berdasarkan jumlah peserta. Fitur lengkap: rekaman cloud, durasi unlimited, AI companion."
         keywords="zoom meeting, jadwal rapat, meeting scheduling, zoom tanpa langganan, bayar per rapat, rekaman cloud, rapat online"
         url="https://rapatin.id/meeting-scheduling"
       />
