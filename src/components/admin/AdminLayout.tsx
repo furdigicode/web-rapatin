@@ -50,7 +50,7 @@ const AppSidebar = () => {
     });
   };
 
-  const isContentActive = location.pathname === '/admin/blog' || location.pathname === '/admin/content';
+  const isContentActive = location.pathname === '/admin/blog' || location.pathname === '/admin/content' || location.pathname === '/admin/categories';
   const isContentGroupOpen = isContentActive;
 
   return (
@@ -96,6 +96,17 @@ const AppSidebar = () => {
                       <Link to="/admin/blog">
                         <FileText />
                         <span>Blog</span>
+                      </Link>
+                    </SidebarMenuSubButton>
+                  </SidebarMenuSubItem>
+                  <SidebarMenuSubItem>
+                    <SidebarMenuSubButton 
+                      asChild 
+                      isActive={location.pathname === '/admin/categories'}
+                    >
+                      <Link to="/admin/categories">
+                        <FolderOpen />
+                        <span>Categories</span>
                       </Link>
                     </SidebarMenuSubButton>
                   </SidebarMenuSubItem>

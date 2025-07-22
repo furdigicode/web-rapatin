@@ -15,20 +15,24 @@ interface DeleteConfirmationProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onConfirm: () => void;
+  title?: string;
+  description?: string;
 }
 
 export const DeleteConfirmation: React.FC<DeleteConfirmationProps> = ({
   open,
   onOpenChange,
   onConfirm,
+  title = "Hapus Artikel",
+  description = "Apakah Anda yakin ingin menghapus artikel ini? Tindakan ini tidak dapat dibatalkan."
 }) => {
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Hapus Artikel</AlertDialogTitle>
+          <AlertDialogTitle>{title}</AlertDialogTitle>
           <AlertDialogDescription>
-            Apakah Anda yakin ingin menghapus artikel ini? Tindakan ini tidak dapat dibatalkan.
+            {description}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

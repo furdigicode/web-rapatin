@@ -34,6 +34,7 @@ import AdminLogin from "./pages/admin/Login";
 import AdminDashboard from "./pages/admin/Dashboard";
 import BlogManagement from "./pages/admin/BlogManagement";
 import ContentManagement from "./pages/admin/ContentManagement";
+import CategoryManagementPage from "./pages/admin/CategoryManagement";
 import ProtectedRoute from "./components/admin/ProtectedRoute";
 
 // Sitemap
@@ -85,6 +86,7 @@ const AppRoutes = () => {
       <Route path="/admin/login" element={<AdminLogin />} />
       <Route path="/admin/dashboard" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
       <Route path="/admin/blog" element={<ProtectedRoute><BlogManagement /></ProtectedRoute>} />
+      <Route path="/admin/categories" element={<ProtectedRoute><CategoryManagementPage /></ProtectedRoute>} />
       <Route path="/admin/content" element={<ProtectedRoute><ContentManagement /></ProtectedRoute>} />
       
       {/* 404 Catch-all Route */}
