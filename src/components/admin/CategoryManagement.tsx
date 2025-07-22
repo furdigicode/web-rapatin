@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from "@/components/ui/button";
@@ -5,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Plus, Edit, Trash, Save, X } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from '@/integrations/supabase/client';
@@ -32,7 +34,7 @@ const CategoryManagement = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const [isCreating, setIsCreating] = useState(false);
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [categoryToDelete, setCategoryToDelete] = useState<string | null>(null);
@@ -81,7 +83,7 @@ const CategoryManagement = () => {
         title: "Kategori berhasil dibuat",
         description: `Kategori "${formData.name}" telah berhasil dibuat`,
       });
-      setIsCreating(false);
+      setCreateDialogOpen(false);
       setFormData(defaultCategoryFormData);
     },
     onError: (error: any) => {
@@ -130,10 +132,15 @@ const CategoryManagement = () => {
   const deleteCategoryMutation = useMutation({
     mutationFn: async (id: string) => {
       // First check if any blog posts are using this category
+      const categoryToCheck = categories.find(c => c.id === id);
+      if (!categoryToCheck) {
+        throw new Error('Category not found');
+      }
+
       const { data: postsUsingCategory, error: checkError } = await supabase
         .from('blog_posts')
         .select('id, title')
-        .eq('category', categories.find(c => c.id === id)?.name || '');
+        .eq('category', categoryToCheck.name);
       
       if (checkError) throw checkError;
       
@@ -224,9 +231,11 @@ const CategoryManagement = () => {
     setFormData(defaultCategoryFormData);
   };
 
-  const cancelCreate = () => {
-    setIsCreating(false);
-    setFormData(defaultCategoryFormData);
+  const handleDialogClose = (open: boolean) => {
+    setCreateDialogOpen(open);
+    if (!open) {
+      setFormData(defaultCategoryFormData);
+    }
   };
 
   if (isLoading) {
@@ -241,54 +250,63 @@ const CategoryManagement = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Kelola Kategori Blog</h2>
-        {!isCreating && (
-          <Button onClick={() => setIsCreating(true)} className="flex items-center gap-2">
-            <Plus size={16} />
-            Tambah Kategori
-          </Button>
-        )}
-      </div>
-
-      {isCreating && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Buat Kategori Baru</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">Nama Kategori</Label>
-              <Input
-                id="name"
-                value={formData.name}
-                onChange={(e) => handleInputChange('name', e.target.value)}
-                placeholder="Masukkan nama kategori"
-              />
-            </div>
+        
+        <Dialog open={createDialogOpen} onOpenChange={handleDialogClose}>
+          <DialogTrigger asChild>
+            <Button className="flex items-center gap-2">
+              <Plus size={16} />
+              Tambah Kategori
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Buat Kategori Baru</DialogTitle>
+            </DialogHeader>
             
-            <div className="space-y-2">
-              <Label htmlFor="description">Deskripsi (Opsional)</Label>
-              <Textarea
-                id="description"
-                value={formData.description}
-                onChange={(e) => handleInputChange('description', e.target.value)}
-                placeholder="Masukkan deskripsi kategori"
-                rows={3}
-              />
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="create-name">Nama Kategori</Label>
+                <Input
+                  id="create-name"
+                  value={formData.name}
+                  onChange={(e) => handleInputChange('name', e.target.value)}
+                  placeholder="Masukkan nama kategori"
+                  autoFocus
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="create-description">Deskripsi (Opsional)</Label>
+                <Textarea
+                  id="create-description"
+                  value={formData.description}
+                  onChange={(e) => handleInputChange('description', e.target.value)}
+                  placeholder="Masukkan deskripsi kategori"
+                  rows={3}
+                />
+              </div>
             </div>
 
-            <div className="flex gap-2">
-              <Button onClick={handleCreateCategory} disabled={createCategoryMutation.isPending}>
-                <Save size={16} className="mr-2" />
-                Simpan
-              </Button>
-              <Button variant="outline" onClick={cancelCreate}>
+            <DialogFooter>
+              <Button 
+                variant="outline" 
+                onClick={() => setCreateDialogOpen(false)}
+                disabled={createCategoryMutation.isPending}
+              >
                 <X size={16} className="mr-2" />
                 Batal
               </Button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+              <Button 
+                onClick={handleCreateCategory} 
+                disabled={createCategoryMutation.isPending}
+              >
+                <Save size={16} className="mr-2" />
+                {createCategoryMutation.isPending ? 'Menyimpan...' : 'Simpan'}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
 
       <div className="grid gap-4">
         {categories.map((category) => (
