@@ -10,7 +10,7 @@ const ProductPageLayout: React.FC<ProductPageLayoutProps> = ({ children, navbar 
   return (
     <div className="min-h-screen">
       {navbar}
-      <main>
+      <main className="pt-28">
         {children}
       </main>
     </div>
