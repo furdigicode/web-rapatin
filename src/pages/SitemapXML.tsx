@@ -26,9 +26,6 @@ const SitemapXML = () => {
         setXmlContent(data);
         setLoading(false);
         
-        // Set the document content type to XML
-        document.contentType = 'application/xml';
-        
         // Replace the entire document with XML content
         setTimeout(() => {
           document.open();
