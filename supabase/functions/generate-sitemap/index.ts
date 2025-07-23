@@ -168,7 +168,7 @@ serve(async (req) => {
     console.log('First 200 characters:', sitemap.substring(0, 200));
     console.log('Sitemap length:', sitemap.length);
 
-    // Return clean XML response with aggressive cache-busting
+    // Return clean XML response with proper headers
     return new Response(sitemap, {
       headers: {
         ...corsHeaders,
@@ -177,6 +177,8 @@ serve(async (req) => {
         'Pragma': 'no-cache',
         'Expires': '0',
         'X-Content-Type-Options': 'nosniff',
+        'X-Frame-Options': 'DENY',
+        'X-XSS-Protection': '1; mode=block',
       },
     });
 
@@ -215,6 +217,7 @@ serve(async (req) => {
         'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
         'Pragma': 'no-cache',
         'Expires': '0',
+        'X-Content-Type-Options': 'nosniff',
       },
     });
   }
