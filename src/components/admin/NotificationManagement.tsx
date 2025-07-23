@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Bell, Code, Eye, Settings, Trash2, Plus } from 'lucide-react';
+import { Bell, Code, Eye, Settings, Trash2, Plus, Sparkles, X } from 'lucide-react';
 import { useNotifications } from '@/hooks/useNotifications';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -59,6 +59,92 @@ export const NotificationManagement = () => {
         title: 'Error',
         description: 'Gagal membuat notifikasi kustom',
         variant: 'destructive'
+      });
+    }
+  };
+
+  const handleGenerateSampleNotifications = async () => {
+    try {
+      // Get latest published articles
+      const { data: articles, error: articlesError } = await supabase
+        .from('blog_posts')
+        .select('id, title, excerpt, cover_image, category')
+        .eq('status', 'published')
+        .order('created_at', { ascending: false })
+        .limit(3);
+
+      if (articlesError) throw articlesError;
+
+      if (articles && articles.length > 0) {
+        // Create sample notifications
+        const sampleNotifications = articles.map((article, index) => ({
+          blog_post_id: article.id,
+          title: article.title,
+          excerpt: article.excerpt,
+          image_url: article.cover_image,
+          category: article.category,
+          read: false,
+          created_at: new Date(Date.now() - (index + 1) * 2 * 60 * 60 * 1000).toISOString() // Stagger by 2 hours each
+        }));
+
+        // Check if notifications already exist to avoid duplicates
+        const { data: existingNotifications } = await supabase
+          .from('article_notifications')
+          .select('blog_post_id')
+          .in('blog_post_id', articles.map(a => a.id));
+
+        const existingIds = existingNotifications?.map(n => n.blog_post_id) || [];
+        const newNotifications = sampleNotifications.filter(n => !existingIds.includes(n.blog_post_id));
+
+        if (newNotifications.length > 0) {
+          const { error: insertError } = await supabase
+            .from('article_notifications')
+            .insert(newNotifications);
+
+          if (insertError) throw insertError;
+
+          toast({
+            title: "Sample Notifications Created",
+            description: `Generated ${newNotifications.length} sample notifications successfully.`,
+          });
+        } else {
+          toast({
+            title: "No New Notifications",
+            description: "Sample notifications for these articles already exist.",
+          });
+        }
+
+        refetch();
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to generate sample notifications.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleClearAllNotifications = async () => {
+    try {
+      const { error } = await supabase
+        .from('article_notifications')
+        .delete()
+        .neq('id', '00000000-0000-0000-0000-000000000000'); // Delete all
+
+      if (error) throw error;
+
+      toast({
+        title: "Notifications Cleared",
+        description: "All notifications have been deleted successfully.",
+      });
+
+      refetch();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to clear notifications.",
+        variant: "destructive",
       });
     }
   };
@@ -139,43 +225,102 @@ window.BlogNotificationWidget.init({
         <TabsContent value="notifications" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Daftar Notifikasi</CardTitle>
-              <CardDescription>
-                Semua notifikasi yang telah dibuat secara otomatis dan manual
-              </CardDescription>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle>Daftar Notifikasi</CardTitle>
+                  <CardDescription>
+                    Semua notifikasi yang telah dibuat secara otomatis dan manual
+                  </CardDescription>
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleGenerateSampleNotifications}
+                  >
+                    <Sparkles className="w-4 h-4 mr-2" />
+                    Generate Sample
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleClearAllNotifications}
+                    className="text-destructive hover:text-destructive"
+                  >
+                    <X className="w-4 h-4 mr-2" />
+                    Clear All
+                  </Button>
+                </div>
+              </div>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {notifications.map((notification) => (
-                  <div key={notification.id} className="flex items-center justify-between p-4 border rounded-lg">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <h3 className="font-medium">{notification.title}</h3>
-                        <Badge variant={notification.notification_type === 'custom' ? 'secondary' : 'default'}>
-                          {notification.notification_type === 'custom' ? 'Kustom' : 'Artikel'}
-                        </Badge>
-                        {notification.category && (
-                          <Badge variant="outline">{notification.category}</Badge>
-                        )}
-                      </div>
-                      {notification.excerpt && (
-                        <p className="text-sm text-muted-foreground mt-1">{notification.excerpt}</p>
-                      )}
-                      <p className="text-xs text-muted-foreground mt-2">
-                        {new Date(notification.created_at).toLocaleString('id-ID')}
-                      </p>
+              {notifications.length === 0 ? (
+                <div className="text-center p-8">
+                  <Bell className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
+                  <h3 className="text-lg font-medium mb-2">Belum Ada Notifikasi</h3>
+                  <p className="text-muted-foreground mb-4">
+                    Klik tombol "Generate Sample" untuk membuat notifikasi contoh berdasarkan artikel terbaru
+                  </p>
+                </div>
+              ) : (
+                <>
+                  <div className="flex items-center justify-between mb-4 p-3 bg-muted/30 rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <Bell className="w-4 h-4" />
+                      <span className="text-sm font-medium">
+                        Total {notifications.length} notifikasi
+                      </span>
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleDeleteNotification(notification.id)}
-                      className="text-destructive hover:text-destructive"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
+                    <Badge variant="secondary">
+                      {notifications.filter(n => !n.read).length} belum dibaca
+                    </Badge>
                   </div>
-                ))}
-              </div>
+                  
+                  <div className="space-y-4">
+                    {notifications.map((notification) => (
+                      <div key={notification.id} className="flex items-start gap-4 p-4 border rounded-lg hover:bg-muted/20 transition-colors">
+                        {notification.image_url && (
+                          <div className="flex-shrink-0">
+                            <img 
+                              src={notification.image_url} 
+                              alt=""
+                              className="w-16 h-16 object-cover rounded-lg"
+                            />
+                          </div>
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <h3 className="font-medium truncate">{notification.title}</h3>
+                            <Badge variant={notification.notification_type === 'custom' ? 'secondary' : 'default'}>
+                              {notification.notification_type === 'custom' ? 'Kustom' : 'Artikel'}
+                            </Badge>
+                            {notification.category && (
+                              <Badge variant="outline">{notification.category}</Badge>
+                            )}
+                            {!notification.read && (
+                              <Badge variant="destructive" className="text-xs">Baru</Badge>
+                            )}
+                          </div>
+                          {notification.excerpt && (
+                            <p className="text-sm text-muted-foreground mb-2 line-clamp-2">{notification.excerpt}</p>
+                          )}
+                          <p className="text-xs text-muted-foreground">
+                            {new Date(notification.created_at).toLocaleString('id-ID')}
+                          </p>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDeleteNotification(notification.id)}
+                          className="text-destructive hover:text-destructive flex-shrink-0"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
