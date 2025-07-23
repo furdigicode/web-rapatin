@@ -79,6 +79,50 @@ export type Database = {
         }
         Relationships: []
       }
+      article_notifications: {
+        Row: {
+          blog_post_id: string | null
+          category: string | null
+          created_at: string | null
+          excerpt: string | null
+          id: string
+          image_url: string | null
+          notification_type: string | null
+          read: boolean | null
+          title: string
+        }
+        Insert: {
+          blog_post_id?: string | null
+          category?: string | null
+          created_at?: string | null
+          excerpt?: string | null
+          id?: string
+          image_url?: string | null
+          notification_type?: string | null
+          read?: boolean | null
+          title: string
+        }
+        Update: {
+          blog_post_id?: string | null
+          category?: string | null
+          created_at?: string | null
+          excerpt?: string | null
+          id?: string
+          image_url?: string | null
+          notification_type?: string | null
+          read?: boolean | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "article_notifications_blog_post_id_fkey"
+            columns: ["blog_post_id"]
+            isOneToOne: false
+            referencedRelation: "blog_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       authors: {
         Row: {
           avatar_url: string | null
