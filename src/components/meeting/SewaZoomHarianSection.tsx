@@ -72,7 +72,7 @@ const SewaZoomHarianSection: React.FC = () => {
                 <div>
                   <h3 className="font-semibold mb-2">Link Zoom Siap Pakai</h3>
                   <p className="text-muted-foreground text-sm">
-                    Setelah pemesanan, sistem akan langsung memproses link dan Anda akan menerima email berisi undangan Zoom dalam hitungan menit.
+                    Setelah pemesanan, sistem akan langsung memproses pembuatan link.
                   </p>
                 </div>
               </div>
@@ -107,7 +107,7 @@ const SewaZoomHarianSection: React.FC = () => {
             <div className="glass rounded-xl p-6 shadow-elevation border border-white/40">
               <h2 className="text-xl font-bold mb-4">Berapa Harga Sewa Zoom Harian?</h2>
               <p className="text-muted-foreground mb-4">
-                Harga <strong>sewa Zoom harian</strong> di Rapatin mulai dari <strong>Rp15.000</strong> tergantung kapasitas peserta dan durasi event. Anda juga bisa mengisi saldo terlebih dahulu untuk mempermudah pemesanan di kemudian hari, atau langsung bayar per meeting tanpa saldo.
+                Harga <strong>sewa Zoom harian</strong> di Rapatin mulai dari <strong>Rp20.000</strong> tergantung kapasitas peserta dan durasi event. Anda juga bisa mengisi saldo terlebih dahulu untuk mempermudah pemesanan di kemudian hari, atau langsung bayar per meeting tanpa saldo.
               </p>
               <p className="text-muted-foreground text-sm">
                 Kami juga menyediakan fitur penjadwalan otomatis melalui dashboard, yang memudahkan Anda mengatur acara berulang seperti kelas mingguan, pelatihan rutin, atau bimbingan belajar.
