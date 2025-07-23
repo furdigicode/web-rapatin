@@ -7,7 +7,8 @@ import {
   FileText, 
   Users,
   LogOut,
-  Home
+  Home,
+  Bell
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -122,6 +123,17 @@ const AppSidebar = () => {
                     </SidebarMenuSubButton>
                   </SidebarMenuSubItem>
                 </SidebarMenuSub>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton 
+                  asChild 
+                  isActive={location.pathname === '/admin/notifications'}
+                >
+                  <Link to="/admin/notifications">
+                    <Bell />
+                    <span>Notifikasi</span>
+                  </Link>
+                </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>

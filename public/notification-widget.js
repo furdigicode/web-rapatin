@@ -1,0 +1,428 @@
+/**
+ * Blog Notification Widget Embed Script
+ * Version: 1.0.0
+ * 
+ * Usage:
+ * <script src="https://yoursite.com/notification-widget.js" 
+ *   data-blog-notifications="true"
+ *   data-limit="5"
+ *   data-position="top-right"
+ *   data-theme="auto">
+ * </script>
+ */
+
+(function() {
+  'use strict';
+
+  // Configuration
+  const WIDGET_ID = 'blog-notification-widget-container';
+  const BASE_URL = window.location.origin;
+  
+  // Get script configuration
+  function getConfig() {
+    const scripts = document.querySelectorAll('script[data-blog-notifications]');
+    const script = scripts[scripts.length - 1];
+    
+    return {
+      limit: parseInt(script.dataset.limit || '5'),
+      categories: script.dataset.categories || '',
+      position: script.dataset.position || 'top-right',
+      theme: script.dataset.theme || 'auto',
+      autoHide: script.dataset.autoHide === 'true',
+      autoHideDelay: parseInt(script.dataset.autoHideDelay || '5000')
+    };
+  }
+
+  // Create widget container
+  function createContainer(config) {
+    // Remove existing widget if present
+    const existing = document.getElementById(WIDGET_ID);
+    if (existing) {
+      existing.remove();
+    }
+
+    const container = document.createElement('div');
+    container.id = WIDGET_ID;
+    container.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 9999;
+      font-family: system-ui, -apple-system, sans-serif;
+    `;
+
+    document.body.appendChild(container);
+    return container;
+  }
+
+  // Load CSS styles
+  function loadStyles() {
+    const styleId = 'blog-notification-widget-styles';
+    if (document.getElementById(styleId)) return;
+
+    const link = document.createElement('link');
+    link.id = styleId;
+    link.rel = 'stylesheet';
+    link.href = BASE_URL + '/assets/notification-widget.css';
+    document.head.appendChild(link);
+  }
+
+  // Create notification widget HTML
+  function createWidgetHTML(config) {
+    const positionClasses = {
+      'top-right': 'top: 20px; right: 20px;',
+      'top-left': 'top: 20px; left: 20px;',
+      'bottom-right': 'bottom: 20px; right: 20px;',
+      'bottom-left': 'bottom: 20px; left: 20px;'
+    };
+
+    const themeClasses = {
+      light: 'background: white; color: #1a1a1a; border: 1px solid #e5e5e5;',
+      dark: 'background: #1a1a1a; color: white; border: 1px solid #404040;',
+      auto: 'background: white; color: #1a1a1a; border: 1px solid #e5e5e5;'
+    };
+
+    return `
+      <div id="notification-widget" style="
+        position: fixed;
+        ${positionClasses[config.position]}
+        pointer-events: auto;
+        z-index: 10000;
+      ">
+        <div id="notification-button" style="
+          ${themeClasses[config.theme]}
+          border-radius: 50%;
+          width: 50px;
+          height: 50px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+          transition: all 0.2s ease;
+          position: relative;
+        ">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/>
+          </svg>
+          <div id="notification-badge" style="
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #ef4444;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+          "></div>
+        </div>
+        
+        <div id="notification-panel" style="
+          ${themeClasses[config.theme]}
+          position: absolute;
+          ${config.position.includes('right') ? 'right: 0;' : 'left: 0;'}
+          ${config.position.includes('top') ? 'top: 60px;' : 'bottom: 60px;'}
+          width: 320px;
+          max-height: 400px;
+          border-radius: 8px;
+          box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+          display: none;
+          flex-direction: column;
+          overflow: hidden;
+        ">
+          <div style="
+            padding: 16px;
+            border-bottom: 1px solid ${config.theme === 'dark' ? '#404040' : '#e5e5e5'};
+            display: flex;
+            justify-content: between;
+            align-items: center;
+          ">
+            <h3 style="margin: 0; font-size: 16px; font-weight: 600;">Notifikasi</h3>
+            <button id="close-notifications" style="
+              background: none;
+              border: none;
+              cursor: pointer;
+              color: inherit;
+              font-size: 18px;
+              line-height: 1;
+              padding: 4px;
+            ">&times;</button>
+          </div>
+          <div id="notifications-list" style="
+            flex: 1;
+            overflow-y: auto;
+            max-height: 320px;
+          ">
+            <div style="padding: 16px; text-align: center; color: #666;">
+              Memuat notifikasi...
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  // Fetch notifications from API
+  async function fetchNotifications(config) {
+    try {
+      const params = new URLSearchParams({
+        limit: config.limit.toString()
+      });
+      
+      if (config.categories) {
+        params.append('categories', config.categories);
+      }
+
+      const response = await fetch(`${BASE_URL}/api/notifications?${params}`);
+      if (!response.ok) throw new Error('Failed to fetch notifications');
+      
+      return await response.json();
+    } catch (error) {
+      console.error('Error fetching notifications:', error);
+      return [];
+    }
+  }
+
+  // Render notifications
+  function renderNotifications(notifications, config) {
+    const listElement = document.getElementById('notifications-list');
+    const badgeElement = document.getElementById('notification-badge');
+    
+    const unreadCount = notifications.filter(n => !n.read).length;
+    
+    // Update badge
+    if (unreadCount > 0) {
+      badgeElement.textContent = unreadCount > 99 ? '99+' : unreadCount.toString();
+      badgeElement.style.display = 'flex';
+    } else {
+      badgeElement.style.display = 'none';
+    }
+
+    // Render notification list
+    if (notifications.length === 0) {
+      listElement.innerHTML = `
+        <div style="padding: 16px; text-align: center; color: #666;">
+          Tidak ada notifikasi
+        </div>
+      `;
+      return;
+    }
+
+    listElement.innerHTML = notifications.map(notification => {
+      const timeAgo = formatTimeAgo(notification.created_at);
+      
+      return `
+        <div class="notification-item" data-id="${notification.id}" style="
+          padding: 16px;
+          border-bottom: 1px solid ${config.theme === 'dark' ? '#333' : '#f0f0f0'};
+          cursor: pointer;
+          transition: background-color 0.2s ease;
+          ${!notification.read ? 'background-color: rgba(59, 130, 246, 0.05); border-left: 4px solid #3b82f6;' : ''}
+        ">
+          <div style="display: flex; gap: 12px;">
+            ${notification.image_url ? `
+              <img src="${notification.image_url}" alt="${notification.title}" style="
+                width: 48px;
+                height: 48px;
+                border-radius: 6px;
+                object-fit: cover;
+                flex-shrink: 0;
+              ">
+            ` : ''}
+            <div style="flex: 1; min-width: 0;">
+              <div style="display: flex; align-items: start; gap: 8px;">
+                <h4 style="
+                  margin: 0 0 4px 0;
+                  font-size: 14px;
+                  font-weight: ${!notification.read ? '600' : '500'};
+                  line-height: 1.3;
+                  overflow: hidden;
+                  display: -webkit-box;
+                  -webkit-line-clamp: 2;
+                  -webkit-box-orient: vertical;
+                ">${notification.title}</h4>
+                ${!notification.read ? '<div style="width: 8px; height: 8px; background: #3b82f6; border-radius: 50%; flex-shrink: 0; margin-top: 2px;"></div>' : ''}
+              </div>
+              ${notification.excerpt ? `
+                <p style="
+                  margin: 4px 0;
+                  font-size: 12px;
+                  color: #666;
+                  line-height: 1.4;
+                  overflow: hidden;
+                  display: -webkit-box;
+                  -webkit-line-clamp: 2;
+                  -webkit-box-orient: vertical;
+                ">${notification.excerpt}</p>
+              ` : ''}
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
+                <span style="font-size: 11px; color: #888;">${timeAgo}</span>
+                ${notification.category ? `
+                  <span style="
+                    background: ${config.theme === 'dark' ? '#333' : '#f3f4f6'};
+                    color: ${config.theme === 'dark' ? '#ccc' : '#666'};
+                    padding: 2px 6px;
+                    border-radius: 4px;
+                    font-size: 10px;
+                    font-weight: 500;
+                  ">${notification.category}</span>
+                ` : ''}
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    // Add click handlers
+    listElement.querySelectorAll('.notification-item').forEach(item => {
+      item.addEventListener('click', () => {
+        const id = item.dataset.id;
+        const notification = notifications.find(n => n.id === id);
+        if (notification) {
+          handleNotificationClick(notification);
+        }
+      });
+      
+      item.addEventListener('mouseenter', () => {
+        item.style.backgroundColor = config.theme === 'dark' ? '#2a2a2a' : '#f9f9f9';
+      });
+      
+      item.addEventListener('mouseleave', () => {
+        const notification = notifications.find(n => n.id === item.dataset.id);
+        item.style.backgroundColor = notification && !notification.read ? 
+          (config.theme === 'dark' ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.05)') : 
+          'transparent';
+      });
+    });
+  }
+
+  // Handle notification click
+  function handleNotificationClick(notification) {
+    // Mark as read
+    if (!notification.read) {
+      markAsRead(notification.id);
+    }
+
+    // Navigate to article if it has a blog_post_id
+    if (notification.blog_post_id) {
+      window.open(`${BASE_URL}/blog/${notification.blog_post_id}`, '_blank');
+    }
+  }
+
+  // Mark notification as read
+  async function markAsRead(notificationId) {
+    try {
+      await fetch(`${BASE_URL}/api/notifications/${notificationId}/read`, {
+        method: 'POST'
+      });
+    } catch (error) {
+      console.error('Error marking notification as read:', error);
+    }
+  }
+
+  // Format time ago
+  function formatTimeAgo(dateString) {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
+
+    if (diffInHours < 1) return 'Baru saja';
+    if (diffInHours < 24) return `${diffInHours} jam yang lalu`;
+    const diffInDays = Math.floor(diffInHours / 24);
+    if (diffInDays < 7) return `${diffInDays} hari yang lalu`;
+    return date.toLocaleDateString('id-ID');
+  }
+
+  // Initialize widget
+  async function init() {
+    const config = getConfig();
+    const container = createContainer(config);
+    
+    // Load styles
+    loadStyles();
+    
+    // Create widget HTML
+    container.innerHTML = createWidgetHTML(config);
+    
+    // Get DOM elements
+    const button = document.getElementById('notification-button');
+    const panel = document.getElementById('notification-panel');
+    const closeBtn = document.getElementById('close-notifications');
+    
+    let isOpen = false;
+    
+    // Toggle panel
+    function togglePanel() {
+      isOpen = !isOpen;
+      panel.style.display = isOpen ? 'flex' : 'none';
+      
+      if (isOpen) {
+        // Fetch and render notifications when opened
+        fetchNotifications(config).then(notifications => {
+          renderNotifications(notifications, config);
+        });
+      }
+    }
+    
+    // Event listeners
+    button.addEventListener('click', togglePanel);
+    closeBtn.addEventListener('click', () => {
+      isOpen = false;
+      panel.style.display = 'none';
+    });
+    
+    // Close when clicking outside
+    document.addEventListener('click', (e) => {
+      if (isOpen && !container.contains(e.target)) {
+        isOpen = false;
+        panel.style.display = 'none';
+      }
+    });
+    
+    // Initial load to show badge
+    fetchNotifications(config).then(notifications => {
+      const unreadCount = notifications.filter(n => !n.read).length;
+      const badgeElement = document.getElementById('notification-badge');
+      
+      if (unreadCount > 0) {
+        badgeElement.textContent = unreadCount > 99 ? '99+' : unreadCount.toString();
+        badgeElement.style.display = 'flex';
+      }
+    });
+
+    // Auto-hide functionality
+    if (config.autoHide) {
+      setTimeout(() => {
+        container.style.display = 'none';
+      }, config.autoHideDelay);
+    }
+  }
+
+  // Initialize when DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+
+  // Expose global API
+  window.BlogNotificationWidget = {
+    init: init,
+    destroy: function() {
+      const container = document.getElementById(WIDGET_ID);
+      if (container) {
+        container.remove();
+      }
+    }
+  };
+
+})();
