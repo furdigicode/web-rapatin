@@ -35,7 +35,7 @@ const SewaZoomHarian: React.FC = () => {
     <>
       <SEO
         title="Sewa Zoom Harian - Link Zoom Tanpa Langganan Bulanan | Rapatin"
-        description="Sewa zoom harian mulai Rp15.000. Link zoom siap pakai tanpa langganan bulanan. Cocok untuk webinar, kelas online, rapat penting. Kapasitas 100-1000 peserta."
+        description="Sewa zoom harian mulai Rp 20.000. Link zoom siap pakai tanpa langganan bulanan. Cocok untuk webinar, kelas online, rapat penting. Kapasitas 100-1000 peserta."
         keywords="sewa zoom harian, link zoom harian, zoom tanpa langganan, booking zoom harian, rental zoom meeting, webinar tanpa langganan, kelas online zoom, rapat zoom harian, sewa akun zoom"
         url="https://rapatin.id/sewa-zoom-harian"
         structuredData={structuredData}
