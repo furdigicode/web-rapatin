@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import AdminLayout from '@/components/admin/AdminLayout';
@@ -18,6 +17,7 @@ import { DeleteConfirmation } from '@/components/blog/DeleteConfirmation';
 import AIArticleGenerator from '@/components/admin/AIArticleGenerator';
 import AdminPageHeader from '@/components/admin/AdminPageHeader';
 import AuthorSelector from '@/components/admin/AuthorSelector';
+import { FileUpload } from '@/components/ui/file-upload';
 
 const BlogManagement = () => {
   const { toast } = useToast();
@@ -27,6 +27,7 @@ const BlogManagement = () => {
   const [isEditing, setIsEditing] = useState<string | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [postToDelete, setPostToDelete] = useState<string | null>(null);
+  const [imageUploadMode, setImageUploadMode] = useState<'url' | 'upload'>('upload');
 
   const [formData, setFormData] = useState<BlogPostFormData>({
     ...defaultBlogPostFormData
@@ -406,11 +407,8 @@ const BlogManagement = () => {
     publishPostMutation.mutate(id);
   };
 
-  const handleImageUpload = () => {
-    const imageUrl = prompt("Enter image URL (in production, this would be a file upload):");
-    if (imageUrl) {
-      setFormData({...formData, coverImage: imageUrl});
-    }
+  const handleImageUploadComplete = (url: string) => {
+    setFormData({...formData, coverImage: url});
   };
 
   const handleAIArticleGenerated = (articleData: Partial<BlogPostFormData>) => {
@@ -477,35 +475,61 @@ const BlogManagement = () => {
                   />
                 </div>
                 
-                <div className="space-y-2">
+                <div className="space-y-4">
                   <Label>Cover Image</Label>
-                  <div className="flex items-start gap-4">
-                    {formData.coverImage && (
-                      <div className="w-1/3">
-                        <img 
-                          src={formData.coverImage} 
-                          alt="Cover preview" 
-                          className="w-full h-auto rounded-md border object-cover aspect-[16/9]" 
-                        />
-                      </div>
-                    )}
-                    <div className={formData.coverImage ? "w-2/3" : "w-full"}>
-                      <div className="flex gap-2">
-                        <Input
-                          value={formData.coverImage}
-                          onChange={(e) => handleInputChange('coverImage', e.target.value)}
-                          placeholder="URL gambar cover"
-                          className="flex-1"
-                        />
-                        <Button type="button" variant="outline" onClick={handleImageUpload}>
-                          Upload
-                        </Button>
-                      </div>
-                      <p className="text-sm text-muted-foreground mt-1">
+                  
+                  {/* Toggle between URL and Upload modes */}
+                  <div className="flex gap-4 mb-4">
+                    <label className="flex items-center gap-2">
+                      <input
+                        type="radio"
+                        name="imageMode"
+                        value="upload"
+                        checked={imageUploadMode === 'upload'}
+                        onChange={(e) => setImageUploadMode(e.target.value as 'url' | 'upload')}
+                        className="text-primary"
+                      />
+                      <span className="text-sm">Upload File</span>
+                    </label>
+                    <label className="flex items-center gap-2">
+                      <input
+                        type="radio"
+                        name="imageMode"
+                        value="url"
+                        checked={imageUploadMode === 'url'}
+                        onChange={(e) => setImageUploadMode(e.target.value as 'url' | 'upload')}
+                        className="text-primary"
+                      />
+                      <span className="text-sm">URL</span>
+                    </label>
+                  </div>
+
+                  {imageUploadMode === 'upload' ? (
+                    <FileUpload
+                      onUploadComplete={handleImageUploadComplete}
+                      currentImage={formData.coverImage}
+                    />
+                  ) : (
+                    <div className="space-y-2">
+                      {formData.coverImage && (
+                        <div className="w-full max-w-md">
+                          <img 
+                            src={formData.coverImage} 
+                            alt="Cover preview" 
+                            className="w-full h-auto rounded-md border object-cover aspect-[16/9]" 
+                          />
+                        </div>
+                      )}
+                      <Input
+                        value={formData.coverImage}
+                        onChange={(e) => handleInputChange('coverImage', e.target.value)}
+                        placeholder="Masukkan URL gambar cover"
+                      />
+                      <p className="text-sm text-muted-foreground">
                         Ukuran ideal: 1200x627 piksel (rasio 1.91:1)
                       </p>
                     </div>
-                  </div>
+                  )}
                 </div>
                 
                 <div className="space-y-2">
