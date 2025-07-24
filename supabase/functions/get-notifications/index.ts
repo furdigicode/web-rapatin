@@ -26,10 +26,13 @@ serve(async (req) => {
 
     console.log('Fetching notifications with params:', { limit, categories });
 
-    // Build query
+    // Build query with join to get blog post slug
     let query = supabase
       .from('article_notifications')
-      .select('*')
+      .select(`
+        *,
+        blog_posts!inner(slug)
+      `)
       .order('created_at', { ascending: false })
       .limit(limit);
 

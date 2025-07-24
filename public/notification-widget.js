@@ -29,7 +29,8 @@
       position: script.dataset.position || 'top-right',
       theme: script.dataset.theme || 'auto',
       autoHide: script.dataset.autoHide === 'true',
-      autoHideDelay: parseInt(script.dataset.autoHideDelay || '5000')
+      autoHideDelay: parseInt(script.dataset.autoHideDelay || '5000'),
+      blogBaseUrl: script.dataset.blogBaseUrl || 'https://324d0fc3-9056-4d88-b33e-7111454bd4a6.lovableproject.com'
     };
   }
 
@@ -288,7 +289,7 @@
         const id = item.dataset.id;
         const notification = notifications.find(n => n.id === id);
         if (notification) {
-          handleNotificationClick(notification);
+          handleNotificationClick(notification, config);
         }
       });
       
@@ -306,17 +307,17 @@
   }
 
   // Handle notification click
-  function handleNotificationClick(notification) {
+  function handleNotificationClick(notification, config) {
     // Mark as read
     if (!notification.read) {
       markAsRead(notification.id);
     }
 
-    // Navigate to article if it has a blog_post_id
+    // Navigate to article using slug and configured base URL
     if (notification.blog_post_id) {
-      // Use the current page's origin for blog navigation
-      const currentOrigin = window.location.origin;
-      window.open(`${currentOrigin}/blog/${notification.blog_post_id}`, '_blank');
+      const slug = notification.blog_posts?.slug || notification.blog_post_id;
+      const blogUrl = `${config.blogBaseUrl}/blog/${slug}`;
+      window.open(blogUrl, '_blank');
     }
   }
 
