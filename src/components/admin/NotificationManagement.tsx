@@ -21,7 +21,8 @@ export const NotificationManagement = () => {
     position: 'top-right' as const,
     theme: 'auto' as const,
     limit: 5,
-    autoHide: false
+    autoHide: false,
+    blogBaseUrl: 'https://rapatin.id'
   });
 
   // Custom notification form
@@ -181,6 +182,7 @@ export const NotificationManagement = () => {
   data-position="${previewConfig.position}"
   data-theme="${previewConfig.theme}"
   data-auto-hide="${previewConfig.autoHide}"
+  data-blog-base-url="${previewConfig.blogBaseUrl}"
 ></script>`;
 
   const jsApiCode = `// JavaScript API Usage
@@ -189,6 +191,7 @@ window.BlogNotificationWidget.init({
   position: '${previewConfig.position}',
   theme: '${previewConfig.theme}',
   autoHide: ${previewConfig.autoHide},
+  blogBaseUrl: '${previewConfig.blogBaseUrl}',
   categories: 'teknologi,bisnis' // Optional category filter
 });`;
 
@@ -380,6 +383,17 @@ window.BlogNotificationWidget.init({
                     onChange={(e) => setPreviewConfig(prev => ({ ...prev, limit: parseInt(e.target.value) || 5 }))}
                     min={1}
                     max={20}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="blogBaseUrl">Blog Base URL</Label>
+                  <Input
+                    id="blogBaseUrl"
+                    type="url"
+                    value={previewConfig.blogBaseUrl}
+                    onChange={(e) => setPreviewConfig(prev => ({ ...prev, blogBaseUrl: e.target.value }))}
+                    placeholder="https://rapatin.id"
                   />
                 </div>
 
