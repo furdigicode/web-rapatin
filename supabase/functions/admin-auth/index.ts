@@ -44,7 +44,7 @@ function generateToken(adminId: string, email: string): string {
   const payload = {
     sub: adminId,
     email: email,
-    exp: Math.floor(Date.now() / 1000) + (2 * 60 * 60), // 2 hours
+    exp: Math.floor(Date.now() / 1000) + (24 * 60 * 60), // 24 hours
     iat: Math.floor(Date.now() / 1000),
   }
   
@@ -161,7 +161,7 @@ async function handleLogin(email: string, password: string) {
       .insert({
         admin_id: admin.id,
         token_hash: token, // Store simple token hash
-        expires_at: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString()
+        expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
       })
 
     if (sessionError) {

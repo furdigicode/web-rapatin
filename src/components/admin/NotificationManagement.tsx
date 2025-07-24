@@ -10,12 +10,14 @@ import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Bell, Code, Eye, Settings, Trash2, Plus, Sparkles, X } from 'lucide-react';
 import { useNotifications } from '@/hooks/useNotifications';
+import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { NotificationWidget } from '@/components/ui/notification-widget';
 
 export const NotificationManagement = () => {
   const { toast } = useToast();
+  const { checkSessionExpiry } = useAdminAuth();
   const { notifications, refetch } = useNotifications({ limit: 50 });
   const [previewConfig, setPreviewConfig] = useState({
     position: 'top-right' as const,
@@ -35,6 +37,9 @@ export const NotificationManagement = () => {
 
   const handleCreateCustomNotification = async () => {
     try {
+      // Check session before performing admin action
+      checkSessionExpiry();
+      
       const { error } = await supabase
         .from('article_notifications')
         .insert({
@@ -46,7 +51,23 @@ export const NotificationManagement = () => {
           notification_type: 'custom'
         });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error creating notification:', error);
+        
+        // Check if it's a permission error (likely session expired)
+        if (error.message?.includes('new row violates row-level security policy') || 
+            error.message?.includes('permission denied')) {
+          toast({
+            title: "Session Expired",
+            description: "Your admin session has expired. Please log in again.",
+            variant: "destructive",
+          });
+          // Redirect to login
+          window.location.href = '/admin/login';
+          return;
+        }
+        throw error;
+      }
 
       toast({
         title: 'Berhasil',

@@ -13,6 +13,7 @@ interface UseAdminAuthReturn {
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<void>;
   verifyToken: () => Promise<boolean>;
+  checkSessionExpiry: () => void;
 }
 
 export const useAdminAuth = (): UseAdminAuthReturn => {
@@ -47,9 +48,14 @@ export const useAdminAuth = (): UseAdminAuthReturn => {
       });
 
       if (error || !data?.valid) {
+        console.log('Session verification failed:', error || 'Invalid token');
         setStoredToken(null);
         setAdmin(null);
         setIsLoading(false);
+        // Auto-redirect to login if we're in admin area
+        if (window.location.pathname.startsWith('/admin') && window.location.pathname !== '/admin/login') {
+          window.location.href = '/admin/login';
+        }
         return false;
       }
 
@@ -62,6 +68,10 @@ export const useAdminAuth = (): UseAdminAuthReturn => {
       setStoredToken(null);
       setAdmin(null);
       setIsLoading(false);
+      // Auto-redirect to login if we're in admin area
+      if (window.location.pathname.startsWith('/admin') && window.location.pathname !== '/admin/login') {
+        window.location.href = '/admin/login';
+      }
       return false;
     }
   }, [getStoredToken, setStoredToken]);
@@ -197,12 +207,34 @@ export const useAdminAuth = (): UseAdminAuthReturn => {
     verifyToken();
   }, [setupAdmin, verifyToken]);
 
+  // Auto-verify session every 30 minutes
+  useEffect(() => {
+    if (!admin || !token) return;
+
+    const interval = setInterval(() => {
+      console.log('Auto-checking session validity...');
+      verifyToken();
+    }, 30 * 60 * 1000); // 30 minutes
+
+    return () => clearInterval(interval);
+  }, [admin, token, verifyToken]);
+
+  const checkSessionExpiry = useCallback(() => {
+    if (!admin) {
+      if (window.location.pathname.startsWith('/admin') && window.location.pathname !== '/admin/login') {
+        console.log('No admin session, redirecting to login');
+        window.location.href = '/admin/login';
+      }
+    }
+  }, [admin]);
+
   return {
     admin,
     isLoading,
     isAuthenticated: !!admin && !!token,
     login,
     logout,
-    verifyToken
+    verifyToken,
+    checkSessionExpiry
   };
 };
