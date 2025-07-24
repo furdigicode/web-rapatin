@@ -6,3 +6,9 @@ verify_jwt = false
 
 [functions.generate-sitemap]
 verify_jwt = false
+
+[functions.get-notifications]
+verify_jwt = false
+
+[functions.mark-notification-read]
+verify_jwt = false

@@ -16,7 +16,7 @@
 
   // Configuration
   const WIDGET_ID = 'blog-notification-widget-container';
-  const BASE_URL = window.location.origin;
+  const BASE_URL = 'https://mepznzrijuoyvjcmkspf.supabase.co/functions/v1';
   
   // Get script configuration
   function getConfig() {
@@ -181,7 +181,7 @@
         params.append('categories', config.categories);
       }
 
-      const response = await fetch(`${BASE_URL}/api/notifications?${params}`);
+      const response = await fetch(`${BASE_URL}/get-notifications?${params}`);
       if (!response.ok) throw new Error('Failed to fetch notifications');
       
       return await response.json();
@@ -314,14 +314,16 @@
 
     // Navigate to article if it has a blog_post_id
     if (notification.blog_post_id) {
-      window.open(`${BASE_URL}/blog/${notification.blog_post_id}`, '_blank');
+      // Use the current page's origin for blog navigation
+      const currentOrigin = window.location.origin;
+      window.open(`${currentOrigin}/blog/${notification.blog_post_id}`, '_blank');
     }
   }
 
   // Mark notification as read
   async function markAsRead(notificationId) {
     try {
-      await fetch(`${BASE_URL}/api/notifications/${notificationId}/read`, {
+      await fetch(`${BASE_URL}/mark-notification-read/${notificationId}/read`, {
         method: 'POST'
       });
     } catch (error) {
