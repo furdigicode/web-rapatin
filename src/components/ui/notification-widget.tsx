@@ -95,7 +95,10 @@ export const NotificationWidget: React.FC<NotificationWidgetProps> = ({
       {/* Notification Panel */}
       {isOpen && (
         <Card className={cn(
-          'absolute w-80 mt-2 shadow-xl animate-in slide-in-from-top-2 duration-200',
+          'absolute w-80 shadow-xl animate-in duration-200',
+          position.includes('bottom') 
+            ? 'bottom-full mb-2 slide-in-from-bottom-2' 
+            : 'top-full mt-2 slide-in-from-top-2',
           position.includes('right') ? 'right-0' : 'left-0',
           themeClasses[theme]
         )}>
