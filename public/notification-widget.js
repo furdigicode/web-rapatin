@@ -17,6 +17,14 @@
   // Configuration
   const WIDGET_ID = 'blog-notification-widget-container';
   const BASE_URL = 'https://mepznzrijuoyvjcmkspf.supabase.co/functions/v1';
+  const SUPABASE_URL = 'https://mepznzrijuoyvjcmkspf.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1lcHpuenJpanVveXZqY21rc3BmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDczNzU5NDcsImV4cCI6MjA2Mjk1MTk0N30.mIGM28Ztelp6enqg36m03SB7v_Vlsruyd79Rj9mRUuA';
+  
+  // Global variables for real-time functionality
+  let supabaseClient = null;
+  let realtimeChannel = null;
+  let currentNotifications = [];
+  let widgetConfig = null;
   
   // Get script configuration
   function getConfig() {
@@ -30,7 +38,8 @@
       theme: script.dataset.theme || 'auto',
       autoHide: script.dataset.autoHide === 'true',
       autoHideDelay: parseInt(script.dataset.autoHideDelay || '5000'),
-      blogBaseUrl: script.dataset.blogBaseUrl || 'https://324d0fc3-9056-4d88-b33e-7111454bd4a6.lovableproject.com'
+      blogBaseUrl: script.dataset.blogBaseUrl || 'https://324d0fc3-9056-4d88-b33e-7111454bd4a6.lovableproject.com',
+      realtime: script.dataset.realtime !== 'false' // enabled by default
     };
   }
 
@@ -345,9 +354,152 @@
     return date.toLocaleDateString('id-ID');
   }
 
+  // Load Supabase client
+  async function loadSupabaseClient() {
+    if (supabaseClient) return supabaseClient;
+    
+    try {
+      // Load Supabase JS library
+      if (!window.supabase) {
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js';
+        document.head.appendChild(script);
+        
+        await new Promise((resolve, reject) => {
+          script.onload = resolve;
+          script.onerror = reject;
+        });
+      }
+      
+      // Create Supabase client
+      supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      console.log('Supabase client loaded for widget');
+      return supabaseClient;
+    } catch (error) {
+      console.error('Failed to load Supabase client:', error);
+      return null;
+    }
+  }
+
+  // Setup real-time subscription
+  function setupRealtimeSubscription(config) {
+    if (!config.realtime || !supabaseClient) return;
+    
+    console.log('Setting up real-time subscription for notifications');
+    
+    // Create channel for real-time updates
+    realtimeChannel = supabaseClient
+      .channel('notification-updates')
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'article_notifications'
+      }, (payload) => {
+        console.log('New notification received:', payload);
+        handleNewNotification(payload.new, config);
+      })
+      .on('postgres_changes', {
+        event: 'UPDATE',
+        schema: 'public',
+        table: 'article_notifications'
+      }, (payload) => {
+        console.log('Notification updated:', payload);
+        handleUpdatedNotification(payload.new, config);
+      })
+      .subscribe((status) => {
+        console.log('Real-time subscription status:', status);
+      });
+  }
+
+  // Handle new notification from real-time
+  function handleNewNotification(notification, config) {
+    // Check if notification matches category filter
+    if (config.categories && notification.category) {
+      const allowedCategories = config.categories.split(',').map(c => c.trim());
+      if (!allowedCategories.includes(notification.category)) {
+        return; // Skip if not in allowed categories
+      }
+    }
+    
+    // Add to current notifications array (keeping limit)
+    currentNotifications.unshift(notification);
+    if (currentNotifications.length > config.limit) {
+      currentNotifications = currentNotifications.slice(0, config.limit);
+    }
+    
+    // Update badge immediately
+    updateBadge();
+    
+    // Update panel if it's open
+    const panel = document.getElementById('notification-panel');
+    if (panel && panel.style.display === 'flex') {
+      renderNotifications(currentNotifications, config);
+    }
+    
+    // Show brief visual indicator for new notification
+    showNewNotificationIndicator();
+  }
+
+  // Handle updated notification from real-time
+  function handleUpdatedNotification(updatedNotification, config) {
+    // Find and update notification in current array
+    const index = currentNotifications.findIndex(n => n.id === updatedNotification.id);
+    if (index !== -1) {
+      currentNotifications[index] = updatedNotification;
+      
+      // Update badge
+      updateBadge();
+      
+      // Update panel if it's open
+      const panel = document.getElementById('notification-panel');
+      if (panel && panel.style.display === 'flex') {
+        renderNotifications(currentNotifications, config);
+      }
+    }
+  }
+
+  // Update badge based on current notifications
+  function updateBadge() {
+    const badgeElement = document.getElementById('notification-badge');
+    if (!badgeElement) return;
+    
+    const unreadCount = currentNotifications.filter(n => !n.read).length;
+    
+    if (unreadCount > 0) {
+      badgeElement.textContent = unreadCount > 99 ? '99+' : unreadCount.toString();
+      badgeElement.style.display = 'flex';
+    } else {
+      badgeElement.style.display = 'none';
+    }
+  }
+
+  // Show visual indicator for new notification
+  function showNewNotificationIndicator() {
+    const button = document.getElementById('notification-button');
+    if (!button) return;
+    
+    // Add a subtle animation to indicate new notification
+    button.style.transform = 'scale(1.1)';
+    button.style.transition = 'transform 0.2s ease';
+    
+    setTimeout(() => {
+      button.style.transform = 'scale(1)';
+    }, 200);
+  }
+
+  // Cleanup real-time subscription
+  function cleanupRealtime() {
+    if (realtimeChannel) {
+      console.log('Cleaning up real-time subscription');
+      supabaseClient?.removeChannel(realtimeChannel);
+      realtimeChannel = null;
+    }
+  }
+
   // Initialize widget
   async function init() {
     const config = getConfig();
+    widgetConfig = config;
     const container = createContainer(config);
     
     // Load styles
@@ -355,6 +507,16 @@
     
     // Create widget HTML
     container.innerHTML = createWidgetHTML(config);
+    
+    // Load Supabase client and setup real-time if enabled
+    if (config.realtime) {
+      try {
+        await loadSupabaseClient();
+        setupRealtimeSubscription(config);
+      } catch (error) {
+        console.warn('Failed to setup real-time functionality:', error);
+      }
+    }
     
     // Get DOM elements
     const button = document.getElementById('notification-button');
@@ -369,10 +531,15 @@
       panel.style.display = isOpen ? 'flex' : 'none';
       
       if (isOpen) {
-        // Fetch and render notifications when opened
-        fetchNotifications(config).then(notifications => {
-          renderNotifications(notifications, config);
-        });
+        // Use current notifications if available, otherwise fetch
+        if (currentNotifications.length > 0) {
+          renderNotifications(currentNotifications, config);
+        } else {
+          fetchNotifications(config).then(notifications => {
+            currentNotifications = notifications;
+            renderNotifications(notifications, config);
+          });
+        }
       }
     }
     
@@ -391,15 +558,10 @@
       }
     });
     
-    // Initial load to show badge
+    // Initial load to show badge and store notifications
     fetchNotifications(config).then(notifications => {
-      const unreadCount = notifications.filter(n => !n.read).length;
-      const badgeElement = document.getElementById('notification-badge');
-      
-      if (unreadCount > 0) {
-        badgeElement.textContent = unreadCount > 99 ? '99+' : unreadCount.toString();
-        badgeElement.style.display = 'flex';
-      }
+      currentNotifications = notifications;
+      updateBadge();
     });
 
     // Auto-hide functionality
@@ -421,10 +583,18 @@
   window.BlogNotificationWidget = {
     init: init,
     destroy: function() {
+      // Cleanup real-time subscription
+      cleanupRealtime();
+      
+      // Remove container
       const container = document.getElementById(WIDGET_ID);
       if (container) {
         container.remove();
       }
+      
+      // Reset global state
+      currentNotifications = [];
+      widgetConfig = null;
     }
   };
 
