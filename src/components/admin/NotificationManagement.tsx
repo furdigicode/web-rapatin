@@ -24,6 +24,7 @@ export const NotificationManagement = () => {
     theme: 'auto' as const,
     limit: 5,
     autoHide: false,
+    realtime: true,
     blogBaseUrl: 'https://rapatin.id'
   });
 
@@ -203,6 +204,7 @@ export const NotificationManagement = () => {
   data-position="${previewConfig.position}"
   data-theme="${previewConfig.theme}"
   data-auto-hide="${previewConfig.autoHide}"
+  data-realtime="${previewConfig.realtime}"
   data-blog-base-url="${previewConfig.blogBaseUrl}"
 ></script>`;
 
@@ -212,6 +214,7 @@ window.BlogNotificationWidget.init({
   position: '${previewConfig.position}',
   theme: '${previewConfig.theme}',
   autoHide: ${previewConfig.autoHide},
+  realtime: ${previewConfig.realtime},
   blogBaseUrl: '${previewConfig.blogBaseUrl}',
   categories: 'teknologi,bisnis' // Optional category filter
 });`;
@@ -425,6 +428,15 @@ window.BlogNotificationWidget.init({
                     onCheckedChange={(checked) => setPreviewConfig(prev => ({ ...prev, autoHide: checked }))}
                   />
                   <Label htmlFor="autoHide">Auto Hide Widget</Label>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="realtime"
+                    checked={previewConfig.realtime}
+                    onCheckedChange={(checked) => setPreviewConfig(prev => ({ ...prev, realtime: checked }))}
+                  />
+                  <Label htmlFor="realtime">Real-time Updates</Label>
                 </div>
               </CardContent>
             </Card>
