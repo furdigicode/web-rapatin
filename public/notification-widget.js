@@ -104,9 +104,9 @@
       ">
         <div id="notification-button" style="
           ${themeClasses[config.theme]}
-          border-radius: 50%;
-          width: 50px;
-          height: 50px;
+          border-radius: 8px;
+          width: 60px;
+          height: 60px;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -115,8 +115,9 @@
           transition: all 0.2s ease;
           position: relative;
         ">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/>
+            <path d="m13.73 21a2 2 0 0 1-3.46 0"/>
           </svg>
           <div id="notification-badge" style="
             position: absolute;
@@ -139,7 +140,7 @@
           ${themeClasses[config.theme]}
           position: absolute;
           ${config.position.includes('right') ? 'right: 0;' : 'left: 0;'}
-          ${config.position.includes('top') ? 'top: 60px;' : 'bottom: 60px;'}
+          ${config.position.includes('top') ? 'top: 70px;' : 'bottom: 70px;'}
           width: 320px;
           max-height: 400px;
           border-radius: 8px;
