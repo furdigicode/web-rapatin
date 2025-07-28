@@ -239,15 +239,6 @@
           ${!notification.read ? 'background-color: rgba(59, 130, 246, 0.05); border-left: 4px solid #3b82f6;' : ''}
         ">
           <div style="display: flex; gap: 12px;">
-            ${notification.image_url ? `
-              <img src="${notification.image_url}" alt="${notification.title}" style="
-                width: 48px;
-                height: 48px;
-                border-radius: 6px;
-                object-fit: cover;
-                flex-shrink: 0;
-              ">
-            ` : ''}
             <div style="flex: 1; min-width: 0;">
               <div style="display: flex; align-items: start; gap: 8px;">
                 <h4 style="
