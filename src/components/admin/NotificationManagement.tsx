@@ -8,14 +8,20 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Bell, Code, Eye, Settings, Trash2, Plus, Sparkles, X } from 'lucide-react';
+import { Bell, Code, Eye, Settings, Trash2, Plus, Sparkles, X, Edit } from 'lucide-react';
 import { useNotifications } from '@/hooks/useNotifications';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { NotificationWidget } from '@/components/ui/notification-widget';
+import { NotificationDialog } from './NotificationDialog';
+import { ArticleNotification } from '@/types/NotificationTypes';
 
-export const NotificationManagement = () => {
+interface NotificationManagementProps {
+  onAddNotification?: () => void;
+}
+
+export const NotificationManagement: React.FC<NotificationManagementProps> = ({ onAddNotification }) => {
   const { toast } = useToast();
   const { checkSessionExpiry } = useAdminAuth();
   const { notifications, refetch } = useNotifications({ limit: 50 });
@@ -28,62 +34,32 @@ export const NotificationManagement = () => {
     blogBaseUrl: 'https://rapatin.id'
   });
 
-  // Custom notification form
-  const [customNotification, setCustomNotification] = useState({
-    title: '',
-    excerpt: '',
-    category: '',
-    image_url: ''
-  });
+  // Dialog state
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editingNotification, setEditingNotification] = useState<ArticleNotification | null>(null);
 
-  const handleCreateCustomNotification = async () => {
-    try {
-      // Check session before performing admin action
-      checkSessionExpiry();
-      
-      const { error } = await supabase
-        .from('article_notifications')
-        .insert({
-          blog_post_id: null, // Custom notifications don't need blog post reference
-          title: customNotification.title,
-          excerpt: customNotification.excerpt,
-          category: customNotification.category,
-          image_url: customNotification.image_url || null,
-          notification_type: 'custom'
-        });
+  const handleOpenDialog = (notification?: ArticleNotification) => {
+    setEditingNotification(notification || null);
+    setDialogOpen(true);
+  };
 
-      if (error) {
-        console.error('Error creating notification:', error);
-        
-        // Check if it's a permission error (likely session expired)
-        if (error.message?.includes('new row violates row-level security policy') || 
-            error.message?.includes('permission denied')) {
-          toast({
-            title: "Session Expired",
-            description: "Your admin session has expired. Please log in again.",
-            variant: "destructive",
-          });
-          // Redirect to login
-          window.location.href = '/admin/login';
-          return;
-        }
-        throw error;
-      }
-
-      toast({
-        title: 'Berhasil',
-        description: 'Notifikasi kustom berhasil dibuat'
-      });
-
-      setCustomNotification({ title: '', excerpt: '', category: '', image_url: '' });
-      refetch();
-    } catch (error) {
-      toast({
-        title: 'Error',
-        description: 'Gagal membuat notifikasi kustom',
-        variant: 'destructive'
-      });
+  // Effect to open dialog when triggered from parent
+  React.useEffect(() => {
+    if (onAddNotification) {
+      const openDialog = () => handleOpenDialog();
+      // Listen for custom event or use a different mechanism
+      // For now, we'll just expose the function globally
+      (window as any).openNotificationDialog = openDialog;
     }
+  }, [onAddNotification]);
+
+  const handleCloseDialog = () => {
+    setDialogOpen(false);
+    setEditingNotification(null);
+  };
+
+  const handleSaveNotification = () => {
+    refetch();
   };
 
   const handleGenerateSampleNotifications = async () => {
@@ -221,12 +197,12 @@ window.BlogNotificationWidget.init({
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Manajemen Notifikasi</h1>
-        <p className="text-muted-foreground">
-          Kelola notifikasi artikel dan konfigurasi widget embed
-        </p>
-      </div>
+      <NotificationDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        notification={editingNotification}
+        onSave={handleSaveNotification}
+      />
 
       <Tabs defaultValue="notifications" className="space-y-4">
         <TabsList>
@@ -242,43 +218,16 @@ window.BlogNotificationWidget.init({
             <Eye className="w-4 h-4 mr-2" />
             Preview
           </TabsTrigger>
-          <TabsTrigger value="custom">
-            <Plus className="w-4 h-4 mr-2" />
-            Notifikasi Kustom
-          </TabsTrigger>
         </TabsList>
 
         {/* Notifications List */}
         <TabsContent value="notifications" className="space-y-4">
           <Card>
             <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle>Daftar Notifikasi</CardTitle>
-                  <CardDescription>
-                    Semua notifikasi yang telah dibuat secara otomatis dan manual
-                  </CardDescription>
-                </div>
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleGenerateSampleNotifications}
-                  >
-                    <Sparkles className="w-4 h-4 mr-2" />
-                    Generate Sample
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleClearAllNotifications}
-                    className="text-destructive hover:text-destructive"
-                  >
-                    <X className="w-4 h-4 mr-2" />
-                    Clear All
-                  </Button>
-                </div>
-              </div>
+              <CardTitle>Daftar Notifikasi</CardTitle>
+              <CardDescription>
+                Semua notifikasi yang telah dibuat secara otomatis dan manual
+              </CardDescription>
             </CardHeader>
             <CardContent>
               {notifications.length === 0 ? (
@@ -303,40 +252,52 @@ window.BlogNotificationWidget.init({
                     </Badge>
                   </div>
                   
-                  <div className="space-y-4">
-                    {notifications.map((notification) => (
-                      <div key={notification.id} className="flex items-start gap-4 p-4 border rounded-lg hover:bg-muted/20 transition-colors">
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1">
-                            <h3 className="font-medium truncate">{notification.title}</h3>
-                            <Badge variant={notification.notification_type === 'custom' ? 'secondary' : 'default'}>
-                              {notification.notification_type === 'custom' ? 'Kustom' : 'Artikel'}
-                            </Badge>
-                            {notification.category && (
-                              <Badge variant="outline">{notification.category}</Badge>
-                            )}
-                            {!notification.read && (
-                              <Badge variant="destructive" className="text-xs">Baru</Badge>
-                            )}
-                          </div>
-                          {notification.excerpt && (
-                            <p className="text-sm text-muted-foreground mb-2 line-clamp-2">{notification.excerpt}</p>
-                          )}
-                          <p className="text-xs text-muted-foreground">
-                            {new Date(notification.created_at).toLocaleString('id-ID')}
-                          </p>
-                        </div>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDeleteNotification(notification.id)}
-                          className="text-destructive hover:text-destructive flex-shrink-0"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
+                   <div className="space-y-4">
+                     {notifications.map((notification) => (
+                       <div key={notification.id} className="flex items-start gap-4 p-4 border rounded-lg hover:bg-muted/20 transition-colors">
+                         <div className="flex-1 min-w-0">
+                           <div className="flex items-center gap-2 mb-1">
+                             <h3 className="font-medium truncate">{notification.title}</h3>
+                             <Badge variant={notification.notification_type === 'custom' ? 'secondary' : 'default'}>
+                               {notification.notification_type === 'custom' ? 'Kustom' : 'Artikel'}
+                             </Badge>
+                             {notification.category && (
+                               <Badge variant="outline">{notification.category}</Badge>
+                             )}
+                             {!notification.read && (
+                               <Badge variant="destructive" className="text-xs">Baru</Badge>
+                             )}
+                           </div>
+                           {notification.excerpt && (
+                             <p className="text-sm text-muted-foreground mb-2 line-clamp-2">{notification.excerpt}</p>
+                           )}
+                           <p className="text-xs text-muted-foreground">
+                             {new Date(notification.created_at).toLocaleString('id-ID')}
+                           </p>
+                         </div>
+                         <div className="flex items-center gap-2 flex-shrink-0">
+                           {notification.notification_type === 'custom' && (
+                             <Button
+                               variant="ghost"
+                               size="sm"
+                               onClick={() => handleOpenDialog(notification)}
+                               className="text-muted-foreground hover:text-foreground"
+                             >
+                               <Edit className="w-4 h-4" />
+                             </Button>
+                           )}
+                           <Button
+                             variant="ghost"
+                             size="sm"
+                             onClick={() => handleDeleteNotification(notification.id)}
+                             className="text-destructive hover:text-destructive"
+                           >
+                             <Trash2 className="w-4 h-4" />
+                           </Button>
+                         </div>
+                       </div>
+                     ))}
+                   </div>
                 </>
               )}
             </CardContent>
@@ -504,69 +465,6 @@ window.BlogNotificationWidget.init({
           </Card>
         </TabsContent>
 
-        {/* Custom Notifications */}
-        <TabsContent value="custom" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Buat Notifikasi Kustom</CardTitle>
-              <CardDescription>
-                Buat notifikasi manual yang tidak terkait dengan artikel
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="custom-title">Judul</Label>
-                <Input
-                  id="custom-title"
-                  value={customNotification.title}
-                  onChange={(e) => setCustomNotification(prev => ({ ...prev, title: e.target.value }))}
-                  placeholder="Masukkan judul notifikasi"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="custom-excerpt">Deskripsi</Label>
-                <Textarea
-                  id="custom-excerpt"
-                  value={customNotification.excerpt}
-                  onChange={(e) => setCustomNotification(prev => ({ ...prev, excerpt: e.target.value }))}
-                  placeholder="Masukkan deskripsi notifikasi"
-                  rows={3}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="custom-category">Kategori</Label>
-                <Input
-                  id="custom-category"
-                  value={customNotification.category}
-                  onChange={(e) => setCustomNotification(prev => ({ ...prev, category: e.target.value }))}
-                  placeholder="Masukkan kategori"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="custom-image">URL Tujuan (Opsional)</Label>
-                <Input
-                  id="custom-image"
-                  value={customNotification.image_url}
-                  onChange={(e) => setCustomNotification(prev => ({ ...prev, image_url: e.target.value }))}
-                  placeholder="https://example.com/target-page"
-                />
-                <p className="text-xs text-muted-foreground">URL yang akan dibuka ketika notifikasi diklik</p>
-              </div>
-
-              <Button 
-                onClick={handleCreateCustomNotification}
-                disabled={!customNotification.title}
-                className="w-full"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Buat Notifikasi
-              </Button>
-            </CardContent>
-          </Card>
-        </TabsContent>
       </Tabs>
     </div>
   );
