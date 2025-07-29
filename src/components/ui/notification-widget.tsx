@@ -197,20 +197,9 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
         }
       }}
     >
-      <div className="flex gap-3">
-        {/* Article Image */}
-        {notification.image_url && (
-          <div className="flex-shrink-0">
-            <img
-              src={notification.image_url}
-              alt={notification.title}
-              className="w-12 h-12 rounded-lg object-cover"
-            />
-          </div>
-        )}
-
+      <div>
         {/* Content */}
-        <div className="flex-1 min-w-0">
+        <div className="w-full">
           <div className="flex items-start justify-between gap-2">
             <h4 className={cn(
               'text-sm font-medium line-clamp-2',
