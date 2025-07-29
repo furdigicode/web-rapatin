@@ -185,7 +185,8 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
         !notification.read && 'bg-primary/5 border-l-4 border-l-primary'
       )}
       onClick={() => {
-        if (!notification.read) {
+        // Only mark as read for non-custom notifications
+        if (!notification.read && notification.notification_type !== 'custom') {
           onMarkAsRead(notification.id);
         }
         // Navigate based on notification type

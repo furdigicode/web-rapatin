@@ -309,8 +309,8 @@
 
   // Handle notification click
   function handleNotificationClick(notification, config) {
-    // Mark as read
-    if (!notification.read) {
+    // Only mark as read for non-custom notifications
+    if (!notification.read && notification.notification_type !== 'custom') {
       markAsRead(notification.id);
     }
 
