@@ -196,7 +196,7 @@ export const NotificationDialog: React.FC<NotificationDialogProps> = ({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="image_url">URL Gambar</Label>
+            <Label htmlFor="image_url">URL</Label>
             <Input
               id="image_url"
               type="url"
