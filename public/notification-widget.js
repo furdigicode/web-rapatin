@@ -314,8 +314,12 @@
       markAsRead(notification.id);
     }
 
-    // Navigate to article using slug and configured base URL
-    if (notification.blog_post_id) {
+    // Navigate using image_url as redirect URL first, then fallback to blog post
+    if (notification.image_url) {
+      // Use image_url as redirect URL
+      window.open(notification.image_url, '_blank');
+    } else if (notification.blog_post_id) {
+      // Fallback to blog post URL if no redirect URL specified
       const slug = notification.blog_posts?.slug || notification.blog_post_id;
       const blogUrl = `${config.blogBaseUrl}/blog/${slug}`;
       window.open(blogUrl, '_blank');

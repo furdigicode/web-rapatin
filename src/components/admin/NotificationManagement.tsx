@@ -306,15 +306,6 @@ window.BlogNotificationWidget.init({
                   <div className="space-y-4">
                     {notifications.map((notification) => (
                       <div key={notification.id} className="flex items-start gap-4 p-4 border rounded-lg hover:bg-muted/20 transition-colors">
-                        {notification.image_url && (
-                          <div className="flex-shrink-0">
-                            <img 
-                              src={notification.image_url} 
-                              alt=""
-                              className="w-16 h-16 object-cover rounded-lg"
-                            />
-                          </div>
-                        )}
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1">
                             <h3 className="font-medium truncate">{notification.title}</h3>
@@ -330,6 +321,9 @@ window.BlogNotificationWidget.init({
                           </div>
                           {notification.excerpt && (
                             <p className="text-sm text-muted-foreground mb-2 line-clamp-2">{notification.excerpt}</p>
+                          )}
+                          {notification.image_url && (
+                            <p className="text-xs text-blue-600 mb-1">URL Tujuan: {notification.image_url}</p>
                           )}
                           <p className="text-xs text-muted-foreground">
                             {new Date(notification.created_at).toLocaleString('id-ID')}
@@ -555,13 +549,14 @@ window.BlogNotificationWidget.init({
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="custom-image">URL Gambar (Opsional)</Label>
+                <Label htmlFor="custom-image">URL Tujuan (Opsional)</Label>
                 <Input
                   id="custom-image"
                   value={customNotification.image_url}
                   onChange={(e) => setCustomNotification(prev => ({ ...prev, image_url: e.target.value }))}
-                  placeholder="https://example.com/image.jpg"
+                  placeholder="https://example.com/target-page"
                 />
+                <p className="text-xs text-muted-foreground">URL yang akan dibuka ketika notifikasi diklik</p>
               </div>
 
               <Button 
