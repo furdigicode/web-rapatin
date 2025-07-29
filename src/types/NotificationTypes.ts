@@ -4,6 +4,7 @@ export interface ArticleNotification {
   title: string;
   excerpt: string | null;
   image_url: string | null;
+  target_url: string | null;
   created_at: string;
   read: boolean;
   notification_type: string;

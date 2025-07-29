@@ -89,6 +89,7 @@ export type Database = {
           image_url: string | null
           notification_type: string | null
           read: boolean | null
+          target_url: string | null
           title: string
         }
         Insert: {
@@ -100,6 +101,7 @@ export type Database = {
           image_url?: string | null
           notification_type?: string | null
           read?: boolean | null
+          target_url?: string | null
           title: string
         }
         Update: {
@@ -111,6 +113,7 @@ export type Database = {
           image_url?: string | null
           notification_type?: string | null
           read?: boolean | null
+          target_url?: string | null
           title?: string
         }
         Relationships: [

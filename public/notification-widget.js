@@ -314,8 +314,10 @@
       markAsRead(notification.id);
     }
 
-    // Navigate to article using slug and configured base URL
-    if (notification.blog_post_id) {
+    // Navigate based on notification type
+    if (notification.notification_type === 'custom' && notification.target_url) {
+      window.open(notification.target_url, '_blank');
+    } else if (notification.blog_post_id) {
       const slug = notification.blog_posts?.slug || notification.blog_post_id;
       const blogUrl = `${config.blogBaseUrl}/blog/${slug}`;
       window.open(blogUrl, '_blank');

@@ -188,8 +188,12 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
         if (!notification.read) {
           onMarkAsRead(notification.id);
         }
-        // Navigate to article
-        window.open(`/blog/${notification.blog_post_id}`, '_blank');
+        // Navigate based on notification type
+        if (notification.notification_type === 'custom' && notification.target_url) {
+          window.open(notification.target_url, '_blank');
+        } else if (notification.blog_post_id) {
+          window.open(`/blog/${notification.blog_post_id}`, '_blank');
+        }
       }}
     >
       <div className="flex gap-3">

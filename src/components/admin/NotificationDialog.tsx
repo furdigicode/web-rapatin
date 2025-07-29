@@ -29,7 +29,8 @@ export const NotificationDialog: React.FC<NotificationDialogProps> = ({
     title: '',
     excerpt: '',
     category: '',
-    image_url: ''
+    image_url: '',
+    target_url: ''
   });
 
   const isEditing = !!notification;
@@ -40,14 +41,16 @@ export const NotificationDialog: React.FC<NotificationDialogProps> = ({
         title: notification.title || '',
         excerpt: notification.excerpt || '',
         category: notification.category || '',
-        image_url: notification.image_url || ''
+        image_url: notification.image_url || '',
+        target_url: notification.target_url || ''
       });
     } else {
       setFormData({
         title: '',
         excerpt: '',
         category: '',
-        image_url: ''
+        image_url: '',
+        target_url: ''
       });
     }
   }, [notification, open]);
@@ -75,7 +78,8 @@ export const NotificationDialog: React.FC<NotificationDialogProps> = ({
             title: formData.title,
             excerpt: formData.excerpt || null,
             category: formData.category || null,
-            image_url: formData.image_url || null
+            image_url: formData.image_url || null,
+            target_url: formData.target_url || null
           })
           .eq('id', notification!.id);
 
@@ -109,6 +113,7 @@ export const NotificationDialog: React.FC<NotificationDialogProps> = ({
             excerpt: formData.excerpt || null,
             category: formData.category || null,
             image_url: formData.image_url || null,
+            target_url: formData.target_url || null,
             notification_type: 'custom'
           });
 
@@ -196,13 +201,25 @@ export const NotificationDialog: React.FC<NotificationDialogProps> = ({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="image_url">URL</Label>
+            <Label htmlFor="image_url">URL Gambar</Label>
             <Input
               id="image_url"
               type="url"
               value={formData.image_url}
               onChange={(e) => setFormData(prev => ({ ...prev, image_url: e.target.value }))}
               placeholder="https://example.com/image.jpg (opsional)"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="target_url">URL Tujuan *</Label>
+            <Input
+              id="target_url"
+              type="url"
+              value={formData.target_url}
+              onChange={(e) => setFormData(prev => ({ ...prev, target_url: e.target.value }))}
+              placeholder="https://rapatin.id/blog"
+              required
             />
           </div>
 
