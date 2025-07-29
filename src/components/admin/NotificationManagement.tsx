@@ -322,9 +322,6 @@ window.BlogNotificationWidget.init({
                           {notification.excerpt && (
                             <p className="text-sm text-muted-foreground mb-2 line-clamp-2">{notification.excerpt}</p>
                           )}
-                          {notification.image_url && (
-                            <p className="text-xs text-blue-600 mb-1">URL Tujuan: {notification.image_url}</p>
-                          )}
                           <p className="text-xs text-muted-foreground">
                             {new Date(notification.created_at).toLocaleString('id-ID')}
                           </p>
