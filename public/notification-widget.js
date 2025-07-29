@@ -153,7 +153,7 @@
             padding: 16px;
             border-bottom: 1px solid ${config.theme === 'dark' ? '#404040' : '#e5e5e5'};
             display: flex;
-            justify-content: between;
+            justify-content: space-between;
             align-items: center;
           ">
             <h3 style="margin: 0; font-size: 16px; font-weight: 600;">Artikel</h3>
@@ -162,9 +162,11 @@
               border: none;
               cursor: pointer;
               color: inherit;
-              font-size: 18px;
+              font-size: 20px;
               line-height: 1;
               padding: 4px;
+              margin-left: 8px;
+              flex-shrink: 0;
             ">&times;</button>
           </div>
           <div id="notifications-list" style="
