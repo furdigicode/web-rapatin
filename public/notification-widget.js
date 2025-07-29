@@ -156,7 +156,7 @@
             justify-content: between;
             align-items: center;
           ">
-            <h3 style="margin: 0; font-size: 16px; font-weight: 600;">Notifikasi</h3>
+            <h3 style="margin: 0; font-size: 16px; font-weight: 600;">Artikel</h3>
             <button id="close-notifications" style="
               background: none;
               border: none;
@@ -314,12 +314,8 @@
       markAsRead(notification.id);
     }
 
-    // Navigate using image_url as redirect URL first, then fallback to blog post
-    if (notification.image_url) {
-      // Use image_url as redirect URL
-      window.open(notification.image_url, '_blank');
-    } else if (notification.blog_post_id) {
-      // Fallback to blog post URL if no redirect URL specified
+    // Navigate to article using slug and configured base URL
+    if (notification.blog_post_id) {
       const slug = notification.blog_posts?.slug || notification.blog_post_id;
       const blogUrl = `${config.blogBaseUrl}/blog/${slug}`;
       window.open(blogUrl, '_blank');
