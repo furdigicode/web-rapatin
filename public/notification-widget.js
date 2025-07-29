@@ -153,7 +153,7 @@
             padding: 16px;
             border-bottom: 1px solid ${config.theme === 'dark' ? '#404040' : '#e5e5e5'};
             display: flex;
-            justify-content: between;
+            justify-content: space-between;
             align-items: center;
           ">
             <h3 style="margin: 0; font-size: 16px; font-weight: 600;">Artikel</h3>
