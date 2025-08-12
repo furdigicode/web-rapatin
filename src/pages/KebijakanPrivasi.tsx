@@ -3,6 +3,9 @@ import React, { useEffect, useState } from 'react';
 import SEO from '@/components/SEO';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import { supabase } from '@/integrations/supabase/client';
+import { format } from 'date-fns';
+import { id as localeID } from 'date-fns/locale';
 
 // Default privacy data
 const defaultPrivacyData = {
@@ -61,6 +64,9 @@ const defaultPrivacyData = {
 
 const KebijakanPrivasi = () => {
   const [privacyData, setPrivacyData] = useState(defaultPrivacyData);
+  const [docTitle, setDocTitle] = useState<string | null>(null);
+  const [docContent, setDocContent] = useState<string | null>(null);
+  const [docLastUpdated, setDocLastUpdated] = useState<string | null>(null);
 
   // Load privacy data from localStorage when component mounts
   useEffect(() => {
@@ -68,6 +74,33 @@ const KebijakanPrivasi = () => {
     if (savedData) {
       setPrivacyData(JSON.parse(savedData));
     }
+  }, []);
+
+  // Fetch from Supabase legal_documents
+  useEffect(() => {
+    const loadLegalDoc = async () => {
+      console.log('[KebijakanPrivasi] Fetching legal document from Supabase...');
+      const { data, error } = await supabase
+        .from('legal_documents')
+        .select('title, content, last_updated, published')
+        .eq('slug', 'kebijakan-privasi')
+        .maybeSingle();
+
+      if (error) {
+        console.error('[KebijakanPrivasi] Supabase error:', error);
+        return;
+      }
+
+      if (data && (data.published === true)) {
+        setDocTitle(data.title);
+        setDocContent(data.content);
+        setDocLastUpdated(data.last_updated);
+      } else {
+        console.log('[KebijakanPrivasi] No published legal document found, using defaults.');
+      }
+    };
+
+    loadLegalDoc();
   }, []);
 
   const renderContent = (content: string) => {
@@ -107,6 +140,10 @@ const KebijakanPrivasi = () => {
     });
   };
 
+  const formattedLastUpdated = docLastUpdated
+    ? format(new Date(docLastUpdated), "d MMMM yyyy", { locale: localeID })
+    : privacyData.header.lastUpdated;
+
   return (
     <div className="min-h-screen">
       <SEO
@@ -122,26 +159,37 @@ const KebijakanPrivasi = () => {
         <div className="container mx-auto px-4 md:px-6">
           {/* Header */}
           <div className="max-w-3xl mx-auto text-center mb-16 animate-fade-in">
-            <h1 className="text-3xl md:text-4xl font-bold mb-4">{privacyData.header.title}</h1>
+            <h1 className="text-3xl md:text-4xl font-bold mb-4">{docTitle || privacyData.header.title}</h1>
             <p className="text-lg text-muted-foreground">
-              Terakhir diperbarui: {privacyData.header.lastUpdated}
+              Terakhir diperbarui: {formattedLastUpdated}
             </p>
           </div>
           
           {/* Content */}
           <div className="max-w-4xl mx-auto">
             <div className="glass p-8 rounded-xl space-y-8">
-              {privacyData.sections.map((section) => (
-                <section key={section.id}>
-                  <h2 className="text-2xl font-bold mb-4">{section.title}</h2>
-                  {renderContent(section.content)}
+              {docContent ? (
+                <section>
+                  <div
+                    className="prose prose-neutral max-w-none prose-headings:mt-6 prose-p:leading-relaxed"
+                    dangerouslySetInnerHTML={{ __html: docContent }}
+                  />
                 </section>
-              ))}
-              
-              {privacyData.sections.length === 0 && (
-                <div className="text-center py-10 text-muted-foreground">
-                  <p>Konten kebijakan privasi belum tersedia.</p>
-                </div>
+              ) : (
+                <>
+                  {privacyData.sections.map((section) => (
+                    <section key={section.id}>
+                      <h2 className="text-2xl font-bold mb-4">{section.title}</h2>
+                      {renderContent(section.content)}
+                    </section>
+                  ))}
+                  
+                  {privacyData.sections.length === 0 && (
+                    <div className="text-center py-10 text-muted-foreground">
+                      <p>Konten kebijakan privasi belum tersedia.</p>
+                    </div>
+                  )}
+                </>
               )}
             </div>
           </div>

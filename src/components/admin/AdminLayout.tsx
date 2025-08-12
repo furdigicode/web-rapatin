@@ -51,7 +51,7 @@ const AppSidebar = () => {
     });
   };
 
-  const isContentActive = location.pathname === '/admin/blog' || location.pathname === '/admin/content' || location.pathname === '/admin/categories';
+  const isContentActive = location.pathname === '/admin/blog' || location.pathname === '/admin/content' || location.pathname === '/admin/categories' || location.pathname === '/admin/legal';
   const isContentGroupOpen = isContentActive;
 
   return (
@@ -119,6 +119,17 @@ const AppSidebar = () => {
                       <Link to="/admin/content">
                         <Users />
                         <span>Author</span>
+                      </Link>
+                    </SidebarMenuSubButton>
+                  </SidebarMenuSubItem>
+                  <SidebarMenuSubItem>
+                    <SidebarMenuSubButton 
+                      asChild 
+                      isActive={location.pathname === '/admin/legal'}
+                    >
+                      <Link to="/admin/legal">
+                        <FileText />
+                        <span>Legal</span>
                       </Link>
                     </SidebarMenuSubButton>
                   </SidebarMenuSubItem>
