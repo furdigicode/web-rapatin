@@ -51,7 +51,7 @@ const AppSidebar = () => {
     });
   };
 
-  const isContentActive = location.pathname === '/admin/blog' || location.pathname === '/admin/content' || location.pathname === '/admin/categories' || location.pathname === '/admin/legal';
+  const isContentActive = location.pathname === '/admin/blog' || location.pathname === '/admin/content' || location.pathname === '/admin/categories' || location.pathname === '/admin/legal' || location.pathname === '/admin/legal-terms';
   const isContentGroupOpen = isContentActive;
 
   return (
@@ -129,7 +129,18 @@ const AppSidebar = () => {
                     >
                       <Link to="/admin/legal">
                         <FileText />
-                        <span>Legal</span>
+                        <span>Kebijakan Privasi</span>
+                      </Link>
+                    </SidebarMenuSubButton>
+                  </SidebarMenuSubItem>
+                  <SidebarMenuSubItem>
+                    <SidebarMenuSubButton 
+                      asChild 
+                      isActive={location.pathname === '/admin/legal-terms'}
+                    >
+                      <Link to="/admin/legal-terms">
+                        <FileText />
+                        <span>Syarat & Ketentuan</span>
                       </Link>
                     </SidebarMenuSubButton>
                   </SidebarMenuSubItem>

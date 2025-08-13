@@ -39,6 +39,7 @@ import CategoryManagementPage from "./pages/admin/CategoryManagement";
 import NotificationManagementPage from "./pages/admin/NotificationManagement";
 import ProtectedRoute from "./components/admin/ProtectedRoute";
 import LegalManagement from "./pages/admin/LegalManagement";
+import LegalTermsManagement from "./pages/admin/LegalTermsManagement";
 
 // Sitemap
 import SitemapXML from "./pages/SitemapXML";
@@ -85,14 +86,15 @@ const AppRoutes = () => {
       {/* Sitemap */}
       <Route path="/sitemap.xml" element={<SitemapXML />} />
       
-      {/* Admin Routes */}
-      <Route path="/admin/login" element={<AdminLogin />} />
-      <Route path="/admin/dashboard" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
-      <Route path="/admin/blog" element={<ProtectedRoute><BlogManagement /></ProtectedRoute>} />
-      <Route path="/admin/categories" element={<ProtectedRoute><CategoryManagementPage /></ProtectedRoute>} />
-      <Route path="/admin/content" element={<ProtectedRoute><ContentManagement /></ProtectedRoute>} />
-      <Route path="/admin/notifications" element={<ProtectedRoute><NotificationManagementPage /></ProtectedRoute>} />
-      <Route path="/admin/legal" element={<ProtectedRoute><LegalManagement /></ProtectedRoute>} />
+{/* Admin Routes */}
+<Route path="/admin/login" element={<AdminLogin />} />
+<Route path="/admin/dashboard" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
+<Route path="/admin/blog" element={<ProtectedRoute><BlogManagement /></ProtectedRoute>} />
+<Route path="/admin/categories" element={<ProtectedRoute><CategoryManagementPage /></ProtectedRoute>} />
+<Route path="/admin/content" element={<ProtectedRoute><ContentManagement /></ProtectedRoute>} />
+<Route path="/admin/notifications" element={<ProtectedRoute><NotificationManagementPage /></ProtectedRoute>} />
+<Route path="/admin/legal" element={<ProtectedRoute><LegalManagement /></ProtectedRoute>} />
+<Route path="/admin/legal-terms" element={<ProtectedRoute><LegalTermsManagement /></ProtectedRoute>} />
       
       {/* 404 Catch-all Route */}
       <Route path="*" element={<NotFound />} />

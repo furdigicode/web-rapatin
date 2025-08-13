@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import SEO from '@/components/SEO';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import { supabase } from '@/integrations/supabase/client';
 
 // Default terms data
 const defaultTermsData = {
@@ -66,13 +67,44 @@ const defaultTermsData = {
 
 const SyaratKetentuan = () => {
   const [termsData, setTermsData] = useState(defaultTermsData);
+  const [termsHtml, setTermsHtml] = useState<string | null>(null);
+  const [title, setTitle] = useState<string>('Syarat & Ketentuan');
+  const [lastUpdated, setLastUpdated] = useState<string>(defaultTermsData.header.lastUpdated);
 
-  // Load terms data from localStorage when component mounts
   useEffect(() => {
-    const savedData = localStorage.getItem("termsData");
-    if (savedData) {
-      setTermsData(JSON.parse(savedData));
-    }
+    const init = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('legal_documents')
+          .select('title, content, last_updated, published')
+          .eq('slug', 'syarat-ketentuan')
+          .eq('published', true)
+          .maybeSingle();
+
+        if (error) {
+          console.error('[Terms] Error loading from Supabase:', error);
+        }
+
+        if (data) {
+          setTitle(data.title || 'Syarat & Ketentuan');
+          setTermsHtml(data.content || null);
+          if (data.last_updated) {
+            const dt = new Date(data.last_updated);
+            setLastUpdated(dt.toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' }));
+          }
+          return;
+        }
+      } catch (e) {
+        console.error('[Terms] Unexpected error:', e);
+      }
+
+      // Fallback to localStorage if available
+      const savedData = localStorage.getItem('termsData');
+      if (savedData) {
+        setTermsData(JSON.parse(savedData));
+      }
+    };
+    init();
   }, []);
 
   return (
@@ -90,31 +122,36 @@ const SyaratKetentuan = () => {
         <div className="container mx-auto px-4 md:px-6">
           {/* Header */}
           <div className="max-w-3xl mx-auto text-center mb-16 animate-fade-in">
-            <h1 className="text-3xl md:text-4xl font-bold mb-4">{termsData.header.title}</h1>
+            <h1 className="text-3xl md:text-4xl font-bold mb-4">{title}</h1>
             <p className="text-lg text-muted-foreground">
-              Terakhir diperbarui: {termsData.header.lastUpdated}
+              Terakhir diperbarui: {lastUpdated}
             </p>
           </div>
           
           {/* Content */}
           <div className="max-w-4xl mx-auto">
             <div className="glass p-8 rounded-xl space-y-8">
-              {termsData.sections.map((section) => (
-                <section key={section.id}>
-                  <h2 className="text-2xl font-bold mb-4">{section.title}</h2>
-                  {/* Split paragraphs and render them */}
-                  {section.content.split('\n\n').map((paragraph, index) => (
-                    <p key={index} className={index < section.content.split('\n\n').length - 1 ? "mb-3" : ""}>
-                      {paragraph}
-                    </p>
+              {termsHtml ? (
+                <article className="prose prose-neutral max-w-none" dangerouslySetInnerHTML={{ __html: termsHtml }} />
+              ) : (
+                <>
+                  {termsData.sections.map((section) => (
+                    <section key={section.id}>
+                      <h2 className="text-2xl font-bold mb-4">{section.title}</h2>
+                      {section.content.split('\n\n').map((paragraph, index) => (
+                        <p key={index} className={index < section.content.split('\n\n').length - 1 ? "mb-3" : ""}>
+                          {paragraph}
+                        </p>
+                      ))}
+                    </section>
                   ))}
-                </section>
-              ))}
-              
-              {termsData.sections.length === 0 && (
-                <div className="text-center py-10 text-muted-foreground">
-                  <p>Konten syarat dan ketentuan belum tersedia.</p>
-                </div>
+
+                  {termsData.sections.length === 0 && (
+                    <div className="text-center py-10 text-muted-foreground">
+                      <p>Konten syarat dan ketentuan belum tersedia.</p>
+                    </div>
+                  )}
+                </>
               )}
             </div>
           </div>
