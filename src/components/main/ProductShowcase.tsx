@@ -283,11 +283,11 @@ const ProductShowcase: React.FC = () => {
       url: '/event-management',
       isAvailable: false,
       features: [
-        { icon: Users, text: 'Hingga 10.000 peserta per event', description: 'Cocok untuk webinar, kelas online, dan seminar berskala besar dengan infrastruktur cloud yang stabil' },
+        { icon: Users, text: 'Hingga 1000 peserta per event', description: 'Cocok untuk webinar, kelas online, dan seminar berskala besar dengan infrastruktur cloud yang stabil' },
         { icon: ClipboardList, text: 'Formulir pendaftaran fleksibel', description: 'Kumpulkan data peserta sesuai kebutuhan Anda - custom fields, validasi otomatis, dan integrasi database' },
         { icon: Zap, text: 'Pembayaran otomatis & notifikasi real-time', description: 'Terima pembayaran langsung dengan gateway terintegrasi, tanpa perlu cek manual dan konfirmasi otomatis' },
-        { icon: Smartphone, text: 'Distribusi link Zoom otomatis + pengingat WhatsApp', description: 'Undangan dan reminder terkirim otomatis via email dan WhatsApp tanpa repot, tingkatkan attendance rate' },
-        { icon: UserCheck, text: 'Pelacakan kehadiran peserta secara otomatis', description: 'Rekam kehadiran dan pantau aktivitas peserta dengan mudah - laporan real-time dan analytics mendalam' }
+        { icon: Smartphone, text: 'Distribusi link Zoom otomatis + pengingat Email', description: 'Undangan dan reminder terkirim otomatis via email dan WhatsApp tanpa repot, tingkatkan attendance rate' },
+        { icon: UserCheck, text: 'Daftar kehadiran peserta dan ringkasan acara', description: 'Rekam kehadiran dan pantau aktivitas peserta dengan mudah - laporan real-time dan analytics mendalam' }
       ]
     },
     {
