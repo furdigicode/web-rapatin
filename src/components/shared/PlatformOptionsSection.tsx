@@ -20,14 +20,12 @@ const PlatformOptionsSection: React.FC = () => {
 
       <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
         {/* Zoom Disediakan Rapatin */}
-        <div className="glass p-8 rounded-xl transition-all duration-300 hover:shadow-elevation animate-fade-in">
+        <div className="glass p-8 rounded-xl transition-all duration-300 hover:shadow-elevation animate-fade-in relative">
+          <Badge variant="highlight" className="uppercase tracking-wide absolute -top-3 -right-3 ring-2 ring-background">GRATIS</Badge>
           <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-6">
             <Video className="w-8 h-8 text-primary" />
           </div>
-          <div className="flex items-center justify-between gap-3 mb-4">
-            <h3 className="text-xl font-bold">Zoom Disediakan Rapatin</h3>
-            <Badge variant="highlight" className="uppercase tracking-wide">GRATIS</Badge>
-          </div>
+          <h3 className="text-xl font-bold mb-4">Zoom Disediakan Rapatin</h3>
           <p className="text-muted-foreground mb-6">
             Tidak perlu berlangganan Zoom sendiri. Kami sediakan gratis untuk semua event Anda.
           </p>
