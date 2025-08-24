@@ -57,11 +57,13 @@ const EventManagement: React.FC = () => {
       />
       
       <ProductPageLayout navbar={<MeetingSchedulingNavbar />}>
-        <GenericHeroSection 
-          content={eventHeroContent}
-          onPrimaryCTA={handleRegistration}
-          showBrands={true}
-        />
+        <div className="-mt-28">
+          <GenericHeroSection 
+            content={eventHeroContent}
+            onPrimaryCTA={handleRegistration}
+            showBrands={true}
+          />
+        </div>
         
         <GenericFeatureGrid content={eventFeatureContent} />
         

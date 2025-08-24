@@ -22,7 +22,9 @@ const MeetingScheduling: React.FC = () => {
         url="https://rapatin.id/meeting-scheduling"
       />
       <ProductPageLayout navbar={<MeetingSchedulingNavbar />}>
-        <MeetingHeroSection />
+        <div className="-mt-28">
+          <MeetingHeroSection />
+        </div>
         <MeetingFeatureSection />
         <MeetingHowItWorksSection />
         <div id="pricing">
