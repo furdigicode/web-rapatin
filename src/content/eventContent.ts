@@ -2,8 +2,8 @@ import { HeroContent, FeatureContent, HowItWorksContent } from '@/types/ProductP
 
 export const eventHeroContent: HeroContent = {
   badge: "Event Management System",
-  title: "Kelola Event & <span class='text-primary'>Webinar</span> Skala Besar",
-  subtitle: "Platform lengkap untuk membuat, mengelola, dan memonetisasi event online maupun offline dengan sistem pembayaran terintegrasi dan reminder otomatis.",
+  title: "Mulai Jual Event & Webinar Zoom <span class='text-primary'>Tanpa Langganan Lisensi Sendiri</span>",
+  subtitle: "Platform lengkap untuk membuat, mengelola, dan memonetisasi event online dengan sistem pembayaran terintegrasi dan reminder otomatis.",
   primaryCTA: {
     text: "Mulai Buat Event",
     href: "#pricing"
