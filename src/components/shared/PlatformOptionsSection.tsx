@@ -49,7 +49,7 @@ const PlatformOptionsSection: React.FC = () => {
               <CheckCircle2 className="w-5 h-5 text-primary mt-1 flex-shrink-0" />
               <div>
                 <p className="font-medium">Terintegrasi Penuh</p>
-                <p className="text-sm text-muted-foreground">Rekaman cloud, reminder otomatis, dan laporan peserta</p>
+                <p className="text-sm text-muted-foreground">Rekaman cloud, laporan peserta, dan ringkasan acara (AI Companion)</p>
               </div>
             </div>
           </div>
