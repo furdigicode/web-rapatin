@@ -5,6 +5,7 @@ import MeetingSchedulingNavbar from '@/components/MeetingSchedulingNavbar';
 import GenericHeroSection from '@/components/shared/GenericHeroSection';
 import GenericFeatureGrid from '@/components/shared/GenericFeatureGrid';
 import GenericStepsSection from '@/components/shared/GenericStepsSection';
+import PlatformOptionsSection from '@/components/shared/PlatformOptionsSection';
 import EventPricingSection from '@/components/event/EventPricingSection';
 import TestimonialSection from '@/components/TestimonialSection';
 import FinalCTA from '@/components/FinalCTA';
@@ -71,6 +72,8 @@ const EventManagement: React.FC = () => {
           content={eventHowItWorksContent}
           sectionId="how-it-works"
         />
+        
+        <PlatformOptionsSection />
         
         <EventPricingSection />
         
