@@ -1,6 +1,7 @@
 import React from 'react';
 import SectionContainer from '@/components/layout/SectionContainer';
 import { Video, Users, CheckCircle2, ExternalLink } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 
 const PlatformOptionsSection: React.FC = () => {
   return (
@@ -23,7 +24,10 @@ const PlatformOptionsSection: React.FC = () => {
           <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-6">
             <Video className="w-8 h-8 text-primary" />
           </div>
-          <h3 className="text-xl font-bold mb-4">Zoom Disediakan Rapatin</h3>
+          <div className="flex items-center justify-between gap-3 mb-4">
+            <h3 className="text-xl font-bold">Zoom Disediakan Rapatin</h3>
+            <Badge variant="highlight" className="uppercase tracking-wide">GRATIS</Badge>
+          </div>
           <p className="text-muted-foreground mb-6">
             Tidak perlu berlangganan Zoom sendiri. Kami sediakan gratis untuk semua event Anda.
           </p>
