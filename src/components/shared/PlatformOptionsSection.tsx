@@ -58,7 +58,7 @@ const PlatformOptionsSection: React.FC = () => {
         {/* Platform Lain */}
         <div className="glass p-8 rounded-xl transition-all duration-300 hover:shadow-elevation animate-fade-in delay-100">
           <div className="w-16 h-16 rounded-full bg-secondary/10 flex items-center justify-center mb-6">
-            <ExternalLink className="w-8 h-8 text-secondary" />
+            <ExternalLink className="w-8 h-8 text-secondary-foreground" />
           </div>
           <h3 className="text-xl font-bold mb-4">Platform Lain (Opsional)</h3>
           <p className="text-muted-foreground mb-6">
@@ -67,7 +67,7 @@ const PlatformOptionsSection: React.FC = () => {
           
           <div className="space-y-4">
             <div className="flex items-start gap-3">
-              <ExternalLink className="w-5 h-5 text-secondary mt-1 flex-shrink-0" />
+              <ExternalLink className="w-5 h-5 text-secondary-foreground mt-1 flex-shrink-0" />
               <div>
                 <p className="font-medium">Platform Fleksibel</p>
                 <p className="text-sm text-muted-foreground">Google Meet, MS Teams, Webex, atau lainnya</p>
@@ -75,7 +75,7 @@ const PlatformOptionsSection: React.FC = () => {
             </div>
             
             <div className="flex items-start gap-3">
-              <Users className="w-5 h-5 text-secondary mt-1 flex-shrink-0" />
+              <Users className="w-5 h-5 text-secondary-foreground mt-1 flex-shrink-0" />
               <div>
                 <p className="font-medium">Anda Sediakan Link Meeting</p>
                 <p className="text-sm text-muted-foreground">Lisensi/akses platform tidak disediakan otomatis</p>
@@ -83,7 +83,7 @@ const PlatformOptionsSection: React.FC = () => {
             </div>
             
             <div className="flex items-start gap-3">
-              <CheckCircle2 className="w-5 h-5 text-secondary mt-1 flex-shrink-0" />
+              <CheckCircle2 className="w-5 h-5 text-secondary-foreground mt-1 flex-shrink-0" />
               <div>
                 <p className="font-medium">Manajemen Event Tetap Rapatin</p>
                 <p className="text-sm text-muted-foreground">Pendaftaran, reminder, dan distribusi akses dikelola Rapatin</p>
