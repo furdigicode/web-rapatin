@@ -6,6 +6,7 @@ import GenericHeroSection from '@/components/shared/GenericHeroSection';
 import GenericFeatureGrid from '@/components/shared/GenericFeatureGrid';
 import GenericStepsSection from '@/components/shared/GenericStepsSection';
 import PlatformOptionsSection from '@/components/shared/PlatformOptionsSection';
+import EventComparisonSection from '@/components/event/EventComparisonSection';
 import EventPricingSection from '@/components/event/EventPricingSection';
 import TestimonialSection from '@/components/TestimonialSection';
 import FinalCTA from '@/components/FinalCTA';
@@ -74,6 +75,8 @@ const EventManagement: React.FC = () => {
         />
         
         <PlatformOptionsSection />
+        
+        <EventComparisonSection />
         
         <EventPricingSection />
         
