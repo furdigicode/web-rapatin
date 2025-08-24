@@ -14,6 +14,7 @@ import TentangKami from "./pages/TentangKami";
 import Kontak from "./pages/Kontak";
 import Appointment from "./pages/Appointment";
 import SewaZoomHarian from "./pages/SewaZoomHarian";
+import EventManagement from "./pages/EventManagement";
 
 // Feature Pages
 import BayarSesuaiPakai from "./pages/fitur/BayarSesuaiPakai";
@@ -65,6 +66,7 @@ const AppRoutes = () => {
       <Route path="/sewa-zoom-harian" element={<SewaZoomHarian />} />
       <Route path="/faq" element={<FAQ />} />
       <Route path="/appointment" element={<Appointment />} />
+      <Route path="/event-management" element={<EventManagement />} />
       
       {/* Feature Pages */}
       <Route path="/fitur/bayar-sesuai-pakai" element={<BayarSesuaiPakai />} />
