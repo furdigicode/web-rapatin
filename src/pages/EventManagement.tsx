@@ -50,8 +50,8 @@ const EventManagement: React.FC = () => {
   return (
     <>
       <SEO
-        title="Event Management System - Kelola Webinar & Event Skala Besar | Rapatin"
-        description="Platform lengkap untuk membuat, mengelola, dan memonetisasi event online maupun offline. Sistem pembayaran terintegrasi, reminder otomatis, dan analitik real-time."
+        title="Event Management System - Kelola Webinar & Event Zoom Mudah | Rapatin"
+        description="Platform lengkap untuk membuat, mengelola, dan memonetisasi event online. Sistem pembayaran terintegrasi, reminder otomatis, dan analitik real-time."
         keywords="event management, webinar, workshop, sistem pembayaran event, tiket online, manajemen peserta"
         url="https://rapatin.id/event-management"
         structuredData={structuredData}
