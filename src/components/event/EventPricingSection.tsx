@@ -33,7 +33,7 @@ const EventPricingSection: React.FC = () => {
     {
       icon: Smartphone,
       name: "QRIS",
-      fee: "0.78%",
+      fee: "0.77%",
       description: "Semua e-wallet & bank"
     },
     {
@@ -75,7 +75,7 @@ const EventPricingSection: React.FC = () => {
           {/* Platform Fee */}
           <Card className="glass animate-fade-in delay-100">
             <CardHeader className="text-center pb-4">
-              <Badge variant="secondary" className="w-fit mx-auto mb-2">
+              <Badge variant="primary" className="w-fit mx-auto mb-2">
                 Platform Fee
               </Badge>
               <CardTitle className="text-2xl">1.5%</CardTitle>
@@ -92,7 +92,7 @@ const EventPricingSection: React.FC = () => {
               </div>
               <div className="pt-4 border-t">
                 <p className="text-xs text-muted-foreground">
-                  * Platform fee opisonal ingin dibebankan kepada organizer atau peserta
+                  * Platform fee dibebankan kepada organizer
                 </p>
               </div>
             </CardContent>
@@ -101,7 +101,7 @@ const EventPricingSection: React.FC = () => {
           {/* Payment Gateway Fees */}
           <Card className="glass animate-fade-in delay-200">
             <CardHeader className="text-center pb-4">
-              <Badge variant="secondary" className="w-fit mx-auto mb-2">
+              <Badge variant="primary" className="w-fit mx-auto mb-2">
                 Payment Gateway
               </Badge>
               <CardTitle className="text-2xl">Bervariasi</CardTitle>
