@@ -33,7 +33,7 @@ const EventPricingSection: React.FC = () => {
     {
       icon: Smartphone,
       name: "QRIS",
-      fee: "0.77%",
+      fee: "0.78%",
       description: "Semua e-wallet & bank"
     },
     {
@@ -92,7 +92,7 @@ const EventPricingSection: React.FC = () => {
               </div>
               <div className="pt-4 border-t">
                 <p className="text-xs text-muted-foreground">
-                  * Platform fee dibebankan kepada organizer
+                  * Platform fee opisonal ingin dibebankan kepada organizer atau peserta
                 </p>
               </div>
             </CardContent>
