@@ -31,7 +31,7 @@ export const eventHeroContent: HeroContent = {
     }
   ],
   image: {
-    src: "/lovable-uploads/e7e34560-7715-4bb4-9fa9-26f74f4090b8.png",
+    src: "/lovable-uploads/eacac0dc-069c-493d-9628-07767c87079e.png",
     alt: "Event Management System Dashboard Preview"
   }
 };
