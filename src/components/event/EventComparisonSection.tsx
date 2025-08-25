@@ -37,7 +37,7 @@ const EventComparisonSection: React.FC = () => {
             key={platform.name} 
             className={`transition-all duration-300 focus-visible:ring-2 focus-visible:ring-primary/30 ${
               platform.isRapatin ? 
-              'relative rounded-2xl border-primary/40 bg-gradient-to-br from-primary/10 to-primary/5 ring-2 ring-primary/20 shadow-lg hover:shadow-primary/30 hover:-translate-y-1' :
+              'relative rounded-2xl border-primary/80 bg-gradient-to-br from-primary/10 to-primary/5 ring-2 ring-primary/20 shadow-lg hover:shadow-primary/30 hover:-translate-y-1' :
               'rounded-2xl border bg-background shadow-sm hover:shadow-md hover:-translate-y-1'
             }`}
             tabIndex={0}
