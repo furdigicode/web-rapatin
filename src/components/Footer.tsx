@@ -1,11 +1,19 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Instagram, Facebook, Twitter, Mail } from 'lucide-react';
+import ComingSoonModal from '@/components/ui/coming-soon-modal';
 
 const Footer: React.FC = () => {
+  const [comingSoonOpen, setComingSoonOpen] = useState(false);
+
+  const openAppointmentModal = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setComingSoonOpen(true);
+  };
+
   return (
     <footer className="bg-white py-12">
       <div className="container mx-auto px-4 md:px-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-5 gap-8">
           <div className="md:col-span-1">
             <a href="/" className="flex items-center mb-4">
               <img 
@@ -31,6 +39,15 @@ const Footer: React.FC = () => {
                 <Mail size={20} />
               </a>
             </div>
+          </div>
+          
+          <div>
+            <h3 className="text-sm font-semibold uppercase tracking-wider mb-4">Produk</h3>
+            <ul className="space-y-2">
+              <li><a href="/meeting-scheduling" className="text-muted-foreground hover:text-primary text-sm transition-colors">Meeting Scheduling</a></li>
+              <li><a href="/event-management" className="text-muted-foreground hover:text-primary text-sm transition-colors">Event Management</a></li>
+              <li><button onClick={openAppointmentModal} className="text-left text-muted-foreground hover:text-primary text-sm transition-colors">Appointment Management</button></li>
+            </ul>
           </div>
           
           <div>
@@ -70,6 +87,12 @@ const Footer: React.FC = () => {
           </p>
         </div>
       </div>
+      
+      <ComingSoonModal 
+        isOpen={comingSoonOpen} 
+        onClose={() => setComingSoonOpen(false)} 
+        productName="Appointment Management" 
+      />
     </footer>
   );
 };
