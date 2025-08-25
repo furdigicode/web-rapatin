@@ -25,7 +25,7 @@ const EventComparisonSection: React.FC = () => {
         </p>
       </div>
 
-      <div className="max-w-2xl mx-auto">
+      <div className="max-w-2xl mx-auto px-4">
         <Table>
           <TableCaption className="sr-only">
             Perbandingan biaya platform monetisasi event antara Rapatin dengan kompetitor
@@ -40,38 +40,45 @@ const EventComparisonSection: React.FC = () => {
             {platforms.map((platform) => (
               <TableRow 
                 key={platform.name}
-                className={platform.isRapatin ? 
-                  'bg-gradient-to-r from-primary/10 to-primary/5 border-primary/40 shadow-lg shadow-primary/20 ring-2 ring-primary/30 rounded-xl hover:shadow-xl hover:shadow-primary/30 hover:-translate-y-1 transition-all duration-300 relative z-10' : 
-                  'hover:bg-muted/50 transition-colors'
-                }
+                className={platform.isRapatin ? 'border-0 hover:bg-transparent' : 'hover:bg-muted/50 transition-colors'}
               >
-                <TableCell className="font-medium">
-                  <div className="flex items-center gap-3">
-                    <span className={platform.isRapatin ? 'text-xl font-bold text-primary' : ''}>
-                      {platform.name}
-                    </span>
-                    {platform.isRapatin && (
-                      <Badge variant="highlight" className="text-sm font-bold px-3 py-1 animate-pulse">
-                        TERBAIK
-                      </Badge>
-                    )}
+                <TableCell className="font-medium p-0">
+                  <div className={platform.isRapatin ? 
+                    'bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/40 shadow-lg shadow-primary/20 ring-2 ring-primary/30 rounded-l-2xl hover:shadow-xl hover:shadow-primary/30 hover:-translate-y-1 transition-all duration-300 relative z-10 p-6' :
+                    'p-4'
+                  }>
+                    <div className="flex items-center gap-3">
+                      <span className={platform.isRapatin ? 'text-xl font-bold text-primary' : ''}>
+                        {platform.name}
+                      </span>
+                      {platform.isRapatin && (
+                        <Badge variant="highlight" className="text-sm font-bold px-3 py-1 animate-pulse">
+                          TERBAIK
+                        </Badge>
+                      )}
+                    </div>
                   </div>
                 </TableCell>
-                <TableCell className="text-right">
-                  {platform.isRapatin ? (
-                    <div className="flex items-center justify-end gap-3">
-                      <span className="text-muted-foreground line-through text-base">
-                        {platform.oldFee}
-                      </span>
-                      <span className="text-primary font-bold text-2xl">
+                <TableCell className="text-right p-0">
+                  <div className={platform.isRapatin ? 
+                    'bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/40 shadow-lg shadow-primary/20 ring-2 ring-primary/30 rounded-r-2xl hover:shadow-xl hover:shadow-primary/30 hover:-translate-y-1 transition-all duration-300 relative z-10 p-6 border-l-0' :
+                    'p-4'
+                  }>
+                    {platform.isRapatin ? (
+                      <div className="flex items-center justify-end gap-3">
+                        <span className="text-muted-foreground line-through text-base">
+                          {platform.oldFee}
+                        </span>
+                        <span className="text-primary font-bold text-2xl">
+                          {platform.fee}
+                        </span>
+                      </div>
+                    ) : (
+                      <span className="text-muted-foreground text-lg">
                         {platform.fee}
                       </span>
-                    </div>
-                  ) : (
-                    <span className="text-muted-foreground text-lg">
-                      {platform.fee}
-                    </span>
-                  )}
+                    )}
+                  </div>
                 </TableCell>
               </TableRow>
             ))}
