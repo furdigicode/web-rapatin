@@ -65,13 +65,13 @@ const EventManagement: React.FC = () => {
         </div>
         
         <GenericFeatureGrid content={eventFeatureContent} />
+
+        <PlatformOptionsSection />
         
         <GenericStepsSection 
           content={eventHowItWorksContent}
           sectionId="how-it-works"
         />
-        
-        <PlatformOptionsSection />
         
         <EventComparisonSection />
         
