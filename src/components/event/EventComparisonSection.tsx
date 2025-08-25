@@ -26,21 +26,22 @@ const EventComparisonSection: React.FC = () => {
         </p>
       </div>
 
-      {/* Horizontal Cards Layout */}
+      {/* Grid Cards Layout */}
       <div 
-        className="flex gap-6 overflow-x-auto snap-x snap-mandatory -mx-4 px-4 pb-2 md:grid md:grid-cols-4 md:max-w-5xl md:mx-auto md:overflow-visible md:px-0"
-        role="region"
+        className="grid grid-cols-1 md:grid-cols-4 gap-6 max-w-5xl mx-auto"
+        role="list"
         aria-label="Perbandingan biaya platform"
       >
         {platforms.map((platform) => (
           <Card 
             key={platform.name} 
-            className={`min-w-[220px] md:min-w-0 snap-start transition-all duration-300 focus-visible:ring-2 focus-visible:ring-primary/30 ${
+            className={`transition-all duration-300 focus-visible:ring-2 focus-visible:ring-primary/30 ${
               platform.isRapatin ? 
-              'relative border-primary/40 bg-gradient-to-br from-primary/10 to-primary/5 ring-2 ring-primary/20 shadow-lg hover:shadow-primary/30 hover:-translate-y-1' :
+              'relative rounded-2xl border-primary/40 bg-gradient-to-br from-primary/10 to-primary/5 ring-2 ring-primary/20 shadow-lg hover:shadow-primary/30 hover:-translate-y-1' :
               'rounded-2xl border bg-background shadow-sm hover:shadow-md hover:-translate-y-1'
             }`}
             tabIndex={0}
+            role="listitem"
           >
             {platform.isRapatin && (
               <Badge 
