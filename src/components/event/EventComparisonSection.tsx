@@ -45,7 +45,8 @@ const EventComparisonSection: React.FC = () => {
             {platform.isRapatin && (
               <Badge 
                 variant="highlight" 
-                className="absolute top-3 right-3 z-10 flex items-center gap-1 px-2.5 py-0.5 text-[10px] md:text-xs rounded-full shadow"
+                className="absolute top-2 right-2 md:top-3 md:right-3 z-20 flex items-center gap-1 px-2.5 py-0.5 text-[10px] md:text-xs rounded-full shadow pointer-events-none"
+                aria-label="Terbaik"
               >
                 <Star size={12} aria-hidden="true" />
                 TERBAIK
