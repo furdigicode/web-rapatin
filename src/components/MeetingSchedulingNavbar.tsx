@@ -4,7 +4,15 @@ import { Menu, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import FreeTrialModal from '@/components/ui/free-trial-modal';
 
-const MeetingSchedulingNavbar: React.FC = () => {
+interface MeetingSchedulingNavbarProps {
+  directRegister?: boolean;
+  registerUrl?: string;
+}
+
+const MeetingSchedulingNavbar: React.FC<MeetingSchedulingNavbarProps> = ({ 
+  directRegister = false, 
+  registerUrl = "https://app.rapatin.id/dashboard/register" 
+}) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
@@ -31,7 +39,15 @@ const MeetingSchedulingNavbar: React.FC = () => {
   };
 
   const handleRegistration = () => {
-    setModalOpen(true);
+    if (typeof window.fbq === 'function') {
+      window.fbq('track', 'CTAClick');
+    }
+    
+    if (directRegister) {
+      window.location.href = registerUrl;
+    } else {
+      setModalOpen(true);
+    }
   };
 
   return (
@@ -157,10 +173,12 @@ const MeetingSchedulingNavbar: React.FC = () => {
         )}
       </header>
 
-      <FreeTrialModal
-        isOpen={modalOpen}
-        onClose={() => setModalOpen(false)}
-      />
+      {!directRegister && (
+        <FreeTrialModal
+          isOpen={modalOpen}
+          onClose={() => setModalOpen(false)}
+        />
+      )}
     </>
   );
 };

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import SEO from '@/components/SEO';
 import ProductPageLayout from '@/components/layout/ProductPageLayout';
 import MeetingSchedulingNavbar from '@/components/MeetingSchedulingNavbar';
@@ -11,17 +11,14 @@ import EventPricingSection from '@/components/event/EventPricingSection';
 import TestimonialSection from '@/components/TestimonialSection';
 import FinalCTA from '@/components/FinalCTA';
 import Footer from '@/components/Footer';
-import FreeTrialModal from '@/components/ui/free-trial-modal';
 import { eventHeroContent, eventFeatureContent, eventHowItWorksContent } from '@/content/eventContent';
 
 const EventManagement: React.FC = () => {
-  const [modalOpen, setModalOpen] = useState(false);
-
   const handleRegistration = () => {
     if (typeof window.fbq === 'function') {
       window.fbq('track', 'CTAClick');
     }
-    setModalOpen(true);
+    window.location.href = 'https://app.rapatin.id/dashboard/register';
   };
 
   const structuredData = {
@@ -58,7 +55,7 @@ const EventManagement: React.FC = () => {
         structuredData={structuredData}
       />
       
-      <ProductPageLayout navbar={<MeetingSchedulingNavbar />}>
+      <ProductPageLayout navbar={<MeetingSchedulingNavbar directRegister registerUrl="https://app.rapatin.id/dashboard/register" />}>
         <div className="-mt-28">
           <GenericHeroSection 
             content={eventHeroContent}
@@ -82,15 +79,11 @@ const EventManagement: React.FC = () => {
         
         <TestimonialSection />
         
-        <FinalCTA />
+        <FinalCTA directRegister registerUrl="https://app.rapatin.id/dashboard/register" />
         
         <Footer />
       </ProductPageLayout>
 
-      <FreeTrialModal
-        isOpen={modalOpen}
-        onClose={() => setModalOpen(false)}
-      />
     </>
   );
 };

@@ -1,19 +1,16 @@
-import React, { useState } from 'react';
+import React from 'react';
 import SectionContainer from '@/components/layout/SectionContainer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Check, CreditCard, Smartphone, Building2, Wallet } from 'lucide-react';
-import FreeTrialModal from '@/components/ui/free-trial-modal';
 
 const EventPricingSection: React.FC = () => {
-  const [modalOpen, setModalOpen] = useState(false);
-
   const handleRegistration = () => {
     if (typeof window.fbq === 'function') {
       window.fbq('track', 'CTAClick');
     }
-    setModalOpen(true);
+    window.location.href = 'https://app.rapatin.id/dashboard/register';
   };
 
   const features = [
@@ -147,11 +144,6 @@ const EventPricingSection: React.FC = () => {
           </Card>
         </div>
       </SectionContainer>
-
-      <FreeTrialModal
-        isOpen={modalOpen}
-        onClose={() => setModalOpen(false)}
-      />
     </>
   );
 };

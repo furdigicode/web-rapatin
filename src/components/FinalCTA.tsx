@@ -3,7 +3,15 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight } from 'lucide-react';
 import FreeTrialModal from '@/components/ui/free-trial-modal';
 
-const FinalCTA: React.FC = () => {
+interface FinalCTAProps {
+  directRegister?: boolean;
+  registerUrl?: string;
+}
+
+const FinalCTA: React.FC<FinalCTAProps> = ({ 
+  directRegister = false, 
+  registerUrl = "https://app.rapatin.id/dashboard/register" 
+}) => {
   const [modalOpen, setModalOpen] = useState(false);
 
   const whatsappUrl = `https://wa.me/6287788980084?text=${encodeURIComponent("Halo saya ingin daftar ke Rapatin")}`;
@@ -12,7 +20,12 @@ const FinalCTA: React.FC = () => {
     if (typeof window.fbq === 'function') {
       window.fbq('track', 'CTAClick');
     }
-    setModalOpen(true);
+    
+    if (directRegister) {
+      window.location.href = registerUrl;
+    } else {
+      setModalOpen(true);
+    }
   };
 
   return (
@@ -71,10 +84,12 @@ const FinalCTA: React.FC = () => {
         </div>
       </section>
 
-      <FreeTrialModal
-        isOpen={modalOpen}
-        onClose={() => setModalOpen(false)}
-      />
+      {!directRegister && (
+        <FreeTrialModal
+          isOpen={modalOpen}
+          onClose={() => setModalOpen(false)}
+        />
+      )}
     </>
   );
 };
