@@ -18,7 +18,7 @@ const EventManagement: React.FC = () => {
     if (typeof window.fbq === 'function') {
       window.fbq('track', 'CTAClick');
     }
-    window.location.href = 'https://app.rapatin.id/dashboard/register';
+    window.open('https://app.rapatin.id/dashboard/register', '_blank', 'noopener,noreferrer');
   };
 
   const structuredData = {

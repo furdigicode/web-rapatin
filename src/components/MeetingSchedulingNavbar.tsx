@@ -44,7 +44,7 @@ const MeetingSchedulingNavbar: React.FC<MeetingSchedulingNavbarProps> = ({
     }
     
     if (directRegister) {
-      window.location.href = registerUrl;
+      window.open(registerUrl, '_blank', 'noopener,noreferrer');
     } else {
       setModalOpen(true);
     }

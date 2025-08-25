@@ -22,7 +22,7 @@ const FinalCTA: React.FC<FinalCTAProps> = ({
     }
     
     if (directRegister) {
-      window.location.href = registerUrl;
+      window.open(registerUrl, '_blank', 'noopener,noreferrer');
     } else {
       setModalOpen(true);
     }
