@@ -83,7 +83,7 @@ const MainHeroSection: React.FC = () => {
           <div className="w-full mt-16">
             <div className="text-center mb-12 animate-fade-in">
               <h2 className="text-2xl md:text-3xl font-bold mb-4">
-                Dipercaya oleh <span className="text-primary">1000+</span> perusahaan di Indonesia
+                Dipercaya oleh <span className="text-primary">600+</span> perusahaan di Indonesia
               </h2>
               <p className="text-muted-foreground">
                 Dari startup hingga perusahaan besar, semua menggunakan platform kami
