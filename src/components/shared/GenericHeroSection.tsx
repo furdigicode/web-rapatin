@@ -66,7 +66,7 @@ const GenericHeroSection: React.FC<GenericHeroSectionProps> = ({
           <img 
             src={content.image.src}
             alt={content.image.alt}
-            className="w-full rounded-2xl shadow-elevation border border-white/40 bg-white object-cover"
+            className="w-full rounded-2xl shadow-elevation border border-white/40 object-cover"
             style={{ background: "rgba(255,255,255,0.9)", maxHeight: "800px" }}
             loading="lazy"
           />
