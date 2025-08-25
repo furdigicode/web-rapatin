@@ -14,9 +14,9 @@ const EventComparisonSection: React.FC = () => {
   return (
     <SectionContainer background="accent">
       <div className="text-center max-w-4xl mx-auto mb-12">
-        <Badge variant="secondary" className="mb-4">
-          Perbandingan Platform
-        </Badge>
+        <div className="inline-flex items-center py-1 px-4 bg-accent rounded-full mb-4">
+            <span className="text-xs font-medium text-primary">Perbandingan Platform</span>
+          </div>
         <h2 className="text-3xl md:text-4xl font-bold mb-4">
           Bandingkan Biaya Platform Monetisasi
         </h2>
