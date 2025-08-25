@@ -75,7 +75,7 @@ const EventPricingSection: React.FC = () => {
           {/* Platform Fee */}
           <Card className="glass animate-fade-in delay-100">
             <CardHeader className="text-center pb-4">
-              <Badge variant="primary" className="w-fit mx-auto mb-2">
+              <Badge variant="default" className="w-fit mx-auto mb-2">
                 Platform Fee
               </Badge>
               <CardTitle className="text-2xl">1.5%</CardTitle>
@@ -101,7 +101,7 @@ const EventPricingSection: React.FC = () => {
           {/* Payment Gateway Fees */}
           <Card className="glass animate-fade-in delay-200">
             <CardHeader className="text-center pb-4">
-              <Badge variant="primary" className="w-fit mx-auto mb-2">
+              <Badge variant="default" className="w-fit mx-auto mb-2">
                 Payment Gateway
               </Badge>
               <CardTitle className="text-2xl">Bervariasi</CardTitle>
