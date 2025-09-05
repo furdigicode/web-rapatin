@@ -79,6 +79,31 @@ export const getCurrentParams = (): URLParams => {
   };
 };
 
+// Utility function to check if we have custom trial parameters
+export const hasTrialParams = (): boolean => {
+  try {
+    // Check URL parameters first
+    const sp = new URLSearchParams(window.location.search);
+    if (sp.get('ref') || sp.get('amount')) {
+      return true;
+    }
+
+    // Check localStorage for custom parameters
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (!stored) {
+      return false;
+    }
+    
+    const parsed = JSON.parse(stored);
+    const hasCustomRef = parsed?.referralCode && parsed.referralCode !== 'TRIAL25';
+    const hasCustomAmount = parsed?.amount && parsed.amount !== 25000;
+    
+    return !!(hasCustomRef || hasCustomAmount);
+  } catch {
+    return false;
+  }
+};
+
 // Utility function to preserve URL parameters in navigation
 export const preserveURLParams = (basePath: string): string => {
   const params = getCurrentParams();

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Calendar, CreditCard, Users } from 'lucide-react';
 import FreeTrialModal from '@/components/ui/free-trial-modal';
+import { hasTrialParams } from '@/hooks/useURLParams';
 
 const AppointmentCTA: React.FC = () => {
   const [modalOpen, setModalOpen] = useState(false);
@@ -10,6 +11,12 @@ const AppointmentCTA: React.FC = () => {
     if (typeof window.fbq === 'function') {
       window.fbq('track', 'CTAClick');
     }
+    
+    if (!hasTrialParams()) {
+      window.open('https://app.rapatin.id/dashboard/register', '_blank');
+      return;
+    }
+    
     setModalOpen(true);
   };
 
@@ -89,10 +96,12 @@ const AppointmentCTA: React.FC = () => {
         </div>
       </section>
 
-      <FreeTrialModal
-        isOpen={modalOpen}
-        onClose={() => setModalOpen(false)}
-      />
+      {hasTrialParams() && (
+        <FreeTrialModal
+          isOpen={modalOpen}
+          onClose={() => setModalOpen(false)}
+        />
+      )}
     </>
   );
 };

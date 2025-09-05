@@ -4,6 +4,7 @@ import { Calendar, Clock, DollarSign, Video, BadgeDollarSign } from 'lucide-reac
 import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
 import FreeTrialModal from '@/components/ui/free-trial-modal';
+import { hasTrialParams } from '@/hooks/useURLParams';
 
 const IllustSrc = "/lovable-uploads/e7e34560-7715-4bb4-9fa9-26f74f4090b8.png";
 
@@ -18,6 +19,15 @@ const HeroSection: React.FC = () => {
   }), []);
 
   const handleRegistration = () => {
+    if (typeof window.fbq === 'function') {
+      window.fbq('track', 'CTAClick');
+    }
+    
+    if (!hasTrialParams()) {
+      window.open('https://app.rapatin.id/dashboard/register', '_blank');
+      return;
+    }
+    
     setModalOpen(true);
   };
 
@@ -169,10 +179,12 @@ const HeroSection: React.FC = () => {
         </div>
       </section>
 
-      <FreeTrialModal
-        isOpen={modalOpen}
-        onClose={() => setModalOpen(false)}
-      />
+      {hasTrialParams() && (
+        <FreeTrialModal
+          isOpen={modalOpen}
+          onClose={() => setModalOpen(false)}
+        />
+      )}
     </>
   );
 };

@@ -3,12 +3,22 @@ import { Calendar, CheckCircle, Clock, BarChart, FileText, Users, Video, Play, D
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
 import FreeTrialModal from '@/components/ui/free-trial-modal';
+import { hasTrialParams } from '@/hooks/useURLParams';
 
 const DashboardPreview: React.FC = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const isMobile = useIsMobile();
   
   const handleRegistration = () => {
+    if (typeof window.fbq === 'function') {
+      window.fbq('track', 'CTAClick');
+    }
+    
+    if (!hasTrialParams()) {
+      window.open('https://app.rapatin.id/dashboard/register', '_blank');
+      return;
+    }
+    
     setModalOpen(true);
   };
   
@@ -186,10 +196,12 @@ const DashboardPreview: React.FC = () => {
         </div>
       </section>
 
-      <FreeTrialModal
-        isOpen={modalOpen}
-        onClose={() => setModalOpen(false)}
-      />
+      {hasTrialParams() && (
+        <FreeTrialModal
+          isOpen={modalOpen}
+          onClose={() => setModalOpen(false)}
+        />
+      )}
     </>
   );
 };

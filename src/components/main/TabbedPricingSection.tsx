@@ -9,6 +9,7 @@ import { Check, Calendar, Users, Clock } from 'lucide-react';
 import ComingSoonModal from '@/components/ui/coming-soon-modal';
 import FreeTrialModal from '@/components/ui/free-trial-modal';
 import { formatRupiah } from '@/utils/formatRupiah';
+import { hasTrialParams } from '@/hooks/useURLParams';
 
 const TabbedPricingSection: React.FC = () => {
   const [modalOpen, setModalOpen] = useState(false);
@@ -29,6 +30,12 @@ const TabbedPricingSection: React.FC = () => {
     if (typeof window.fbq === 'function') {
       window.fbq('track', 'CTAClick');
     }
+    
+    if (!hasTrialParams()) {
+      window.open('https://app.rapatin.id/dashboard/register', '_blank');
+      return;
+    }
+    
     setFreeTrialModalOpen(true);
   };
 
@@ -398,10 +405,12 @@ const TabbedPricingSection: React.FC = () => {
           productName={selectedProduct}
         />
 
-        <FreeTrialModal
-          isOpen={freeTrialModalOpen}
-          onClose={() => setFreeTrialModalOpen(false)}
-        />
+        {hasTrialParams() && (
+          <FreeTrialModal
+            isOpen={freeTrialModalOpen}
+            onClose={() => setFreeTrialModalOpen(false)}
+          />
+        )}
       </div>
     </section>
   );

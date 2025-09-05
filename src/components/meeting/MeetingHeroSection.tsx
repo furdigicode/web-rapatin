@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import GenericHeroSection from '@/components/shared/GenericHeroSection';
 import { meetingHeroContent } from '@/content/meetingContent';
 import FreeTrialModal from '@/components/ui/free-trial-modal';
+import { hasTrialParams } from '@/hooks/useURLParams';
 
 const MeetingHeroSection: React.FC = () => {
   const [modalOpen, setModalOpen] = useState(false);
@@ -11,6 +12,12 @@ const MeetingHeroSection: React.FC = () => {
     if (typeof window.fbq === 'function') {
       window.fbq('track', 'CTAClick');
     }
+    
+    if (!hasTrialParams()) {
+      window.open('https://app.rapatin.id/dashboard/register', '_blank');
+      return;
+    }
+    
     setModalOpen(true);
   };
 
@@ -22,10 +29,12 @@ const MeetingHeroSection: React.FC = () => {
         showBrands={true}
       />
       
-      <FreeTrialModal
-        isOpen={modalOpen}
-        onClose={() => setModalOpen(false)}
-      />
+      {hasTrialParams() && (
+        <FreeTrialModal
+          isOpen={modalOpen}
+          onClose={() => setModalOpen(false)}
+        />
+      )}
     </>
   );
 };
