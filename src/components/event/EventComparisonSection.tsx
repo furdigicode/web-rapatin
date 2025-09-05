@@ -19,7 +19,7 @@ const EventComparisonSection: React.FC = () => {
           <span className="text-xs font-medium text-primary">Perbandingan Platform</span>
         </div>
         <h2 className="text-3xl md:text-4xl font-bold mb-4">
-          <span class='text-primary'> Rapatin</span> vs Platform Lain
+          <span className='text-primary'> Rapatin</span> vs Platform Lain
         </h2>
         <p className="text-lg text-muted-foreground">
           Rapatin memberikan biaya platform paling kompetitif dibanding platform monetisasi event lainnya
