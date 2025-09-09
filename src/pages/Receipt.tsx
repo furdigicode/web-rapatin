@@ -15,7 +15,7 @@ const Receipt = () => {
   const txId = params.get('tx') || '';
   const user = params.get('user') || '';
   const email = params.get('email') || '';
-  const meetingId = params.get('schedule_id') || '';
+  const meetingId = params.get('meeting_id') || '';
   const topic = params.get('topic') || '';
   const capacity = params.get('capacity') || '';
   const amount = parseInt(params.get('amount') || '0');
