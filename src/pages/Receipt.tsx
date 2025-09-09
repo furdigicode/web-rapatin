@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Download, Copy, Check } from 'lucide-react';
 import { formatRupiah } from '@/utils/formatRupiah';
 import { toast } from 'sonner';
-// import rapatinLogo from '@/assets/rapatin-logo.png';
+import rapatinLogo from '@/assets/rapatin-logo.png';
 
 const Receipt = () => {
   const location = useLocation();
