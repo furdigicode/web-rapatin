@@ -16,7 +16,7 @@ const Receipt = () => {
   const txId = params.get('tx') || '';
   const user = params.get('user') || '';
   const email = params.get('email') || '';
-  const meetingId = params.get('meeting_id') || '';
+  const meetingId = params.get('schedule_id') || '';
   const topic = params.get('topic') || '';
   const capacity = params.get('capacity') || '';
   const amount = parseInt(params.get('amount') || '0');
@@ -78,7 +78,7 @@ const Receipt = () => {
             <div className="text-center mb-8 print:mb-6">
               <div className="flex justify-center mb-4">
                 <img 
-                  src="/lovable-uploads/eacac0dc-069c-493d-9628-07767c87079e.png" 
+                  src="/lovable-uploads/2daea350-0851-4dd8-8f79-ee07aaaad905.png" 
                   alt="Rapatin Logo" 
                   className="h-12 print:h-10"
                 />
@@ -125,6 +125,10 @@ const Receipt = () => {
                     <p className="text-sm text-muted-foreground">Email</p>
                     <p className="font-medium">{email}</p>
                   </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Meeting ID</p>
+                    <p className="font-medium">{meetingId}</p>
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-3 gap-4 py-3 border-b border-border/50">
@@ -134,7 +138,7 @@ const Receipt = () => {
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Kapasitas Meeting</p>
-                    <p className="font-medium">{capacity} peserta</p>
+                    <p className="font-medium">{capacity} orang</p>
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Topik Meeting</p>
