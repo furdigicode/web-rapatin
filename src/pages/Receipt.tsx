@@ -20,7 +20,6 @@ const Receipt = () => {
   const amount = parseInt(params.get('amount') || '0');
   const before = parseInt(params.get('before') || '0');
   const after = parseInt(params.get('after') || '0');
-  const note = params.get('note') || '';
   
   // Generate current date
   const currentDate = new Date().toLocaleDateString('id-ID', {
@@ -122,7 +121,7 @@ const Receipt = () => {
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Meeting ID</p>
-                    <p className="font-mono text-sm">{scheduleId}</p>
+                    <p className="font-medium">{scheduleId}</p>
                   </div>
                 </div>
 
@@ -147,13 +146,6 @@ const Receipt = () => {
                     <p className="font-medium">{formatRupiah(after)}</p>
                   </div>
                 </div>
-
-                {note && (
-                  <div className="py-3">
-                    <p className="text-sm text-muted-foreground mb-1">Catatan</p>
-                    <p className="font-medium">{note}</p>
-                  </div>
-                )}
               </div>
             </div>
 
