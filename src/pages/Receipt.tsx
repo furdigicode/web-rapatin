@@ -121,7 +121,7 @@ const Receipt = () => {
                     <p className="font-medium">{email}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-muted-foreground">Schedule ID</p>
+                    <p className="text-sm text-muted-foreground">Meeting ID</p>
                     <p className="font-mono text-sm">{scheduleId}</p>
                   </div>
                 </div>
