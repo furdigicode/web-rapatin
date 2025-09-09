@@ -1,17 +1,14 @@
 import React from 'react';
-import AdminPageHeader from '@/components/admin/AdminPageHeader';
+import AdminLayout from '@/components/admin/AdminLayout';
 import { MetaPixelSettings } from '@/components/admin/MetaPixelSettings';
 
 const TrackingSettings = () => {
   return (
-    <div className="space-y-6">
-      <AdminPageHeader
-        title="Pengaturan Tracking"
-        description="Kelola pengaturan tracking dan analitik website"
-      />
-      
-      <MetaPixelSettings />
-    </div>
+    <AdminLayout title="Pengaturan Tracking">
+      <div className="space-y-6">
+        <MetaPixelSettings />
+      </div>
+    </AdminLayout>
   );
 };
 

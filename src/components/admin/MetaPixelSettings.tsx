@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -106,53 +106,52 @@ export const MetaPixelSettings = () => {
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Pengaturan Meta Pixel</CardTitle>
-        <CardDescription>
+    <div className="glass p-4 md:p-6 rounded-xl">
+      <div className="mb-6">
+        <h2 className="text-xl font-semibold mb-2">Pengaturan Meta Pixel</h2>
+        <p className="text-muted-foreground">
           Kelola pengaturan Meta Pixel (Facebook Pixel) untuk tracking dan analitik
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          <div className="flex items-center space-x-2">
-            <Switch
-              id="enabled"
-              checked={enabled}
-              onCheckedChange={(checked) => setValue('enabled', checked)}
-            />
-            <Label htmlFor="enabled">Aktifkan Meta Pixel</Label>
-          </div>
+        </p>
+      </div>
+      
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <div className="flex items-center space-x-2">
+          <Switch
+            id="enabled"
+            checked={enabled}
+            onCheckedChange={(checked) => setValue('enabled', checked)}
+          />
+          <Label htmlFor="enabled">Aktifkan Meta Pixel</Label>
+        </div>
 
-          {enabled && (
-            <>
-              <div className="space-y-2">
-                <Label htmlFor="pixel_id">Pixel ID *</Label>
-                <Input
-                  id="pixel_id"
-                  placeholder="Masukkan Pixel ID (contoh: 678606711513436)"
-                  {...register('pixel_id', { 
-                    required: enabled ? 'Pixel ID wajib diisi' : false 
-                  })}
-                />
-              </div>
+        {enabled && (
+          <>
+            <div className="space-y-2">
+              <Label htmlFor="pixel_id">Pixel ID *</Label>
+              <Input
+                id="pixel_id"
+                placeholder="Masukkan Pixel ID (contoh: 678606711513436)"
+                {...register('pixel_id', { 
+                  required: enabled ? 'Pixel ID wajib diisi' : false 
+                })}
+              />
+            </div>
 
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="track_page_view"
-                  checked={watch('track_page_view')}
-                  onCheckedChange={(checked) => setValue('track_page_view', checked)}
-                />
-                <Label htmlFor="track_page_view">Track Page View otomatis</Label>
-              </div>
-            </>
-          )}
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="track_page_view"
+                checked={watch('track_page_view')}
+                onCheckedChange={(checked) => setValue('track_page_view', checked)}
+              />
+              <Label htmlFor="track_page_view">Track Page View otomatis</Label>
+            </div>
+          </>
+        )}
 
-          <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? 'Menyimpan...' : 'Simpan Pengaturan'}
-          </Button>
-        </form>
-      </CardContent>
-    </Card>
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? 'Menyimpan...' : 'Simpan Pengaturan'}
+        </Button>
+      </form>
+    </div>
   );
 };
