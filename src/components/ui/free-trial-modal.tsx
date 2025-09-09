@@ -42,7 +42,14 @@ const FreeTrialModal: React.FC<FreeTrialModalProps> = ({
     if (typeof window.fbq === 'function') {
       window.fbq('track', 'CTAClick');
     }
-    window.open('https://app.rapatin.id/dashboard/register', '_blank');
+    
+    // Construct URL with referral code if it exists and is not default
+    let url = 'https://app.rapatin.id/dashboard/register';
+    if (referralCode && referralCode !== 'TRIAL25') {
+      url += `?ref=${referralCode}`;
+    }
+    
+    window.open(url, '_blank');
     onClose();
   };
 
