@@ -125,11 +125,16 @@ const Receipt = () => {
                   </div>
                 </div>
 
-                <div className="py-3 border-b border-border/50">
-                  <p className="text-sm text-muted-foreground mb-1">Topik Meeting</p>
-                  <p className="font-medium">{topic}</p>
+                <div className="grid grid-cols-3 gap-4 py-3 border-b border-border/50">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Meeting ID</p>
+                    <p className="font-medium">{scheduleId}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Topik Meeting</p>
+                    <p className="font-medium">{topic}</p>
+                  </div>
                 </div>
-
                 <div className="grid grid-cols-3 gap-4 py-3 border-b border-border/50">
                   <div>
                     <p className="text-sm text-muted-foreground">Saldo Sebelum</p>
