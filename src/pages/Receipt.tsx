@@ -125,10 +125,6 @@ const Receipt = () => {
                     <p className="text-sm text-muted-foreground">Email</p>
                     <p className="font-medium">{email}</p>
                   </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Meeting ID</p>
-                    <p className="font-medium">{meetingId}</p>
-                  </div>
                 </div>
 
                 <div className="grid grid-cols-3 gap-4 py-3 border-b border-border/50">
@@ -138,7 +134,7 @@ const Receipt = () => {
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Kapasitas Meeting</p>
-                    <p className="font-medium">{capacity} orang</p>
+                    <p className="font-medium">{capacity} peserta</p>
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Topik Meeting</p>
