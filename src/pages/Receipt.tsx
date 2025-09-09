@@ -163,7 +163,7 @@ const Receipt = () => {
                 Kwitansi ini dibuat secara otomatis oleh sistem RAPATIN.ID
               </p>
               <p className="text-xs text-muted-foreground mt-1">
-                Untuk pertanyaan lebih lanjut, hubungi support@rapatin.id
+                Untuk pertanyaan lebih lanjut, hubungi admin@rapatin.id
               </p>
             </div>
           </CardContent>
