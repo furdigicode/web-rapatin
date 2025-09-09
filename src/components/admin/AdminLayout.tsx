@@ -8,7 +8,8 @@ import {
   Users,
   LogOut,
   Home,
-  Bell
+  Bell,
+  Settings
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -154,6 +155,17 @@ const AppSidebar = () => {
                   <Link to="/admin/notifications">
                     <Bell />
                     <span>Notifikasi</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton 
+                  asChild 
+                  isActive={location.pathname === '/admin/tracking'}
+                >
+                  <Link to="/admin/tracking">
+                    <Settings />
+                    <span>Tracking</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>

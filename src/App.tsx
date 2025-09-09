@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { HelmetProvider } from 'react-helmet-async';
 import { useEffect } from "react";
+import { useMetaPixel } from "./hooks/useMetaPixel";
 import Index from "./pages/Index";
 import MainPage from "./pages/MainPage";
 import MeetingScheduling from "./pages/MeetingScheduling";
@@ -41,6 +42,7 @@ import NotificationManagementPage from "./pages/admin/NotificationManagement";
 import ProtectedRoute from "./components/admin/ProtectedRoute";
 import LegalManagement from "./pages/admin/LegalManagement";
 import LegalTermsManagement from "./pages/admin/LegalTermsManagement";
+import TrackingSettings from "./pages/admin/TrackingSettings";
 
 // Sitemap
 import SitemapXML from "./pages/SitemapXML";
@@ -51,7 +53,7 @@ const AppRoutes = () => {
   const location = useLocation();
 
   useEffect(() => {
-    // Track page view with Meta Pixel for non-admin pages
+    // Track page view with Meta Pixel for non-admin pages (handled by useMetaPixel hook now)
     if (typeof window.fbq === 'function') {
       window.fbq('track', 'PageView');
     }
@@ -97,6 +99,7 @@ const AppRoutes = () => {
 <Route path="/admin/notifications" element={<ProtectedRoute><NotificationManagementPage /></ProtectedRoute>} />
 <Route path="/admin/legal" element={<ProtectedRoute><LegalManagement /></ProtectedRoute>} />
 <Route path="/admin/legal-terms" element={<ProtectedRoute><LegalTermsManagement /></ProtectedRoute>} />
+<Route path="/admin/tracking" element={<ProtectedRoute><TrackingSettings /></ProtectedRoute>} />
       
       {/* 404 Catch-all Route */}
       <Route path="*" element={<NotFound />} />
@@ -104,18 +107,21 @@ const AppRoutes = () => {
   );
 };
 
-const App = () => {
+function App() {
+  // Initialize Meta Pixel from database settings
+  useMetaPixel();
+
   return (
     <HelmetProvider>
       <QueryClientProvider client={queryClient}>
-        <Toaster />
-        <Sonner />
         <BrowserRouter>
           <AppRoutes />
+          <Toaster />
+          <Sonner />
         </BrowserRouter>
       </QueryClientProvider>
     </HelmetProvider>
   );
-};
+}
 
 export default App;
