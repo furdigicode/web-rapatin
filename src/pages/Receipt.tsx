@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Download, Copy, Check } from 'lucide-react';
 import { formatRupiah } from '@/utils/formatRupiah';
 import { toast } from 'sonner';
+// import rapatinLogo from '@/assets/rapatin-logo.png';
 
 const Receipt = () => {
   const location = useLocation();
@@ -15,8 +16,9 @@ const Receipt = () => {
   const txId = params.get('tx') || '';
   const user = params.get('user') || '';
   const email = params.get('email') || '';
-  const scheduleId = params.get('schedule_id') || '';
+  const meetingId = params.get('schedule_id') || '';
   const topic = params.get('topic') || '';
+  const capacity = params.get('capacity') || '';
   const amount = parseInt(params.get('amount') || '0');
   const before = parseInt(params.get('before') || '0');
   const after = parseInt(params.get('after') || '0');
@@ -74,9 +76,13 @@ const Receipt = () => {
           <CardContent className="p-8 print:p-6">
             {/* Header */}
             <div className="text-center mb-8 print:mb-6">
-              <h1 className="text-3xl font-bold text-primary mb-2 print:text-2xl">
-                RAPATIN.ID
-              </h1>
+              <div className="flex justify-center mb-4">
+                <img 
+                  src="/lovable-uploads/eacac0dc-069c-493d-9628-07767c87079e.png" 
+                  alt="Rapatin Logo" 
+                  className="h-12 print:h-10"
+                />
+              </div>
               <p className="text-muted-foreground text-lg print:text-base">
                 Kwitansi Penggunaan Saldo
               </p>
@@ -121,14 +127,18 @@ const Receipt = () => {
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Meeting ID</p>
-                    <p className="font-medium">{scheduleId}</p>
+                    <p className="font-medium">{meetingId}</p>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-3 gap-4 py-3 border-b border-border/50">
                   <div>
                     <p className="text-sm text-muted-foreground">Meeting ID</p>
-                    <p className="font-medium">{scheduleId}</p>
+                    <p className="font-medium">{meetingId}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Kapasitas Meeting</p>
+                    <p className="font-medium">{capacity} orang</p>
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Topik Meeting</p>
