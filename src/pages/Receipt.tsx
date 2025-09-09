@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button';
 import { Download, Copy, Check } from 'lucide-react';
 import { formatRupiah } from '@/utils/formatRupiah';
 import { toast } from 'sonner';
-import rapatinLogo from '@/assets/rapatin-logo.png';
 
 const Receipt = () => {
   const location = useLocation();
@@ -124,10 +123,6 @@ const Receipt = () => {
                   <div>
                     <p className="text-sm text-muted-foreground">Email</p>
                     <p className="font-medium">{email}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Meeting ID</p>
-                    <p className="font-medium">{meetingId}</p>
                   </div>
                 </div>
 
