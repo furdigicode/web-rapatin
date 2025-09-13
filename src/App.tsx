@@ -22,7 +22,6 @@ import BayarSesuaiPakai from "./pages/fitur/BayarSesuaiPakai";
 import Dashboard from "./pages/fitur/Dashboard";
 import RekamanCloud from "./pages/fitur/RekamanCloud";
 import LaporanPeserta from "./pages/fitur/LaporanPeserta";
-import Receipt from "./pages/Receipt";
 
 // Company Pages
 import SyaratKetentuan from "./pages/SyaratKetentuan";
@@ -70,7 +69,6 @@ const AppRoutes = () => {
       <Route path="/faq" element={<FAQ />} />
       <Route path="/appointment" element={<Appointment />} />
       <Route path="/event-management" element={<EventManagement />} />
-      <Route path="/receipt" element={<Receipt />} />
       
       {/* Feature Pages */}
       <Route path="/fitur/bayar-sesuai-pakai" element={<BayarSesuaiPakai />} />
