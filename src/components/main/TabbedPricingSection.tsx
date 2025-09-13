@@ -12,18 +12,22 @@ import { formatRupiah } from '@/utils/formatRupiah';
 import { hasTrialParams } from '@/hooks/useURLParams';
 
 const TabbedPricingSection: React.FC = () => {
-  const [modalOpen, setModalOpen] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState('');
+  const [appointmentModalOpen, setAppointmentModalOpen] = useState(false);
   const [freeTrialModalOpen, setFreeTrialModalOpen] = useState(false);
 
-  const handleOpenModal = (productName: string) => {
-    setSelectedProduct(productName);
-    setModalOpen(true);
+  const handleOpenAppointmentModal = () => {
+    setAppointmentModalOpen(true);
   };
 
-  const handleCloseModal = () => {
-    setModalOpen(false);
-    setSelectedProduct('');
+  const handleCloseAppointmentModal = () => {
+    setAppointmentModalOpen(false);
+  };
+
+  const handleEventNavigation = () => {
+    if (typeof window.fbq === 'function') {
+      window.fbq('track', 'CTAClick', { button_text: 'Pelajari Fitur Event' });
+    }
+    window.location.href = '/event-management';
   };
 
   const handleFreeTrialRegistration = () => {
@@ -314,9 +318,9 @@ const TabbedPricingSection: React.FC = () => {
                     <Button 
                       size="lg" 
                       className="w-full md:w-auto px-8"
-                      onClick={() => handleOpenModal('Event Management')}
+                      onClick={handleEventNavigation}
                     >
-                      Mulai Buat Event
+                      Pelajari Fitur Event
                     </Button>
                   </div>
                 </CardContent>
@@ -388,9 +392,9 @@ const TabbedPricingSection: React.FC = () => {
                     <Button 
                       size="lg" 
                       className="w-full md:w-auto px-8"
-                      onClick={() => handleOpenModal('Appointment Booking')}
+                      onClick={handleOpenAppointmentModal}
                     >
-                      Mulai Appointment Booking
+                      Mulai Coba Gratis
                     </Button>
                   </div>
                 </CardContent>
@@ -400,9 +404,9 @@ const TabbedPricingSection: React.FC = () => {
         </Tabs>
 
         <ComingSoonModal
-          isOpen={modalOpen}
-          onClose={handleCloseModal}
-          productName={selectedProduct}
+          isOpen={appointmentModalOpen}
+          onClose={handleCloseAppointmentModal}
+          productName="Appointment Booking"
         />
 
         {hasTrialParams() && (
