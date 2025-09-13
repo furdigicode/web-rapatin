@@ -57,10 +57,10 @@ const TabbedPricingSection: React.FC = () => {
         'Tetapkan hingga 99 Co-Host'
       ],
       plans: [
-        { name: '100 Peserta', originalPrice: 20000, promoPrice: 10000, popular: true },
-        { name: '300 Peserta', originalPrice: 40000, promoPrice: 25000 },
-        { name: '500 Peserta', originalPrice: 70000, promoPrice: 55000 },
-        { name: '1000 Peserta', originalPrice: 130000, promoPrice: 100000 }
+        { name: '100 Peserta', originalPrice: 30000, promoPrice: 20000, popular: true },
+        { name: '300 Peserta', originalPrice: 50000, promoPrice: 40000 },
+        { name: '500 Peserta', originalPrice: 80000, promoPrice: 70000 },
+        { name: '1000 Peserta', originalPrice: 160000, promoPrice: 130000 }
       ]
     },
     event: {
