@@ -57,6 +57,8 @@ export const NotificationDialog: React.FC<NotificationDialogProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Enhanced validation
     if (!formData.title.trim()) {
       toast({
         title: 'Error',
@@ -66,21 +68,39 @@ export const NotificationDialog: React.FC<NotificationDialogProps> = ({
       return;
     }
 
+    // Validate URL format if provided
+    if (formData.target_url && formData.target_url.trim()) {
+      const urlPattern = /^(https?:\/\/|\/)/;
+      if (!urlPattern.test(formData.target_url.trim())) {
+        toast({
+          title: 'Error', 
+          description: 'URL tujuan harus dimulai dengan http://, https://, atau /',
+          variant: 'destructive',
+        });
+        return;
+      }
+    }
+
     setLoading(true);
     try {
       checkSessionExpiry();
+
+      const payload = {
+        title: formData.title.trim(),
+        excerpt: formData.excerpt?.trim() || null,
+        category: formData.category?.trim() || null,
+        image_url: formData.image_url?.trim() || null,
+        target_url: formData.target_url?.trim() || '#',
+        notification_type: 'custom'
+      };
+
+      console.log('Saving notification payload:', payload);
 
       if (isEditing) {
         // Update existing notification
         const { error } = await supabase
           .from('article_notifications')
-          .update({
-            title: formData.title,
-            excerpt: formData.excerpt || null,
-            category: formData.category || null,
-            image_url: formData.image_url || null,
-            target_url: formData.target_url || null
-          })
+          .update(payload)
           .eq('id', notification!.id);
 
         if (error) {
@@ -109,12 +129,7 @@ export const NotificationDialog: React.FC<NotificationDialogProps> = ({
           .from('article_notifications')
           .insert({
             blog_post_id: null,
-            title: formData.title,
-            excerpt: formData.excerpt || null,
-            category: formData.category || null,
-            image_url: formData.image_url || null,
-            target_url: formData.target_url || null,
-            notification_type: 'custom'
+            ...payload
           });
 
         if (error) {
@@ -141,10 +156,23 @@ export const NotificationDialog: React.FC<NotificationDialogProps> = ({
 
       onSave();
       onOpenChange(false);
-    } catch (error) {
+    } catch (error: any) {
+      console.error('Full error details:', error);
+      
+      let errorMessage = isEditing ? 'Gagal memperbarui notifikasi' : 'Gagal membuat notifikasi kustom';
+      
+      // Provide more specific error messages
+      if (error?.code === 'PGRST301') {
+        errorMessage = "Permission denied. Please check your admin authentication.";
+      } else if (error?.message?.includes('RLS')) {
+        errorMessage = "Access denied. Please refresh the page and try again.";
+      } else if (error?.message) {
+        errorMessage = error.message;
+      }
+      
       toast({
         title: 'Error',
-        description: isEditing ? 'Gagal memperbarui notifikasi' : 'Gagal membuat notifikasi kustom',
+        description: errorMessage,
         variant: 'destructive'
       });
     } finally {
@@ -212,14 +240,13 @@ export const NotificationDialog: React.FC<NotificationDialogProps> = ({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="target_url">URL Tujuan *</Label>
+            <Label htmlFor="target_url">URL Tujuan</Label>
             <Input
               id="target_url"
               type="url"
               value={formData.target_url}
               onChange={(e) => setFormData(prev => ({ ...prev, target_url: e.target.value }))}
-              placeholder="https://rapatin.id/blog"
-              required
+              placeholder="https://rapatin.id/blog (opsional, default: #)"
             />
           </div>
 
