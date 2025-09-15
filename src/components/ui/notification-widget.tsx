@@ -105,7 +105,7 @@ export const NotificationWidget: React.FC<NotificationWidgetProps> = ({
           <CardContent className="p-0">
             {/* Header */}
             <div className="flex items-center justify-between p-4 border-b border-border">
-              <h3 className="font-semibold text-sm">Artikel</h3>
+              <h3 className="font-semibold text-sm">Informations</h3>
               <div className="flex items-center gap-2">
                 {unreadCount > 0 && (
                   <Button

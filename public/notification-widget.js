@@ -157,15 +157,28 @@
             align-items: center;
           ">
             <h3 style="margin: 0; font-size: 16px; font-weight: 600;">Informations</h3>
-            <button id="close-notifications" style="
-              background: none;
-              border: none;
-              cursor: pointer;
-              color: inherit;
-              font-size: 18px;
-              line-height: 1;
-              padding: 4px;
-            ">&times;</button>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <button id="mark-all-read" style="
+                background: none;
+                border: none;
+                cursor: pointer;
+                color: #3b82f6;
+                font-size: 12px;
+                font-weight: 500;
+                padding: 4px 8px;
+                border-radius: 4px;
+                transition: background-color 0.2s;
+              " onmouseover="this.style.backgroundColor='#f1f5f9'" onmouseout="this.style.backgroundColor='transparent'">Tandai Semua Dibaca</button>
+              <button id="close-notifications" style="
+                background: none;
+                border: none;
+                cursor: pointer;
+                color: inherit;
+                font-size: 18px;
+                line-height: 1;
+                padding: 4px;
+              ">&times;</button>
+            </div>
           </div>
           <div id="notifications-list" style="
             flex: 1;
@@ -516,6 +529,7 @@
     const button = document.getElementById('notification-button');
     const panel = document.getElementById('notification-panel');
     const closeBtn = document.getElementById('close-notifications');
+    const markAllReadBtn = document.getElementById('mark-all-read');
     
     let isOpen = false;
     
@@ -537,12 +551,44 @@
       }
     }
     
+    // Mark all as read functionality
+    async function markAllAsRead() {
+      try {
+        const unreadNotifications = currentNotifications.filter(n => !n.read);
+        if (unreadNotifications.length === 0) return;
+
+        // Mark all as read in database
+        const promises = unreadNotifications.map(notification => 
+          fetch(`${BASE_URL}/mark-notification-read/${notification.id}`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          })
+        );
+
+        await Promise.all(promises);
+
+        // Update local state
+        currentNotifications = currentNotifications.map(n => ({ ...n, read: true }));
+        
+        // Update UI
+        renderNotifications(currentNotifications, config);
+        updateBadge();
+        
+        console.log('All notifications marked as read');
+      } catch (error) {
+        console.error('Error marking all as read:', error);
+      }
+    }
+
     // Event listeners
     button.addEventListener('click', togglePanel);
     closeBtn.addEventListener('click', () => {
       isOpen = false;
       panel.style.display = 'none';
     });
+    markAllReadBtn.addEventListener('click', markAllAsRead);
     
     // Close when clicking outside
     document.addEventListener('click', (e) => {
