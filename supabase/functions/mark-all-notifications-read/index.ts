@@ -44,23 +44,26 @@ serve(async (req) => {
 
     console.log('Marking all notifications as read for user:', { userId, categories });
 
-    // Get all notifications (with optional category filter)
-    let query = supabase
+    // Get notifications that are not already read by this user
+    let notificationQuery = supabase
       .from('article_notifications')
-      .select('id');
+      .select(`
+        id,
+        user_notification_read_status!left(notification_id)
+      `);
     
     if (categories && categories.length > 0) {
-      query = query.in('category', categories);
+      notificationQuery = notificationQuery.in('category', categories);
     }
 
-    const { data: notifications, error: fetchError } = await query;
+    const { data: allNotifications, error: fetchError } = await notificationQuery;
 
     if (fetchError) {
       console.error('Error fetching notifications:', fetchError);
       throw fetchError;
     }
 
-    if (!notifications || notifications.length === 0) {
+    if (!allNotifications || allNotifications.length === 0) {
       return new Response(
         JSON.stringify({ success: true, message: 'No notifications to mark as read' }),
         {
@@ -72,18 +75,35 @@ serve(async (req) => {
       );
     }
 
-    // Create read status records for all notifications
-    const readStatusRecords = notifications.map(notification => ({
+    // Filter out notifications that are already read by this user
+    const unreadNotifications = allNotifications.filter(notification => {
+      const readStatus = notification.user_notification_read_status;
+      return !readStatus || readStatus.length === 0 || !readStatus.some((status: any) => status.notification_id === notification.id);
+    });
+
+    if (unreadNotifications.length === 0) {
+      return new Response(
+        JSON.stringify({ success: true, message: 'No unread notifications to mark as read' }),
+        {
+          headers: { 
+            ...corsHeaders, 
+            'Content-Type': 'application/json' 
+          },
+        }
+      );
+    }
+
+    // Create read status records only for unread notifications
+    const readStatusRecords = unreadNotifications.map(notification => ({
       user_id: userId,
       notification_id: notification.id,
       read_at: new Date().toISOString()
     }));
 
+    // Use INSERT with ON CONFLICT DO NOTHING to prevent duplicates
     const { error } = await supabase
       .from('user_notification_read_status')
-      .upsert(readStatusRecords, {
-        onConflict: 'user_id,notification_id'
-      });
+      .insert(readStatusRecords);
 
     if (error) {
       console.error('Database error:', error);
@@ -93,7 +113,7 @@ serve(async (req) => {
     console.log('Successfully marked all notifications as read for user:', userId);
 
     return new Response(
-      JSON.stringify({ success: true, count: notifications.length }),
+      JSON.stringify({ success: true, count: unreadNotifications.length }),
       {
         headers: { 
           ...corsHeaders, 
