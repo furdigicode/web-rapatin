@@ -156,7 +156,7 @@
             justify-content: space-between;
             align-items: center;
           ">
-            <h3 style="margin: 0; font-size: 16px; font-weight: 600;">Artikel</h3>
+            <h3 style="margin: 0; font-size: 16px; font-weight: 600;">Informations</h3>
             <button id="close-notifications" style="
               background: none;
               border: none;
