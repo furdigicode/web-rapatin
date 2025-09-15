@@ -26,13 +26,18 @@ serve(async (req) => {
     
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Extract notification ID from URL path and body
+    // Extract notification ID from URL path or body
     const url = new URL(req.url);
     const pathParts = url.pathname.split('/');
-    const notificationId = pathParts[pathParts.length - 2]; // Get ID from path like /mark-notification-read/uuid/read
+    let notificationId = pathParts[pathParts.length - 2]; // Get ID from path like /mark-notification-read/uuid/read
     
     const body = await req.json();
     const userId = body.userId || 'anonymous';
+    
+    // If no notification ID in path, try to get it from body
+    if (!notificationId || notificationId === 'mark-notification-read') {
+      notificationId = body.notificationId;
+    }
 
     if (!notificationId) {
       return new Response(

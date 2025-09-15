@@ -41,7 +41,7 @@ export const useNotifications = ({ limit = 10, categories = [] }: UseNotificatio
         params.append('categories', categories.join(','));
       }
 
-      const { data, error } = await supabase.functions.invoke('get-notifications', {
+      const { data, error } = await supabase.functions.invoke(`get-notifications?${params.toString()}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -70,7 +70,8 @@ export const useNotifications = ({ limit = 10, categories = [] }: UseNotificatio
           'Content-Type': 'application/json',
         },
         body: {
-          userId: userId
+          userId: userId,
+          notificationId: notificationId
         }
       });
 
