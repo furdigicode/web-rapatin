@@ -15,11 +15,14 @@ export const useNotifications = ({ limit = 10, categories = [] }: UseNotificatio
   // Calculate unread count
   const unreadCount = notifications.filter(n => !n.read).length;
 
-  // Generate or get user ID for tracking
+  // Generate a consistent user ID for anonymous users using browser fingerprinting
   const getUserId = useCallback(() => {
     let userId = localStorage.getItem('notification_user_id');
     if (!userId) {
-      userId = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      // Create a more stable user ID using browser fingerprinting elements
+      const browserInfo = `${navigator.userAgent}_${navigator.language}_${screen.width}x${screen.height}`;
+      const hash = btoa(browserInfo).replace(/[^a-zA-Z0-9]/g, '').substring(0, 16);
+      userId = `user_${hash}`;
       localStorage.setItem('notification_user_id', userId);
     }
     return userId;
