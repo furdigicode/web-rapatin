@@ -26,17 +26,12 @@ serve(async (req) => {
     
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Extract notification ID from URL path and body
-    const url = new URL(req.url);
-    const pathParts = url.pathname.split('/');
-    const notificationId = pathParts[pathParts.length - 2]; // Get ID from path like /mark-notification-read/uuid/read
-    
     const body = await req.json();
-    const userId = body.userId || 'anonymous';
+    const { userId, categories } = body;
 
-    if (!notificationId) {
+    if (!userId) {
       return new Response(
-        JSON.stringify({ error: 'Notification ID is required' }),
+        JSON.stringify({ error: 'User ID is required' }),
         {
           status: 400,
           headers: { 
@@ -47,16 +42,46 @@ serve(async (req) => {
       );
     }
 
-    console.log('Marking notification as read:', { notificationId, userId });
+    console.log('Marking all notifications as read for user:', { userId, categories });
 
-    // Insert or update user notification read status
+    // Get all notifications (with optional category filter)
+    let query = supabase
+      .from('article_notifications')
+      .select('id');
+    
+    if (categories && categories.length > 0) {
+      query = query.in('category', categories);
+    }
+
+    const { data: notifications, error: fetchError } = await query;
+
+    if (fetchError) {
+      console.error('Error fetching notifications:', fetchError);
+      throw fetchError;
+    }
+
+    if (!notifications || notifications.length === 0) {
+      return new Response(
+        JSON.stringify({ success: true, message: 'No notifications to mark as read' }),
+        {
+          headers: { 
+            ...corsHeaders, 
+            'Content-Type': 'application/json' 
+          },
+        }
+      );
+    }
+
+    // Create read status records for all notifications
+    const readStatusRecords = notifications.map(notification => ({
+      user_id: userId,
+      notification_id: notification.id,
+      read_at: new Date().toISOString()
+    }));
+
     const { error } = await supabase
       .from('user_notification_read_status')
-      .upsert({
-        user_id: userId,
-        notification_id: notificationId,
-        read_at: new Date().toISOString()
-      }, {
+      .upsert(readStatusRecords, {
         onConflict: 'user_id,notification_id'
       });
 
@@ -65,10 +90,10 @@ serve(async (req) => {
       throw error;
     }
 
-    console.log('Successfully marked notification as read:', notificationId);
+    console.log('Successfully marked all notifications as read for user:', userId);
 
     return new Response(
-      JSON.stringify({ success: true }),
+      JSON.stringify({ success: true, count: notifications.length }),
       {
         headers: { 
           ...corsHeaders, 
@@ -78,10 +103,10 @@ serve(async (req) => {
     );
 
   } catch (error) {
-    console.error('Error in mark-notification-read function:', error);
+    console.error('Error in mark-all-notifications-read function:', error);
     return new Response(
       JSON.stringify({ 
-        error: 'Failed to mark notification as read',
+        error: 'Failed to mark all notifications as read',
         details: error.message 
       }), 
       {

@@ -194,11 +194,23 @@
     `;
   }
 
+  // Generate or get user ID for tracking
+  function getUserId() {
+    let userId = localStorage.getItem('notification_user_id');
+    if (!userId) {
+      userId = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      localStorage.setItem('notification_user_id', userId);
+    }
+    return userId;
+  }
+
   // Fetch notifications from API
   async function fetchNotifications(config) {
     try {
+      const userId = getUserId();
       const params = new URLSearchParams({
-        limit: config.limit.toString()
+        limit: config.limit.toString(),
+        userId: userId
       });
       
       if (config.categories) {
@@ -340,9 +352,24 @@
   // Mark notification as read
   async function markAsRead(notificationId) {
     try {
-      await fetch(`${BASE_URL}/mark-notification-read/${notificationId}/read`, {
-        method: 'POST'
+      const userId = getUserId();
+      const response = await fetch(`${BASE_URL}/mark-notification-read/${notificationId}/read`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userId })
       });
+
+      if (response.ok) {
+        // Update local state
+        const notification = currentNotifications.find(n => n.id === notificationId);
+        if (notification) {
+          notification.read = true;
+          updateBadge();
+          renderNotifications(currentNotifications, widgetConfig);
+        }
+      }
     } catch (error) {
       console.error('Error marking notification as read:', error);
     }
@@ -560,26 +587,28 @@
         const unreadNotifications = currentNotifications.filter(n => !n.read);
         if (unreadNotifications.length === 0) return;
 
-        // Mark all as read in database
-        const promises = unreadNotifications.map(notification => 
-          fetch(`${BASE_URL}/mark-notification-read/${notification.id}`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            }
+        const userId = getUserId();
+        const response = await fetch(`${BASE_URL}/mark-all-notifications-read`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ 
+            userId,
+            categories: config.categories ? config.categories.split(',') : undefined
           })
-        );
+        });
 
-        await Promise.all(promises);
-
-        // Update local state
-        currentNotifications = currentNotifications.map(n => ({ ...n, read: true }));
-        
-        // Update UI
-        renderNotifications(currentNotifications, config);
-        updateBadge();
-        
-        console.log('All notifications marked as read');
+        if (response.ok) {
+          // Update local state
+          currentNotifications = currentNotifications.map(n => ({ ...n, read: true }));
+          
+          // Update UI
+          renderNotifications(currentNotifications, config);
+          updateBadge();
+          
+          console.log('All notifications marked as read');
+        }
       } catch (error) {
         console.error('Error marking all as read:', error);
       }

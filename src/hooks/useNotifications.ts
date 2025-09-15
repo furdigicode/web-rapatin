@@ -15,28 +15,40 @@ export const useNotifications = ({ limit = 10, categories = [] }: UseNotificatio
   // Calculate unread count
   const unreadCount = notifications.filter(n => !n.read).length;
 
+  // Generate or get user ID for tracking
+  const getUserId = useCallback(() => {
+    let userId = localStorage.getItem('notification_user_id');
+    if (!userId) {
+      userId = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      localStorage.setItem('notification_user_id', userId);
+    }
+    return userId;
+  }, []);
+
   // Fetch notifications
   const fetchNotifications = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
 
-      let query = supabase
-        .from('article_notifications')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(limit);
+      const userId = getUserId();
+      const params = new URLSearchParams({
+        limit: limit.toString(),
+        userId: userId,
+      });
 
-      // Filter by categories if provided
       if (categories.length > 0) {
-        query = query.in('category', categories);
+        params.append('categories', categories.join(','));
       }
 
-      const { data, error: fetchError } = await query;
+      const { data, error } = await supabase.functions.invoke('get-notifications', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
 
-      if (fetchError) {
-        throw fetchError;
-      }
+      if (error) throw error;
 
       setNotifications(data || []);
     } catch (err) {
@@ -45,19 +57,24 @@ export const useNotifications = ({ limit = 10, categories = [] }: UseNotificatio
     } finally {
       setLoading(false);
     }
-  }, [limit, categories]);
+  }, [limit, categories, getUserId]);
 
   // Mark notification as read
   const markAsRead = useCallback(async (notificationId: string) => {
     try {
-      const { error } = await supabase
-        .from('article_notifications')
-        .update({ read: true })
-        .eq('id', notificationId);
+      const userId = getUserId();
+      
+      const { error } = await supabase.functions.invoke('mark-notification-read', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: {
+          userId: userId
+        }
+      });
 
-      if (error) {
-        throw error;
-      }
+      if (error) throw error;
 
       // Update local state
       setNotifications(prev => 
@@ -70,23 +87,25 @@ export const useNotifications = ({ limit = 10, categories = [] }: UseNotificatio
     } catch (err) {
       console.error('Error marking notification as read:', err);
     }
-  }, []);
+  }, [getUserId]);
 
   // Mark all notifications as read
   const markAllAsRead = useCallback(async () => {
     try {
-      const unreadIds = notifications.filter(n => !n.read).map(n => n.id);
+      const userId = getUserId();
       
-      if (unreadIds.length === 0) return;
+      const { error } = await supabase.functions.invoke('mark-all-notifications-read', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: {
+          userId: userId,
+          categories: categories.length > 0 ? categories : undefined
+        }
+      });
 
-      const { error } = await supabase
-        .from('article_notifications')
-        .update({ read: true })
-        .in('id', unreadIds);
-
-      if (error) {
-        throw error;
-      }
+      if (error) throw error;
 
       // Update local state
       setNotifications(prev => 
@@ -95,7 +114,7 @@ export const useNotifications = ({ limit = 10, categories = [] }: UseNotificatio
     } catch (err) {
       console.error('Error marking all notifications as read:', err);
     }
-  }, [notifications]);
+  }, [getUserId, categories]);
 
   // Set up real-time subscription
   useEffect(() => {

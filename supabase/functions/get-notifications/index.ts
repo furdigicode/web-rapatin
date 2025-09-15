@@ -23,18 +23,25 @@ serve(async (req) => {
     const url = new URL(req.url);
     const limit = parseInt(url.searchParams.get('limit') || '10');
     const categories = url.searchParams.get('categories');
+    const userId = url.searchParams.get('userId') || 'anonymous';
 
-    console.log('Fetching notifications with params:', { limit, categories });
+    console.log('Fetching notifications with params:', { limit, categories, userId });
 
-    // Build query with left join to get blog post slug (includes custom notifications)
+    // Build query with left join to get blog post slug and user read status
     let query = supabase
       .from('article_notifications')
       .select(`
         *,
-        blog_posts(slug)
+        blog_posts(slug),
+        user_notification_read_status!left(read_at)
       `)
       .order('created_at', { ascending: false })
       .limit(limit);
+
+    // Filter user read status by user_id
+    if (userId) {
+      query = query.eq('user_notification_read_status.user_id', userId);
+    }
 
     // Filter by categories if provided
     if (categories) {
@@ -53,7 +60,13 @@ serve(async (req) => {
 
     console.log('Fetched notifications:', notifications?.length || 0);
 
-    return new Response(JSON.stringify(notifications || []), {
+    // Transform notifications to include read status
+    const transformedNotifications = notifications?.map(notification => ({
+      ...notification,
+      read: notification.user_notification_read_status?.length > 0
+    })) || [];
+
+    return new Response(JSON.stringify(transformedNotifications), {
       headers: { 
         ...corsHeaders, 
         'Content-Type': 'application/json' 
