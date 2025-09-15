@@ -468,6 +468,7 @@
   // Update badge based on current notifications
   function updateBadge() {
     const badgeElement = document.getElementById('notification-badge');
+    const markAllReadBtn = document.getElementById('mark-all-read');
     if (!badgeElement) return;
     
     const unreadCount = currentNotifications.filter(n => !n.read).length;
@@ -475,8 +476,10 @@
     if (unreadCount > 0) {
       badgeElement.textContent = unreadCount > 99 ? '99+' : unreadCount.toString();
       badgeElement.style.display = 'flex';
+      if (markAllReadBtn) markAllReadBtn.style.display = 'block';
     } else {
       badgeElement.style.display = 'none';
+      if (markAllReadBtn) markAllReadBtn.style.display = 'none';
     }
   }
 
