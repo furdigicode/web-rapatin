@@ -182,7 +182,7 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
     <div
       className={cn(
         'p-4 hover:bg-muted/50 transition-all duration-200 cursor-pointer',
-        !notification.read ? 'bg-primary/5 border-l-4 border-l-primary' : 'opacity-60 bg-muted/20'
+        !notification.read && 'bg-primary/5 border-l-4 border-l-primary'
       )}
       onClick={() => {
         // Mark as read for all notification types
@@ -203,7 +203,7 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
           <div className="flex items-start justify-between gap-2">
             <h4 className={cn(
               'text-sm font-medium line-clamp-2',
-              !notification.read ? 'font-semibold' : 'text-muted-foreground'
+              !notification.read && 'font-semibold'
             )}>
               {notification.title}
             </h4>
@@ -213,10 +213,7 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
           </div>
 
           {notification.excerpt && (
-            <p className={cn(
-              'text-xs mt-1 line-clamp-2',
-              notification.read ? 'text-muted-foreground/70' : 'text-muted-foreground'
-            )}>
+            <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
               {notification.excerpt}
             </p>
           )}
