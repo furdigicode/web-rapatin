@@ -260,8 +260,11 @@
           padding: 16px;
           border-bottom: 1px solid ${config.theme === 'dark' ? '#333' : '#f0f0f0'};
           cursor: pointer;
-          transition: background-color 0.2s ease;
-          ${!notification.read ? 'background-color: rgba(59, 130, 246, 0.05); border-left: 4px solid #3b82f6;' : ''}
+          transition: all 0.2s ease;
+          ${!notification.read ? 
+            'background-color: rgba(59, 130, 246, 0.05); border-left: 4px solid hsl(196, 80%, 45%);' : 
+            'opacity: 0.6; background-color: rgba(0, 0, 0, 0.02);'
+          }
         ">
           <div style="display: flex; gap: 12px;">
             <div style="flex: 1; min-width: 0;">
@@ -275,14 +278,15 @@
                   display: -webkit-box;
                   -webkit-line-clamp: 2;
                   -webkit-box-orient: vertical;
+                  color: ${notification.read ? '#888' : 'inherit'};
                 ">${notification.title}</h4>
-                ${!notification.read ? '<div style="width: 8px; height: 8px; background: #3b82f6; border-radius: 50%; flex-shrink: 0; margin-top: 2px;"></div>' : ''}
+                ${!notification.read ? '<div style="width: 8px; height: 8px; background: hsl(196, 80%, 45%); border-radius: 50%; flex-shrink: 0; margin-top: 2px;"></div>' : ''}
               </div>
               ${notification.excerpt ? `
                 <p style="
                   margin: 4px 0;
                   font-size: 12px;
-                  color: #666;
+                  color: ${notification.read ? '#aaa' : '#666'};
                   line-height: 1.4;
                   overflow: hidden;
                   display: -webkit-box;
@@ -334,8 +338,8 @@
 
   // Handle notification click
   function handleNotificationClick(notification, config) {
-    // Only mark as read for non-custom notifications
-    if (!notification.read && notification.notification_type !== 'custom') {
+    // Mark as read for all notification types
+    if (!notification.read) {
       markAsRead(notification.id);
     }
 
