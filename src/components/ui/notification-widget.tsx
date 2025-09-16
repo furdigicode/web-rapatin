@@ -189,10 +189,15 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
         if (!notification.read) {
           onMarkAsRead(notification.id);
         }
-        // Navigate based on notification type
-        if (notification.notification_type === 'custom' && notification.target_url) {
-          window.open(notification.target_url, '_blank');
-        } else if (notification.blog_post_id) {
+        // Navigate using target_url if available, fallback to relative path
+        if (notification.target_url) {
+          if (notification.target_url.startsWith('http')) {
+            window.open(notification.target_url, '_blank');
+          } else {
+            window.location.href = notification.target_url;
+          }
+        } else {
+          // Fallback for older notifications without target_url
           window.open(`/blog/${notification.blog_post_id}`, '_blank');
         }
       }}

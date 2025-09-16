@@ -38,7 +38,6 @@
       theme: script.dataset.theme || 'auto',
       autoHide: script.dataset.autoHide === 'true',
       autoHideDelay: parseInt(script.dataset.autoHideDelay || '5000'),
-      blogBaseUrl: script.dataset.blogBaseUrl || 'https://324d0fc3-9056-4d88-b33e-7111454bd4a6.lovableproject.com',
       realtime: script.dataset.realtime !== 'false' // enabled by default
     };
   }
@@ -340,13 +339,17 @@
       markAsRead(notification.id);
     }
 
-    // Navigate based on notification type
-    if (notification.notification_type === 'custom' && notification.target_url) {
-      window.open(notification.target_url, '_blank');
-    } else if (notification.blog_post_id) {
+    // Navigate using target_url if available, fallback to relative path
+    if (notification.target_url) {
+      if (notification.target_url.startsWith('http')) {
+        window.open(notification.target_url, '_blank');
+      } else {
+        window.location.href = notification.target_url;
+      }
+    } else {
+      // Fallback for older notifications without target_url
       const slug = notification.blog_posts?.slug || notification.blog_post_id;
-      const blogUrl = `${config.blogBaseUrl}/blog/${slug}`;
-      window.open(blogUrl, '_blank');
+      window.open(`/blog/${slug}`, '_blank');
     }
   }
 
