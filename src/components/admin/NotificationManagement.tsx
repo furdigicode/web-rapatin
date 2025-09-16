@@ -30,8 +30,7 @@ export const NotificationManagement: React.FC<NotificationManagementProps> = ({ 
     theme: 'auto' as const,
     limit: 5,
     autoHide: false,
-    realtime: true,
-    blogBaseUrl: 'https://rapatin.id'
+    realtime: true
   });
 
   // Dialog state
@@ -181,7 +180,6 @@ export const NotificationManagement: React.FC<NotificationManagementProps> = ({ 
   data-theme="${previewConfig.theme}"
   data-auto-hide="${previewConfig.autoHide}"
   data-realtime="${previewConfig.realtime}"
-  data-blog-base-url="${previewConfig.blogBaseUrl}"
 ></script>`;
 
   const jsApiCode = `// JavaScript API Usage
@@ -191,7 +189,6 @@ window.BlogNotificationWidget.init({
   theme: '${previewConfig.theme}',
   autoHide: ${previewConfig.autoHide},
   realtime: ${previewConfig.realtime},
-  blogBaseUrl: '${previewConfig.blogBaseUrl}',
   categories: 'teknologi,bisnis' // Optional category filter
 });`;
 
@@ -362,16 +359,6 @@ window.BlogNotificationWidget.init({
                   />
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="blogBaseUrl">Blog Base URL</Label>
-                  <Input
-                    id="blogBaseUrl"
-                    type="url"
-                    value={previewConfig.blogBaseUrl}
-                    onChange={(e) => setPreviewConfig(prev => ({ ...prev, blogBaseUrl: e.target.value }))}
-                    placeholder="https://rapatin.id"
-                  />
-                </div>
 
                 <div className="flex items-center space-x-2">
                   <Switch
