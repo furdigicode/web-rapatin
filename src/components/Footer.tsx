@@ -26,16 +26,16 @@ const Footer: React.FC = () => {
               Platform terlengkap untuk semua kebutuhan penjadwalan Anda. Kelola meeting, event, dan appointment dalam satu tempat dengan sistem bayar sesuai pakai tanpa komitmen berlangganan.
             </p>
             <div className="flex space-x-4">
-              <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
+              <a href="https://instagram.com/rapatin.id" className="text-muted-foreground hover:text-primary transition-colors">
                 <Instagram size={20} />
               </a>
-              <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
+              <a href="https://facebook.com/rapatin.id" className="text-muted-foreground hover:text-primary transition-colors">
                 <Facebook size={20} />
               </a>
               <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
                 <Twitter size={20} />
               </a>
-              <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
+              <a href="mailto:admin@rapatin.id" className="text-muted-foreground hover:text-primary transition-colors">
                 <Mail size={20} />
               </a>
             </div>
