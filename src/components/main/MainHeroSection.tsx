@@ -121,6 +121,15 @@ const MainHeroSection: React.FC = () => {
                     <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
                       <div className="flex items-center justify-center h-14 grayscale hover:grayscale-0 transition-all duration-300">
                         <img
+                          src="https://santosha.id/assets/images/nav_logo.webp"
+                          alt="Santosha"
+                          className="h-10 object-contain opacity-70 hover:opacity-100"
+                        />
+                      </div>
+                    </CarouselItem>
+                    <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
+                      <div className="flex items-center justify-center h-14 grayscale hover:grayscale-0 transition-all duration-300">
+                        <img
                           src="/lovable-uploads/6727be9b-ee09-4c6d-adfe-11182325799c.png"
                           alt="Papaya"
                           className="h-10 object-contain opacity-70 hover:opacity-100"
@@ -195,7 +204,7 @@ const MainHeroSection: React.FC = () => {
                         <img
                           src="https://mepznzrijuoyvjcmkspf.supabase.co/storage/v1/object/public/brands/logo-ges-horizontal.webp"
                           alt="Ganeca"
-                          className="h-14 object-contain opacity-70 hover:opacity-100"
+                          className="h-16 object-contain opacity-70 hover:opacity-100"
                         />
                       </div>
                     </CarouselItem>
