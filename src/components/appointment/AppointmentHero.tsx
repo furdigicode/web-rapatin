@@ -1,11 +1,18 @@
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Calendar, CreditCard, Video, Clock } from 'lucide-react';
+import { Carousel, CarouselContent, CarouselItem } from '@/components/ui/carousel';
+import Autoplay from 'embla-carousel-autoplay';
 import FreeTrialModal from '@/components/ui/free-trial-modal';
 import { hasTrialParams } from '@/hooks/useURLParams';
 
 const AppointmentHero: React.FC = () => {
   const [modalOpen, setModalOpen] = useState(false);
+  
+  const autoplay = React.useMemo(
+    () => Autoplay({ delay: 2000, stopOnInteraction: true }),
+    []
+  );
 
   const handleRegistration = () => {
     if (typeof window.fbq === 'function') {
@@ -68,6 +75,139 @@ const AppointmentHero: React.FC = () => {
               loading="lazy"
             />
           </div>
+        </div>
+
+        {/* Brand Carousel Section */}
+        <div className="mt-16 mb-8">
+          <h3 className="text-center text-lg font-medium text-muted-foreground mb-8">
+            Dipercaya oleh 600+ perusahaan di Indonesia
+          </h3>
+          <Carousel
+            plugins={[autoplay]}
+            className="w-full max-w-6xl mx-auto"
+            onMouseEnter={() => autoplay.stop()}
+            onMouseLeave={() => autoplay.reset()}
+          >
+            <CarouselContent className="-ml-1">
+              <CarouselItem className="pl-1 basis-1/3 md:basis-1/6">
+                <div className="flex items-center justify-center h-16 px-4">
+                  <img 
+                    src="/lovable-uploads/edbf847f-3513-412d-954a-41d6319fbaf2.png" 
+                    alt="PT Waskita Karya" 
+                    className="h-12 object-contain grayscale hover:grayscale-0 transition-all duration-300 opacity-60 hover:opacity-100"
+                  />
+                </div>
+              </CarouselItem>
+              <CarouselItem className="pl-1 basis-1/3 md:basis-1/6">
+                <div className="flex items-center justify-center h-16 px-4">
+                  <img 
+                    src="/lovable-uploads/60fca5a0-b0eb-4219-b6e6-a27578d426b8.png" 
+                    alt="PT Kereta Api Indonesia" 
+                    className="h-12 object-contain grayscale hover:grayscale-0 transition-all duration-300 opacity-60 hover:opacity-100"
+                  />
+                </div>
+              </CarouselItem>
+              <CarouselItem className="pl-1 basis-1/3 md:basis-1/6">
+                <div className="flex items-center justify-center h-16 px-4">
+                  <img 
+                    src="/lovable-uploads/b85c0fd2-b1c7-4ba8-8938-bf1ac3bdeb28.png" 
+                    alt="Komunitas Muslimah" 
+                    className="h-12 object-contain grayscale hover:grayscale-0 transition-all duration-300 opacity-60 hover:opacity-100"
+                  />
+                </div>
+              </CarouselItem>
+              <CarouselItem className="pl-1 basis-1/3 md:basis-1/6">
+                <div className="flex items-center justify-center h-16 px-4">
+                  <img 
+                    src="/lovable-uploads/f9d05e48-8991-48c0-a45c-a0d34484ac7b.png" 
+                    alt="KOTA TANGERANG" 
+                    className="h-12 object-contain grayscale hover:grayscale-0 transition-all duration-300 opacity-60 hover:opacity-100"
+                  />
+                </div>
+              </CarouselItem>
+              <CarouselItem className="pl-1 basis-1/3 md:basis-1/6">
+                <div className="flex items-center justify-center h-16 px-4">
+                  <img 
+                    src="/lovable-uploads/90dcfcfe-cb9e-46e1-88a3-5cf6472dd222.png" 
+                    alt="Ponpes Gontor" 
+                    className="h-12 object-contain grayscale hover:grayscale-0 transition-all duration-300 opacity-60 hover:opacity-100"
+                  />
+                </div>
+              </CarouselItem>
+              <CarouselItem className="pl-1 basis-1/3 md:basis-1/6">
+                <div className="flex items-center justify-center h-16 px-4">
+                  <img 
+                    src="/lovable-uploads/1de3e82f-cc87-4981-8265-c0756628d701.png" 
+                    alt="Brawijaya" 
+                    className="h-12 object-contain grayscale hover:grayscale-0 transition-all duration-300 opacity-60 hover:opacity-100"
+                  />
+                </div>
+              </CarouselItem>
+              <CarouselItem className="pl-1 basis-1/3 md:basis-1/6">
+                <div className="flex items-center justify-center h-16 px-4">
+                  <img 
+                    src="/lovable-uploads/3789d5f7-4d81-4aef-93f6-e31f8546d541.png" 
+                    alt="USG" 
+                    className="h-12 object-contain grayscale hover:grayscale-0 transition-all duration-300 opacity-60 hover:opacity-100"
+                  />
+                </div>
+              </CarouselItem>
+              <CarouselItem className="pl-1 basis-1/3 md:basis-1/6">
+                <div className="flex items-center justify-center h-16 px-4">
+                  <img 
+                    src="/lovable-uploads/75085a74-99ab-4c7a-bb7f-9aa9fc2559a6.png" 
+                    alt="Pesantren Modern Ummul Quro" 
+                    className="h-12 object-contain grayscale hover:grayscale-0 transition-all duration-300 opacity-60 hover:opacity-100"
+                  />
+                </div>
+              </CarouselItem>
+              <CarouselItem className="pl-1 basis-1/3 md:basis-1/6">
+                <div className="flex items-center justify-center h-16 px-4">
+                  <img 
+                    src="/lovable-uploads/54aa59cb-5574-4e7e-b296-cfd84c43473b.png" 
+                    alt="Ruangguru" 
+                    className="h-12 object-contain grayscale hover:grayscale-0 transition-all duration-300 opacity-60 hover:opacity-100"
+                  />
+                </div>
+              </CarouselItem>
+              <CarouselItem className="pl-1 basis-1/3 md:basis-1/6">
+                <div className="flex items-center justify-center h-16 px-4">
+                  <img 
+                    src="/lovable-uploads/6727be9b-ee09-4c6d-adfe-11182325799c.png" 
+                    alt="Indika" 
+                    className="h-12 object-contain grayscale hover:grayscale-0 transition-all duration-300 opacity-60 hover:opacity-100"
+                  />
+                </div>
+              </CarouselItem>
+              <CarouselItem className="pl-1 basis-1/3 md:basis-1/6">
+                <div className="flex items-center justify-center h-16 px-4">
+                  <img 
+                    src="/lovable-uploads/2daea350-0851-4dd8-8f79-ee07aaaad905.png" 
+                    alt="Wiseco" 
+                    className="h-12 object-contain grayscale hover:grayscale-0 transition-all duration-300 opacity-60 hover:opacity-100"
+                  />
+                </div>
+              </CarouselItem>
+              <CarouselItem className="pl-1 basis-1/3 md:basis-1/6">
+                <div className="flex items-center justify-center h-16 px-4">
+                  <img 
+                    src="/lovable-uploads/c64ceec2-7c79-4671-912e-b179358001aa.png" 
+                    alt="iWakaf" 
+                    className="h-12 object-contain grayscale hover:grayscale-0 transition-all duration-300 opacity-60 hover:opacity-100"
+                  />
+                </div>
+              </CarouselItem>
+              <CarouselItem className="pl-1 basis-1/3 md:basis-1/6">
+                <div className="flex items-center justify-center h-16 px-4">
+                  <img 
+                    src="/lovable-uploads/22bcf4c0-f0a4-46c1-b090-c9832ecc1a3b.png" 
+                    alt="Ganeca" 
+                    className="h-16 object-contain grayscale hover:grayscale-0 transition-all duration-300 opacity-60 hover:opacity-100"
+                  />
+                </div>
+              </CarouselItem>
+            </CarouselContent>
+          </Carousel>
         </div>
       </section>
 
