@@ -139,6 +139,15 @@ const MainHeroSection: React.FC = () => {
                     <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
                       <div className="flex items-center justify-center h-14 grayscale hover:grayscale-0 transition-all duration-300">
                         <img
+                          src="https://eventkami.id/wp-content/uploads/2023/01/Logo-EVENTKAMI-ID.png"
+                          alt="Eventkami"
+                          className="h-10 object-contain opacity-70 hover:opacity-100"
+                        />
+                      </div>
+                    </CarouselItem>
+                    <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
+                      <div className="flex items-center justify-center h-14 grayscale hover:grayscale-0 transition-all duration-300">
+                        <img
                           src="https://wiseco.id/site/assets/images/logo_h.png"
                           alt="Wiseco"
                           className="h-10 object-contain opacity-70 hover:opacity-100"
@@ -150,7 +159,7 @@ const MainHeroSection: React.FC = () => {
                         <img
                           src="https://iwakaf.or.id/_next/image?url=%2Fassets%2Fimages%2Flogo%2FLogoIwakaf.png&w=256&q=75"
                           alt="iWakaf"
-                          className="h-10 object-contain opacity-70 hover:opacity-100"
+                          className="h-14 object-contain opacity-70 hover:opacity-100"
                         />
                       </div>
                     </CarouselItem>
@@ -213,7 +222,7 @@ const MainHeroSection: React.FC = () => {
                         <img
                           src="https://mepznzrijuoyvjcmkspf.supabase.co/storage/v1/object/public/brands/logo-ges-horizontal.webp"
                           alt="Ganeca"
-                          className="h-10 object-contain opacity-70 hover:opacity-100"
+                          className="h-14 object-contain opacity-70 hover:opacity-100"
                         />
                       </div>
                     </CarouselItem>
