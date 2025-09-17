@@ -139,15 +139,6 @@ const MainHeroSection: React.FC = () => {
                     <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
                       <div className="flex items-center justify-center h-14 grayscale hover:grayscale-0 transition-all duration-300">
                         <img
-                          src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ3J184tP-Q3PXKiYgFZyl7x1xL623nNh2qIA&s"
-                          alt="Nominatix"
-                          className="h-10 object-contain opacity-70 hover:opacity-100"
-                        />
-                      </div>
-                    </CarouselItem>
-                    <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
-                      <div className="flex items-center justify-center h-14 grayscale hover:grayscale-0 transition-all duration-300">
-                        <img
                           src="https://wiseco.id/site/assets/images/logo_h.png"
                           alt="Wiseco"
                           className="h-10 object-contain opacity-70 hover:opacity-100"
