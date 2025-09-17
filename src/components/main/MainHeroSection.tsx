@@ -139,8 +139,8 @@ const MainHeroSection: React.FC = () => {
                     <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
                       <div className="flex items-center justify-center h-14 grayscale hover:grayscale-0 transition-all duration-300">
                         <img
-                          src="https://eventkami.id/wp-content/uploads/2023/01/Logo-EVENTKAMI-ID.png"
-                          alt="Eventkami"
+                          src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ3J184tP-Q3PXKiYgFZyl7x1xL623nNh2qIA&s"
+                          alt="Nominatix"
                           className="h-10 object-contain opacity-70 hover:opacity-100"
                         />
                       </div>
