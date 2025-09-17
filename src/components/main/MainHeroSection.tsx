@@ -114,7 +114,7 @@ const MainHeroSection: React.FC = () => {
                         <img
                           src="/lovable-uploads/e690e2b8-f08c-4ae8-b42e-6754404ab3c1.png"
                           alt="Halodoc"
-                          className="h-12 object-contain opacity-70 hover:opacity-100"
+                          className="h-10 object-contain opacity-70 hover:opacity-100"
                         />
                       </div>
                     </CarouselItem>
@@ -123,7 +123,7 @@ const MainHeroSection: React.FC = () => {
                         <img
                           src="/lovable-uploads/6727be9b-ee09-4c6d-adfe-11182325799c.png"
                           alt="Papaya"
-                          className="h-12 object-contain opacity-70 hover:opacity-100"
+                          className="h-10 object-contain opacity-70 hover:opacity-100"
                         />
                       </div>
                     </CarouselItem>
@@ -132,7 +132,7 @@ const MainHeroSection: React.FC = () => {
                         <img
                           src="/lovable-uploads/f9d05e48-8991-48c0-a45c-a0d34484ac7b.png"
                           alt="FHP Law School"
-                          className="h-12 object-contain opacity-70 hover:opacity-100"
+                          className="h-10 object-contain opacity-70 hover:opacity-100"
                         />
                       </div>
                     </CarouselItem>
@@ -141,7 +141,7 @@ const MainHeroSection: React.FC = () => {
                         <img
                           src="/lovable-uploads/23a924a5-b5a4-4809-83db-42ea8ae871b7.png"
                           alt="JMKP"
-                          className="h-12 object-contain opacity-70 hover:opacity-100"
+                          className="h-10 object-contain opacity-70 hover:opacity-100"
                         />
                       </div>
                     </CarouselItem>
@@ -150,7 +150,7 @@ const MainHeroSection: React.FC = () => {
                         <img
                           src="https://citraurbana.com/wp-content/uploads/2024/03/logo-horizontal-500.svg"
                           alt="Citra Urbana"
-                          className="h-12 object-contain opacity-70 hover:opacity-100"
+                          className="h-10 object-contain opacity-70 hover:opacity-100"
                         />
                       </div>
                     </CarouselItem>
@@ -159,7 +159,7 @@ const MainHeroSection: React.FC = () => {
                         <img
                           src="/lovable-uploads/3789d5f7-4d81-4aef-93f6-e31f8546d541.png"
                           alt="APKEPI"
-                          className="h-12 object-contain opacity-70 hover:opacity-100"
+                          className="h-10 object-contain opacity-70 hover:opacity-100"
                         />
                       </div>
                     </CarouselItem>
@@ -168,7 +168,7 @@ const MainHeroSection: React.FC = () => {
                         <img
                           src="/lovable-uploads/75085a74-99ab-4c7a-bb7f-9aa9fc2559a6.png"
                           alt="ISO Jepang"
-                          className="h-12 object-contain opacity-70 hover:opacity-100"
+                          className="h-10 object-contain opacity-70 hover:opacity-100"
                         />
                       </div>
                     </CarouselItem>
@@ -177,7 +177,7 @@ const MainHeroSection: React.FC = () => {
                         <img
                           src="/lovable-uploads/22bcf4c0-f0a4-46c1-b090-c9832ecc1a3b.png"
                           alt="Universitas Bung Hatta"
-                          className="h-12 object-contain opacity-70 hover:opacity-100"
+                          className="h-10 object-contain opacity-70 hover:opacity-100"
                         />
                       </div>
                     </CarouselItem>
@@ -186,7 +186,7 @@ const MainHeroSection: React.FC = () => {
                         <img
                           src="/lovable-uploads/1de3e82f-cc87-4981-8265-c0756628d701.png"
                           alt="DigiCode"
-                          className="h-12 object-contain opacity-70 hover:opacity-100"
+                          className="h-10 object-contain opacity-70 hover:opacity-100"
                         />
                       </div>
                     </CarouselItem>
@@ -195,7 +195,7 @@ const MainHeroSection: React.FC = () => {
                         <img
                           src="https://mepznzrijuoyvjcmkspf.supabase.co/storage/v1/object/public/brands/logo-ges-horizontal.webp"
                           alt="Ganeca"
-                          className="h-12 object-contain opacity-70 hover:opacity-100"
+                          className="h-10 object-contain opacity-70 hover:opacity-100"
                         />
                       </div>
                     </CarouselItem>
