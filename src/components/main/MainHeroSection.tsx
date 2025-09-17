@@ -132,7 +132,7 @@ const MainHeroSection: React.FC = () => {
                         <img
                           src="https://images.glints.com/unsafe/glints-dashboard.oss-ap-southeast-1.aliyuncs.com/company-logo/764d6126c335fa457abe4d273e273eb7.png"
                           alt="Swarna"
-                          className="h-10 object-contain opacity-70 hover:opacity-100"
+                          className="h-14 object-contain opacity-70 hover:opacity-100"
                         />
                       </div>
                     </CarouselItem>
@@ -195,6 +195,15 @@ const MainHeroSection: React.FC = () => {
                         <img
                           src="https://mepznzrijuoyvjcmkspf.supabase.co/storage/v1/object/public/brands/logo-ges-horizontal.webp"
                           alt="Ganeca"
+                          className="h-14 object-contain opacity-70 hover:opacity-100"
+                        />
+                      </div>
+                    </CarouselItem>
+                    <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
+                      <div className="flex items-center justify-center h-14 grayscale hover:grayscale-0 transition-all duration-300">
+                        <img
+                          src="https://bikinkaryapustaka.web.id/wp-content/uploads/2025/05/Logo-BikinKarya.png"
+                          alt="BikinKarya"
                           className="h-10 object-contain opacity-70 hover:opacity-100"
                         />
                       </div>
