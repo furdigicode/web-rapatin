@@ -121,8 +121,8 @@ const MainHeroSection: React.FC = () => {
                     <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
                       <div className="flex items-center justify-center h-14 grayscale hover:grayscale-0 transition-all duration-300">
                         <img
-                          src="https://santosha.id/assets/images/nav_logo.webp"
-                          alt="Santosha"
+                          src="https://cdn-web-2.ruangguru.com/landing-pages/assets/hs/OPTIMIZE/logo%20rg.svg"
+                          alt="Ruangguru"
                           className="h-10 object-contain opacity-70 hover:opacity-100"
                         />
                       </div>
@@ -130,8 +130,8 @@ const MainHeroSection: React.FC = () => {
                     <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
                       <div className="flex items-center justify-center h-14 grayscale hover:grayscale-0 transition-all duration-300">
                         <img
-                          src="/lovable-uploads/6727be9b-ee09-4c6d-adfe-11182325799c.png"
-                          alt="Papaya"
+                          src="https://indikafoundation.org/assets/logo-if-blue.png"
+                          alt="Indika"
                           className="h-10 object-contain opacity-70 hover:opacity-100"
                         />
                       </div>
@@ -141,7 +141,7 @@ const MainHeroSection: React.FC = () => {
                         <img
                           src="https://images.glints.com/unsafe/glints-dashboard.oss-ap-southeast-1.aliyuncs.com/company-logo/764d6126c335fa457abe4d273e273eb7.png"
                           alt="Swarna"
-                          className="h-14 object-contain opacity-70 hover:opacity-100"
+                          className="h-10 object-contain opacity-70 hover:opacity-100"
                         />
                       </div>
                     </CarouselItem>
@@ -204,15 +204,6 @@ const MainHeroSection: React.FC = () => {
                         <img
                           src="https://mepznzrijuoyvjcmkspf.supabase.co/storage/v1/object/public/brands/logo-ges-horizontal.webp"
                           alt="Ganeca"
-                          className="h-16 object-contain opacity-70 hover:opacity-100"
-                        />
-                      </div>
-                    </CarouselItem>
-                    <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
-                      <div className="flex items-center justify-center h-14 grayscale hover:grayscale-0 transition-all duration-300">
-                        <img
-                          src="https://bikinkaryapustaka.web.id/wp-content/uploads/2025/05/Logo-BikinKarya.png"
-                          alt="BikinKarya"
                           className="h-10 object-contain opacity-70 hover:opacity-100"
                         />
                       </div>
