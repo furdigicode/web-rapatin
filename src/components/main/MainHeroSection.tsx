@@ -194,8 +194,8 @@ const MainHeroSection: React.FC = () => {
                       <div className="flex items-center justify-center h-12 grayscale hover:grayscale-0 transition-all duration-300">
                         <img
                           src="https://mepznzrijuoyvjcmkspf.supabase.co/storage/v1/object/public/brands/logo-ges-horizontal.webp"
-                          alt="DigiCode"
-                          className="h-8 object-contain opacity-70 hover:opacity-100"
+                          alt="Ganeca"
+                          className="h-12 object-contain opacity-70 hover:opacity-100"
                         />
                       </div>
                     </CarouselItem>
