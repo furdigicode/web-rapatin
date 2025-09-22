@@ -233,7 +233,6 @@ CONTENT DEPTH GUIDELINES:
         console.log('Max attempts reached for OpenAI. Proceeding with best-effort content.');
       }
     }
-  }
   } else if (provider === 'anthropic' && anthropicApiKey) {
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
