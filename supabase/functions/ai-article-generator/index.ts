@@ -70,9 +70,47 @@ const searchCoverImage = async (keyword: string): Promise<{ imageUrl: string; al
 const generateSEOOptimizedArticle = async (request: ArticleRequest): Promise<ArticleResponse> => {
   const { targetKeyword, additionalKeywords, title, tone, length, audience, outlinePoints, provider } = request;
   
-  const wordCount = length === 'short' ? '800-1200' : length === 'medium' ? '1500-2000' : '2500-3500';
+  const targetWordCount = length === 'short' ? '800-1200' : length === 'medium' ? '1500-2000' : '2500-3500';
+  const minWords = length === 'short' ? 800 : length === 'medium' ? 1500 : 2500;
   
+  // Enhanced content structure templates based on length
+  const getContentStructure = (length: string) => {
+    if (length === 'short') {
+      return `
+1. H1: Compelling headline with target keyword
+2. Introduction (100-150 words) with keyword in first paragraph  
+3. 3-4 main H2 sections (150-200 words each)
+4. FAQ section with 3-4 questions
+5. Conclusion with call-to-action (100-150 words)`;
+    } else if (length === 'medium') {
+      return `
+1. H1: Compelling headline with target keyword
+2. Introduction (150-200 words) with keyword in first paragraph
+3. 5-6 main H2 sections (200-250 words each)
+4. Include H3 subsections where relevant
+5. Detailed examples, statistics, and practical tips
+6. FAQ section with 5-6 comprehensive questions
+7. Conclusion with strong call-to-action (150-200 words)`;
+    } else {
+      return `
+1. H1: Compelling headline with target keyword
+2. Comprehensive introduction (200-300 words)
+3. 7-8 main H2 sections (300-400 words each)
+4. Multiple H3 subsections with detailed explanations
+5. In-depth examples, case studies, statistics
+6. Step-by-step guides and practical implementations
+7. Comprehensive FAQ section with 8-10 detailed questions
+8. Detailed conclusion with multiple call-to-actions (200-250 words)`;
+    }
+  };
+
   const systemPrompt = `You are an expert SEO content writer. Create high-quality, SEO-optimized articles in Indonesian language that rank well on Google.
+
+CRITICAL WORD COUNT REQUIREMENT: 
+- You MUST write exactly ${targetWordCount} words or more
+- The content should be comprehensive and detailed
+- Do NOT write short, surface-level content
+- Each section should be thoroughly explained with examples
 
 KEY SEO REQUIREMENTS:
 - Target keyword density: 1-2% (natural placement)
@@ -80,20 +118,24 @@ KEY SEO REQUIREMENTS:
 - Include LSI keywords related to main keyword
 - Write compelling meta descriptions (150-160 characters)
 - Create SEO-friendly titles (50-60 characters)
-- Include FAQ section for featured snippets
+- Include comprehensive FAQ section for featured snippets
 - Optimize for readability and user engagement
 
-CONTENT STRUCTURE:
-1. Compelling headline with target keyword
-2. Introduction with keyword in first paragraph
-3. Multiple H2/H3 sections with subtopics
-4. Bullet points and numbered lists
-5. FAQ section (3-5 questions)
-6. Conclusion with call-to-action
+DETAILED CONTENT STRUCTURE FOR ${length.toUpperCase()} ARTICLE:
+${getContentStructure(length)}
+
+CONTENT DEPTH REQUIREMENTS:
+- Include specific examples and real-world applications
+- Add statistics, data, and research findings where relevant
+- Provide step-by-step instructions or guides
+- Include comparison tables or lists
+- Add practical tips and best practices
+- Use storytelling elements to engage readers
+- Include industry insights and expert opinions
 
 WRITING STYLE: ${tone}
 TARGET AUDIENCE: ${audience}
-WORD COUNT: ${wordCount} words
+MINIMUM WORD COUNT: ${minWords} words (STRICTLY ENFORCED)
 
 Return response in JSON format with these exact fields:
 {
@@ -106,20 +148,32 @@ Return response in JSON format with these exact fields:
   "slug": "url-friendly-slug"
 }`;
 
-  const userPrompt = `Create an SEO-optimized article about: ${targetKeyword}
+  const userPrompt = `Create a comprehensive, detailed SEO-optimized article about: ${targetKeyword}
 
 ${title ? `Suggested title: ${title}` : ''}
 ${additionalKeywords && additionalKeywords.length > 0 ? `Also include these related keywords naturally: ${additionalKeywords.join(', ')}` : ''}
-${outlinePoints ? `Include these points: ${outlinePoints.join(', ')}` : ''}
+${outlinePoints ? `Include these specific points in detail: ${outlinePoints.join(', ')}` : ''}
 
-Requirements:
+CRITICAL REQUIREMENTS:
 - Write in Indonesian language
+- MUST be ${targetWordCount} words minimum - this is NON-NEGOTIABLE
 - Focus on primary keyword: ${targetKeyword}
 ${additionalKeywords && additionalKeywords.length > 0 ? `- Naturally incorporate additional keywords: ${additionalKeywords.join(', ')}` : ''}
-- Make it engaging and informative
-- Include practical tips and actionable advice
-- Add FAQ section for better SEO
-- Ensure natural keyword placement without keyword stuffing`;
+- Make it comprehensive, engaging and highly informative
+- Include detailed examples, case studies, and statistics
+- Provide step-by-step guides and practical implementations
+- Add comprehensive FAQ section (5+ detailed questions for ${length} articles)
+- Include comparison tables, bullet points, and numbered lists
+- Ensure natural keyword placement without keyword stuffing
+- Write detailed explanations for each section - avoid surface-level content
+- Include industry insights and expert perspectives
+
+CONTENT DEPTH GUIDELINES:
+- Each H2 section should be substantial (200+ words for medium articles)
+- Include specific examples from real scenarios
+- Provide actionable advice readers can implement immediately
+- Add relevant statistics or data to support points
+- Use storytelling elements to keep readers engaged`;
 
   let articleData: any;
 
@@ -148,6 +202,59 @@ ${additionalKeywords && additionalKeywords.length > 0 ? `- Naturally incorporate
     const jsonMatch = content.match(/\{[\s\S]*\}/);
     if (jsonMatch) {
       articleData = JSON.parse(jsonMatch[0]);
+      
+      // Validate word count
+      const wordCount = articleData.content.replace(/<[^>]*>/g, ' ').split(/\s+/).filter(word => word.length > 0).length;
+      console.log(`Generated article word count: ${wordCount}, target: ${minWords}+`);
+      
+      if (wordCount < minWords) {
+        console.log(`Article too short (${wordCount} words), retrying with enhanced prompt...`);
+        
+        // Retry with more specific prompt for longer content
+        const retryPrompt = `${userPrompt}
+
+URGENT: The previous response was too short. You MUST write a comprehensive article of ${targetWordCount} words minimum.
+
+EXPANSION GUIDELINES:
+- Add more detailed explanations to each section
+- Include additional subsections (H3) under each main topic
+- Provide more examples and case studies
+- Add comparison tables and detailed lists
+- Include step-by-step tutorials or guides
+- Expand FAQ section with more detailed answers
+- Add industry analysis and market insights
+- Include expert quotes or testimonials
+- Provide more actionable tips and strategies
+
+Write extensively on each point to reach the required word count while maintaining quality.`;
+
+        const retryResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${openAIApiKey}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            model: 'gpt-4o',
+            messages: [
+              { role: 'system', content: systemPrompt },
+              { role: 'user', content: retryPrompt }
+            ],
+            temperature: 0.7,
+            max_tokens: 4000,
+          }),
+        });
+
+        const retryData = await retryResponse.json();
+        const retryContent = retryData.choices[0].message.content;
+        
+        const retryJsonMatch = retryContent.match(/\{[\s\S]*\}/);
+        if (retryJsonMatch) {
+          articleData = JSON.parse(retryJsonMatch[0]);
+          const finalWordCount = articleData.content.replace(/<[^>]*>/g, ' ').split(/\s+/).filter(word => word.length > 0).length;
+          console.log(`Retry article word count: ${finalWordCount}`);
+        }
+      }
     } else {
       throw new Error('Failed to parse AI response');
     }
@@ -180,6 +287,62 @@ ${additionalKeywords && additionalKeywords.length > 0 ? `- Naturally incorporate
     const jsonMatch = content.match(/\{[\s\S]*\}/);
     if (jsonMatch) {
       articleData = JSON.parse(jsonMatch[0]);
+      
+      // Validate word count
+      const wordCount = articleData.content.replace(/<[^>]*>/g, ' ').split(/\s+/).filter(word => word.length > 0).length;
+      console.log(`Generated article word count: ${wordCount}, target: ${minWords}+`);
+      
+      if (wordCount < minWords) {
+        console.log(`Article too short (${wordCount} words), retrying with enhanced prompt...`);
+        
+        // Retry with more specific prompt for longer content
+        const retryPrompt = `${userPrompt}
+
+URGENT: The previous response was too short. You MUST write a comprehensive article of ${targetWordCount} words minimum.
+
+EXPANSION GUIDELINES:
+- Add more detailed explanations to each section
+- Include additional subsections (H3) under each main topic
+- Provide more examples and case studies
+- Add comparison tables and detailed lists
+- Include step-by-step tutorials or guides
+- Expand FAQ section with more detailed answers
+- Add industry analysis and market insights
+- Include expert quotes or testimonials
+- Provide more actionable tips and strategies
+
+Write extensively on each point to reach the required word count while maintaining quality.`;
+
+        const retryResponse = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${anthropicApiKey}`,
+            'Content-Type': 'application/json',
+            'anthropic-version': '2023-06-01',
+          },
+          body: JSON.stringify({
+            model: 'claude-3-5-sonnet-20241022',
+            max_tokens: 4000,
+            messages: [
+              {
+                role: 'user',
+                content: `${systemPrompt}\n\n${retryPrompt}`
+              }
+            ],
+            temperature: 0.7,
+          }),
+        });
+
+        const retryData = await retryResponse.json();
+        const retryContent = retryData.content[0].text;
+        
+        const retryJsonMatch = retryContent.match(/\{[\s\S]*\}/);
+        if (retryJsonMatch) {
+          articleData = JSON.parse(retryJsonMatch[0]);
+          const finalWordCount = articleData.content.replace(/<[^>]*>/g, ' ').split(/\s+/).filter(word => word.length > 0).length;
+          console.log(`Retry article word count: ${finalWordCount}`);
+        }
+      }
     } else {
       throw new Error('Failed to parse AI response');
     }
