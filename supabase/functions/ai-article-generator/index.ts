@@ -70,7 +70,7 @@ const searchCoverImage = async (keyword: string): Promise<{ imageUrl: string; al
 const generateSEOOptimizedArticle = async (request: ArticleRequest): Promise<ArticleResponse> => {
   const { targetKeyword, additionalKeywords, title, tone, length, audience, outlinePoints, provider } = request;
   
-  const wordCount = length === 'short' ? '800-1200' : length === 'medium' ? '1500-2000' : '2500-3500';
+  const targetWordCount = length === 'short' ? '800-1200' : length === 'medium' ? '1500-2000' : '2500-3500';
   
   // Dynamic token allocation based on article length
   const getTokenAllocation = (length: string) => {
@@ -105,9 +105,9 @@ CONTENT STRUCTURE:
 
 WRITING STYLE: ${tone}
 TARGET AUDIENCE: ${audience}
-WORD COUNT: ${wordCount} words
+WORD COUNT: ${targetWordCount} words
 
-IMPORTANT: You MUST write approximately ${wordCount} words. This is crucial for SEO optimization.
+IMPORTANT: You MUST write approximately ${targetWordCount} words. This is crucial for SEO optimization.
 
 Return response in JSON format with these exact fields:
 {
@@ -134,7 +134,7 @@ ${additionalKeywords && additionalKeywords.length > 0 ? `- Naturally incorporate
 - Include practical tips and actionable advice
 - Add FAQ section for better SEO
 - Ensure natural keyword placement without keyword stuffing
-- CRITICAL: Write exactly ${wordCount} words for optimal SEO performance`;
+- CRITICAL: Write exactly ${targetWordCount} words for optimal SEO performance`;
 
   let articleData: any;
 
