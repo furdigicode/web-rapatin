@@ -288,8 +288,8 @@ const AIArticleGenerator: React.FC<AIArticleGeneratorProps> = ({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="openai">OpenAI GPT-4</SelectItem>
-                <SelectItem value="anthropic">Claude Sonnet</SelectItem>
+                <SelectItem value="openai">OpenAI GPT-5</SelectItem>
+                <SelectItem value="anthropic">Claude Sonnet 4</SelectItem>
               </SelectContent>
             </Select>
           </div>
