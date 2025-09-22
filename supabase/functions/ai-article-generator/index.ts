@@ -72,6 +72,18 @@ const generateSEOOptimizedArticle = async (request: ArticleRequest): Promise<Art
   
   const wordCount = length === 'short' ? '800-1200' : length === 'medium' ? '1500-2000' : '2500-3500';
   
+  // Dynamic token allocation based on article length
+  const getTokenAllocation = (length: string) => {
+    switch (length) {
+      case 'short': return 4000;
+      case 'medium': return 6000;
+      case 'long': return 8000;
+      default: return 4000;
+    }
+  };
+
+  const maxTokens = getTokenAllocation(length);
+  
   const systemPrompt = `You are an expert SEO content writer. Create high-quality, SEO-optimized articles in Indonesian language that rank well on Google.
 
 KEY SEO REQUIREMENTS:
@@ -94,6 +106,8 @@ CONTENT STRUCTURE:
 WRITING STYLE: ${tone}
 TARGET AUDIENCE: ${audience}
 WORD COUNT: ${wordCount} words
+
+IMPORTANT: You MUST write approximately ${wordCount} words. This is crucial for SEO optimization.
 
 Return response in JSON format with these exact fields:
 {
@@ -119,11 +133,14 @@ ${additionalKeywords && additionalKeywords.length > 0 ? `- Naturally incorporate
 - Make it engaging and informative
 - Include practical tips and actionable advice
 - Add FAQ section for better SEO
-- Ensure natural keyword placement without keyword stuffing`;
+- Ensure natural keyword placement without keyword stuffing
+- CRITICAL: Write exactly ${wordCount} words for optimal SEO performance`;
 
   let articleData: any;
 
   if (provider === 'openai' && openAIApiKey) {
+    console.log(`Using OpenAI GPT-5 with ${maxTokens} tokens for ${length} article`);
+    
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -131,17 +148,29 @@ ${additionalKeywords && additionalKeywords.length > 0 ? `- Naturally incorporate
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o',
+        model: 'gpt-5-2025-08-07',
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt }
         ],
-        temperature: 0.7,
-        max_tokens: 4000,
+        max_completion_tokens: maxTokens,
+        // Note: temperature is not supported in GPT-5
       }),
     });
 
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('OpenAI API error:', errorData);
+      throw new Error(`OpenAI API error: ${errorData.error?.message || 'Unknown error'}`);
+    }
+
     const data = await response.json();
+    console.log('OpenAI response received, processing...');
+    
+    if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+      throw new Error('Invalid response format from OpenAI');
+    }
+    
     const content = data.choices[0].message.content;
     
     // Parse JSON response
@@ -149,10 +178,13 @@ ${additionalKeywords && additionalKeywords.length > 0 ? `- Naturally incorporate
     if (jsonMatch) {
       articleData = JSON.parse(jsonMatch[0]);
     } else {
-      throw new Error('Failed to parse AI response');
+      console.error('Failed to find JSON in OpenAI response:', content);
+      throw new Error('Failed to parse AI response - no valid JSON found');
     }
     
   } else if (provider === 'anthropic' && anthropicApiKey) {
+    console.log(`Using Anthropic Claude Sonnet 4 with ${maxTokens} tokens for ${length} article`);
+    
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -161,8 +193,8 @@ ${additionalKeywords && additionalKeywords.length > 0 ? `- Naturally incorporate
         'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
-        model: 'claude-3-5-sonnet-20241022',
-        max_tokens: 4000,
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: maxTokens,
         messages: [
           {
             role: 'user',
@@ -173,7 +205,19 @@ ${additionalKeywords && additionalKeywords.length > 0 ? `- Naturally incorporate
       }),
     });
 
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('Anthropic API error:', errorData);
+      throw new Error(`Anthropic API error: ${errorData.error?.message || 'Unknown error'}`);
+    }
+
     const data = await response.json();
+    console.log('Anthropic response received, processing...');
+    
+    if (!data.content || !data.content[0] || !data.content[0].text) {
+      throw new Error('Invalid response format from Anthropic');
+    }
+    
     const content = data.content[0].text;
     
     // Parse JSON response
@@ -181,11 +225,21 @@ ${additionalKeywords && additionalKeywords.length > 0 ? `- Naturally incorporate
     if (jsonMatch) {
       articleData = JSON.parse(jsonMatch[0]);
     } else {
-      throw new Error('Failed to parse AI response');
+      console.error('Failed to find JSON in Anthropic response:', content);
+      throw new Error('Failed to parse AI response - no valid JSON found');
     }
   } else {
     throw new Error(`No valid API key found for provider: ${provider}`);
   }
+
+  // Validate article data
+  if (!articleData || !articleData.title || !articleData.content) {
+    throw new Error('Invalid article data generated by AI');
+  }
+
+  // Log word count for validation
+  const wordCount = articleData.content.replace(/<[^>]*>/g, '').split(/\s+/).length;
+  console.log(`Generated article word count: ${wordCount} words for ${length} article`);
 
   // Search for cover image based on the target keyword
   console.log('Searching cover image for keyword:', targetKeyword);
