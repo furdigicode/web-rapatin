@@ -106,8 +106,8 @@ const generateSEOOptimizedArticle = async (request: ArticleRequest): Promise<Art
 
   const systemPrompt = `You are an expert SEO content writer. Create high-quality, SEO-optimized articles in Indonesian language that rank well on Google.
 
-CRITICAL WORD COUNT REQUIREMENT: 
-- You MUST write exactly ${targetWordCount} words or more
+CRITICAL WORD COUNT REQUIREMENT:
+- You MUST write at least ${minWords} words and aim for ${targetWordCount}
 - The content should be comprehensive and detailed
 - Do NOT write short, surface-level content
 - Each section should be thoroughly explained with examples
@@ -132,6 +132,11 @@ CONTENT DEPTH REQUIREMENTS:
 - Add practical tips and best practices
 - Use storytelling elements to engage readers
 - Include industry insights and expert opinions
+
+STRICT JSON OUTPUT RULES:
+- Return ONLY a valid JSON object (no markdown, no code fences, no extra text)
+- Keys must match exactly the schema below
+- All string values must be valid JSON strings
 
 WRITING STYLE: ${tone}
 TARGET AUDIENCE: ${audience}
@@ -178,87 +183,57 @@ CONTENT DEPTH GUIDELINES:
   let articleData: any;
 
   if (provider === 'openai' && openAIApiKey) {
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${openAIApiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
+    const maxAttempts = 3;
+    let lastWordCount = 0;
+
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      const attemptPrompt = attempt === 1 ? userPrompt : `${userPrompt}\n\nURGENT: The previous response was too short (${lastWordCount} words). You MUST write a comprehensive article of at least ${minWords} words (aim for ${targetWordCount}). Expand each section with H3 subsections, detailed examples, statistics, and actionable steps.`;
+
+      const body = {
         model: 'gpt-4o',
         messages: [
           { role: 'system', content: systemPrompt },
-          { role: 'user', content: userPrompt }
+          { role: 'user', content: attemptPrompt }
         ],
-        temperature: 0.7,
-        max_tokens: 4000,
-      }),
-    });
+        response_format: { type: 'json_object' },
+        temperature: 0.4,
+        max_tokens: 6000,
+      };
 
-    const data = await response.json();
-    const content = data.choices[0].message.content;
-    
-    // Parse JSON response
-    const jsonMatch = content.match(/\{[\s\S]*\}/);
-    if (jsonMatch) {
-      articleData = JSON.parse(jsonMatch[0]);
-      
-      // Validate word count
-      const wordCount = articleData.content.replace(/<[^>]*>/g, ' ').split(/\s+/).filter(word => word.length > 0).length;
-      console.log(`Generated article word count: ${wordCount}, target: ${minWords}+`);
-      
-      if (wordCount < minWords) {
-        console.log(`Article too short (${wordCount} words), retrying with enhanced prompt...`);
-        
-        // Retry with more specific prompt for longer content
-        const retryPrompt = `${userPrompt}
+      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${openAIApiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(body),
+      });
 
-URGENT: The previous response was too short. You MUST write a comprehensive article of ${targetWordCount} words minimum.
+      const data = await response.json();
+      const content = data?.choices?.[0]?.message?.content || '';
+      console.log(`OpenAI attempt ${attempt} raw length: ${content?.length || 0}`);
 
-EXPANSION GUIDELINES:
-- Add more detailed explanations to each section
-- Include additional subsections (H3) under each main topic
-- Provide more examples and case studies
-- Add comparison tables and detailed lists
-- Include step-by-step tutorials or guides
-- Expand FAQ section with more detailed answers
-- Add industry analysis and market insights
-- Include expert quotes or testimonials
-- Provide more actionable tips and strategies
-
-Write extensively on each point to reach the required word count while maintaining quality.`;
-
-        const retryResponse = await fetch('https://api.openai.com/v1/chat/completions', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${openAIApiKey}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            model: 'gpt-4o',
-            messages: [
-              { role: 'system', content: systemPrompt },
-              { role: 'user', content: retryPrompt }
-            ],
-            temperature: 0.7,
-            max_tokens: 4000,
-          }),
-        });
-
-        const retryData = await retryResponse.json();
-        const retryContent = retryData.choices[0].message.content;
-        
-        const retryJsonMatch = retryContent.match(/\{[\s\S]*\}/);
-        if (retryJsonMatch) {
-          articleData = JSON.parse(retryJsonMatch[0]);
-          const finalWordCount = articleData.content.replace(/<[^>]*>/g, ' ').split(/\s+/).filter(word => word.length > 0).length;
-          console.log(`Retry article word count: ${finalWordCount}`);
+      try {
+        articleData = JSON.parse(content);
+      } catch (_e) {
+        const jsonMatch = content.match(/\{[\s\S]*\}/);
+        if (!jsonMatch) {
+          throw new Error('Failed to parse AI response');
         }
+        articleData = JSON.parse(jsonMatch[0]);
       }
-    } else {
-      throw new Error('Failed to parse AI response');
+
+      const wordCount = articleData.content.replace(/<[^>]*>/g, ' ').split(/\s+/).filter((w: string) => w.length > 0).length;
+      console.log(`OpenAI attempt ${attempt} word count: ${wordCount}, target: ${minWords}+`);
+      if (wordCount >= minWords) {
+        break;
+      }
+      lastWordCount = wordCount;
+      if (attempt === maxAttempts) {
+        console.log('Max attempts reached for OpenAI. Proceeding with best-effort content.');
+      }
     }
-    
+  }
   } else if (provider === 'anthropic' && anthropicApiKey) {
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
