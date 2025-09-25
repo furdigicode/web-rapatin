@@ -70,59 +70,63 @@ const searchCoverImage = async (keyword: string): Promise<{ imageUrl: string; al
 const generateSEOOptimizedArticle = async (request: ArticleRequest): Promise<ArticleResponse> => {
   const { targetKeyword, additionalKeywords, title, tone, length, audience, outlinePoints, provider } = request;
   
-  const targetWordCount = length === 'short' ? '800-1200' : length === 'medium' ? '1500-2000' : '2500-3500';
-  const minWords = length === 'short' ? 800 : length === 'medium' ? 1500 : 2500;
-  
-  // Section budgets and dynamic token calculation
-  const getSectionBudgets = (len: string) => {
-    if (len === 'short') return { aim: 1000, intro: 140, h2: 180, faq: 100, conclusion: 140 };
-    if (len === 'medium') return { aim: 1800, intro: 180, h2: 230, faq: 120, conclusion: 180 };
-    return { aim: 3000, intro: 240, h2: 350, faq: 150, conclusion: 220 };
+  // EXACT word count targets - NO RANGES
+  const exactWordCounts = {
+    short: 1000,
+    medium: 1800,
+    long: 3000
   };
-  const budgets = getSectionBudgets(length);
-  const targetWordsAim = budgets.aim;
-  // Rough token budget: ~1.5 tokens/word + buffer for JSON/meta
-  const maxTokens = Math.min(7000, Math.floor(targetWordsAim * 1.5 + 800));
   
-  // Enhanced content structure templates based on length
-  const getContentStructure = (length: string) => {
-    if (length === 'short') {
-      return `
+  const targetWordsAim = exactWordCounts[length];
+  
+  // Precise section budgets that sum to exact target
+  const getSectionBudgets = (totalWords: number) => {
+    const intro = Math.floor(totalWords * 0.12); // 12%
+    const faq = Math.floor(totalWords * 0.15); // 15% 
+    const conclusion = Math.floor(totalWords * 0.08); // 8%
+    const mainSections = totalWords - intro - faq - conclusion; // Remaining 65%
+    
+    return { intro, mainSections, faq, conclusion, totalWords };
+  };
+  
+  const budgets = getSectionBudgets(targetWordsAim);
+  
+  // Enhanced token budget for exact word count achievement
+  const maxTokens = Math.min(8000, Math.floor(targetWordsAim * 1.6 + 1200));
+  
+  console.log(`TARGET: EXACTLY ${targetWordsAim} words. Section budgets:`, budgets);
+  
+  // Enhanced content structure templates based on exact word counts
+  const getContentStructure = (totalWords: number, sectionBudgets: any) => {
+    const h2SectionsCount = length === 'short' ? 5 : length === 'medium' ? 6 : 8;
+    const h2WordsPer = Math.floor(sectionBudgets.mainSections / h2SectionsCount);
+    const faqCount = length === 'short' ? 6 : length === 'medium' ? 8 : 10;
+    const faqWordsPer = Math.floor(sectionBudgets.faq / faqCount);
+    
+    return `
+EXACT ARTICLE STRUCTURE FOR ${totalWords} WORDS:
 1. H1: Compelling headline with target keyword
-2. Introduction (~${budgets.intro} words) with keyword in first paragraph  
-3. 4-6 main H2 sections (~${budgets.h2} words each)
-4. FAQ section with 5+ questions (~${budgets.faq} words per answer)
-5. Conclusion with call-to-action (~${budgets.conclusion} words)`;
-    } else if (length === 'medium') {
-      return `
-1. H1: Compelling headline with target keyword
-2. Introduction (150-200 words) with keyword in first paragraph
-3. 5-6 main H2 sections (~${budgets.h2} words each) with H3 where relevant
-4. Include H3 subsections where relevant
-5. Detailed examples, statistics, and practical tips
-6. FAQ section with 6+ comprehensive questions (~${budgets.faq} words per answer)
-7. Conclusion with strong call-to-action (~${budgets.conclusion} words)`;
-    } else {
-      return `
-1. H1: Compelling headline with target keyword
-2. Comprehensive introduction (200-300 words)
-3. 7-8 main H2 sections (~${budgets.h2} words each) with multiple H3 subsections
-4. Multiple H3 subsections with detailed explanations
-5. In-depth examples, case studies, statistics
-6. Step-by-step guides and practical implementations
-7. Comprehensive FAQ section with 8-10 detailed questions (~${budgets.faq} words per answer)
-8. Detailed conclusion with multiple call-to-actions (~${budgets.conclusion} words)`;
-    }
+2. Introduction: EXACTLY ${sectionBudgets.intro} words with keyword in first paragraph
+3. ${h2SectionsCount} main H2 sections: EXACTLY ${h2WordsPer} words each (total: ${sectionBudgets.mainSections} words)
+4. FAQ section: ${faqCount} questions with EXACTLY ${faqWordsPer} words per answer (total: ${sectionBudgets.faq} words)
+5. Conclusion: EXACTLY ${sectionBudgets.conclusion} words with call-to-action
+
+WORD COUNT VERIFICATION:
+- Introduction: ${sectionBudgets.intro} words
+- Main sections: ${sectionBudgets.mainSections} words  
+- FAQ: ${sectionBudgets.faq} words
+- Conclusion: ${sectionBudgets.conclusion} words
+- TOTAL MUST BE: ${totalWords} words (no more, no less)`;
   };
 
   const systemPrompt = `You are an expert SEO content writer. Create high-quality, SEO-optimized articles in Indonesian language that rank well on Google.
 
-CRITICAL WORD COUNT REQUIREMENT:
-- You MUST write at least ${minWords} words and aim for around ${targetWordsAim} words
-- The content must not stop before the minimum is reached
-- The content should be comprehensive and detailed
-- Do NOT write short, surface-level content
-- Each section should be thoroughly explained with examples
+🚨 CRITICAL WORD COUNT REQUIREMENT - HARD STOP GUARDRAIL:
+- You MUST write EXACTLY ${targetWordsAim} words - NO MORE, NO LESS
+- This is a HARD REQUIREMENT - count words mentally as you write
+- The article MUST reach exactly ${targetWordsAim} words total
+- Do NOT stop writing until you reach EXACTLY ${targetWordsAim} words
+- Each section must meet its exact word budget as specified below
 
 KEY SEO REQUIREMENTS:
 - Target keyword density: 1-2% (natural placement)
@@ -133,14 +137,14 @@ KEY SEO REQUIREMENTS:
 - Include comprehensive FAQ section for featured snippets
 - Optimize for readability and user engagement
 
-DETAILED CONTENT STRUCTURE FOR ${length.toUpperCase()} ARTICLE:
-${getContentStructure(length)}
+${getContentStructure(targetWordsAim, budgets)}
 
-SECTION LENGTH TARGETS (approximate):
-- Introduction: ~${budgets.intro} words
-- Each H2 section: ~${budgets.h2} words
-- Each FAQ answer: ~${budgets.faq} words
-- Conclusion: ~${budgets.conclusion} words
+EXACT SECTION WORD BUDGETS - MUST BE FOLLOWED:
+- Introduction: EXACTLY ${budgets.intro} words
+- Main H2 sections combined: EXACTLY ${budgets.mainSections} words
+- FAQ section combined: EXACTLY ${budgets.faq} words  
+- Conclusion: EXACTLY ${budgets.conclusion} words
+- TOTAL: EXACTLY ${targetWordsAim} words
 
 CONTENT DEPTH REQUIREMENTS:
 - Include specific examples and real-world applications
@@ -158,7 +162,7 @@ STRICT JSON OUTPUT RULES:
 
 WRITING STYLE: ${tone}
 TARGET AUDIENCE: ${audience}
-MINIMUM WORD COUNT: ${minWords} words (STRICTLY ENFORCED)
+EXACT WORD COUNT TARGET: ${targetWordsAim} words (STRICTLY ENFORCED)
 
 Return response in JSON format with these exact fields:
 {
@@ -179,7 +183,7 @@ ${outlinePoints ? `Include these specific points in detail: ${outlinePoints.join
 
 CRITICAL REQUIREMENTS:
 - Write in Indonesian language
-- MUST be at least ${minWords} words (NON-NEGOTIABLE) and aim for ${targetWordCount}
+- MUST write EXACTLY ${targetWordsAim} words (NON-NEGOTIABLE - count words as you write)
 - Focus on primary keyword: ${targetKeyword}
 ${additionalKeywords && additionalKeywords.length > 0 ? `- Naturally incorporate additional keywords: ${additionalKeywords.join(', ')}` : ''}
 - Make it comprehensive, engaging and highly informative
@@ -262,7 +266,7 @@ CONTENT DEPTH GUIDELINES:
     if (jsonMatch) {
       articleData = JSON.parse(jsonMatch[0]);
       const wordCount = articleData.content.replace(/<[^>]*>/g, ' ').split(/\s+/).filter((w: string) => w.length > 0).length;
-      console.log(`Generated article word count: ${wordCount}, target: ${minWords}+`);
+      console.log(`Generated article word count: ${wordCount}, target: EXACTLY ${targetWordsAim} words`);
     } else {
       throw new Error('Failed to parse AI response');
     }
