@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Edit, Trash, Eye, ArrowRight, Calendar, Tag, User, Link as LinkIcon } from 'lucide-react';
+import { Plus, Edit, Trash, Eye, ArrowRight, Calendar, Tag, User, Link as LinkIcon, Image as ImageIcon } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { Textarea } from "@/components/ui/textarea";
 import RichTextEditor from '@/components/admin/RichTextEditor';
@@ -19,6 +19,7 @@ import AdminPageHeader from '@/components/admin/AdminPageHeader';
 import AuthorSelector from '@/components/admin/AuthorSelector';
 import { FileUpload } from '@/components/ui/file-upload';
 import { calculateWordCount } from '@/utils/wordCount';
+import { CoverImageSelector } from "@/components/admin/CoverImageSelector";
 
 const BlogManagement = () => {
   const { toast } = useToast();
@@ -33,6 +34,7 @@ const BlogManagement = () => {
   const [formData, setFormData] = useState<BlogPostFormData>({
     ...defaultBlogPostFormData
   });
+  const [showCoverImageSelector, setShowCoverImageSelector] = useState(false);
 
   const { data: categoriesData } = useQuery({
     queryKey: ['blog-categories'],
@@ -446,6 +448,24 @@ const BlogManagement = () => {
       category: articleData.category || formData.category || (categories.length > 0 ? categories[0] : ''),
       wordCount: wordCount
     });
+    
+    // Show cover image selector after AI generation
+    setShowCoverImageSelector(true);
+    toast({
+      title: "Artikel berhasil di-generate",
+      description: "Silahkan pilih gambar cover untuk artikel Anda."
+    });
+  };
+
+  const handleCoverImageSelect = (imageUrl: string, altText: string) => {
+    setFormData(prev => ({
+      ...prev,
+      coverImage: imageUrl
+    }));
+    toast({
+      title: "Gambar cover dipilih",
+      description: "Gambar cover berhasil ditambahkan ke artikel."
+    });
   };
 
   const renderBlogForm = (action: 'create' | 'edit') => {
@@ -504,62 +524,114 @@ const BlogManagement = () => {
                   />
                 </div>
                 
-                <div className="space-y-4">
-                  <Label>Cover Image</Label>
-                  
-                  {/* Toggle between URL and Upload modes */}
-                  <div className="flex gap-4 mb-4">
-                    <label className="flex items-center gap-2">
-                      <input
-                        type="radio"
-                        name="imageMode"
-                        value="upload"
-                        checked={imageUploadMode === 'upload'}
-                        onChange={(e) => setImageUploadMode(e.target.value as 'url' | 'upload')}
-                        className="text-primary"
-                      />
-                      <span className="text-sm">Upload File</span>
-                    </label>
-                    <label className="flex items-center gap-2">
-                      <input
-                        type="radio"
-                        name="imageMode"
-                        value="url"
-                        checked={imageUploadMode === 'url'}
-                        onChange={(e) => setImageUploadMode(e.target.value as 'url' | 'upload')}
-                        className="text-primary"
-                      />
-                      <span className="text-sm">URL</span>
-                    </label>
-                  </div>
+                 <div className="space-y-4">
+                   <Label>Cover Image</Label>
+                   
+                   {/* Toggle between URL and Upload modes */}
+                   <div className="flex gap-4 mb-4">
+                     <label className="flex items-center gap-2">
+                       <input
+                         type="radio"
+                         name="imageMode"
+                         value="upload"
+                         checked={imageUploadMode === 'upload'}
+                         onChange={(e) => setImageUploadMode(e.target.value as 'url' | 'upload')}
+                         className="text-primary"
+                       />
+                       <span className="text-sm">Upload File</span>
+                     </label>
+                     <label className="flex items-center gap-2">
+                       <input
+                         type="radio"
+                         name="imageMode"
+                         value="url"
+                         checked={imageUploadMode === 'url'}
+                         onChange={(e) => setImageUploadMode(e.target.value as 'url' | 'upload')}
+                         className="text-primary"
+                       />
+                       <span className="text-sm">URL</span>
+                     </label>
+                   </div>
 
-                  {imageUploadMode === 'upload' ? (
-                    <FileUpload
-                      onUploadComplete={handleImageUploadComplete}
-                      currentImage={formData.coverImage}
-                    />
-                  ) : (
-                    <div className="space-y-2">
-                      {formData.coverImage && (
-                        <div className="w-full max-w-md">
-                          <img 
-                            src={formData.coverImage} 
-                            alt="Cover preview" 
-                            className="w-full h-auto rounded-md border object-cover aspect-[16/9]" 
-                          />
-                        </div>
-                      )}
-                      <Input
-                        value={formData.coverImage}
-                        onChange={(e) => handleInputChange('coverImage', e.target.value)}
-                        placeholder="Masukkan URL gambar cover"
-                      />
-                      <p className="text-sm text-muted-foreground">
-                        Ukuran ideal: 1200x627 piksel (rasio 1.91:1)
-                      </p>
-                    </div>
-                  )}
-                </div>
+                   {imageUploadMode === 'upload' ? (
+                     <div className="space-y-3">
+                       <div className="flex gap-2">
+                         <FileUpload
+                           onUploadComplete={handleImageUploadComplete}
+                           currentImage={formData.coverImage}
+                         />
+                         <Button 
+                           type="button"
+                           variant="outline"
+                           onClick={() => setShowCoverImageSelector(true)}
+                           className="px-4"
+                         >
+                           <ImageIcon className="h-4 w-4 mr-2" />
+                           Browse Unsplash
+                         </Button>
+                       </div>
+                       {formData.coverImage && (
+                         <div className="relative w-full max-w-md">
+                           <img 
+                             src={formData.coverImage} 
+                             alt="Cover preview" 
+                             className="w-full h-auto rounded-md border object-cover aspect-[16/9]" 
+                           />
+                           <Button
+                             type="button"
+                             variant="outline"
+                             size="sm"
+                             onClick={() => setShowCoverImageSelector(true)}
+                             className="absolute top-2 right-2"
+                           >
+                             Change
+                           </Button>
+                         </div>
+                       )}
+                     </div>
+                   ) : (
+                     <div className="space-y-2">
+                       <div className="flex gap-2">
+                         <Input
+                           value={formData.coverImage}
+                           onChange={(e) => handleInputChange('coverImage', e.target.value)}
+                           placeholder="Masukkan URL gambar cover"
+                           className="flex-1"
+                         />
+                         <Button 
+                           type="button"
+                           variant="outline"
+                           onClick={() => setShowCoverImageSelector(true)}
+                           className="px-4"
+                         >
+                           <ImageIcon className="h-4 w-4 mr-2" />
+                           Browse Unsplash
+                         </Button>
+                       </div>
+                       {formData.coverImage && (
+                         <div className="relative w-full max-w-md">
+                           <img 
+                             src={formData.coverImage} 
+                             alt="Cover preview" 
+                             className="w-full h-auto rounded-md border object-cover aspect-[16/9]" 
+                           />
+                           <Button
+                             type="button"
+                             variant="outline"
+                             size="sm"
+                             onClick={() => setShowCoverImageSelector(true)}
+                             className="absolute top-2 right-2"
+                           >
+                             Change
+                           </Button>
+                         </div>
+                       )}
+                       <p className="text-sm text-muted-foreground">
+                         Ukuran ideal: 1200x627 piksel (rasio 1.91:1)
+                       </p>
+                     </div>
+                   )}
+                 </div>
                 
                 <div className="space-y-2">
                   <Label htmlFor="excerpt">Ringkasan</Label>
@@ -895,6 +967,13 @@ const BlogManagement = () => {
           </div>
         </div>
       )}
+
+      <CoverImageSelector
+        isOpen={showCoverImageSelector}
+        onClose={() => setShowCoverImageSelector(false)}
+        onSelect={handleCoverImageSelect}
+        initialKeyword={formData.focusKeyword || formData.title}
+      />
     </AdminLayout>
   );
 };

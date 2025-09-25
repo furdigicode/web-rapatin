@@ -101,8 +101,8 @@ const SEOPanel: React.FC<SEOPanelProps> = ({
     // Check meta description
     if (metaDescription.length === 0) {
       newIssues.push("Meta description tidak boleh kosong");
-    } else if (metaDescription.length < 120) {
-      newSuggestions.push("Meta description terlalu pendek (minimal 120 karakter)");
+    } else if (metaDescription.length < 140) {
+      newSuggestions.push("Meta description terlalu pendek (minimal 140 karakter untuk SEO optimal)");
       score += 5;
     } else if (metaDescription.length > 160) {
       newIssues.push("Meta description terlalu panjang (maksimal 160 karakter)");
@@ -266,7 +266,7 @@ const SEOPanel: React.FC<SEOPanelProps> = ({
           <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
             <Label htmlFor="meta-description" className="text-sm font-medium">Meta Description</Label>
             <span className={`text-xs font-medium ${
-              metaDescLength > 160 ? 'text-red-500' : (metaDescLength < 120 ? 'text-yellow-500' : 'text-green-500')
+              metaDescLength > 160 ? 'text-red-500' : (metaDescLength < 140 ? 'text-yellow-500' : 'text-green-500')
             }`}>
               {metaDescLength}/160
             </span>
@@ -278,7 +278,7 @@ const SEOPanel: React.FC<SEOPanelProps> = ({
             placeholder="Enter meta description"
             rows={3}
             className={`w-full border resize-none ${
-              metaDescLength > 160 ? 'border-red-300' : (metaDescLength < 120 ? 'border-yellow-300' : 'border-green-300')
+              metaDescLength > 160 ? 'border-red-300' : (metaDescLength < 140 ? 'border-yellow-300' : 'border-green-300')
             }`}
           />
         </div>
