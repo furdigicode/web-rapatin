@@ -73,6 +73,17 @@ const generateSEOOptimizedArticle = async (request: ArticleRequest): Promise<Art
   const targetWordCount = length === 'short' ? '800-1200' : length === 'medium' ? '1500-2000' : '2500-3500';
   const minWords = length === 'short' ? 800 : length === 'medium' ? 1500 : 2500;
   
+  // Section budgets and dynamic token calculation
+  const getSectionBudgets = (len: string) => {
+    if (len === 'short') return { aim: 1000, intro: 140, h2: 180, faq: 100, conclusion: 140 };
+    if (len === 'medium') return { aim: 1800, intro: 180, h2: 230, faq: 120, conclusion: 180 };
+    return { aim: 3000, intro: 240, h2: 350, faq: 150, conclusion: 220 };
+  };
+  const budgets = getSectionBudgets(length);
+  const targetWordsAim = budgets.aim;
+  // Rough token budget: ~1.5 tokens/word + buffer for JSON/meta
+  const maxTokens = Math.min(7000, Math.floor(targetWordsAim * 1.5 + 800));
+  
   // Enhanced content structure templates based on length
   const getContentStructure = (length: string) => {
     if (length === 'short') {
@@ -107,7 +118,8 @@ const generateSEOOptimizedArticle = async (request: ArticleRequest): Promise<Art
   const systemPrompt = `You are an expert SEO content writer. Create high-quality, SEO-optimized articles in Indonesian language that rank well on Google.
 
 CRITICAL WORD COUNT REQUIREMENT:
-- You MUST write at least ${minWords} words and aim for ${targetWordCount}
+- You MUST write at least ${minWords} words and aim for around ${targetWordsAim} words
+- The content must not stop before the minimum is reached
 - The content should be comprehensive and detailed
 - Do NOT write short, surface-level content
 - Each section should be thoroughly explained with examples
@@ -123,6 +135,12 @@ KEY SEO REQUIREMENTS:
 
 DETAILED CONTENT STRUCTURE FOR ${length.toUpperCase()} ARTICLE:
 ${getContentStructure(length)}
+
+SECTION LENGTH TARGETS (approximate):
+- Introduction: ~${budgets.intro} words
+- Each H2 section: ~${budgets.h2} words
+- Each FAQ answer: ~${budgets.faq} words
+- Conclusion: ~${budgets.conclusion} words
 
 CONTENT DEPTH REQUIREMENTS:
 - Include specific examples and real-world applications
@@ -183,55 +201,37 @@ CONTENT DEPTH GUIDELINES:
   let articleData: any;
 
   if (provider === 'openai' && openAIApiKey) {
-    const maxAttempts = 3;
-    let lastWordCount = 0;
+    const body = {
+      model: 'gpt-4o',
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt }
+      ],
+      response_format: { type: 'json_object' },
+      temperature: 0.4,
+      max_tokens: maxTokens,
+    };
 
-    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-      const attemptPrompt = attempt === 1 ? userPrompt : `${userPrompt}\n\nURGENT: The previous response was too short (${lastWordCount} words). You MUST write a comprehensive article of at least ${minWords} words (aim for ${targetWordCount}). Expand each section with H3 subsections, detailed examples, statistics, and actionable steps.`;
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${openAIApiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
+    });
 
-      const body = {
-        model: 'gpt-4o',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: attemptPrompt }
-        ],
-        response_format: { type: 'json_object' },
-        temperature: 0.4,
-        max_tokens: 6000,
-      };
+    const data = await response.json();
+    const content = data?.choices?.[0]?.message?.content || '';
 
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${openAIApiKey}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(body),
-      });
-
-      const data = await response.json();
-      const content = data?.choices?.[0]?.message?.content || '';
-      console.log(`OpenAI attempt ${attempt} raw length: ${content?.length || 0}`);
-
-      try {
-        articleData = JSON.parse(content);
-      } catch (_e) {
-        const jsonMatch = content.match(/\{[\s\S]*\}/);
-        if (!jsonMatch) {
-          throw new Error('Failed to parse AI response');
-        }
-        articleData = JSON.parse(jsonMatch[0]);
+    try {
+      articleData = JSON.parse(content);
+    } catch (_e) {
+      const jsonMatch = content.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) {
+        throw new Error('Failed to parse AI response');
       }
-
-      const wordCount = articleData.content.replace(/<[^>]*>/g, ' ').split(/\s+/).filter((w: string) => w.length > 0).length;
-      console.log(`OpenAI attempt ${attempt} word count: ${wordCount}, target: ${minWords}+`);
-      if (wordCount >= minWords) {
-        break;
-      }
-      lastWordCount = wordCount;
-      if (attempt === maxAttempts) {
-        console.log('Max attempts reached for OpenAI. Proceeding with best-effort content.');
-      }
+      articleData = JSON.parse(jsonMatch[0]);
     }
   } else if (provider === 'anthropic' && anthropicApiKey) {
     const response = await fetch('https://api.anthropic.com/v1/messages', {
@@ -243,7 +243,7 @@ CONTENT DEPTH GUIDELINES:
       },
       body: JSON.stringify({
         model: 'claude-3-5-sonnet-20241022',
-        max_tokens: 4000,
+        max_tokens: Math.min(maxTokens, 8000),
         messages: [
           {
             role: 'user',
@@ -255,68 +255,14 @@ CONTENT DEPTH GUIDELINES:
     });
 
     const data = await response.json();
-    const content = data.content[0].text;
+    const content = data.content?.[0]?.text || '';
     
-    // Parse JSON response
+    // Parse JSON response (single attempt, no retry)
     const jsonMatch = content.match(/\{[\s\S]*\}/);
     if (jsonMatch) {
       articleData = JSON.parse(jsonMatch[0]);
-      
-      // Validate word count
-      const wordCount = articleData.content.replace(/<[^>]*>/g, ' ').split(/\s+/).filter(word => word.length > 0).length;
+      const wordCount = articleData.content.replace(/<[^>]*>/g, ' ').split(/\s+/).filter((w: string) => w.length > 0).length;
       console.log(`Generated article word count: ${wordCount}, target: ${minWords}+`);
-      
-      if (wordCount < minWords) {
-        console.log(`Article too short (${wordCount} words), retrying with enhanced prompt...`);
-        
-        // Retry with more specific prompt for longer content
-        const retryPrompt = `${userPrompt}
-
-URGENT: The previous response was too short. You MUST write a comprehensive article of ${targetWordCount} words minimum.
-
-EXPANSION GUIDELINES:
-- Add more detailed explanations to each section
-- Include additional subsections (H3) under each main topic
-- Provide more examples and case studies
-- Add comparison tables and detailed lists
-- Include step-by-step tutorials or guides
-- Expand FAQ section with more detailed answers
-- Add industry analysis and market insights
-- Include expert quotes or testimonials
-- Provide more actionable tips and strategies
-
-Write extensively on each point to reach the required word count while maintaining quality.`;
-
-        const retryResponse = await fetch('https://api.anthropic.com/v1/messages', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${anthropicApiKey}`,
-            'Content-Type': 'application/json',
-            'anthropic-version': '2023-06-01',
-          },
-          body: JSON.stringify({
-            model: 'claude-3-5-sonnet-20241022',
-            max_tokens: 4000,
-            messages: [
-              {
-                role: 'user',
-                content: `${systemPrompt}\n\n${retryPrompt}`
-              }
-            ],
-            temperature: 0.7,
-          }),
-        });
-
-        const retryData = await retryResponse.json();
-        const retryContent = retryData.content[0].text;
-        
-        const retryJsonMatch = retryContent.match(/\{[\s\S]*\}/);
-        if (retryJsonMatch) {
-          articleData = JSON.parse(retryJsonMatch[0]);
-          const finalWordCount = articleData.content.replace(/<[^>]*>/g, ' ').split(/\s+/).filter(word => word.length > 0).length;
-          console.log(`Retry article word count: ${finalWordCount}`);
-        }
-      }
     } else {
       throw new Error('Failed to parse AI response');
     }
