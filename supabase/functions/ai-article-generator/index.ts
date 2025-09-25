@@ -132,7 +132,7 @@ KEY SEO REQUIREMENTS:
 - Target keyword density: 1-2% (natural placement)
 - Use H1, H2, H3 structure properly
 - Include LSI keywords related to main keyword
-- Write compelling meta descriptions (150-160 characters)
+- Write compelling meta descriptions (140-160 characters)
 - Create SEO-friendly titles (50-60 characters)
 - Include comprehensive FAQ section for featured snippets
 - Optimize for readability and user engagement
@@ -170,7 +170,7 @@ Return response in JSON format with these exact fields:
   "content": "Full article content in HTML format with proper headings",
   "excerpt": "Compelling 2-3 sentence summary",
   "seoTitle": "SEO title 50-60 characters",
-  "metaDescription": "Meta description 150-160 characters",
+  "metaDescription": "Meta description 140-160 characters",
   "focusKeyword": "Primary target keyword",
   "slug": "url-friendly-slug"
 }`;
