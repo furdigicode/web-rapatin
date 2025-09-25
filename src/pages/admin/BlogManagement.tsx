@@ -527,110 +527,43 @@ const BlogManagement = () => {
                  <div className="space-y-4">
                    <Label>Cover Image</Label>
                    
-                   {/* Toggle between URL and Upload modes */}
-                   <div className="flex gap-4 mb-4">
-                     <label className="flex items-center gap-2">
-                       <input
-                         type="radio"
-                         name="imageMode"
-                         value="upload"
-                         checked={imageUploadMode === 'upload'}
-                         onChange={(e) => setImageUploadMode(e.target.value as 'url' | 'upload')}
-                         className="text-primary"
+                   {/* Simplified single upload interface */}
+                   <div className="space-y-3">
+                     <div className="flex gap-2">
+                       <FileUpload
+                         onUploadComplete={handleImageUploadComplete}
+                         currentImage={formData.coverImage}
                        />
-                       <span className="text-sm">Upload File</span>
-                     </label>
-                     <label className="flex items-center gap-2">
-                       <input
-                         type="radio"
-                         name="imageMode"
-                         value="url"
-                         checked={imageUploadMode === 'url'}
-                         onChange={(e) => setImageUploadMode(e.target.value as 'url' | 'upload')}
-                         className="text-primary"
-                       />
-                       <span className="text-sm">URL</span>
-                     </label>
+                       <Button 
+                         type="button"
+                         variant="outline"
+                         onClick={() => setShowCoverImageSelector(true)}
+                         className="px-4"
+                       >
+                         <ImageIcon className="h-4 w-4 mr-2" />
+                         Browse Unsplash
+                       </Button>
+                     </div>
+                     
+                     {formData.coverImage && (
+                       <div className="relative w-full max-w-md">
+                         <img 
+                           src={formData.coverImage} 
+                           alt="Cover preview" 
+                           className="w-full h-auto rounded-md border object-cover aspect-[16/9]" 
+                         />
+                         <Button
+                           type="button"
+                           variant="outline"
+                           size="sm"
+                           onClick={() => setShowCoverImageSelector(true)}
+                           className="absolute top-2 right-2"
+                         >
+                           Change
+                         </Button>
+                       </div>
+                     )}
                    </div>
-
-                   {imageUploadMode === 'upload' ? (
-                     <div className="space-y-3">
-                       <div className="flex gap-2">
-                         <FileUpload
-                           onUploadComplete={handleImageUploadComplete}
-                           currentImage={formData.coverImage}
-                         />
-                         <Button 
-                           type="button"
-                           variant="outline"
-                           onClick={() => setShowCoverImageSelector(true)}
-                           className="px-4"
-                         >
-                           <ImageIcon className="h-4 w-4 mr-2" />
-                           Browse Unsplash
-                         </Button>
-                       </div>
-                       {formData.coverImage && (
-                         <div className="relative w-full max-w-md">
-                           <img 
-                             src={formData.coverImage} 
-                             alt="Cover preview" 
-                             className="w-full h-auto rounded-md border object-cover aspect-[16/9]" 
-                           />
-                           <Button
-                             type="button"
-                             variant="outline"
-                             size="sm"
-                             onClick={() => setShowCoverImageSelector(true)}
-                             className="absolute top-2 right-2"
-                           >
-                             Change
-                           </Button>
-                         </div>
-                       )}
-                     </div>
-                   ) : (
-                     <div className="space-y-2">
-                       <div className="flex gap-2">
-                         <Input
-                           value={formData.coverImage}
-                           onChange={(e) => handleInputChange('coverImage', e.target.value)}
-                           placeholder="Masukkan URL gambar cover"
-                           className="flex-1"
-                         />
-                         <Button 
-                           type="button"
-                           variant="outline"
-                           onClick={() => setShowCoverImageSelector(true)}
-                           className="px-4"
-                         >
-                           <ImageIcon className="h-4 w-4 mr-2" />
-                           Browse Unsplash
-                         </Button>
-                       </div>
-                       {formData.coverImage && (
-                         <div className="relative w-full max-w-md">
-                           <img 
-                             src={formData.coverImage} 
-                             alt="Cover preview" 
-                             className="w-full h-auto rounded-md border object-cover aspect-[16/9]" 
-                           />
-                           <Button
-                             type="button"
-                             variant="outline"
-                             size="sm"
-                             onClick={() => setShowCoverImageSelector(true)}
-                             className="absolute top-2 right-2"
-                           >
-                             Change
-                           </Button>
-                         </div>
-                       )}
-                       <p className="text-sm text-muted-foreground">
-                         Ukuran ideal: 1200x627 piksel (rasio 1.91:1)
-                       </p>
-                     </div>
-                   )}
                  </div>
                 
                 <div className="space-y-2">

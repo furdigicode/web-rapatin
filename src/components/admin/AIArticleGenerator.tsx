@@ -178,25 +178,27 @@ const AIArticleGenerator: React.FC<AIArticleGeneratorProps> = ({
         </p>
       </CardHeader>
       <CardContent className="space-y-6">
-        {/* Generated Cover Image Preview */}
-        {generatedCoverImage && (
+        {/* Cover Image Preview - Show user selected or AI generated */}
+        {(currentFormData.coverImage || generatedCoverImage) && (
           <div className="space-y-2">
             <Label className="flex items-center gap-2">
               <ImageIcon className="h-4 w-4" />
-              Cover Image yang Dibuat AI
+              {currentFormData.coverImage ? 'Cover Image Terpilih' : 'Cover Image yang Dibuat AI'}
             </Label>
             <div className="relative">
               <img 
-                src={generatedCoverImage} 
-                alt="Generated cover image" 
+                src={currentFormData.coverImage || generatedCoverImage} 
+                alt={currentFormData.coverImage ? 'Selected cover image' : 'Generated cover image'} 
                 className="w-full h-48 object-cover rounded-md border shadow-sm"
               />
-              <div className="absolute top-2 right-2 bg-green-500 text-white px-2 py-1 rounded-full text-xs font-medium">
-                Auto Generated
+              <div className="absolute top-2 right-2 bg-primary text-primary-foreground px-2 py-1 rounded-full text-xs font-medium">
+                {currentFormData.coverImage ? 'User Selected' : 'Auto Generated'}
               </div>
             </div>
             <p className="text-xs text-muted-foreground">
-              Cover image ini akan otomatis digunakan untuk artikel yang dibuat.
+              {currentFormData.coverImage 
+                ? 'Gambar yang Anda pilih dari Unsplash akan digunakan untuk artikel ini.' 
+                : 'Cover image ini akan otomatis digunakan untuk artikel yang dibuat.'}
             </p>
           </div>
         )}
