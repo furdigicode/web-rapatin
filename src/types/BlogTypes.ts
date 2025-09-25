@@ -16,6 +16,7 @@ export interface BlogPost {
   metaDescription: string;
   focusKeyword: string;
   wordCount: number;
+  sendNotification?: boolean;
 }
 
 export interface BlogPostFormData {
@@ -33,6 +34,7 @@ export interface BlogPostFormData {
   metaDescription: string;
   focusKeyword: string;
   wordCount: number;
+  sendNotification?: boolean;
 }
 
 export const defaultBlogPostFormData: BlogPostFormData = {

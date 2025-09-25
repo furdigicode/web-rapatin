@@ -205,6 +205,7 @@ export type Database = {
           id: string
           meta_description: string | null
           published_at: string | null
+          send_notification: boolean
           seo_title: string | null
           slug: string
           status: string
@@ -224,6 +225,7 @@ export type Database = {
           id?: string
           meta_description?: string | null
           published_at?: string | null
+          send_notification?: boolean
           seo_title?: string | null
           slug: string
           status?: string
@@ -243,6 +245,7 @@ export type Database = {
           id?: string
           meta_description?: string | null
           published_at?: string | null
+          send_notification?: boolean
           seo_title?: string | null
           slug?: string
           status?: string

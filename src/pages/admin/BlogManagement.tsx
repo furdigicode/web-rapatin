@@ -21,6 +21,7 @@ import { FileUpload } from '@/components/ui/file-upload';
 import { calculateWordCount } from '@/utils/wordCount';
 import { CoverImageSelector } from "@/components/admin/CoverImageSelector";
 import { BlogPreviewDialog } from '@/components/admin/BlogPreviewDialog';
+import { PublishConfirmationDialog } from '@/components/admin/PublishConfirmationDialog';
 
 const BlogManagement = () => {
   const { toast } = useToast();
@@ -33,6 +34,8 @@ const BlogManagement = () => {
   const [imageUploadMode, setImageUploadMode] = useState<'url' | 'upload'>('upload');
   const [previewDialogOpen, setPreviewDialogOpen] = useState(false);
   const [previewPost, setPreviewPost] = useState<BlogPost | null>(null);
+  const [publishDialogOpen, setPublishDialogOpen] = useState(false);
+  const [publishPost, setPublishPost] = useState<BlogPost | null>(null);
 
   const [formData, setFormData] = useState<BlogPostFormData>({
     ...defaultBlogPostFormData
@@ -291,26 +294,31 @@ const BlogManagement = () => {
   });
 
   const publishPostMutation = useMutation({
-    mutationFn: async (id: string) => {
+    mutationFn: async ({ postId, sendNotification }: { postId: string; sendNotification: boolean }) => {
       const { data, error } = await supabase
         .from('blog_posts')
         .update({
           status: 'published',
-          published_at: new Date().toISOString()
+          published_at: new Date().toISOString(),
+          send_notification: sendNotification
         })
-        .eq('id', id)
+        .eq('id', postId)
         .select()
         .single();
       
       if (error) throw error;
       return data;
     },
-    onSuccess: () => {
+    onSuccess: (_, { sendNotification }) => {
       queryClient.invalidateQueries({ queryKey: ['blog-posts'] });
       toast({
-        title: "Artikel berhasil dipublikasikan",
-        description: "Artikel telah berhasil dipublikasikan",
+        title: "Berhasil",
+        description: sendNotification 
+          ? "Artikel berhasil dipublikasikan dan notifikasi telah dikirim"
+          : "Artikel berhasil dipublikasikan tanpa notifikasi"
       });
+      setPublishDialogOpen(false);
+      setPublishPost(null);
     },
     onError: (error: any) => {
       toast({
@@ -435,8 +443,18 @@ const BlogManagement = () => {
     }
   };
 
-  const handlePublishPost = (id: string) => {
-    publishPostMutation.mutate(id);
+  const handlePublishPost = (post: BlogPost) => {
+    setPublishPost(post);
+    setPublishDialogOpen(true);
+  };
+
+  const handleConfirmPublish = (sendNotification: boolean) => {
+    if (publishPost) {
+      publishPostMutation.mutate({ 
+        postId: publishPost.id, 
+        sendNotification 
+      });
+    }
   };
 
   const handleImageUploadComplete = (url: string) => {
@@ -809,7 +827,7 @@ const BlogManagement = () => {
                               variant="outline" 
                               size="sm" 
                               className="h-9 gap-1.5 text-green-600 hover:text-green-700 flex-1 min-w-[80px]" 
-                              onClick={() => handlePublishPost(post.id as string)}
+                              onClick={() => handlePublishPost(post)}
                               title="Publikasikan"
                             >
                               <ArrowRight size={14} />
@@ -908,7 +926,7 @@ const BlogManagement = () => {
                             variant="outline" 
                             size="sm" 
                             className="h-8 gap-1 text-green-600 hover:text-green-700 min-w-20" 
-                            onClick={() => handlePublishPost(post.id as string)}
+                            onClick={() => handlePublishPost(post)}
                             title="Publikasikan"
                           >
                             <ArrowRight size={14} />
@@ -940,6 +958,20 @@ const BlogManagement = () => {
         onClose={() => setShowCoverImageSelector(false)}
         onSelect={handleCoverImageSelect}
         initialKeyword={formData.focusKeyword || formData.title}
+      />
+
+      <BlogPreviewDialog
+        open={previewDialogOpen}
+        onOpenChange={setPreviewDialogOpen}
+        post={previewPost}
+      />
+
+      <PublishConfirmationDialog
+        open={publishDialogOpen}
+        onOpenChange={setPublishDialogOpen}
+        post={publishPost}
+        onConfirm={handleConfirmPublish}
+        isLoading={publishPostMutation.isPending}
       />
     </AdminLayout>
   );
