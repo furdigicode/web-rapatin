@@ -17,9 +17,8 @@ import { DeleteConfirmation } from '@/components/blog/DeleteConfirmation';
 import AIArticleGenerator from '@/components/admin/AIArticleGenerator';
 import AdminPageHeader from '@/components/admin/AdminPageHeader';
 import AuthorSelector from '@/components/admin/AuthorSelector';
-import { FileUpload } from '@/components/ui/file-upload';
 import { calculateWordCount } from '@/utils/wordCount';
-import { CoverImageSelector } from "@/components/admin/CoverImageSelector";
+import { EnhancedCoverImageSelector } from "@/components/admin/EnhancedCoverImageSelector";
 import { BlogPreviewDialog } from '@/components/admin/BlogPreviewDialog';
 import { PublishConfirmationDialog } from '@/components/admin/PublishConfirmationDialog';
 
@@ -40,7 +39,7 @@ const BlogManagement = () => {
   const [formData, setFormData] = useState<BlogPostFormData>({
     ...defaultBlogPostFormData
   });
-  const [showCoverImageSelector, setShowCoverImageSelector] = useState(false);
+  
 
   const { data: categoriesData } = useQuery({
     queryKey: ['blog-categories'],
@@ -470,24 +469,12 @@ const BlogManagement = () => {
       wordCount: wordCount
     });
     
-    // Show cover image selector after AI generation
-    setShowCoverImageSelector(true);
     toast({
       title: "Artikel berhasil di-generate",
       description: "Silahkan pilih gambar cover untuk artikel Anda."
     });
   };
 
-  const handleCoverImageSelect = (imageUrl: string, altText: string) => {
-    setFormData(prev => ({
-      ...prev,
-      coverImage: imageUrl
-    }));
-    toast({
-      title: "Gambar cover dipilih",
-      description: "Gambar cover berhasil ditambahkan ke artikel."
-    });
-  };
 
   const handlePreviewPost = (post: BlogPost) => {
     setPreviewPost(post);
@@ -558,47 +545,11 @@ const BlogManagement = () => {
                   />
                 </div>
                 
-                 <div className="space-y-4">
-                   <Label>Cover Image</Label>
-                   
-                   {/* Simplified single upload interface */}
-                   <div className="space-y-3">
-                     <div className="flex gap-2">
-                       <FileUpload
-                         onUploadComplete={handleImageUploadComplete}
-                         currentImage={formData.coverImage}
-                       />
-                       <Button 
-                         type="button"
-                         variant="outline"
-                         onClick={() => setShowCoverImageSelector(true)}
-                         className="px-4"
-                       >
-                         <ImageIcon className="h-4 w-4 mr-2" />
-                         Browse Unsplash
-                       </Button>
-                     </div>
-                     
-                     {formData.coverImage && (
-                       <div className="relative w-full max-w-md">
-                         <img 
-                           src={formData.coverImage} 
-                           alt="Cover preview" 
-                           className="w-full h-auto rounded-md border object-cover aspect-[16/9]" 
-                         />
-                         <Button
-                           type="button"
-                           variant="outline"
-                           size="sm"
-                           onClick={() => setShowCoverImageSelector(true)}
-                           className="absolute top-2 right-2"
-                         >
-                           Change
-                         </Button>
-                       </div>
-                     )}
-                   </div>
-                 </div>
+                <EnhancedCoverImageSelector
+                  value={formData.coverImage}
+                  onChange={(url) => handleInputChange('coverImage', url)}
+                  onImageUploaded={handleImageUploadComplete}
+                />
                 
                 <div className="space-y-2">
                   <Label htmlFor="excerpt">Ringkasan</Label>
@@ -953,12 +904,6 @@ const BlogManagement = () => {
         </div>
       )}
 
-      <CoverImageSelector
-        isOpen={showCoverImageSelector}
-        onClose={() => setShowCoverImageSelector(false)}
-        onSelect={handleCoverImageSelect}
-        initialKeyword={formData.focusKeyword || formData.title}
-      />
 
       <BlogPreviewDialog
         open={previewDialogOpen}
