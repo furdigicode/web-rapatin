@@ -15,6 +15,7 @@ export interface BlogPost {
   seoTitle: string;
   metaDescription: string;
   focusKeyword: string;
+  wordCount: number;
 }
 
 export interface BlogPostFormData {
@@ -31,6 +32,7 @@ export interface BlogPostFormData {
   seoTitle: string;
   metaDescription: string;
   focusKeyword: string;
+  wordCount: number;
 }
 
 export const defaultBlogPostFormData: BlogPostFormData = {
@@ -46,5 +48,6 @@ export const defaultBlogPostFormData: BlogPostFormData = {
   publishedAt: null,
   seoTitle: '',
   metaDescription: '',
-  focusKeyword: ''
+  focusKeyword: '',
+  wordCount: 0
 };

@@ -210,6 +210,7 @@ export type Database = {
           status: string
           title: string
           updated_at: string
+          word_count: number | null
         }
         Insert: {
           author?: string
@@ -228,6 +229,7 @@ export type Database = {
           status?: string
           title: string
           updated_at?: string
+          word_count?: number | null
         }
         Update: {
           author?: string
@@ -246,6 +248,7 @@ export type Database = {
           status?: string
           title?: string
           updated_at?: string
+          word_count?: number | null
         }
         Relationships: [
           {

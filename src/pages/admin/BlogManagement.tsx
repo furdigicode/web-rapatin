@@ -18,6 +18,7 @@ import AIArticleGenerator from '@/components/admin/AIArticleGenerator';
 import AdminPageHeader from '@/components/admin/AdminPageHeader';
 import AuthorSelector from '@/components/admin/AuthorSelector';
 import { FileUpload } from '@/components/ui/file-upload';
+import { calculateWordCount } from '@/utils/wordCount';
 
 const BlogManagement = () => {
   const { toast } = useToast();
@@ -98,7 +99,8 @@ const BlogManagement = () => {
         publishedAt: post.published_at || '',
         seoTitle: post.seo_title || '',
         metaDescription: post.meta_description || '',
-        focusKeyword: post.focus_keyword || ''
+        focusKeyword: post.focus_keyword || '',
+        wordCount: post.word_count || 0
       }));
     },
   });
@@ -137,7 +139,8 @@ const BlogManagement = () => {
           published_at: postData.status === 'published' ? new Date().toISOString() : (postData.publishedAt || null),
           seo_title: postData.seoTitle,
           meta_description: postData.metaDescription,
-          focus_keyword: postData.focusKeyword
+          focus_keyword: postData.focusKeyword,
+          word_count: postData.wordCount
         })
         .select()
         .single();
@@ -199,7 +202,8 @@ const BlogManagement = () => {
         published_at: postData.status === 'published' && !postData.publishedAt ? new Date().toISOString() : (postData.publishedAt || null),
         seo_title: postData.seoTitle,
         meta_description: postData.metaDescription,
-        focus_keyword: postData.focusKeyword
+        focus_keyword: postData.focusKeyword,
+        word_count: postData.wordCount
       };
       
       console.log("📦 Update payload:", updateData);
@@ -313,7 +317,29 @@ const BlogManagement = () => {
   });
 
   const handleInputChange = (field: keyof BlogPostFormData, value: string) => {
-    setFormData({ ...formData, [field]: value });
+    const updatedData = {
+      ...formData,
+      [field]: value
+    };
+
+    // Auto-generate slug from title
+    if (field === 'title') {
+      const slug = value
+        .toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-')
+        .trim();
+      
+      updatedData.slug = slug;
+    }
+
+    // Calculate word count for content changes
+    if (field === 'content') {
+      updatedData.wordCount = calculateWordCount(value);
+    }
+
+    setFormData(updatedData);
   };
 
   const handleCreatePost = () => {
@@ -356,7 +382,8 @@ const BlogManagement = () => {
       publishedAt: post.publishedAt || null,
       seoTitle: post.seoTitle,
       metaDescription: post.metaDescription,
-      focusKeyword: post.focusKeyword
+      focusKeyword: post.focusKeyword,
+      wordCount: post.wordCount || calculateWordCount(post.content)
     });
   };
 
@@ -412,10 +439,12 @@ const BlogManagement = () => {
   };
 
   const handleAIArticleGenerated = (articleData: Partial<BlogPostFormData>) => {
+    const wordCount = articleData.content ? calculateWordCount(articleData.content) : 0;
     setFormData({
       ...formData,
       ...articleData,
-      category: articleData.category || formData.category || (categories.length > 0 ? categories[0] : '')
+      category: articleData.category || formData.category || (categories.length > 0 ? categories[0] : ''),
+      wordCount: wordCount
     });
   };
 
@@ -544,7 +573,12 @@ const BlogManagement = () => {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="content">Konten</Label>
+                  <div className="flex justify-between items-center">
+                    <Label htmlFor="content">Konten</Label>
+                    <div className="text-sm text-muted-foreground bg-muted/50 px-3 py-1 rounded-md">
+                      Jumlah kata: <span className="font-semibold text-foreground">{formData.wordCount}</span> kata
+                    </div>
+                  </div>
                   <RichTextEditor 
                     value={formData.content}
                     onChange={(value) => handleInputChange('content', value)}
