@@ -89,29 +89,29 @@ const generateSEOOptimizedArticle = async (request: ArticleRequest): Promise<Art
     if (length === 'short') {
       return `
 1. H1: Compelling headline with target keyword
-2. Introduction (100-150 words) with keyword in first paragraph  
-3. 3-4 main H2 sections (150-200 words each)
-4. FAQ section with 3-4 questions
-5. Conclusion with call-to-action (100-150 words)`;
+2. Introduction (~${budgets.intro} words) with keyword in first paragraph  
+3. 4-6 main H2 sections (~${budgets.h2} words each)
+4. FAQ section with 5+ questions (~${budgets.faq} words per answer)
+5. Conclusion with call-to-action (~${budgets.conclusion} words)`;
     } else if (length === 'medium') {
       return `
 1. H1: Compelling headline with target keyword
 2. Introduction (150-200 words) with keyword in first paragraph
-3. 5-6 main H2 sections (200-250 words each)
+3. 5-6 main H2 sections (~${budgets.h2} words each) with H3 where relevant
 4. Include H3 subsections where relevant
 5. Detailed examples, statistics, and practical tips
-6. FAQ section with 5-6 comprehensive questions
-7. Conclusion with strong call-to-action (150-200 words)`;
+6. FAQ section with 6+ comprehensive questions (~${budgets.faq} words per answer)
+7. Conclusion with strong call-to-action (~${budgets.conclusion} words)`;
     } else {
       return `
 1. H1: Compelling headline with target keyword
 2. Comprehensive introduction (200-300 words)
-3. 7-8 main H2 sections (300-400 words each)
+3. 7-8 main H2 sections (~${budgets.h2} words each) with multiple H3 subsections
 4. Multiple H3 subsections with detailed explanations
 5. In-depth examples, case studies, statistics
 6. Step-by-step guides and practical implementations
-7. Comprehensive FAQ section with 8-10 detailed questions
-8. Detailed conclusion with multiple call-to-actions (200-250 words)`;
+7. Comprehensive FAQ section with 8-10 detailed questions (~${budgets.faq} words per answer)
+8. Detailed conclusion with multiple call-to-actions (~${budgets.conclusion} words)`;
     }
   };
 
@@ -179,7 +179,7 @@ ${outlinePoints ? `Include these specific points in detail: ${outlinePoints.join
 
 CRITICAL REQUIREMENTS:
 - Write in Indonesian language
-- MUST be ${targetWordCount} words minimum - this is NON-NEGOTIABLE
+- MUST be at least ${minWords} words (NON-NEGOTIABLE) and aim for ${targetWordCount}
 - Focus on primary keyword: ${targetKeyword}
 ${additionalKeywords && additionalKeywords.length > 0 ? `- Naturally incorporate additional keywords: ${additionalKeywords.join(', ')}` : ''}
 - Make it comprehensive, engaging and highly informative
