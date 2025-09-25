@@ -20,6 +20,7 @@ import AuthorSelector from '@/components/admin/AuthorSelector';
 import { FileUpload } from '@/components/ui/file-upload';
 import { calculateWordCount } from '@/utils/wordCount';
 import { CoverImageSelector } from "@/components/admin/CoverImageSelector";
+import { BlogPreviewDialog } from '@/components/admin/BlogPreviewDialog';
 
 const BlogManagement = () => {
   const { toast } = useToast();
@@ -30,6 +31,8 @@ const BlogManagement = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [postToDelete, setPostToDelete] = useState<string | null>(null);
   const [imageUploadMode, setImageUploadMode] = useState<'url' | 'upload'>('upload');
+  const [previewDialogOpen, setPreviewDialogOpen] = useState(false);
+  const [previewPost, setPreviewPost] = useState<BlogPost | null>(null);
 
   const [formData, setFormData] = useState<BlogPostFormData>({
     ...defaultBlogPostFormData
@@ -468,6 +471,19 @@ const BlogManagement = () => {
     });
   };
 
+  const handlePreviewPost = (post: BlogPost) => {
+    setPreviewPost(post);
+    setPreviewDialogOpen(true);
+  };
+
+  const handleViewPost = (post: BlogPost) => {
+    if (post.status === 'published') {
+      window.open(`/blog/${post.slug}`, '_blank');
+    } else {
+      handlePreviewPost(post);
+    }
+  };
+
   const renderBlogForm = (action: 'create' | 'edit') => {
     return (
       <div className="space-y-8">
@@ -676,6 +692,12 @@ const BlogManagement = () => {
         onConfirm={handleConfirmDelete}
       />
 
+      <BlogPreviewDialog
+        open={previewDialogOpen}
+        onOpenChange={setPreviewDialogOpen}
+        post={previewPost}
+      />
+
       {isLoading ? (
         <div className="flex justify-center items-center h-64">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
@@ -762,7 +784,13 @@ const BlogManagement = () => {
                         
                         {/* Mobile Action Buttons - Horizontal */}
                         <div className="flex flex-wrap gap-2 pt-2">
-                          <Button variant="outline" size="sm" className="h-9 gap-1.5 flex-1 min-w-[80px]" title="Lihat">
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="h-9 gap-1.5 flex-1 min-w-[80px]" 
+                            onClick={() => handleViewPost(post)}
+                            title="Lihat"
+                          >
                             <Eye size={14} />
                             <span>Lihat</span>
                           </Button>
@@ -855,7 +883,13 @@ const BlogManagement = () => {
                       </div>
                       
                       <div className="flex flex-col gap-2">
-                        <Button variant="outline" size="sm" className="h-8 gap-1 min-w-20" title="Lihat">
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="h-8 gap-1 min-w-20" 
+                          onClick={() => handleViewPost(post)}
+                          title="Lihat"
+                        >
                           <Eye size={14} />
                           <span>Lihat</span>
                         </Button>
