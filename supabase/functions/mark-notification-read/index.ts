@@ -87,7 +87,7 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         error: 'Failed to mark notification as read',
-        details: error.message 
+        details: error instanceof Error ? error.message : 'Unknown error'
       }), 
       {
         status: 500,

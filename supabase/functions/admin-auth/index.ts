@@ -195,7 +195,7 @@ async function handleLogin(email: string, password: string) {
   } catch (error) {
     console.error('Login error:', error)
     return new Response(
-      JSON.stringify({ success: false, error: 'Login failed', details: error.message }),
+      JSON.stringify({ success: false, error: 'Login failed', details: error instanceof Error ? error.message : 'Unknown error' }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   }
@@ -314,7 +314,7 @@ async function handleSetup(email: string, password: string) {
   } catch (error) {
     console.error('Setup error:', error)
     return new Response(
-      JSON.stringify({ success: false, error: 'Setup failed', details: error.message }),
+      JSON.stringify({ success: false, error: 'Setup failed', details: error instanceof Error ? error.message : 'Unknown error' }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   }
