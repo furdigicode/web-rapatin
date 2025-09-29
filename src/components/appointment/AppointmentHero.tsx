@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Calendar, CreditCard, Video, Clock } from 'lucide-react';
 import FreeTrialModal from '@/components/ui/free-trial-modal';
-import { hasTrialParams } from '@/hooks/useURLParams';
+import { shouldShowModal, getRedirectUrl } from '@/hooks/useURLParams';
 
 const AppointmentHero: React.FC = () => {
   const [modalOpen, setModalOpen] = useState(false);
@@ -12,12 +12,12 @@ const AppointmentHero: React.FC = () => {
       window.fbq('track', 'CTAClick');
     }
     
-    if (!hasTrialParams()) {
-      window.open('https://app.rapatin.id/dashboard/register', '_blank');
-      return;
+    if (shouldShowModal()) {
+      setModalOpen(true);
+    } else {
+      const redirectUrl = getRedirectUrl();
+      window.open(redirectUrl, '_blank');
     }
-    
-    setModalOpen(true);
   };
 
   return (
@@ -71,7 +71,7 @@ const AppointmentHero: React.FC = () => {
         </div>
       </section>
 
-      {hasTrialParams() && (
+      {shouldShowModal() && (
         <FreeTrialModal
           isOpen={modalOpen}
           onClose={() => setModalOpen(false)}

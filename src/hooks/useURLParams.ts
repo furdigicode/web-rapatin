@@ -79,29 +79,48 @@ export const getCurrentParams = (): URLParams => {
   };
 };
 
-// Utility function to check if we have custom trial parameters
-export const hasTrialParams = (): boolean => {
+// Utility function to check if we should show the modal
+export const shouldShowModal = (): boolean => {
   try {
-    // Check URL parameters first
     const sp = new URLSearchParams(window.location.search);
-    if (sp.get('ref') || sp.get('amount')) {
-      return true;
-    }
-
-    // Check localStorage for custom parameters
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (!stored) {
-      return false;
-    }
+    const hasRef = sp.get('ref');
+    const hasAmount = sp.get('amount');
     
-    const parsed = JSON.parse(stored);
-    const hasCustomRef = parsed?.referralCode && parsed.referralCode !== 'TRIAL25';
-    const hasCustomAmount = parsed?.amount && parsed.amount !== 25000;
-    
-    return !!(hasCustomRef || hasCustomAmount);
+    // Show modal only if BOTH ref and amount are present in URL
+    return !!(hasRef && hasAmount);
   } catch {
     return false;
   }
+};
+
+// Utility function to check if we should directly redirect
+export const shouldDirectRedirect = (): boolean => {
+  return !shouldShowModal();
+};
+
+// Utility function to get the correct redirect URL
+export const getRedirectUrl = (): string => {
+  try {
+    const sp = new URLSearchParams(window.location.search);
+    const refParam = sp.get('ref');
+    
+    const baseUrl = 'https://app.rapatin.id/dashboard/register';
+    
+    // If only ref parameter exists (without amount), include it in URL
+    if (refParam && !sp.get('amount')) {
+      return `${baseUrl}?ref=${refParam}`;
+    }
+    
+    // For all other cases (amount only, no params, etc.), return base URL
+    return baseUrl;
+  } catch {
+    return 'https://app.rapatin.id/dashboard/register';
+  }
+};
+
+// Utility function to check if we have custom trial parameters (kept for backward compatibility)
+export const hasTrialParams = (): boolean => {
+  return shouldShowModal();
 };
 
 // Utility function to preserve URL parameters in navigation

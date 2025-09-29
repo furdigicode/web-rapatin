@@ -9,7 +9,7 @@ import { Check, Calendar, Users, Clock } from 'lucide-react';
 import ComingSoonModal from '@/components/ui/coming-soon-modal';
 import FreeTrialModal from '@/components/ui/free-trial-modal';
 import { formatRupiah } from '@/utils/formatRupiah';
-import { hasTrialParams } from '@/hooks/useURLParams';
+import { shouldShowModal, getRedirectUrl } from '@/hooks/useURLParams';
 
 const TabbedPricingSection: React.FC = () => {
   const [appointmentModalOpen, setAppointmentModalOpen] = useState(false);
@@ -35,12 +35,12 @@ const TabbedPricingSection: React.FC = () => {
       window.fbq('track', 'CTAClick');
     }
     
-    if (!hasTrialParams()) {
-      window.open('https://app.rapatin.id/dashboard/register', '_blank');
-      return;
+    if (shouldShowModal()) {
+      setFreeTrialModalOpen(true);
+    } else {
+      const redirectUrl = getRedirectUrl();
+      window.open(redirectUrl, '_blank');
     }
-    
-    setFreeTrialModalOpen(true);
   };
 
   const pricingData = {
@@ -409,7 +409,7 @@ const TabbedPricingSection: React.FC = () => {
           productName="Appointment Booking"
         />
 
-        {hasTrialParams() && (
+        {shouldShowModal() && (
           <FreeTrialModal
             isOpen={freeTrialModalOpen}
             onClose={() => setFreeTrialModalOpen(false)}

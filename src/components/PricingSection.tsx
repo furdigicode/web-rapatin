@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import FreeTrialModal from '@/components/ui/free-trial-modal';
 import CountdownTimer from '@/components/ui/countdown-timer';
 import { formatRupiah } from '@/utils/formatRupiah';
-import { hasTrialParams } from '@/hooks/useURLParams';
+import { shouldShowModal, getRedirectUrl } from '@/hooks/useURLParams';
 
 const PricingSection: React.FC = () => {
   const [modalOpen, setModalOpen] = useState(false);
@@ -49,12 +49,12 @@ const PricingSection: React.FC = () => {
       window.fbq('track', 'CTAClick');
     }
     
-    if (!hasTrialParams()) {
-      window.open('https://app.rapatin.id/dashboard/register', '_blank');
-      return;
+    if (shouldShowModal()) {
+      setModalOpen(true);
+    } else {
+      const redirectUrl = getRedirectUrl();
+      window.open(redirectUrl, '_blank');
     }
-    
-    setModalOpen(true);
   };
   
   return (
@@ -168,7 +168,7 @@ const PricingSection: React.FC = () => {
         </div>
       </section>
 
-      {hasTrialParams() && (
+      {shouldShowModal() && (
         <FreeTrialModal
           isOpen={modalOpen}
           onClose={() => setModalOpen(false)}

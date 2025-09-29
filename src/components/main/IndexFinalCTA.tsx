@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Calendar, Users, CreditCard, Zap, Clock, Shield } from 'lucide-react';
 import FreeTrialModal from '@/components/ui/free-trial-modal';
-import { hasTrialParams } from '@/hooks/useURLParams';
+import { shouldShowModal, getRedirectUrl } from '@/hooks/useURLParams';
 
 const IndexFinalCTA = () => {
   const [modalOpen, setModalOpen] = useState(false);
@@ -12,12 +12,12 @@ const IndexFinalCTA = () => {
       window.fbq('track', 'CTAClick');
     }
     
-    if (!hasTrialParams()) {
-      window.open('https://app.rapatin.id/dashboard/register', '_blank');
-      return;
+    if (shouldShowModal()) {
+      setModalOpen(true);
+    } else {
+      const redirectUrl = getRedirectUrl();
+      window.open(redirectUrl, '_blank');
     }
-    
-    setModalOpen(true);
   };
 
   const products = [
@@ -118,7 +118,7 @@ const IndexFinalCTA = () => {
         </div>
       </section>
 
-      {hasTrialParams() && (
+      {shouldShowModal() && (
         <FreeTrialModal
           isOpen={modalOpen}
           onClose={() => setModalOpen(false)}

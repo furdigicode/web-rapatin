@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Menu, X, Home, HelpCircle } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import FreeTrialModal from '@/components/ui/free-trial-modal';
-import { preserveURLParams, hasTrialParams } from "@/hooks/useURLParams";
+import { preserveURLParams, shouldShowModal, getRedirectUrl } from "@/hooks/useURLParams";
 
 const Navbar: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -40,12 +40,12 @@ const Navbar: React.FC = () => {
       window.fbq('track', 'CTAClick');
     }
     
-    if (!hasTrialParams()) {
-      window.open('https://app.rapatin.id/dashboard/register', '_blank');
-      return;
+    if (shouldShowModal()) {
+      setModalOpen(true);
+    } else {
+      const redirectUrl = getRedirectUrl();
+      window.open(redirectUrl, '_blank');
     }
-    
-    setModalOpen(true);
   };
 
   return (
@@ -189,7 +189,7 @@ const Navbar: React.FC = () => {
         )}
       </header>
 
-      {hasTrialParams() && (
+      {shouldShowModal() && (
         <FreeTrialModal
           isOpen={modalOpen}
           onClose={() => setModalOpen(false)}

@@ -4,7 +4,7 @@ import SectionContainer from '@/components/layout/SectionContainer';
 import { Button } from '@/components/ui/button';
 import { CheckCircle, Users, Zap, Shield, MessageCircle, GraduationCap, Briefcase, ShoppingBag, Megaphone, ArrowRight } from 'lucide-react';
 import FreeTrialModal from '@/components/ui/free-trial-modal';
-import { hasTrialParams } from '@/hooks/useURLParams';
+import { shouldShowModal, getRedirectUrl } from '@/hooks/useURLParams';
 
 const SewaZoomHarianSection: React.FC = () => {
   const [modalOpen, setModalOpen] = useState(false);
@@ -15,12 +15,12 @@ const SewaZoomHarianSection: React.FC = () => {
       window.fbq('track', 'CTAClick');
     }
     
-    if (!hasTrialParams()) {
-      window.open('https://app.rapatin.id/dashboard/register', '_blank');
-      return;
+    if (shouldShowModal()) {
+      setModalOpen(true);
+    } else {
+      const redirectUrl = getRedirectUrl();
+      window.open(redirectUrl, '_blank');
     }
-    
-    setModalOpen(true);
   };
 
   return (
@@ -158,7 +158,7 @@ const SewaZoomHarianSection: React.FC = () => {
         </div>
       </SectionContainer>
 
-      {hasTrialParams() && (
+      {shouldShowModal() && (
         <FreeTrialModal
           isOpen={modalOpen}
           onClose={() => setModalOpen(false)}
