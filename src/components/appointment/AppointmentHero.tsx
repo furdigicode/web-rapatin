@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Calendar, CreditCard, Video, Clock } from 'lucide-react';
+import OptimizedImage from '@/components/ui/optimized-image';
 import FreeTrialModal from '@/components/ui/free-trial-modal';
 import { shouldShowModal, getRedirectUrl } from '@/hooks/useURLParams';
 
@@ -60,12 +61,14 @@ const AppointmentHero: React.FC = () => {
             </div>
           </div>
           <div className="max-w-full mt-8 mb-10 animate-slide-in-right">
-            <img 
+            <OptimizedImage
               src="/lovable-uploads/e7e34560-7715-4bb4-9fa9-26f74f4090b8.png" 
-              alt="Ilustrasi Appointment Booking" 
+              alt="Ilustrasi Appointment Booking - Platform booking appointment dengan Zoom dan Google Meet" 
+              width={1200}
+              height={675}
+              priority
               className="w-full rounded-2xl shadow-elevation border border-white/40 bg-white object-cover"
               style={{ background: "rgba(255,255,255,0.9)", maxHeight: "800px" }}
-              loading="lazy"
             />
           </div>
         </div>

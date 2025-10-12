@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Calendar, Clock, DollarSign, Video, BadgeDollarSign } from 'lucide-react';
 import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
+import OptimizedImage from '@/components/ui/optimized-image';
 import FreeTrialModal from '@/components/ui/free-trial-modal';
 import { shouldShowModal, getRedirectUrl } from '@/hooks/useURLParams';
 
@@ -71,12 +72,14 @@ const HeroSection: React.FC = () => {
             </div>
           </div>
           <div className="max-w-full mt-8 mb-10 animate-slide-in-right">
-            <img 
+            <OptimizedImage
               src={IllustSrc} 
-              alt="Ilustrasi Rapatin" 
+              alt="Ilustrasi Rapatin - Platform penjadwalan meeting online tanpa batas waktu" 
+              width={1200}
+              height={675}
+              priority
               className="w-full rounded-2xl shadow-elevation border border-white/40 bg-white object-cover"
               style={{ background: "rgba(255,255,255,0.9)", maxHeight: "800px" }}
-              loading="lazy"
             />
           </div>
           <div className="mt-6 md:mt-6 w-full">

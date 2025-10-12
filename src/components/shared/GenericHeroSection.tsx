@@ -2,6 +2,7 @@ import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
+import OptimizedImage from '@/components/ui/optimized-image';
 import * as LucideIcons from 'lucide-react';
 import { HeroContent } from '@/types/ProductPageTypes';
 
@@ -63,12 +64,14 @@ const GenericHeroSection: React.FC<GenericHeroSectionProps> = ({
         </div>
         
         <div className="max-w-full mt-8 mb-10 animate-slide-in-right">
-          <img 
+          <OptimizedImage
             src={content.image.src}
             alt={content.image.alt}
+            width={1200}
+            height={675}
+            priority
             className="w-full rounded-2xl shadow-elevation border border-white/40 object-cover"
             style={{ background: "rgba(255,255,255,0.9)", maxHeight: "800px" }}
-            loading="lazy"
           />
         </div>
 
@@ -88,9 +91,11 @@ const GenericHeroSection: React.FC<GenericHeroSectionProps> = ({
                   <React.Fragment key={`copy-${copy}`}>
                     <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
                       <div className="flex items-center justify-center h-16 grayscale hover:grayscale-0 transition-all duration-300">
-                        <img
+                        <OptimizedImage
                           src="/lovable-uploads/e690e2b8-f08c-4ae8-b42e-6754404ab3c1.png"
                           alt="Halodoc"
+                          width={120}
+                          height={48}
                           className="h-12 object-contain opacity-70 hover:opacity-100"
                         />
                       </div>

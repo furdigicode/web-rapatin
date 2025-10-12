@@ -5,6 +5,7 @@ import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carouse
 import Autoplay from "embla-carousel-autoplay";
 import AnimatedText from "@/components/ui/animated-text";
 import FreeTrialModal from '@/components/ui/free-trial-modal';
+import OptimizedImage from '@/components/ui/optimized-image';
 import { shouldShowModal, getRedirectUrl } from '@/hooks/useURLParams';
 
 const MainHeroSection: React.FC = () => {
@@ -80,12 +81,14 @@ const MainHeroSection: React.FC = () => {
             </div>
           </div>
           <div className="max-w-full mt-8 mb-10 animate-slide-in-right">
-            <img 
+            <OptimizedImage
               src="/lovable-uploads/e7e34560-7715-4bb4-9fa9-26f74f4090b8.png" 
-              alt="All in One Scheduling Platform" 
+              alt="All in One Scheduling Platform - Dashboard Rapatin untuk meeting, event, dan appointment" 
+              width={1200}
+              height={675}
+              priority
               className="w-full rounded-2xl shadow-elevation border border-white/40 bg-white object-cover"
               style={{ background: "rgba(255,255,255,0.9)", maxHeight: "800px" }}
-              loading="lazy"
             />
           </div>
           
@@ -111,9 +114,11 @@ const MainHeroSection: React.FC = () => {
                   {[...Array(2)].map((_, copy) => <React.Fragment key={`copy-${copy}`}>
                     <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
                       <div className="flex items-center justify-center h-14 grayscale hover:grayscale-0 transition-all duration-300">
-                        <img
+                        <OptimizedImage
                           src="/lovable-uploads/e690e2b8-f08c-4ae8-b42e-6754404ab3c1.png"
                           alt="Halodoc"
+                          width={120}
+                          height={40}
                           className="h-10 object-contain opacity-70 hover:opacity-100"
                         />
                       </div>
