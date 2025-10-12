@@ -1,51 +1,61 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { HelmetProvider } from 'react-helmet-async';
-import { useEffect } from "react";
+import { useEffect, lazy, Suspense } from "react";
 import { useMetaPixel } from "./hooks/useMetaPixel";
+
+// Eager load: Index page (critical for LCP)
 import Index from "./pages/Index";
-import MainPage from "./pages/MainPage";
-import MeetingScheduling from "./pages/MeetingScheduling";
-import NotFound from "./pages/NotFound";
-import FAQ from "./pages/FAQ";
-import TentangKami from "./pages/TentangKami";
-import Kontak from "./pages/Kontak";
-import Appointment from "./pages/Appointment";
-import SewaZoomHarian from "./pages/SewaZoomHarian";
-import EventManagement from "./pages/EventManagement";
 
-// Feature Pages
-import BayarSesuaiPakai from "./pages/fitur/BayarSesuaiPakai";
-import Dashboard from "./pages/fitur/Dashboard";
-import RekamanCloud from "./pages/fitur/RekamanCloud";
-import LaporanPeserta from "./pages/fitur/LaporanPeserta";
+// Lazy load: All other routes
+const MainPage = lazy(() => import("./pages/MainPage"));
+const MeetingScheduling = lazy(() => import("./pages/MeetingScheduling"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const FAQ = lazy(() => import("./pages/FAQ"));
+const TentangKami = lazy(() => import("./pages/TentangKami"));
+const Kontak = lazy(() => import("./pages/Kontak"));
+const Appointment = lazy(() => import("./pages/Appointment"));
+const SewaZoomHarian = lazy(() => import("./pages/SewaZoomHarian"));
+const EventManagement = lazy(() => import("./pages/EventManagement"));
 
-// Company Pages
-import SyaratKetentuan from "./pages/SyaratKetentuan";
-import KebijakanPrivasi from "./pages/KebijakanPrivasi";
-import MenjadiReseller from "./pages/MenjadiReseller";
+// Feature Pages - Lazy loaded
+const BayarSesuaiPakai = lazy(() => import("./pages/fitur/BayarSesuaiPakai"));
+const Dashboard = lazy(() => import("./pages/fitur/Dashboard"));
+const RekamanCloud = lazy(() => import("./pages/fitur/RekamanCloud"));
+const LaporanPeserta = lazy(() => import("./pages/fitur/LaporanPeserta"));
 
-// Blog Pages (Simple static version)
-import Blog from "./pages/Blog";
-import BlogPost from "./pages/BlogPost";
+// Company Pages - Lazy loaded
+const SyaratKetentuan = lazy(() => import("./pages/SyaratKetentuan"));
+const KebijakanPrivasi = lazy(() => import("./pages/KebijakanPrivasi"));
+const MenjadiReseller = lazy(() => import("./pages/MenjadiReseller"));
 
-// Admin Pages
-import AdminLogin from "./pages/admin/Login";
-import AdminDashboard from "./pages/admin/Dashboard";
-import BlogManagement from "./pages/admin/BlogManagement";
-import ContentManagement from "./pages/admin/ContentManagement";
-import CategoryManagementPage from "./pages/admin/CategoryManagement";
-import NotificationManagementPage from "./pages/admin/NotificationManagement";
-import ProtectedRoute from "./components/admin/ProtectedRoute";
-import LegalManagement from "./pages/admin/LegalManagement";
-import LegalTermsManagement from "./pages/admin/LegalTermsManagement";
-import TrackingSettings from "./pages/admin/TrackingSettings";
+// Blog Pages - Lazy loaded
+const Blog = lazy(() => import("./pages/Blog"));
+const BlogPost = lazy(() => import("./pages/BlogPost"));
 
-// Sitemap
-import SitemapXML from "./pages/SitemapXML";
+// Admin Pages - Lazy loaded (not critical for initial load)
+const AdminLogin = lazy(() => import("./pages/admin/Login"));
+const AdminDashboard = lazy(() => import("./pages/admin/Dashboard"));
+const BlogManagement = lazy(() => import("./pages/admin/BlogManagement"));
+const ContentManagement = lazy(() => import("./pages/admin/ContentManagement"));
+const CategoryManagementPage = lazy(() => import("./pages/admin/CategoryManagement"));
+const NotificationManagementPage = lazy(() => import("./pages/admin/NotificationManagement"));
+const ProtectedRoute = lazy(() => import("./components/admin/ProtectedRoute"));
+const LegalManagement = lazy(() => import("./pages/admin/LegalManagement"));
+const LegalTermsManagement = lazy(() => import("./pages/admin/LegalTermsManagement"));
+const TrackingSettings = lazy(() => import("./pages/admin/TrackingSettings"));
+
+// Sitemap - Lazy loaded
+const SitemapXML = lazy(() => import("./pages/SitemapXML"));
+
+// Loading fallback component
+const PageLoader = () => (
+  <div className="min-h-screen flex items-center justify-center bg-background">
+    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+  </div>
+);
 
 const queryClient = new QueryClient();
 
@@ -60,50 +70,52 @@ const AppRoutes = () => {
   }, [location.pathname]);
 
   return (
-    <Routes>
-      {/* Public Routes */}
-      <Route path="/" element={<Index />} />
-      <Route path="/main-page" element={<MainPage />} />
-      <Route path="/meeting-scheduling" element={<MeetingScheduling />} />
-      <Route path="/sewa-zoom-harian" element={<SewaZoomHarian />} />
-      <Route path="/faq" element={<FAQ />} />
-      <Route path="/appointment" element={<Appointment />} />
-      <Route path="/event-management" element={<EventManagement />} />
-      
-      {/* Feature Pages */}
-      <Route path="/fitur/bayar-sesuai-pakai" element={<BayarSesuaiPakai />} />
-      <Route path="/fitur/dashboard" element={<Dashboard />} />
-      <Route path="/fitur/rekaman-cloud" element={<RekamanCloud />} />
-      <Route path="/fitur/laporan-peserta" element={<LaporanPeserta />} />
-      
-      {/* Company Pages */}
-      <Route path="/syarat-ketentuan" element={<SyaratKetentuan />} />
-      <Route path="/kebijakan-privasi" element={<KebijakanPrivasi />} />
-      <Route path="/menjadi-reseller" element={<MenjadiReseller />} />
-      <Route path="/tentang-kami" element={<TentangKami />} />
-      <Route path="/kontak" element={<Kontak />} />
-      
-      {/* Blog Pages - Simple static version */}
-      <Route path="/blog" element={<Blog />} />
-      <Route path="/blog/:slug" element={<BlogPost />} />
-      
-      {/* Sitemap */}
-      <Route path="/sitemap.xml" element={<SitemapXML />} />
-      
-{/* Admin Routes */}
-<Route path="/admin/login" element={<AdminLogin />} />
-<Route path="/admin/dashboard" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
-<Route path="/admin/blog" element={<ProtectedRoute><BlogManagement /></ProtectedRoute>} />
-<Route path="/admin/categories" element={<ProtectedRoute><CategoryManagementPage /></ProtectedRoute>} />
-<Route path="/admin/content" element={<ProtectedRoute><ContentManagement /></ProtectedRoute>} />
-<Route path="/admin/notifications" element={<ProtectedRoute><NotificationManagementPage /></ProtectedRoute>} />
-<Route path="/admin/legal" element={<ProtectedRoute><LegalManagement /></ProtectedRoute>} />
-<Route path="/admin/legal-terms" element={<ProtectedRoute><LegalTermsManagement /></ProtectedRoute>} />
-<Route path="/admin/tracking" element={<ProtectedRoute><TrackingSettings /></ProtectedRoute>} />
-      
-      {/* 404 Catch-all Route */}
-      <Route path="*" element={<NotFound />} />
-    </Routes>
+    <Suspense fallback={<PageLoader />}>
+      <Routes>
+        {/* Public Routes */}
+        <Route path="/" element={<Index />} />
+        <Route path="/main-page" element={<MainPage />} />
+        <Route path="/meeting-scheduling" element={<MeetingScheduling />} />
+        <Route path="/sewa-zoom-harian" element={<SewaZoomHarian />} />
+        <Route path="/faq" element={<FAQ />} />
+        <Route path="/appointment" element={<Appointment />} />
+        <Route path="/event-management" element={<EventManagement />} />
+        
+        {/* Feature Pages */}
+        <Route path="/fitur/bayar-sesuai-pakai" element={<BayarSesuaiPakai />} />
+        <Route path="/fitur/dashboard" element={<Dashboard />} />
+        <Route path="/fitur/rekaman-cloud" element={<RekamanCloud />} />
+        <Route path="/fitur/laporan-peserta" element={<LaporanPeserta />} />
+        
+        {/* Company Pages */}
+        <Route path="/syarat-ketentuan" element={<SyaratKetentuan />} />
+        <Route path="/kebijakan-privasi" element={<KebijakanPrivasi />} />
+        <Route path="/menjadi-reseller" element={<MenjadiReseller />} />
+        <Route path="/tentang-kami" element={<TentangKami />} />
+        <Route path="/kontak" element={<Kontak />} />
+        
+        {/* Blog Pages - Simple static version */}
+        <Route path="/blog" element={<Blog />} />
+        <Route path="/blog/:slug" element={<BlogPost />} />
+        
+        {/* Sitemap */}
+        <Route path="/sitemap.xml" element={<SitemapXML />} />
+        
+        {/* Admin Routes */}
+        <Route path="/admin/login" element={<AdminLogin />} />
+        <Route path="/admin/dashboard" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
+        <Route path="/admin/blog" element={<ProtectedRoute><BlogManagement /></ProtectedRoute>} />
+        <Route path="/admin/categories" element={<ProtectedRoute><CategoryManagementPage /></ProtectedRoute>} />
+        <Route path="/admin/content" element={<ProtectedRoute><ContentManagement /></ProtectedRoute>} />
+        <Route path="/admin/notifications" element={<ProtectedRoute><NotificationManagementPage /></ProtectedRoute>} />
+        <Route path="/admin/legal" element={<ProtectedRoute><LegalManagement /></ProtectedRoute>} />
+        <Route path="/admin/legal-terms" element={<ProtectedRoute><LegalTermsManagement /></ProtectedRoute>} />
+        <Route path="/admin/tracking" element={<ProtectedRoute><TrackingSettings /></ProtectedRoute>} />
+        
+        {/* 404 Catch-all Route */}
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </Suspense>
   );
 };
 
