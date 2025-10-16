@@ -352,11 +352,201 @@ export type Database = {
           },
         ]
       }
+      voting_categories: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      voting_options: {
+        Row: {
+          created_at: string
+          id: string
+          option_image: string | null
+          option_order: number
+          option_text: string
+          updated_at: string
+          vote_count: number | null
+          voting_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          option_image?: string | null
+          option_order?: number
+          option_text: string
+          updated_at?: string
+          vote_count?: number | null
+          voting_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          option_image?: string | null
+          option_order?: number
+          option_text?: string
+          updated_at?: string
+          vote_count?: number | null
+          voting_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "voting_options_voting_id_fkey"
+            columns: ["voting_id"]
+            isOneToOne: false
+            referencedRelation: "votings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      voting_responses: {
+        Row: {
+          id: string
+          metadata: Json | null
+          option_id: string
+          user_email: string | null
+          user_id: string | null
+          user_identifier: string
+          user_name: string | null
+          voted_at: string
+          voting_id: string
+        }
+        Insert: {
+          id?: string
+          metadata?: Json | null
+          option_id: string
+          user_email?: string | null
+          user_id?: string | null
+          user_identifier: string
+          user_name?: string | null
+          voted_at?: string
+          voting_id: string
+        }
+        Update: {
+          id?: string
+          metadata?: Json | null
+          option_id?: string
+          user_email?: string | null
+          user_id?: string | null
+          user_identifier?: string
+          user_name?: string | null
+          voted_at?: string
+          voting_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "voting_responses_option_id_fkey"
+            columns: ["option_id"]
+            isOneToOne: false
+            referencedRelation: "voting_options"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "voting_responses_voting_id_fkey"
+            columns: ["voting_id"]
+            isOneToOne: false
+            referencedRelation: "votings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      votings: {
+        Row: {
+          allow_anonymous: boolean | null
+          category: string | null
+          cover_image: string | null
+          created_at: string
+          description: string | null
+          end_date: string | null
+          id: string
+          max_selections: number | null
+          published_at: string | null
+          require_login: boolean | null
+          show_results: boolean | null
+          slug: string
+          start_date: string | null
+          status: string
+          title: string
+          total_votes: number | null
+          updated_at: string
+          voting_type: string
+        }
+        Insert: {
+          allow_anonymous?: boolean | null
+          category?: string | null
+          cover_image?: string | null
+          created_at?: string
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          max_selections?: number | null
+          published_at?: string | null
+          require_login?: boolean | null
+          show_results?: boolean | null
+          slug: string
+          start_date?: string | null
+          status?: string
+          title: string
+          total_votes?: number | null
+          updated_at?: string
+          voting_type?: string
+        }
+        Update: {
+          allow_anonymous?: boolean | null
+          category?: string | null
+          cover_image?: string | null
+          created_at?: string
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          max_selections?: number | null
+          published_at?: string | null
+          require_login?: boolean | null
+          show_results?: boolean | null
+          slug?: string
+          start_date?: string | null
+          status?: string
+          title?: string
+          total_votes?: number | null
+          updated_at?: string
+          voting_type?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      check_voting_status: {
+        Args: { voting_id_param: string }
+        Returns: boolean
+      }
+      get_voting_results: {
+        Args: { voting_id_param: string }
+        Returns: {
+          option_id: string
+          option_image: string
+          option_text: string
+          percentage: number
+          vote_count: number
+        }[]
+      }
       is_admin_user: {
         Args: Record<PropertyKey, never>
         Returns: boolean

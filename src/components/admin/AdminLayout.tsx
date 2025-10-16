@@ -9,7 +9,8 @@ import {
   LogOut,
   Home,
   Bell,
-  Settings
+  Settings,
+  Vote
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -146,6 +147,17 @@ const AppSidebar = () => {
                     </SidebarMenuSubButton>
                   </SidebarMenuSubItem>
                 </SidebarMenuSub>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton 
+                  asChild 
+                  isActive={location.pathname === '/admin/voting'}
+                >
+                  <Link to="/admin/voting">
+                    <Vote />
+                    <span>Voting</span>
+                  </Link>
+                </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton 

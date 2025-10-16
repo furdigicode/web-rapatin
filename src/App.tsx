@@ -46,6 +46,7 @@ const ProtectedRoute = lazy(() => import("./components/admin/ProtectedRoute"));
 const LegalManagement = lazy(() => import("./pages/admin/LegalManagement"));
 const LegalTermsManagement = lazy(() => import("./pages/admin/LegalTermsManagement"));
 const TrackingSettings = lazy(() => import("./pages/admin/TrackingSettings"));
+const VotingManagement = lazy(() => import("./pages/admin/VotingManagement"));
 
 // Sitemap - Lazy loaded
 const SitemapXML = lazy(() => import("./pages/SitemapXML"));
@@ -111,6 +112,7 @@ const AppRoutes = () => {
         <Route path="/admin/legal" element={<ProtectedRoute><LegalManagement /></ProtectedRoute>} />
         <Route path="/admin/legal-terms" element={<ProtectedRoute><LegalTermsManagement /></ProtectedRoute>} />
         <Route path="/admin/tracking" element={<ProtectedRoute><TrackingSettings /></ProtectedRoute>} />
+        <Route path="/admin/voting" element={<ProtectedRoute><VotingManagement /></ProtectedRoute>} />
         
         {/* 404 Catch-all Route */}
         <Route path="*" element={<NotFound />} />
