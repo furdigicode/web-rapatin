@@ -159,7 +159,7 @@ const VotingList: React.FC<VotingListProps> = ({ onEdit, onCreateNew }) => {
                   <TableCell className="font-medium">{voting.title}</TableCell>
                   <TableCell>{getStatusBadge(voting.status)}</TableCell>
                   <TableCell className="font-mono text-sm text-muted-foreground">
-                    /voting/{voting.slug}
+                    /{voting.slug}
                   </TableCell>
                   <TableCell>{voting.category || '-'}</TableCell>
                   <TableCell>{voting.total_votes}</TableCell>
@@ -172,7 +172,6 @@ const VotingList: React.FC<VotingListProps> = ({ onEdit, onCreateNew }) => {
                         variant="ghost"
                         size="sm"
                         onClick={() => handleCopyLink(voting.slug)}
-                        title="Copy Link"
                       >
                         <Link className="h-4 w-4" />
                       </Button>
@@ -181,7 +180,6 @@ const VotingList: React.FC<VotingListProps> = ({ onEdit, onCreateNew }) => {
                           variant="ghost"
                           size="sm"
                           onClick={() => handlePreview(voting.slug)}
-                          title="Preview"
                         >
                           <ExternalLink className="h-4 w-4" />
                         </Button>
@@ -190,7 +188,6 @@ const VotingList: React.FC<VotingListProps> = ({ onEdit, onCreateNew }) => {
                         variant="ghost"
                         size="sm"
                         onClick={() => onEdit(voting.id)}
-                        title="Edit"
                       >
                         <Edit className="h-4 w-4" />
                       </Button>
@@ -198,7 +195,6 @@ const VotingList: React.FC<VotingListProps> = ({ onEdit, onCreateNew }) => {
                         variant="ghost"
                         size="sm"
                         onClick={() => setDeleteId(voting.id)}
-                        title="Hapus"
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>

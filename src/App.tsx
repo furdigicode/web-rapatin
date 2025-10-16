@@ -35,6 +35,9 @@ const MenjadiReseller = lazy(() => import("./pages/MenjadiReseller"));
 const Blog = lazy(() => import("./pages/Blog"));
 const BlogPost = lazy(() => import("./pages/BlogPost"));
 
+// Voting Pages - Lazy loaded
+const VotingDetail = lazy(() => import("./pages/VotingDetail"));
+
 // Admin Pages - Lazy loaded (not critical for initial load)
 const AdminLogin = lazy(() => import("./pages/admin/Login"));
 const AdminDashboard = lazy(() => import("./pages/admin/Dashboard"));
@@ -99,6 +102,9 @@ const AppRoutes = () => {
         {/* Blog Pages - Simple static version */}
         <Route path="/blog" element={<Blog />} />
         <Route path="/blog/:slug" element={<BlogPost />} />
+        
+        {/* Voting Pages */}
+        <Route path="/voting/:slug" element={<VotingDetail />} />
         
         {/* Sitemap */}
         <Route path="/sitemap.xml" element={<SitemapXML />} />
