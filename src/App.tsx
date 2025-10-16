@@ -51,6 +51,7 @@ const LegalTermsManagement = lazy(() => import("./pages/admin/LegalTermsManageme
 const TrackingSettings = lazy(() => import("./pages/admin/TrackingSettings"));
 const VotingManagement = lazy(() => import("./pages/admin/VotingManagement"));
 const VotingCategoryManagement = lazy(() => import("./pages/admin/VotingCategoryManagement"));
+const VotingResults = lazy(() => import("./pages/admin/VotingResults"));
 
 // Sitemap - Lazy loaded
 const SitemapXML = lazy(() => import("./pages/SitemapXML"));
@@ -120,6 +121,7 @@ const AppRoutes = () => {
         <Route path="/admin/legal-terms" element={<ProtectedRoute><LegalTermsManagement /></ProtectedRoute>} />
         <Route path="/admin/tracking" element={<ProtectedRoute><TrackingSettings /></ProtectedRoute>} />
         <Route path="/admin/voting" element={<ProtectedRoute><VotingManagement /></ProtectedRoute>} />
+        <Route path="/admin/voting/:id/results" element={<ProtectedRoute><VotingResults /></ProtectedRoute>} />
         <Route path="/admin/voting-categories" element={<ProtectedRoute><VotingCategoryManagement /></ProtectedRoute>} />
         
         {/* 404 Catch-all Route */}

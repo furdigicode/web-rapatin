@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Search, Edit, Trash2, BarChart3, Link, ExternalLink, Info } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import {
@@ -29,6 +30,7 @@ const VotingList: React.FC<VotingListProps> = ({ onEdit }) => {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   const { data: votings, isLoading } = useQuery({
     queryKey: ["votings", statusFilter],
@@ -133,6 +135,15 @@ const VotingList: React.FC<VotingListProps> = ({ onEdit }) => {
                   <TableCell>{new Date(voting.created_at).toLocaleDateString("id-ID")}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-2">
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        onClick={() => navigate(`/admin/voting/${voting.id}/results`)}
+                        disabled={voting.total_votes === 0}
+                        title={voting.total_votes === 0 ? "Belum ada suara" : "Lihat Hasil"}
+                      >
+                        <BarChart3 className="h-4 w-4" />
+                      </Button>
                       <Button variant="ghost" size="sm" onClick={() => handleCopyLink(voting.slug)}>
                         <Link className="h-4 w-4" />
                       </Button>
