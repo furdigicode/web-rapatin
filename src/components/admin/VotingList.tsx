@@ -5,8 +5,9 @@ import { Voting } from '@/types/VotingTypes';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Search, Edit, Trash2, BarChart3 } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, BarChart3, Link, ExternalLink, Info } from 'lucide-react';
 import { toast } from 'sonner';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import {
   Table,
   TableBody,
@@ -90,8 +91,25 @@ const VotingList: React.FC<VotingListProps> = ({ onEdit, onCreateNew }) => {
     return <Badge variant={variants[status]}>{status}</Badge>;
   };
 
+  const handleCopyLink = (slug: string) => {
+    const url = `${window.location.origin}/voting/${slug}`;
+    navigator.clipboard.writeText(url);
+    toast.success('Link berhasil disalin ke clipboard!');
+  };
+
+  const handlePreview = (slug: string) => {
+    window.open(`/voting/${slug}`, '_blank');
+  };
+
   return (
     <div className="space-y-4">
+      <Alert>
+        <Info className="h-4 w-4" />
+        <AlertDescription>
+          Gunakan tombol <strong>Copy Link</strong> untuk menyalin URL voting, atau <strong>Preview</strong> untuk melihat halaman voting.
+        </AlertDescription>
+      </Alert>
+      
       <div className="flex items-center gap-4">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
@@ -128,6 +146,7 @@ const VotingList: React.FC<VotingListProps> = ({ onEdit, onCreateNew }) => {
               <TableRow>
                 <TableHead>Judul</TableHead>
                 <TableHead>Status</TableHead>
+                <TableHead>URL Slug</TableHead>
                 <TableHead>Kategori</TableHead>
                 <TableHead>Total Suara</TableHead>
                 <TableHead>Tanggal Dibuat</TableHead>
@@ -139,6 +158,9 @@ const VotingList: React.FC<VotingListProps> = ({ onEdit, onCreateNew }) => {
                 <TableRow key={voting.id}>
                   <TableCell className="font-medium">{voting.title}</TableCell>
                   <TableCell>{getStatusBadge(voting.status)}</TableCell>
+                  <TableCell className="font-mono text-sm text-muted-foreground">
+                    /voting/{voting.slug}
+                  </TableCell>
                   <TableCell>{voting.category || '-'}</TableCell>
                   <TableCell>{voting.total_votes}</TableCell>
                   <TableCell>
@@ -149,7 +171,26 @@ const VotingList: React.FC<VotingListProps> = ({ onEdit, onCreateNew }) => {
                       <Button
                         variant="ghost"
                         size="sm"
+                        onClick={() => handleCopyLink(voting.slug)}
+                        title="Copy Link"
+                      >
+                        <Link className="h-4 w-4" />
+                      </Button>
+                      {(voting.status === 'active' || voting.status === 'closed') && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handlePreview(voting.slug)}
+                          title="Preview"
+                        >
+                          <ExternalLink className="h-4 w-4" />
+                        </Button>
+                      )}
+                      <Button
+                        variant="ghost"
+                        size="sm"
                         onClick={() => onEdit(voting.id)}
+                        title="Edit"
                       >
                         <Edit className="h-4 w-4" />
                       </Button>
@@ -157,6 +198,7 @@ const VotingList: React.FC<VotingListProps> = ({ onEdit, onCreateNew }) => {
                         variant="ghost"
                         size="sm"
                         onClick={() => setDeleteId(voting.id)}
+                        title="Hapus"
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
