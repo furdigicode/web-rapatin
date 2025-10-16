@@ -22,10 +22,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 
 interface VotingListProps {
   onEdit: (votingId: string) => void;
-  onCreateNew: () => void;
 }
 
-const VotingList: React.FC<VotingListProps> = ({ onEdit, onCreateNew }) => {
+const VotingList: React.FC<VotingListProps> = ({ onEdit }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -105,10 +104,6 @@ const VotingList: React.FC<VotingListProps> = ({ onEdit, onCreateNew }) => {
             <SelectItem value="closed">Ditutup</SelectItem>
           </SelectContent>
         </Select>
-        <Button onClick={onCreateNew}>
-          <Plus className="mr-2 h-4 w-4" />
-          Buat Baru
-        </Button>
       </div>
 
       {isLoading ? (

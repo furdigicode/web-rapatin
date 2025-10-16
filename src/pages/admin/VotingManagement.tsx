@@ -1,28 +1,32 @@
 import React, { useState } from 'react';
 import AdminLayout from '@/components/admin/AdminLayout';
+import AdminPageHeader from '@/components/admin/AdminPageHeader';
 import SEO from '@/components/SEO';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
+import { Plus } from 'lucide-react';
 import VotingBuilder from '@/components/admin/VotingBuilder';
 import VotingList from '@/components/admin/VotingList';
 
 const VotingManagement: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<string>('list');
+  const [isCreating, setIsCreating] = useState(false);
   const [editingVotingId, setEditingVotingId] = useState<string | null>(null);
 
   const handleCreateNew = () => {
+    setIsCreating(true);
     setEditingVotingId(null);
-    setActiveTab('create');
   };
 
   const handleEdit = (votingId: string) => {
+    setIsCreating(false);
     setEditingVotingId(votingId);
-    setActiveTab('create');
   };
 
-  const handleSaveSuccess = () => {
-    setActiveTab('list');
+  const handleBack = () => {
+    setIsCreating(false);
     setEditingVotingId(null);
   };
+
+  const showForm = isCreating || editingVotingId !== null;
 
   return (
     <AdminLayout title="Kelola Voting">
@@ -31,25 +35,27 @@ const VotingManagement: React.FC = () => {
         description="Kelola voting dan polling" 
       />
       
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList>
-          <TabsTrigger value="list">Semua Voting</TabsTrigger>
-          <TabsTrigger value="create">
-            {editingVotingId ? 'Edit Voting' : 'Buat Voting Baru'}
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="list" className="mt-6">
-          <VotingList onEdit={handleEdit} onCreateNew={handleCreateNew} />
-        </TabsContent>
-
-        <TabsContent value="create" className="mt-6">
-          <VotingBuilder 
-            votingId={editingVotingId} 
-            onSaveSuccess={handleSaveSuccess}
-          />
-        </TabsContent>
-      </Tabs>
+      {showForm ? (
+        <VotingBuilder 
+          votingId={editingVotingId} 
+          onSaveSuccess={handleBack}
+          onCancel={handleBack}
+        />
+      ) : (
+        <>
+          <AdminPageHeader
+            title="Kelola Voting"
+            description="Buat dan kelola voting untuk mendapatkan feedback dari pengguna"
+          >
+            <Button onClick={handleCreateNew}>
+              <Plus className="mr-2 h-4 w-4" />
+              Buat Baru
+            </Button>
+          </AdminPageHeader>
+          
+          <VotingList onEdit={handleEdit} />
+        </>
+      )}
     </AdminLayout>
   );
 };

@@ -9,7 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
 import { generateSlug } from '@/utils/votingUtils';
-import { Plus, X, Save } from 'lucide-react';
+import { Plus, X, Save, ArrowLeft } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -28,9 +28,10 @@ import {
 interface VotingBuilderProps {
   votingId?: string | null;
   onSaveSuccess?: () => void;
+  onCancel?: () => void;
 }
 
-const VotingBuilder: React.FC<VotingBuilderProps> = ({ votingId, onSaveSuccess }) => {
+const VotingBuilder: React.FC<VotingBuilderProps> = ({ votingId, onSaveSuccess, onCancel }) => {
   const [formData, setFormData] = useState<VotingFormData>(defaultVotingFormData);
   const [options, setOptions] = useState<VotingOptionFormData[]>([
     { option_text: '', option_order: 0, option_image: null },
@@ -196,6 +197,24 @@ const VotingBuilder: React.FC<VotingBuilderProps> = ({ votingId, onSaveSuccess }
 
   return (
     <div className="space-y-6">
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-3">
+          {onCancel && (
+            <Button variant="ghost" size="sm" onClick={onCancel}>
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Kembali
+            </Button>
+          )}
+          <h2 className="text-2xl font-bold">
+            {votingId ? 'Edit Voting' : 'Buat Voting Baru'}
+          </h2>
+        </div>
+        <Button onClick={() => saveMutation.mutate()} disabled={saveMutation.isPending}>
+          <Save className="mr-2 h-4 w-4" />
+          Simpan
+        </Button>
+      </div>
+
       <Card>
         <CardHeader>
           <CardTitle>Informasi Dasar</CardTitle>
@@ -343,12 +362,6 @@ const VotingBuilder: React.FC<VotingBuilderProps> = ({ votingId, onSaveSuccess }
         </CardContent>
       </Card>
 
-      <div className="flex justify-end gap-2">
-        <Button onClick={() => saveMutation.mutate()} disabled={saveMutation.isPending}>
-          <Save className="mr-2 h-4 w-4" />
-          {votingId ? 'Update Voting' : 'Simpan Voting'}
-        </Button>
-      </div>
     </div>
   );
 };
