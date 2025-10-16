@@ -224,7 +224,7 @@ const VotingDetail: React.FC = () => {
       
       <Navbar />
       
-      <main className="min-h-screen bg-gradient-to-b from-background to-secondary/20 pt-28 pb-12">
+      <main className="min-h-screen bg-gradient-to-b from-background to-secondary/20 pt-34 pb-12">
         <div className="container max-w-4xl mx-auto px-4">
           {/* Hero Section */}
           {voting.cover_image && (
