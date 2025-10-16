@@ -55,6 +55,9 @@ const AppSidebar = () => {
 
   const isContentActive = location.pathname === '/admin/blog' || location.pathname === '/admin/content' || location.pathname === '/admin/categories' || location.pathname === '/admin/legal' || location.pathname === '/admin/legal-terms';
   const isContentGroupOpen = isContentActive;
+  
+  const isVotingActive = location.pathname === '/admin/voting' || location.pathname === '/admin/voting-categories';
+  const isVotingGroupOpen = isVotingActive;
 
   return (
     <Sidebar>
@@ -149,15 +152,34 @@ const AppSidebar = () => {
                 </SidebarMenuSub>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton 
-                  asChild 
-                  isActive={location.pathname === '/admin/voting'}
-                >
-                  <Link to="/admin/voting">
-                    <Vote />
-                    <span>Voting</span>
-                  </Link>
+                <SidebarMenuButton isActive={isVotingActive}>
+                  <Vote />
+                  <span>Voting</span>
                 </SidebarMenuButton>
+                <SidebarMenuSub>
+                  <SidebarMenuSubItem>
+                    <SidebarMenuSubButton 
+                      asChild 
+                      isActive={location.pathname === '/admin/voting'}
+                    >
+                      <Link to="/admin/voting">
+                        <Vote />
+                        <span>Semua Voting</span>
+                      </Link>
+                    </SidebarMenuSubButton>
+                  </SidebarMenuSubItem>
+                  <SidebarMenuSubItem>
+                    <SidebarMenuSubButton 
+                      asChild 
+                      isActive={location.pathname === '/admin/voting-categories'}
+                    >
+                      <Link to="/admin/voting-categories">
+                        <FolderOpen />
+                        <span>Kategori Voting</span>
+                      </Link>
+                    </SidebarMenuSubButton>
+                  </SidebarMenuSubItem>
+                </SidebarMenuSub>
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton 

@@ -1,0 +1,403 @@
+import React, { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
+import { Plus, Edit, Trash, Save, X } from 'lucide-react';
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from '@/integrations/supabase/client';
+import { DeleteConfirmation } from '@/components/blog/DeleteConfirmation';
+
+interface VotingCategory {
+  id: string;
+  name: string;
+  description: string | null;
+  created_at: string;
+}
+
+interface CategoryFormData {
+  name: string;
+  description: string;
+}
+
+const defaultCategoryFormData: CategoryFormData = {
+  name: '',
+  description: ''
+};
+
+const VotingCategoryManagement = () => {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [categoryToDelete, setCategoryToDelete] = useState<string | null>(null);
+
+  const [formData, setFormData] = useState<CategoryFormData>(defaultCategoryFormData);
+
+  const { data: categories = [], isLoading } = useQuery({
+    queryKey: ['voting-categories-full'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('voting_categories')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (error) {
+        toast({
+          variant: "destructive",
+          title: "Error fetching categories",
+          description: error.message,
+        });
+        return [];
+      }
+      
+      return data as VotingCategory[];
+    },
+  });
+
+  const createCategoryMutation = useMutation({
+    mutationFn: async (categoryData: CategoryFormData) => {
+      const { data, error } = await supabase
+        .from('voting_categories')
+        .insert({
+          name: categoryData.name,
+          description: categoryData.description || null
+        })
+        .select()
+        .single();
+      
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['voting-categories-full'] });
+      queryClient.invalidateQueries({ queryKey: ['voting-categories'] });
+      toast({
+        title: "Kategori berhasil dibuat",
+        description: `Kategori "${formData.name}" telah berhasil dibuat`,
+      });
+      setCreateDialogOpen(false);
+      setFormData(defaultCategoryFormData);
+    },
+    onError: (error: any) => {
+      toast({
+        variant: "destructive",
+        title: "Terjadi kesalahan",
+        description: error.message,
+      });
+    }
+  });
+
+  const updateCategoryMutation = useMutation({
+    mutationFn: async (categoryData: CategoryFormData & { id: string }) => {
+      const { data, error } = await supabase
+        .from('voting_categories')
+        .update({
+          name: categoryData.name,
+          description: categoryData.description || null
+        })
+        .eq('id', categoryData.id)
+        .select()
+        .single();
+      
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['voting-categories-full'] });
+      queryClient.invalidateQueries({ queryKey: ['voting-categories'] });
+      toast({
+        title: "Kategori berhasil diperbarui",
+        description: `Kategori "${formData.name}" telah berhasil diperbarui`,
+      });
+      setEditingId(null);
+      setFormData(defaultCategoryFormData);
+    },
+    onError: (error: any) => {
+      toast({
+        variant: "destructive",
+        title: "Terjadi kesalahan",
+        description: error.message,
+      });
+    }
+  });
+
+  const deleteCategoryMutation = useMutation({
+    mutationFn: async (id: string) => {
+      // Check if any votings are using this category
+      const categoryToCheck = categories.find(c => c.id === id);
+      if (!categoryToCheck) {
+        throw new Error('Category not found');
+      }
+
+      const { data: votingsUsingCategory, error: checkError } = await supabase
+        .from('votings')
+        .select('id, title')
+        .eq('category', categoryToCheck.name);
+      
+      if (checkError) throw checkError;
+      
+      if (votingsUsingCategory && votingsUsingCategory.length > 0) {
+        throw new Error(`Tidak dapat menghapus kategori. ${votingsUsingCategory.length} voting masih menggunakan kategori ini.`);
+      }
+
+      const { error } = await supabase
+        .from('voting_categories')
+        .delete()
+        .eq('id', id);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['voting-categories-full'] });
+      queryClient.invalidateQueries({ queryKey: ['voting-categories'] });
+      toast({
+        title: "Kategori berhasil dihapus",
+        description: "Kategori telah berhasil dihapus",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        variant: "destructive",
+        title: "Terjadi kesalahan",
+        description: error.message,
+      });
+    }
+  });
+
+  const handleInputChange = (field: keyof CategoryFormData, value: string) => {
+    setFormData({ ...formData, [field]: value });
+  };
+
+  const handleCreateCategory = () => {
+    if (!formData.name.trim()) {
+      toast({
+        variant: "destructive",
+        title: "Terjadi kesalahan",
+        description: "Nama kategori harus diisi",
+      });
+      return;
+    }
+    
+    createCategoryMutation.mutate(formData);
+  };
+
+  const handleStartEdit = (category: VotingCategory) => {
+    setEditingId(category.id);
+    setFormData({
+      name: category.name,
+      description: category.description || ''
+    });
+  };
+
+  const handleUpdateCategory = () => {
+    if (!editingId || !formData.name.trim()) {
+      toast({
+        variant: "destructive",
+        title: "Terjadi kesalahan",
+        description: "Nama kategori harus diisi",
+      });
+      return;
+    }
+    
+    updateCategoryMutation.mutate({
+      id: editingId,
+      ...formData
+    });
+  };
+
+  const handleDeleteClick = (id: string) => {
+    setCategoryToDelete(id);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (categoryToDelete) {
+      deleteCategoryMutation.mutate(categoryToDelete);
+      setDeleteDialogOpen(false);
+      setCategoryToDelete(null);
+    }
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setFormData(defaultCategoryFormData);
+  };
+
+  const handleDialogClose = (open: boolean) => {
+    setCreateDialogOpen(open);
+    if (!open) {
+      setFormData(defaultCategoryFormData);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center py-8">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold">Kelola Kategori Voting</h2>
+        
+        <Dialog open={createDialogOpen} onOpenChange={handleDialogClose}>
+          <DialogTrigger asChild>
+            <Button className="flex items-center gap-2">
+              <Plus size={16} />
+              Tambah Kategori
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Buat Kategori Baru</DialogTitle>
+            </DialogHeader>
+            
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="create-name">Nama Kategori</Label>
+                <Input
+                  id="create-name"
+                  value={formData.name}
+                  onChange={(e) => handleInputChange('name', e.target.value)}
+                  placeholder="Masukkan nama kategori"
+                  autoFocus
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="create-description">Deskripsi (Opsional)</Label>
+                <Textarea
+                  id="create-description"
+                  value={formData.description}
+                  onChange={(e) => handleInputChange('description', e.target.value)}
+                  placeholder="Masukkan deskripsi kategori"
+                  rows={3}
+                />
+              </div>
+            </div>
+
+            <DialogFooter>
+              <Button 
+                variant="outline" 
+                onClick={() => setCreateDialogOpen(false)}
+                disabled={createCategoryMutation.isPending}
+              >
+                <X size={16} className="mr-2" />
+                Batal
+              </Button>
+              <Button 
+                onClick={handleCreateCategory} 
+                disabled={createCategoryMutation.isPending}
+              >
+                <Save size={16} className="mr-2" />
+                {createCategoryMutation.isPending ? 'Menyimpan...' : 'Simpan'}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
+
+      <div className="grid gap-4">
+        {categories.map((category) => (
+          <Card key={category.id}>
+            <CardContent className="pt-6">
+              {editingId === category.id ? (
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor={`name-${category.id}`}>Nama Kategori</Label>
+                    <Input
+                      id={`name-${category.id}`}
+                      value={formData.name}
+                      onChange={(e) => handleInputChange('name', e.target.value)}
+                      placeholder="Masukkan nama kategori"
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor={`description-${category.id}`}>Deskripsi</Label>
+                    <Textarea
+                      id={`description-${category.id}`}
+                      value={formData.description}
+                      onChange={(e) => handleInputChange('description', e.target.value)}
+                      placeholder="Masukkan deskripsi kategori"
+                      rows={3}
+                    />
+                  </div>
+
+                  <div className="flex gap-2">
+                    <Button onClick={handleUpdateCategory} disabled={updateCategoryMutation.isPending}>
+                      <Save size={16} className="mr-2" />
+                      Simpan
+                    </Button>
+                    <Button variant="outline" onClick={cancelEdit}>
+                      <X size={16} className="mr-2" />
+                      Batal
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex justify-between items-start">
+                  <div className="space-y-2">
+                    <h3 className="font-semibold text-lg">{category.name}</h3>
+                    {category.description && (
+                      <p className="text-muted-foreground">{category.description}</p>
+                    )}
+                    <p className="text-sm text-muted-foreground">
+                      Dibuat: {new Date(category.created_at).toLocaleDateString('id-ID')}
+                    </p>
+                  </div>
+                  
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleStartEdit(category)}
+                    >
+                      <Edit size={16} className="mr-2" />
+                      Edit
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => handleDeleteClick(category.id)}
+                    >
+                      <Trash size={16} className="mr-2" />
+                      Hapus
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {categories.length === 0 && (
+        <Card>
+          <CardContent className="py-8 text-center">
+            <p className="text-muted-foreground">Belum ada kategori voting. Buat kategori pertama Anda!</p>
+          </CardContent>
+        </Card>
+      )}
+
+      <DeleteConfirmation
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        onConfirm={handleConfirmDelete}
+        title="Hapus Kategori"
+        description="Apakah Anda yakin ingin menghapus kategori ini? Kategori yang sedang digunakan oleh voting tidak dapat dihapus."
+      />
+    </div>
+  );
+};
+
+export default VotingCategoryManagement;

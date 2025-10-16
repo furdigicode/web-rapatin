@@ -38,6 +38,19 @@ const VotingBuilder: React.FC<VotingBuilderProps> = ({ votingId, onSaveSuccess }
   ]);
   const queryClient = useQueryClient();
 
+  // Fetch voting categories
+  const { data: categories = [] } = useQuery({
+    queryKey: ['voting-categories'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('voting_categories')
+        .select('*')
+        .order('name');
+      if (error) throw error;
+      return data;
+    },
+  });
+
   const { data: existingVoting } = useQuery({
     queryKey: ['voting', votingId],
     queryFn: async () => {
@@ -213,6 +226,27 @@ const VotingBuilder: React.FC<VotingBuilderProps> = ({ votingId, onSaveSuccess }
               placeholder="Deskripsi voting..."
               rows={4}
             />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="category">Kategori</Label>
+            <Select
+              value={formData.category || ''}
+              onValueChange={(value) =>
+                setFormData({ ...formData, category: value || null })
+              }
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Pilih kategori..." />
+              </SelectTrigger>
+              <SelectContent>
+                {categories.map((cat) => (
+                  <SelectItem key={cat.id} value={cat.name}>
+                    {cat.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
