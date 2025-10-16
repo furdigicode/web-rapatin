@@ -197,22 +197,22 @@ const VotingBuilder: React.FC<VotingBuilderProps> = ({ votingId, onSaveSuccess, 
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-3">
-          {onCancel && (
-            <Button variant="ghost" size="sm" onClick={onCancel}>
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Kembali
-            </Button>
-          )}
+      <div className="space-y-4 mb-6">
+        {onCancel && (
+          <Button variant="ghost" size="sm" onClick={onCancel} className="mb-2">
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Kembali
+          </Button>
+        )}
+        <div className="flex items-center justify-between w-full">
           <h2 className="text-2xl font-bold">
             {votingId ? 'Edit Voting' : 'Buat Voting Baru'}
           </h2>
+          <Button onClick={() => saveMutation.mutate()} disabled={saveMutation.isPending}>
+            <Save className="mr-2 h-4 w-4" />
+            Simpan
+          </Button>
         </div>
-        <Button onClick={() => saveMutation.mutate()} disabled={saveMutation.isPending}>
-          <Save className="mr-2 h-4 w-4" />
-          Simpan
-        </Button>
       </div>
 
       <Card>
