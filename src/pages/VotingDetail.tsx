@@ -224,22 +224,22 @@ const VotingDetail: React.FC = () => {
       
       <Navbar />
       
-      <main className="min-h-screen bg-gradient-to-b from-background to-secondary/20 pt-34 pb-12">
-        <div className="container max-w-4xl mx-auto px-4">
+      <main className="min-h-screen bg-gradient-to-b from-background to-secondary/20 pt-28 pb-12">
+        <div className="container max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Hero Section */}
           {voting.cover_image && (
-            <div className="mb-8 rounded-xl overflow-hidden">
+            <div className="mb-6 md:mb-8 rounded-xl overflow-hidden">
               <img
                 src={voting.cover_image}
                 alt={voting.title}
-                className="w-full h-64 object-cover"
+                className="w-full h-48 md:h-64 object-cover"
               />
             </div>
           )}
 
           {/* Header */}
           <div className="mb-8">
-            <div className="flex items-center gap-2 mb-4">
+            <div className="flex flex-wrap items-center gap-2 mb-4">
               {voting.category && (
                 <Badge variant="secondary">{voting.category}</Badge>
               )}
@@ -248,10 +248,10 @@ const VotingDetail: React.FC = () => {
               </Badge>
             </div>
             
-            <h1 className="text-4xl font-bold mb-4">{voting.title}</h1>
+            <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-4">{voting.title}</h1>
             
             {voting.description && (
-              <p className="text-lg text-muted-foreground mb-6">
+              <p className="text-base md:text-lg text-muted-foreground mb-6">
                 {voting.description}
               </p>
             )}
@@ -273,7 +273,7 @@ const VotingDetail: React.FC = () => {
           {/* Voting Form */}
           {isActive && !hasVoted ? (
             <Card className="p-6 mb-8">
-              <h2 className="text-xl font-semibold mb-4">
+              <h2 className="text-lg md:text-xl font-semibold mb-4">
                 {voting.voting_type === 'single' 
                   ? 'Pilih satu opsi:' 
                   : `Pilih hingga ${voting.max_selections || 'beberapa'} opsi:`}
@@ -387,7 +387,7 @@ const VotingDetail: React.FC = () => {
           {/* Results */}
           {showResults && (
             <Card className="p-6 mb-8">
-              <h2 className="text-xl font-semibold mb-6">Hasil Voting</h2>
+              <h2 className="text-lg md:text-xl font-semibold mb-6">Hasil Voting</h2>
               <div className="space-y-4">
                 {options
                   .map((option) => {
@@ -419,13 +419,13 @@ const VotingDetail: React.FC = () => {
           )}
 
           {/* Share Buttons */}
-          <Card className="p-6">
-            <div className="flex items-center justify-between">
+          <Card className="p-4 md:p-6">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div className="flex items-center gap-2">
                 <Share2 className="h-5 w-5" />
-                <span className="font-medium">Bagikan voting ini:</span>
+                <span className="font-medium text-sm md:text-base">Bagikan voting ini:</span>
               </div>
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
                 <Button
                   variant="outline"
                   size="sm"
