@@ -185,22 +185,22 @@ const VotingResults: React.FC = () => {
 
       <div className="space-y-6">
         {/* Header */}
-      <div className="space-y-4">
-        <Button variant="ghost" onClick={() => navigate('/admin/voting')} className="mb-2">
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Kembali
-        </Button>
         <div className="flex items-center justify-between w-full">
-          <div>
-            <h1 className="text-2xl font-bold">Hasil Voting: {voting.title}</h1>
-            <p className="text-muted-foreground">Analisis dan detail responden</p>
+          <div className="flex items-center gap-4">
+            <Button variant="ghost" onClick={() => navigate('/admin/voting')}>
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Kembali
+            </Button>
+            <div>
+              <h1 className="text-2xl font-bold">Hasil Voting: {voting.title}</h1>
+              <p className="text-muted-foreground">Analisis dan detail responden</p>
+            </div>
           </div>
           <Button onClick={exportToCSV} disabled={!responses || responses.length === 0}>
             <Download className="mr-2 h-4 w-4" />
             Export CSV
           </Button>
         </div>
-      </div>
 
         {/* Overview Statistics */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
