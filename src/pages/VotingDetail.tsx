@@ -12,6 +12,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
+import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import { Clock, CheckCircle2, Share2 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
@@ -24,6 +25,8 @@ const VotingDetail: React.FC = () => {
   
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
   const [userIdentifier] = useState<string>(() => generateUserIdentifier());
+  const [userName, setUserName] = useState<string>('');
+  const [userEmail, setUserEmail] = useState<string>('');
 
   // Fetch voting data
   const { data: voting, isLoading, error } = useQuery({
@@ -84,11 +87,28 @@ const VotingDetail: React.FC = () => {
         throw new Error('Pilih minimal satu opsi');
       }
 
+      // Validate user data if anonymous voting is not allowed
+      if (!voting.allow_anonymous) {
+        if (!userName.trim()) {
+          throw new Error('Nama wajib diisi');
+        }
+        if (!userEmail.trim()) {
+          throw new Error('Email wajib diisi');
+        }
+        // Basic email validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(userEmail)) {
+          throw new Error('Format email tidak valid');
+        }
+      }
+
       const { data, error } = await supabase.functions.invoke('submit-vote', {
         body: {
           voting_id: voting.id,
           option_ids: selectedOptions,
           user_identifier: userIdentifier,
+          user_name: voting.allow_anonymous ? null : userName,
+          user_email: voting.allow_anonymous ? null : userEmail,
         },
       });
 
@@ -134,6 +154,24 @@ const VotingDetail: React.FC = () => {
       toast.error('Pilih minimal satu opsi');
       return;
     }
+    
+    // Validate user data if anonymous voting is not allowed
+    if (!voting?.allow_anonymous) {
+      if (!userName.trim()) {
+        toast.error('Nama wajib diisi');
+        return;
+      }
+      if (!userEmail.trim()) {
+        toast.error('Email wajib diisi');
+        return;
+      }
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(userEmail)) {
+        toast.error('Format email tidak valid');
+        return;
+      }
+    }
+    
     submitVoteMutation.mutate();
   };
 
@@ -285,6 +323,37 @@ const VotingDetail: React.FC = () => {
                       </Label>
                     </div>
                   ))}
+                </div>
+              )}
+
+              {/* User Data Form - Only show if anonymous voting is not allowed */}
+              {!voting.allow_anonymous && (
+                <div className="mt-6 p-4 bg-muted/50 rounded-lg space-y-4">
+                  <h3 className="font-semibold text-sm text-muted-foreground">Data Responden</h3>
+                  <div className="space-y-3">
+                    <div>
+                      <Label htmlFor="user-name">Nama Lengkap *</Label>
+                      <Input
+                        id="user-name"
+                        type="text"
+                        placeholder="Masukkan nama lengkap Anda"
+                        value={userName}
+                        onChange={(e) => setUserName(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="user-email">Email *</Label>
+                      <Input
+                        id="user-email"
+                        type="email"
+                        placeholder="nama@email.com"
+                        value={userEmail}
+                        onChange={(e) => setUserEmail(e.target.value)}
+                        required
+                      />
+                    </div>
+                  </div>
                 </div>
               )}
 

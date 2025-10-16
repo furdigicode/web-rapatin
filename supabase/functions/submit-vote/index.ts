@@ -77,6 +77,25 @@ serve(async (req) => {
       );
     }
 
+    // Validate user data if anonymous voting is not allowed
+    if (!voting.allow_anonymous) {
+      if (!user_name || !user_email) {
+        return new Response(
+          JSON.stringify({ error: 'Nama dan email wajib diisi' }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+      
+      // Basic email validation
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(user_email)) {
+        return new Response(
+          JSON.stringify({ error: 'Format email tidak valid' }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+    }
+
     // Check for duplicate vote
     const { data: existingVotes } = await supabase
       .from('voting_responses')
@@ -86,7 +105,7 @@ serve(async (req) => {
 
     if (existingVotes && existingVotes.length > 0) {
       return new Response(
-        JSON.stringify({ error: 'You have already voted' }),
+        JSON.stringify({ error: 'Anda sudah pernah vote sebelumnya' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
