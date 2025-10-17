@@ -243,12 +243,14 @@ const VotingDetail: React.FC = () => {
               {voting.category && (
                 <Badge variant="secondary">{voting.category}</Badge>
               )}
-              <Badge variant={isActive ? 'default' : 'outline'}>
-                {voting.status === 'active' ? 'Aktif' : 'Selesai'}
-              </Badge>
+              {!isActive && (
+                <Badge variant="outline">Selesai</Badge>
+              )}
             </div>
             
-            <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-4">{voting.title}</h1>
+            <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-4">
+              <span className="text-primary">Voting:</span> {voting.title}
+            </h1>
             
             {voting.description && (
               <p className="text-base md:text-lg text-muted-foreground mb-6">
