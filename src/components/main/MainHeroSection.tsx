@@ -115,11 +115,10 @@ const MainHeroSection: React.FC = () => {
                     <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
                       <div className="flex items-center justify-center h-14 grayscale hover:grayscale-0 transition-all duration-300">
                         <OptimizedImage
-                          src="/lovable-uploads/brands/halodoc.webp"
+                          src="/lovable-uploads/e690e2b8-f08c-4ae8-b42e-6754404ab3c1.png"
                           alt="Halodoc"
                           width={120}
                           height={40}
-                          loading="lazy"
                           className="h-10 object-contain opacity-70 hover:opacity-100"
                         />
                       </div>
@@ -174,12 +173,9 @@ const MainHeroSection: React.FC = () => {
                     </CarouselItem>
                     <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
                       <div className="flex items-center justify-center h-14 grayscale hover:grayscale-0 transition-all duration-300">
-                        <OptimizedImage
-                          src="/lovable-uploads/brands/jmkp.webp"
+                        <img
+                          src="/lovable-uploads/23a924a5-b5a4-4809-83db-42ea8ae871b7.png"
                           alt="JMKP"
-                          width={120}
-                          height={40}
-                          loading="lazy"
                           className="h-10 object-contain opacity-70 hover:opacity-100"
                         />
                       </div>
@@ -198,60 +194,45 @@ const MainHeroSection: React.FC = () => {
                     </CarouselItem>
                     <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
                       <div className="flex items-center justify-center h-14 grayscale hover:grayscale-0 transition-all duration-300">
-                        <OptimizedImage
-                          src="/lovable-uploads/brands/apkepi.webp"
+                        <img
+                          src="/lovable-uploads/3789d5f7-4d81-4aef-93f6-e31f8546d541.png"
                           alt="APKEPI"
-                          width={120}
-                          height={40}
-                          loading="lazy"
                           className="h-10 object-contain opacity-70 hover:opacity-100"
                         />
                       </div>
                     </CarouselItem>
                     <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
                       <div className="flex items-center justify-center h-14 grayscale hover:grayscale-0 transition-all duration-300">
-                        <OptimizedImage
-                          src="/lovable-uploads/brands/iso-jepang.webp"
+                        <img
+                          src="/lovable-uploads/75085a74-99ab-4c7a-bb7f-9aa9fc2559a6.png"
                           alt="ISO Jepang"
-                          width={120}
-                          height={40}
-                          loading="lazy"
                           className="h-10 object-contain opacity-70 hover:opacity-100"
                         />
                       </div>
                     </CarouselItem>
                     <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
                       <div className="flex items-center justify-center h-14 grayscale hover:grayscale-0 transition-all duration-300">
-                        <OptimizedImage
-                          src="/lovable-uploads/brands/bung-hatta.webp"
+                        <img
+                          src="/lovable-uploads/22bcf4c0-f0a4-46c1-b090-c9832ecc1a3b.png"
                           alt="Universitas Bung Hatta"
-                          width={120}
-                          height={40}
-                          loading="lazy"
                           className="h-10 object-contain opacity-70 hover:opacity-100"
                         />
                       </div>
                     </CarouselItem>
                     <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
                       <div className="flex items-center justify-center h-14 grayscale hover:grayscale-0 transition-all duration-300">
-                        <OptimizedImage
-                          src="/lovable-uploads/brands/digicode.webp"
+                        <img
+                          src="/lovable-uploads/1de3e82f-cc87-4981-8265-c0756628d701.png"
                           alt="DigiCode"
-                          width={120}
-                          height={40}
-                          loading="lazy"
                           className="h-10 object-contain opacity-70 hover:opacity-100"
                         />
                       </div>
                     </CarouselItem>
                     <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
                       <div className="flex items-center justify-center h-14 grayscale hover:grayscale-0 transition-all duration-300">
-                        <OptimizedImage
-                          src="/lovable-uploads/brands/ganeca.webp"
+                        <img
+                          src="https://mepznzrijuoyvjcmkspf.supabase.co/storage/v1/object/public/brands/logo-ges-horizontal.webp"
                           alt="Ganeca"
-                          width={120}
-                          height={56}
-                          loading="lazy"
                           className="h-14 object-contain opacity-70 hover:opacity-100"
                         />
                       </div>
