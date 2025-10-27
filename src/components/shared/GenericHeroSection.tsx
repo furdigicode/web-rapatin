@@ -113,7 +113,7 @@ const GenericHeroSection: React.FC<GenericHeroSectionProps> = ({ content, onPrim
                     <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
                       <div className="flex items-center justify-center h-16 grayscale hover:grayscale-0 transition-all duration-300">
                         <img
-                          src="https://id.wikipedia.org/wiki/Berkas:Ruang_Guru_logo.svg"
+                          src="https://mepznzrijuoyvjcmkspf.supabase.co/storage/v1/object/public/brands/Ruang_Guru_logo.webp"
                           alt="Ruangguru"
                           className="h-12 object-contain opacity-70 hover:opacity-100"
                         />
