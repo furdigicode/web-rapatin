@@ -7,6 +7,8 @@ interface OptimizedImageProps extends React.ImgHTMLAttributes<HTMLImageElement> 
   height?: number;
   priority?: boolean;
   className?: string;
+  srcSet?: string;
+  sizes?: string;
 }
 
 /**
@@ -22,6 +24,8 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
   height,
   priority = false,
   className = '',
+  srcSet,
+  sizes,
   ...props
 }) => {
   return (
@@ -30,8 +34,11 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
       alt={alt}
       width={width}
       height={height}
+      srcSet={srcSet}
+      sizes={sizes}
       loading={priority ? 'eager' : 'lazy'}
       decoding="async"
+      fetchPriority={priority ? 'high' : 'auto'}
       className={className}
       {...props}
     />

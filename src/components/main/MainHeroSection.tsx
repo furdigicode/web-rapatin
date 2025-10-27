@@ -125,36 +125,48 @@ const MainHeroSection: React.FC = () => {
                     </CarouselItem>
                     <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
                       <div className="flex items-center justify-center h-14 grayscale hover:grayscale-0 transition-all duration-300">
-                        <img
-                          src="https://cdn-web-2.ruangguru.com/landing-pages/assets/hs/OPTIMIZE/logo%20rg.svg"
+                        <OptimizedImage
+                          src="/lovable-uploads/brands/ruangguru.webp"
                           alt="Ruangguru"
+                          width={120}
+                          height={40}
+                          loading="lazy"
                           className="h-10 object-contain opacity-70 hover:opacity-100"
                         />
                       </div>
                     </CarouselItem>
                     <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
                       <div className="flex items-center justify-center h-14 grayscale hover:grayscale-0 transition-all duration-300">
-                        <img
-                          src="https://indikafoundation.org/assets/logo-if-blue.png"
-                          alt="Indika"
+                        <OptimizedImage
+                          src="/lovable-uploads/brands/indika.webp"
+                          alt="Indika Foundation"
+                          width={120}
+                          height={40}
+                          loading="lazy"
                           className="h-10 object-contain opacity-70 hover:opacity-100"
                         />
                       </div>
                     </CarouselItem>
                     <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
                       <div className="flex items-center justify-center h-14 grayscale hover:grayscale-0 transition-all duration-300">
-                        <img
-                          src="https://wiseco.id/site/assets/images/logo_h.png"
+                        <OptimizedImage
+                          src="/lovable-uploads/brands/wiseco.webp"
                           alt="Wiseco"
+                          width={120}
+                          height={40}
+                          loading="lazy"
                           className="h-10 object-contain opacity-70 hover:opacity-100"
                         />
                       </div>
                     </CarouselItem>
                     <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
                       <div className="flex items-center justify-center h-14 grayscale hover:grayscale-0 transition-all duration-300">
-                        <img
-                          src="https://iwakaf.or.id/_next/image?url=%2Fassets%2Fimages%2Flogo%2FLogoIwakaf.png&w=256&q=75"
+                        <OptimizedImage
+                          src="/lovable-uploads/brands/iwakaf.webp"
                           alt="iWakaf"
+                          width={120}
+                          height={56}
+                          loading="lazy"
                           className="h-14 object-contain opacity-70 hover:opacity-100"
                         />
                       </div>
@@ -170,9 +182,12 @@ const MainHeroSection: React.FC = () => {
                     </CarouselItem>
                     <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
                       <div className="flex items-center justify-center h-14 grayscale hover:grayscale-0 transition-all duration-300">
-                        <img
-                          src="https://citraurbana.com/wp-content/uploads/2024/03/logo-horizontal-500.svg"
+                        <OptimizedImage
+                          src="/lovable-uploads/brands/citra-urbana.webp"
                           alt="Citra Urbana"
+                          width={120}
+                          height={40}
+                          loading="lazy"
                           className="h-10 object-contain opacity-70 hover:opacity-100"
                         />
                       </div>

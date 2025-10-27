@@ -132,9 +132,12 @@ const HeroSection: React.FC = () => {
                   </CarouselItem>
                   <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
                     <div className="flex items-center justify-center h-12 grayscale hover:grayscale-0 transition-all duration-300">
-                      <img
-                        src="https://citraurbana.com/wp-content/uploads/2024/03/logo-horizontal-500.svg"
+                      <OptimizedImage
+                        src="/lovable-uploads/brands/citra-urbana.webp"
                         alt="Citra Urbana"
+                        width={100}
+                        height={32}
+                        loading="lazy"
                         className="h-8 object-contain opacity-70 hover:opacity-100"
                       />
                     </div>

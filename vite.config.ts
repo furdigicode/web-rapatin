@@ -38,6 +38,15 @@ export default defineConfig(({ mode }) => ({
             '@radix-ui/react-tabs',
             '@radix-ui/react-toast',
           ],
+          'carousel-vendor': ['embla-carousel-react', 'embla-carousel-autoplay'],
+        },
+        // Optimize asset filenames
+        assetFileNames: (assetInfo) => {
+          const extType = assetInfo.name?.split('.').at(1) || '';
+          if (/png|jpe?g|svg|gif|tiff|bmp|ico|webp/i.test(extType)) {
+            return `assets/images/[name]-[hash][extname]`;
+          }
+          return `assets/[name]-[hash][extname]`;
         },
       },
     },
@@ -45,7 +54,12 @@ export default defineConfig(({ mode }) => ({
     chunkSizeWarningLimit: 1000,
     // Enable minification with esbuild (faster and built-in)
     minify: 'esbuild',
+    target: 'es2015',
     // Enable source maps for production debugging (optional)
     sourcemap: false,
+  },
+  // Remove console.log in production
+  esbuild: {
+    drop: mode === 'production' ? ['console', 'debugger'] : [],
   },
 }));

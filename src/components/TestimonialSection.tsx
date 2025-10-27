@@ -33,7 +33,7 @@ const TestimonialSection = () => {
       company: 'PT Maju Bersama',
       content: 'Rapatin sangat membantu bisnis kami menghemat biaya rapat online. Kami hanya membayar sesuai penggunaan, tanpa perlu langganan bulanan yang mahal.',
       rating: 5,
-      imageUrl: 'https://randomuser.me/api/portraits/men/1.jpg'
+      imageUrl: '/lovable-uploads/testimonials/avatar-1.webp'
     }, 
     {
       id: '2',
@@ -42,7 +42,7 @@ const TestimonialSection = () => {
       company: 'Startup Indonesia',
       content: 'Fitur laporan peserta sangat berguna untuk memantau kehadiran tim dalam rapat. Kualitas video dan audio juga sangat baik!',
       rating: 5,
-      imageUrl: 'https://randomuser.me/api/portraits/women/2.jpg'
+      imageUrl: '/lovable-uploads/testimonials/avatar-2.webp'
     }, 
     {
       id: '3',
@@ -51,7 +51,7 @@ const TestimonialSection = () => {
       company: 'DigitalSpace',
       content: 'Saya suka kemudahan menjadwalkan rapat dan tidak ada batasan waktu. Sangat cocok untuk diskusi proyek yang kadang membutuhkan waktu panjang.',
       rating: 5,
-      imageUrl: 'https://randomuser.me/api/portraits/men/3.jpg'
+      imageUrl: '/lovable-uploads/testimonials/avatar-3.webp'
     },
     {
       id: '4',
@@ -60,7 +60,7 @@ const TestimonialSection = () => {
       company: 'Indofood Sukses Makmur',
       content: 'Platform Rapatin sangat stabil dan handal. Tidak pernah mengalami masalah teknis selama meeting penting dengan klien kami dari luar negeri.',
       rating: 5,
-      imageUrl: 'https://randomuser.me/api/portraits/women/4.jpg'
+      imageUrl: '/lovable-uploads/testimonials/avatar-4.webp'
     },
     {
       id: '5',
@@ -69,7 +69,7 @@ const TestimonialSection = () => {
       company: 'TechIndo',
       content: 'Integrasi dengan kalender dan notifikasi otomatis sangat membantu team kami yang sibuk untuk tidak melewatkan rapat penting.',
       rating: 5,
-      imageUrl: 'https://randomuser.me/api/portraits/men/5.jpg'
+      imageUrl: '/lovable-uploads/testimonials/avatar-5.webp'
     },
     {
       id: '6',
@@ -78,7 +78,7 @@ const TestimonialSection = () => {
       company: 'Astra International',
       content: 'Berbagi layar dan kolaborasi dokumen real-time membuat meeting produktif. Rapatin adalah solusi terbaik untuk tim yang bekerja remote.',
       rating: 5,
-      imageUrl: 'https://randomuser.me/api/portraits/women/6.jpg'
+      imageUrl: '/lovable-uploads/testimonials/avatar-6.webp'
     }
   ];
 

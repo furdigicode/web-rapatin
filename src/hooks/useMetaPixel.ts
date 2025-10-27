@@ -72,8 +72,16 @@ export const useMetaPixel = () => {
       }
     };
 
-    // Initial fetch
-    fetchAndInitialize();
+    // Defer initialization until after page load for better performance
+    const deferredInit = () => {
+      fetchAndInitialize();
+    };
+    
+    if (document.readyState === 'complete') {
+      deferredInit();
+    } else {
+      window.addEventListener('load', deferredInit);
+    }
 
     // Subscribe to real-time changes
     const channel = supabase
@@ -95,6 +103,7 @@ export const useMetaPixel = () => {
 
     return () => {
       isSubscribed = false;
+      window.removeEventListener('load', deferredInit);
       supabase.removeChannel(channel);
     };
   }, []);

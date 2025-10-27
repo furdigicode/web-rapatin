@@ -1,16 +1,19 @@
 
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
 import SEO from '@/components/SEO';
 import ProductPageLayout from '@/components/layout/ProductPageLayout';
 import MeetingSchedulingNavbar from '@/components/MeetingSchedulingNavbar';
 import MeetingHeroSection from '@/components/meeting/MeetingHeroSection';
-import MeetingFeatureSection from '@/components/meeting/MeetingFeatureSection';
-import MeetingHowItWorksSection from '@/components/meeting/MeetingHowItWorksSection';
-import PricingSection from '@/components/PricingSection';
-import TestimonialSection from '@/components/TestimonialSection';
-import DashboardPreview from '@/components/DashboardPreview';
-import FinalCTA from '@/components/FinalCTA';
-import Footer from '@/components/Footer';
+import { LazySection } from '@/components/LazySection';
+
+// Lazy load below-the-fold components
+const MeetingFeatureSection = lazy(() => import('@/components/meeting/MeetingFeatureSection'));
+const MeetingHowItWorksSection = lazy(() => import('@/components/meeting/MeetingHowItWorksSection'));
+const PricingSection = lazy(() => import('@/components/PricingSection'));
+const TestimonialSection = lazy(() => import('@/components/TestimonialSection'));
+const DashboardPreview = lazy(() => import('@/components/DashboardPreview'));
+const FinalCTA = lazy(() => import('@/components/FinalCTA'));
+const Footer = lazy(() => import('@/components/Footer'));
 
 const MeetingScheduling: React.FC = () => {
   return (
@@ -25,17 +28,52 @@ const MeetingScheduling: React.FC = () => {
         <div className="-mt-28">
           <MeetingHeroSection />
         </div>
-        <MeetingFeatureSection />
-        <MeetingHowItWorksSection />
+        
+        <LazySection fallbackHeight="600px">
+          <Suspense fallback={<div className="h-[600px] animate-pulse bg-muted/10" />}>
+            <MeetingFeatureSection />
+          </Suspense>
+        </LazySection>
+        
+        <LazySection fallbackHeight="500px">
+          <Suspense fallback={<div className="h-[500px] animate-pulse bg-muted/10" />}>
+            <MeetingHowItWorksSection />
+          </Suspense>
+        </LazySection>
+        
         <div id="pricing">
-          <PricingSection />
+          <LazySection fallbackHeight="700px">
+            <Suspense fallback={<div className="h-[700px] animate-pulse bg-muted/10" />}>
+              <PricingSection />
+            </Suspense>
+          </LazySection>
         </div>
+        
         <div id="testimonials">
-          <TestimonialSection />
+          <LazySection fallbackHeight="600px">
+            <Suspense fallback={<div className="h-[600px] animate-pulse bg-muted/10" />}>
+              <TestimonialSection />
+            </Suspense>
+          </LazySection>
         </div>
-        <DashboardPreview />
-        <FinalCTA />
-        <Footer />
+        
+        <LazySection fallbackHeight="500px">
+          <Suspense fallback={<div className="h-[500px] animate-pulse bg-muted/10" />}>
+            <DashboardPreview />
+          </Suspense>
+        </LazySection>
+        
+        <LazySection fallbackHeight="400px">
+          <Suspense fallback={<div className="h-[400px] animate-pulse bg-muted/10" />}>
+            <FinalCTA />
+          </Suspense>
+        </LazySection>
+        
+        <LazySection fallbackHeight="300px">
+          <Suspense fallback={<div className="h-[300px] animate-pulse bg-muted/10" />}>
+            <Footer />
+          </Suspense>
+        </LazySection>
       </ProductPageLayout>
     </>
   );

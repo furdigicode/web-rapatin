@@ -1,13 +1,16 @@
 
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
 import SEO from '@/components/SEO';
 import Navbar from '@/components/Navbar';
 import MainHeroSection from '@/components/main/MainHeroSection';
-import ProductShowcase from '@/components/main/ProductShowcase';
-import TestimonialSection from '@/components/TestimonialSection';
-import TabbedPricingSection from '@/components/main/TabbedPricingSection';
-import IndexFinalCTA from '@/components/main/IndexFinalCTA';
-import Footer from '@/components/Footer';
+import { LazySection } from '@/components/LazySection';
+
+// Lazy load below-the-fold components
+const ProductShowcase = lazy(() => import('@/components/main/ProductShowcase'));
+const TestimonialSection = lazy(() => import('@/components/TestimonialSection'));
+const TabbedPricingSection = lazy(() => import('@/components/main/TabbedPricingSection'));
+const IndexFinalCTA = lazy(() => import('@/components/main/IndexFinalCTA'));
+const Footer = lazy(() => import('@/components/Footer'));
 
 const Index = () => {
   return (
@@ -20,11 +23,36 @@ const Index = () => {
       />
       <Navbar />
       <MainHeroSection />
-      <ProductShowcase />
-      <TabbedPricingSection />
-      <TestimonialSection />
-      <IndexFinalCTA />
-      <Footer />
+      
+      <LazySection fallbackHeight="600px">
+        <Suspense fallback={<div className="h-[600px] animate-pulse bg-muted/10" />}>
+          <ProductShowcase />
+        </Suspense>
+      </LazySection>
+      
+      <LazySection fallbackHeight="800px">
+        <Suspense fallback={<div className="h-[800px] animate-pulse bg-muted/10" />}>
+          <TabbedPricingSection />
+        </Suspense>
+      </LazySection>
+      
+      <LazySection fallbackHeight="600px">
+        <Suspense fallback={<div className="h-[600px] animate-pulse bg-muted/10" />}>
+          <TestimonialSection />
+        </Suspense>
+      </LazySection>
+      
+      <LazySection fallbackHeight="400px">
+        <Suspense fallback={<div className="h-[400px] animate-pulse bg-muted/10" />}>
+          <IndexFinalCTA />
+        </Suspense>
+      </LazySection>
+      
+      <LazySection fallbackHeight="300px">
+        <Suspense fallback={<div className="h-[300px] animate-pulse bg-muted/10" />}>
+          <Footer />
+        </Suspense>
+      </LazySection>
     </div>
   );
 };
