@@ -69,7 +69,7 @@ const GenericHeroSection: React.FC<GenericHeroSectionProps> = ({ content, onPrim
 
         <div className="max-w-full mt-8 mb-10 animate-slide-in-right">
           <OptimizedImage
-            src="https://mepznzrijuoyvjcmkspf.supabase.co/storage/v1/object/public/brands/UBH.webp"
+            src="https://mepznzrijuoyvjcmkspf.supabase.co/storage/v1/object/public/brands/dasbor_rapatin.webp"
             alt={content.image.alt}
             width={1200}
             height={675}
