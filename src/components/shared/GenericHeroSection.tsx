@@ -101,17 +101,6 @@ const GenericHeroSection: React.FC<GenericHeroSectionProps> = ({ content, onPrim
                   <React.Fragment key={`copy-${copy}`}>
                     <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
                       <div className="flex items-center justify-center h-16 grayscale hover:grayscale-0 transition-all duration-300">
-                        <OptimizedImage
-                          src="/lovable-uploads/e690e2b8-f08c-4ae8-b42e-6754404ab3c1.png"
-                          alt="Halodoc"
-                          width={120}
-                          height={48}
-                          className="h-12 object-contain opacity-70 hover:opacity-100"
-                        />
-                      </div>
-                    </CarouselItem>
-                    <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
-                      <div className="flex items-center justify-center h-16 grayscale hover:grayscale-0 transition-all duration-300">
                         <img
                           src="https://mepznzrijuoyvjcmkspf.supabase.co/storage/v1/object/public/brands/Ruang_Guru_logo.webp"
                           alt="Ruangguru"
