@@ -1,10 +1,10 @@
-import React from 'react';
+import React from "react";
 import { Button } from "@/components/ui/button";
 import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
-import OptimizedImage from '@/components/ui/optimized-image';
-import * as LucideIcons from 'lucide-react';
-import { HeroContent } from '@/types/ProductPageTypes';
+import OptimizedImage from "@/components/ui/optimized-image";
+import * as LucideIcons from "lucide-react";
+import { HeroContent } from "@/types/ProductPageTypes";
 
 interface GenericHeroSectionProps {
   content: HeroContent;
@@ -12,17 +12,17 @@ interface GenericHeroSectionProps {
   showBrands?: boolean;
 }
 
-const GenericHeroSection: React.FC<GenericHeroSectionProps> = ({
-  content,
-  onPrimaryCTA,
-  showBrands = true
-}) => {
-  const autoplayPlugin = React.useMemo(() => Autoplay({
-    delay: 3000,
-    stopOnInteraction: false,
-    rootNode: emblaRoot => emblaRoot.parentElement,
-    stopOnMouseEnter: true
-  }), []);
+const GenericHeroSection: React.FC<GenericHeroSectionProps> = ({ content, onPrimaryCTA, showBrands = true }) => {
+  const autoplayPlugin = React.useMemo(
+    () =>
+      Autoplay({
+        delay: 3000,
+        stopOnInteraction: false,
+        rootNode: (emblaRoot) => emblaRoot.parentElement,
+        stopOnMouseEnter: true,
+      }),
+    [],
+  );
 
   const getIcon = (iconName: string) => {
     const IconComponent = (LucideIcons as any)[iconName];
@@ -35,25 +35,29 @@ const GenericHeroSection: React.FC<GenericHeroSectionProps> = ({
         <div className="inline-flex items-center py-1 px-4 bg-accent/70 rounded-full backdrop-blur-sm mt-0 mb-4 animate-fade-in mx-auto">
           <span className="text-xs font-medium text-primary text-center">{content.badge}</span>
         </div>
-        
-        <h1 
+
+        <h1
           className="text-5xl md:text-5xl lg:text-6xl font-bold tracking-tight text-foreground text-center mb-4 max-w-4xl animate-fade-in"
           dangerouslySetInnerHTML={{ __html: content.title }}
         />
-        
+
         <p className="text-lg md:text-xl text-muted-foreground max-w-2xl text-center mb-8 animate-fade-in">
           {content.subtitle}
         </p>
-        
+
         <div className="flex flex-col sm:flex-row gap-4 pt-2 mb-8 justify-center animate-fade-in">
-          <Button size="lg" className="bg-primary hover:bg-primary/90 text-white rounded-lg h-12 px-8" onClick={onPrimaryCTA}>
+          <Button
+            size="lg"
+            className="bg-primary hover:bg-primary/90 text-white rounded-lg h-12 px-8"
+            onClick={onPrimaryCTA}
+          >
             {content.primaryCTA.text}
           </Button>
           <Button asChild variant="outline" size="lg" className="rounded-lg h-12 px-8">
             <a href={content.secondaryCTA.href}>{content.secondaryCTA.text}</a>
           </Button>
         </div>
-        
+
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-10 max-w-4xl w-full mx-auto pt-2 animate-fade-in">
           {content.highlights.map((highlight, index) => (
             <div key={index} className="flex items-center gap-2 text-sm justify-center">
@@ -62,7 +66,7 @@ const GenericHeroSection: React.FC<GenericHeroSectionProps> = ({
             </div>
           ))}
         </div>
-        
+
         <div className="max-w-full mt-8 mb-10 animate-slide-in-right">
           <OptimizedImage
             src={content.image.src}
@@ -78,14 +82,20 @@ const GenericHeroSection: React.FC<GenericHeroSectionProps> = ({
         {showBrands && (
           <div className="mt-6 md:mt-6 w-full">
             <div className="text-center mb-8 animate-fade-in">
-              <p className="text-sm text-muted-foreground font-medium uppercase tracking-wider">Dipercaya oleh 600+ perusahaan di Indonesia</p>
+              <p className="text-sm text-muted-foreground font-medium uppercase tracking-wider">
+                Dipercaya oleh 600+ perusahaan di Indonesia
+              </p>
             </div>
-            <Carousel opts={{
-              align: "start",
-              loop: true,
-              dragFree: true,
-              containScroll: false
-            }} plugins={[autoplayPlugin as any]} className="w-full">
+            <Carousel
+              opts={{
+                align: "start",
+                loop: true,
+                dragFree: true,
+                containScroll: false,
+              }}
+              plugins={[autoplayPlugin as any]}
+              className="w-full"
+            >
               <CarouselContent className="py-4">
                 {[...Array(2)].map((_, copy) => (
                   <React.Fragment key={`copy-${copy}`}>
@@ -103,7 +113,7 @@ const GenericHeroSection: React.FC<GenericHeroSectionProps> = ({
                     <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
                       <div className="flex items-center justify-center h-16 grayscale hover:grayscale-0 transition-all duration-300">
                         <img
-                          src="https://cdn-web-2.ruangguru.com/landing-pages/assets/hs/OPTIMIZE/logo%20rg.svg"
+                          src="https://id.wikipedia.org/wiki/Berkas:Ruang_Guru_logo.svg"
                           alt="Ruangguru"
                           className="h-12 object-contain opacity-70 hover:opacity-100"
                         />
@@ -112,7 +122,7 @@ const GenericHeroSection: React.FC<GenericHeroSectionProps> = ({
                     <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
                       <div className="flex items-center justify-center h-16 grayscale hover:grayscale-0 transition-all duration-300">
                         <img
-                          src="https://indikafoundation.org/assets/logo-if-blue.png"
+                          src="https://mepznzrijuoyvjcmkspf.supabase.co/storage/v1/object/public/brands/logo-if-blue.webp"
                           alt="Indika"
                           className="h-12 object-contain opacity-70 hover:opacity-100"
                         />
@@ -121,7 +131,7 @@ const GenericHeroSection: React.FC<GenericHeroSectionProps> = ({
                     <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
                       <div className="flex items-center justify-center h-16 grayscale hover:grayscale-0 transition-all duration-300">
                         <img
-                          src="https://wiseco.id/site/assets/images/logo_h.png"
+                          src="https://mepznzrijuoyvjcmkspf.supabase.co/storage/v1/object/public/brands/logo_h.webp"
                           alt="Wiseco"
                           className="h-12 object-contain opacity-70 hover:opacity-100"
                         />
@@ -130,7 +140,7 @@ const GenericHeroSection: React.FC<GenericHeroSectionProps> = ({
                     <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
                       <div className="flex items-center justify-center h-16 grayscale hover:grayscale-0 transition-all duration-300">
                         <img
-                          src="https://iwakaf.or.id/_next/image?url=%2Fassets%2Fimages%2Flogo%2FLogoIwakaf.png&w=256&q=75"
+                          src="https://mepznzrijuoyvjcmkspf.supabase.co/storage/v1/object/public/brands/LogoIwakaf.webp"
                           alt="iWakaf"
                           className="h-16 object-contain opacity-70 hover:opacity-100"
                         />
@@ -148,7 +158,7 @@ const GenericHeroSection: React.FC<GenericHeroSectionProps> = ({
                     <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
                       <div className="flex items-center justify-center h-16 grayscale hover:grayscale-0 transition-all duration-300">
                         <img
-                          src="https://citraurbana.com/wp-content/uploads/2024/03/logo-horizontal-500.svg"
+                          src="https://mepznzrijuoyvjcmkspf.supabase.co/storage/v1/object/public/brands/citraurbana.webp"
                           alt="Citra Urbana"
                           className="h-12 object-contain opacity-70 hover:opacity-100"
                         />
