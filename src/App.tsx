@@ -5,6 +5,7 @@ import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { HelmetProvider } from 'react-helmet-async';
 import { useEffect, lazy, Suspense } from "react";
 import { useMetaPixel } from "./hooks/useMetaPixel";
+import { useDeferredTracking } from "./hooks/useDeferredTracking";
 
 // Eager load: Index page (critical for LCP)
 import Index from "./pages/Index";
@@ -69,10 +70,7 @@ const AppRoutes = () => {
   const location = useLocation();
 
   useEffect(() => {
-    // Track page view with Meta Pixel for non-admin pages (handled by useMetaPixel hook now)
-    if (typeof window.fbq === 'function') {
-      window.fbq('track', 'PageView');
-    }
+    // PageView tracking now handled by useDeferredTracking hook for better performance
   }, [location.pathname]);
 
   return (
@@ -134,6 +132,9 @@ const AppRoutes = () => {
 function App() {
   // Initialize Meta Pixel from database settings
   useMetaPixel();
+  
+  // Defer tracking initialization for better FCP/TBT
+  useDeferredTracking();
 
   return (
     <HelmetProvider>

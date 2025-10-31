@@ -45,8 +45,8 @@ const BrandCarousel: React.FC<BrandCarouselProps> = ({
 }) => {
   const autoplayPlugin = React.useMemo(
     () => autoplay ? Autoplay({
-      delay: autoplayDelay,
-      stopOnInteraction: false,
+      delay: 5000, // Increased from 3000ms to reduce CPU usage
+      stopOnInteraction: true, // Changed from false to save CPU on user interaction
       rootNode: (emblaRoot) => emblaRoot.parentElement,
       stopOnMouseEnter: true,
     }) : null,

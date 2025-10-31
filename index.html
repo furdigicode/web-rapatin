@@ -13,14 +13,16 @@
     <link rel="dns-prefetch" href="https://mepznzrijuoyvjcmkspf.supabase.co" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://www.googletagmanager.com" />
     <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+    <link rel="dns-prefetch" href="https://www.google-analytics.com" />
     
-    <!-- Font Optimization -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" />
+    <!-- Font Optimization with swap for better performance -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'" />
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" /></noscript>
     
-    <!-- Preload Critical Images -->
-    <link rel="preload" as="image" href="/lovable-uploads/e7e34560-7715-4bb4-9fa9-26f74f4090b8.png" fetchpriority="high" media="(max-width: 768px)" />
-    <link rel="preload" as="image" href="/lovable-uploads/2daea350-0851-4dd8-8f79-ee07aaaad905.png" fetchpriority="high" media="(min-width: 769px)" />
+    <!-- Preload Critical Hero Image for Homepage Only -->
+    <link rel="preload" as="image" href="https://mepznzrijuoyvjcmkspf.supabase.co/storage/v1/object/public/brands/dasbor_rapatin.webp" fetchpriority="high" imagesrcset="https://mepznzrijuoyvjcmkspf.supabase.co/storage/v1/object/public/brands/dasbor_rapatin.webp 1200w" imagesizes="(max-width: 1200px) 100vw, 1200px" />
 
     <!-- Google Tag Manager - Deferred for Performance -->
     <script>
@@ -38,15 +40,8 @@
     </script>
     <!-- End Google Tag Manager -->
 
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-V0TSE9J124"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-
-      gtag('config', 'G-V0TSE9J124');
-    </script>
+    <!-- Google Analytics - Deferred for better FCP -->
+    <!-- Loaded at end of body -->
 
     <!-- Schema.org markup for Google -->
     <script type="application/ld+json">
@@ -90,5 +85,20 @@
     <!-- IMPORTANT: DO NOT REMOVE THIS SCRIPT TAG OR THIS VERY COMMENT! -->
     <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
     <script type="module" src="/src/main.tsx"></script>
+    
+    <!-- Google Analytics - Deferred to improve FCP/TBT -->
+    <script>
+      window.addEventListener('load', function() {
+        var script = document.createElement('script');
+        script.async = true;
+        script.src = 'https://www.googletagmanager.com/gtag/js?id=G-V0TSE9J124';
+        document.head.appendChild(script);
+        
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-V0TSE9J124');
+      });
+    </script>
   </body>
 </html>

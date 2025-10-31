@@ -1,11 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, lazy, Suspense } from "react";
 import { Button } from "@/components/ui/button";
 import { CreditCard, X, Shield, Infinity } from "lucide-react";
-import AnimatedText from "@/components/ui/animated-text";
 import FreeTrialModal from "@/components/ui/free-trial-modal";
 import OptimizedImage from "@/components/ui/optimized-image";
 import BrandCarousel from "@/components/shared/BrandCarousel";
 import { shouldShowModal, getRedirectUrl } from "@/hooks/useURLParams";
+
+const AnimatedText = lazy(() => import("@/components/ui/animated-text"));
 
 const MainHeroSection: React.FC = () => {
   const [modalOpen, setModalOpen] = useState(false);
@@ -43,7 +44,9 @@ const MainHeroSection: React.FC = () => {
             </span>
           </div>
           <h1 className="text-5xl md:text-5xl lg:text-6xl font-bold tracking-tight text-foreground text-center mb-4 max-w-4xl animate-fade-in">
-            Pay-as-you-go <AnimatedText words={["meeting", "event", "appointment"]} className="text-primary" />{" "}
+            Pay-as-you-go <Suspense fallback={<span className="text-primary">meeting</span>}>
+              <AnimatedText words={["meeting", "event", "appointment"]} className="text-primary" />
+            </Suspense>{" "}
             scheduling platform
           </h1>
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl text-center mb-8 animate-fade-in">
