@@ -101,99 +101,121 @@ const GenericHeroSection: React.FC<GenericHeroSectionProps> = ({ content, onPrim
                   <React.Fragment key={`copy-${copy}`}>
                     <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
                       <div className="flex items-center justify-center h-16 grayscale hover:grayscale-0 transition-all duration-300">
-                        <img
+                        <OptimizedImage
                           src="https://mepznzrijuoyvjcmkspf.supabase.co/storage/v1/object/public/brands/Ruang_Guru_logo.webp"
                           alt="Ruangguru"
+                          width={120}
+                          height={48}
                           className="h-12 object-contain opacity-70 hover:opacity-100"
                         />
                       </div>
                     </CarouselItem>
                     <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
                       <div className="flex items-center justify-center h-16 grayscale hover:grayscale-0 transition-all duration-300">
-                        <img
+                        <OptimizedImage
                           src="https://mepznzrijuoyvjcmkspf.supabase.co/storage/v1/object/public/brands/logo-if-blue.webp"
                           alt="Indika"
+                          width={120}
+                          height={48}
                           className="h-12 object-contain opacity-70 hover:opacity-100"
                         />
                       </div>
                     </CarouselItem>
                     <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
                       <div className="flex items-center justify-center h-16 grayscale hover:grayscale-0 transition-all duration-300">
-                        <img
+                        <OptimizedImage
                           src="https://mepznzrijuoyvjcmkspf.supabase.co/storage/v1/object/public/brands/logo_h.webp"
                           alt="Wiseco"
+                          width={120}
+                          height={48}
                           className="h-12 object-contain opacity-70 hover:opacity-100"
                         />
                       </div>
                     </CarouselItem>
                     <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
                       <div className="flex items-center justify-center h-16 grayscale hover:grayscale-0 transition-all duration-300">
-                        <img
+                        <OptimizedImage
                           src="https://mepznzrijuoyvjcmkspf.supabase.co/storage/v1/object/public/brands/LogoIwakaf.webp"
                           alt="iWakaf"
+                          width={120}
+                          height={64}
                           className="h-16 object-contain opacity-70 hover:opacity-100"
                         />
                       </div>
                     </CarouselItem>
                     <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
                       <div className="flex items-center justify-center h-16 grayscale hover:grayscale-0 transition-all duration-300">
-                        <img
+                        <OptimizedImage
                           src="https://mepznzrijuoyvjcmkspf.supabase.co/storage/v1/object/public/brands/logo_jmkp.webp"
                           alt="JMKP"
+                          width={120}
+                          height={48}
                           className="h-12 object-contain opacity-70 hover:opacity-100"
                         />
                       </div>
                     </CarouselItem>
                     <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
                       <div className="flex items-center justify-center h-16 grayscale hover:grayscale-0 transition-all duration-300">
-                        <img
+                        <OptimizedImage
                           src="https://mepznzrijuoyvjcmkspf.supabase.co/storage/v1/object/public/brands/citraurbana.webp"
                           alt="Citra Urbana"
+                          width={120}
+                          height={48}
                           className="h-12 object-contain opacity-70 hover:opacity-100"
                         />
                       </div>
                     </CarouselItem>
                     <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
                       <div className="flex items-center justify-center h-16 grayscale hover:grayscale-0 transition-all duration-300">
-                        <img
+                        <OptimizedImage
                           src="https://mepznzrijuoyvjcmkspf.supabase.co/storage/v1/object/public/brands/Logo_APKEPI.webp"
                           alt="APKEPI"
+                          width={120}
+                          height={48}
                           className="h-12 object-contain opacity-70 hover:opacity-100"
                         />
                       </div>
                     </CarouselItem>
                     <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
                       <div className="flex items-center justify-center h-16 grayscale hover:grayscale-0 transition-all duration-300">
-                        <img
+                        <OptimizedImage
                           src="https://mepznzrijuoyvjcmkspf.supabase.co/storage/v1/object/public/brands/iso_jepang.webp"
                           alt="ISO Jepang"
+                          width={120}
+                          height={48}
                           className="h-12 object-contain opacity-70 hover:opacity-100"
                         />
                       </div>
                     </CarouselItem>
                     <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
                       <div className="flex items-center justify-center h-16 grayscale hover:grayscale-0 transition-all duration-300">
-                        <img
+                        <OptimizedImage
                           src="https://mepznzrijuoyvjcmkspf.supabase.co/storage/v1/object/public/brands/UBH.webp"
                           alt="Universitas Bung Hatta"
+                          width={120}
+                          height={48}
                           className="h-12 object-contain opacity-70 hover:opacity-100"
                         />
                       </div>
                     </CarouselItem>
                     <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
                       <div className="flex items-center justify-center h-16 grayscale hover:grayscale-0 transition-all duration-300">
-                        <img
+                        <OptimizedImage
                           src="https://mepznzrijuoyvjcmkspf.supabase.co/storage/v1/object/public/brands/Digicode_logo.webp"
                           alt="DigiCode"
+                          width={120}
+                          height={48}
                           className="h-12 object-contain opacity-70 hover:opacity-100"
                         />
                       </div>
                     </CarouselItem>
                     <CarouselItem className="basis-1/2 md:basis-1/5 lg:basis-1/7 pl-4">
                       <div className="flex items-center justify-center h-16 grayscale hover:grayscale-0 transition-all duration-300">
-                        <img
+                        <OptimizedImage
                           src="https://mepznzrijuoyvjcmkspf.supabase.co/storage/v1/object/public/brands/logo-ges-horizontal.webp"
                           alt="Ganeca"
+                          width={120}
+                          height={64}
                           className="h-16 object-contain opacity-70 hover:opacity-100"
                         />
                       </div>
