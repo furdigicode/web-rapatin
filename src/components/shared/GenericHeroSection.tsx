@@ -2,7 +2,6 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import OptimizedImage from "@/components/ui/optimized-image";
-import BrandCarousel from "@/components/shared/BrandCarousel";
 import * as LucideIcons from "lucide-react";
 import { HeroContent } from "@/types/ProductPageTypes";
 
@@ -67,8 +66,6 @@ const GenericHeroSection: React.FC<GenericHeroSectionProps> = ({ content, onPrim
             style={{ background: "rgba(255,255,255,0.9)", maxHeight: "800px" }}
           />
         </div>
-
-        {showBrands && <BrandCarousel />}
       </div>
     </section>
   );
