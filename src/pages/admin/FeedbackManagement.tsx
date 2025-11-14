@@ -34,27 +34,33 @@ const FeedbackManagement = () => {
 
   const fetchFeedbacks = async () => {
     try {
+      // @ts-ignore - user_feedbacks table types not yet generated
       let query = supabase
+        // @ts-ignore
         .from('user_feedbacks')
         .select('*')
         .order('created_at', { ascending: false });
 
       // Apply filters
       if (typeFilter !== 'all') {
+        // @ts-ignore
         query = query.eq('type', typeFilter);
       }
       if (statusFilter !== 'all') {
+        // @ts-ignore
         query = query.eq('status', statusFilter);
       }
       if (priorityFilter !== 'all') {
+        // @ts-ignore
         query = query.eq('priority', priorityFilter);
       }
 
-      const { data, error } = await query;
+      const { data, error} = await query;
 
       if (error) throw error;
 
       // Apply search filter client-side
+      // @ts-ignore - user_feedbacks table types not yet generated
       let filtered = (data || []) as UserFeedback[];
       if (searchQuery) {
         const query = searchQuery.toLowerCase();
