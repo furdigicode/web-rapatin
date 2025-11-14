@@ -38,6 +38,7 @@ const BlogPost = lazy(() => import("./pages/BlogPost"));
 
 // Voting Pages - Lazy loaded
 const VotingDetail = lazy(() => import("./pages/VotingDetail"));
+const Feedback = lazy(() => import("./pages/Feedback"));
 
 // Admin Pages - Lazy loaded (not critical for initial load)
 const AdminLogin = lazy(() => import("./pages/admin/Login"));
@@ -53,6 +54,7 @@ const TrackingSettings = lazy(() => import("./pages/admin/TrackingSettings"));
 const VotingManagement = lazy(() => import("./pages/admin/VotingManagement"));
 const VotingCategoryManagement = lazy(() => import("./pages/admin/VotingCategoryManagement"));
 const VotingResults = lazy(() => import("./pages/admin/VotingResults"));
+const FeedbackManagement = lazy(() => import("./pages/admin/FeedbackManagement"));
 
 // Sitemap - Lazy loaded
 const SitemapXML = lazy(() => import("./pages/SitemapXML"));
@@ -105,6 +107,9 @@ const AppRoutes = () => {
         {/* Voting Pages */}
         <Route path="/voting/:slug" element={<VotingDetail />} />
         
+        {/* Feedback Page */}
+        <Route path="/feedback" element={<Feedback />} />
+        
         {/* Sitemap */}
         <Route path="/sitemap.xml" element={<SitemapXML />} />
         
@@ -121,6 +126,7 @@ const AppRoutes = () => {
         <Route path="/admin/voting" element={<ProtectedRoute><VotingManagement /></ProtectedRoute>} />
         <Route path="/admin/voting/:id/results" element={<ProtectedRoute><VotingResults /></ProtectedRoute>} />
         <Route path="/admin/voting-categories" element={<ProtectedRoute><VotingCategoryManagement /></ProtectedRoute>} />
+        <Route path="/admin/feedback" element={<ProtectedRoute><FeedbackManagement /></ProtectedRoute>} />
         
         {/* 404 Catch-all Route */}
         <Route path="*" element={<NotFound />} />

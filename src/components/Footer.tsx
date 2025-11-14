@@ -76,6 +76,7 @@ const Footer: React.FC = () => {
             <ul className="space-y-2">
               <li><a href="/tentang-kami" className="text-muted-foreground hover:text-primary text-sm transition-colors">Tentang Kami</a></li>
               <li><a href="/kontak" className="text-muted-foreground hover:text-primary text-sm transition-colors">Kontak Kami</a></li>
+              <li><a href="/feedback" className="text-muted-foreground hover:text-primary text-sm transition-colors">Berikan Feedback</a></li>
               <li><a href="/syarat-ketentuan" className="text-muted-foreground hover:text-primary text-sm transition-colors">Syarat Ketentuan</a></li>
               <li><a href="/kebijakan-privasi" className="text-muted-foreground hover:text-primary text-sm transition-colors">Kebijakan Privasi</a></li>
             </ul>
