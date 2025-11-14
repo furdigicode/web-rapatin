@@ -10,7 +10,8 @@ import {
   Home,
   Bell,
   Settings,
-  Vote
+  Vote,
+  MessageSquare
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -189,6 +190,17 @@ const AppSidebar = () => {
                   <Link to="/admin/notifications">
                     <Bell />
                     <span>Notifikasi</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton 
+                  asChild 
+                  isActive={location.pathname === '/admin/feedback'}
+                >
+                  <Link to="/admin/feedback">
+                    <MessageSquare />
+                    <span>Feedback</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
