@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { MessageSquare, AlertCircle, Lightbulb, Bug, HelpCircle, FileText, CheckCircle } from 'lucide-react';
+import { MessageSquare, AlertCircle, Lightbulb, Bug, HelpCircle, FileText, CheckCircle, Plus, Image, Video, Trash2, ExternalLink } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import SEO from '@/components/SEO';
@@ -13,6 +13,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import type { FeedbackType } from '@/types/FeedbackTypes';
@@ -39,7 +41,54 @@ const feedbackTypes = [
 const Feedback = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [attachments, setAttachments] = useState<Array<{
+    id: string;
+    type: 'image' | 'video';
+    url: string;
+  }>>([]);
   const { toast } = useToast();
+
+  const addAttachment = () => {
+    if (attachments.length >= 5) {
+      toast({
+        title: 'Maksimal 5 lampiran',
+        description: 'Anda hanya dapat melampirkan maksimal 5 file.',
+        variant: 'destructive',
+      });
+      return;
+    }
+    
+    setAttachments([...attachments, {
+      id: Math.random().toString(36).substr(2, 9),
+      type: 'image',
+      url: '',
+    }]);
+  };
+
+  const removeAttachment = (id: string) => {
+    setAttachments(attachments.filter(a => a.id !== id));
+  };
+
+  const updateAttachment = (id: string, field: 'type' | 'url', value: string) => {
+    setAttachments(attachments.map(a => 
+      a.id === id ? { ...a, [field]: value } : a
+    ));
+  };
+
+  const isValidUrl = (url: string) => {
+    try {
+      new URL(url);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
+  const getYouTubeId = (url: string) => {
+    const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
+    const match = url.match(regex);
+    return match ? match[1] : null;
+  };
 
   const { register, handleSubmit, formState: { errors }, setValue, watch, reset } = useForm<FeedbackFormData>({
     resolver: zodResolver(feedbackSchema),
@@ -60,6 +109,12 @@ const Feedback = () => {
         page_url: document.referrer || window.location.href,
         screen_resolution: `${window.screen.width}x${window.screen.height}`,
         timestamp: new Date().toISOString(),
+        attachments: attachments
+          .filter(a => a.url.trim() !== '' && isValidUrl(a.url))
+          .map(a => ({
+            type: a.type,
+            url: a.url.trim(),
+          })),
       };
 
       const { error } = await supabase.from('user_feedbacks').insert({
@@ -78,6 +133,7 @@ const Feedback = () => {
 
       setSubmitted(true);
       reset();
+      setAttachments([]);
       toast({
         title: 'Feedback Berhasil Dikirim!',
         description: 'Terima kasih atas feedback Anda. Kami akan meresponnya secepatnya.',
@@ -270,6 +326,139 @@ const Feedback = () => {
                       {message.length}/2000
                     </span>
                   </div>
+                </div>
+
+                {/* Attachment Section */}
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label>Lampiran (Opsional)</Label>
+                      <p className="text-sm text-muted-foreground">
+                        Tambahkan URL gambar atau video untuk memperjelas feedback Anda
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        ✅ Support: Imgur, Google Drive, YouTube, Vimeo, Loom, atau direct URL
+                      </p>
+                    </div>
+                    {attachments.length < 5 && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={addAttachment}
+                      >
+                        <Plus className="w-4 h-4 mr-2" />
+                        Tambah
+                      </Button>
+                    )}
+                  </div>
+
+                  {attachments.length > 0 && (
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline">
+                          {attachments.length}/5 lampiran
+                        </Badge>
+                      </div>
+                      {attachments.map((attachment) => (
+                        <Card key={attachment.id} className="p-4">
+                          <div className="flex gap-3">
+                            {/* Type Selector */}
+                            <div className="w-32">
+                              <Select
+                                value={attachment.type}
+                                onValueChange={(value) => updateAttachment(attachment.id, 'type', value as 'image' | 'video')}
+                              >
+                                <SelectTrigger>
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="image">
+                                    <div className="flex items-center gap-2">
+                                      <Image className="w-4 h-4" />
+                                      Gambar
+                                    </div>
+                                  </SelectItem>
+                                  <SelectItem value="video">
+                                    <div className="flex items-center gap-2">
+                                      <Video className="w-4 h-4" />
+                                      Video
+                                    </div>
+                                  </SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+
+                            {/* URL Input */}
+                            <div className="flex-1">
+                              <Input
+                                placeholder={
+                                  attachment.type === 'image'
+                                    ? 'https://imgur.com/xxx.png atau https://drive.google.com/...'
+                                    : 'https://youtube.com/watch?v=xxx atau https://vimeo.com/xxx'
+                                }
+                                value={attachment.url}
+                                onChange={(e) => updateAttachment(attachment.id, 'url', e.target.value)}
+                              />
+                              {attachment.url && !isValidUrl(attachment.url) && (
+                                <p className="text-xs text-destructive mt-1">
+                                  ⚠️ URL tidak valid. Pastikan dimulai dengan http:// atau https://
+                                </p>
+                              )}
+                            </div>
+
+                            {/* Remove Button */}
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => removeAttachment(attachment.id)}
+                            >
+                              <Trash2 className="w-4 h-4 text-destructive" />
+                            </Button>
+                          </div>
+
+                          {/* Preview */}
+                          {attachment.url && isValidUrl(attachment.url) && (
+                            <div className="mt-3">
+                              {attachment.type === 'image' ? (
+                                <div className="relative w-full h-48 bg-muted rounded-lg overflow-hidden">
+                                  <img
+                                    src={attachment.url}
+                                    alt="Preview"
+                                    className="w-full h-full object-contain"
+                                    onError={(e) => {
+                                      const target = e.currentTarget;
+                                      target.style.display = 'none';
+                                      const parent = target.parentElement;
+                                      if (parent) {
+                                        parent.innerHTML = '<p class="text-sm text-muted-foreground text-center flex items-center justify-center h-full">⚠️ URL gambar tidak valid</p>';
+                                      }
+                                    }}
+                                  />
+                                </div>
+                              ) : attachment.type === 'video' && getYouTubeId(attachment.url) ? (
+                                <div className="relative w-full aspect-video bg-muted rounded-lg overflow-hidden">
+                                  <iframe
+                                    src={`https://www.youtube.com/embed/${getYouTubeId(attachment.url)}`}
+                                    className="w-full h-full"
+                                    allowFullScreen
+                                    title="Video preview"
+                                  />
+                                </div>
+                              ) : (
+                                <div className="p-3 bg-muted rounded-lg">
+                                  <p className="text-sm text-muted-foreground break-all">
+                                    🔗 {attachment.url.substring(0, 60)}...
+                                  </p>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </Card>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 <Button type="submit" className="w-full" disabled={isSubmitting}>

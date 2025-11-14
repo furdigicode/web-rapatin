@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { MessageSquare, AlertCircle, Clock, CheckCircle, Search, Eye, Download } from 'lucide-react';
+import { MessageSquare, AlertCircle, Clock, CheckCircle, Search, Eye, Download, Paperclip } from 'lucide-react';
 import AdminLayout from '@/components/admin/AdminLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -356,7 +356,17 @@ const FeedbackManagement = () => {
                             {getTypeLabel(feedback.type)}
                           </Badge>
                         </TableCell>
-                        <TableCell className="max-w-[200px] truncate">{feedback.subject}</TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <span className="max-w-[200px] truncate">{feedback.subject}</span>
+                            {feedback.metadata?.attachments && feedback.metadata.attachments.length > 0 && (
+                              <Badge variant="secondary">
+                                <Paperclip className="w-3 h-3 mr-1" />
+                                {feedback.metadata.attachments.length}
+                              </Badge>
+                            )}
+                          </div>
+                        </TableCell>
                         <TableCell>
                           <Badge variant={getStatusBadgeVariant(feedback.status)}>
                             {getStatusLabel(feedback.status)}

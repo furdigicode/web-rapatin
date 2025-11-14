@@ -19,7 +19,13 @@ export interface UserFeedback {
   resolved_by: string | null;
   user_agent: string | null;
   page_url: string | null;
-  metadata: any;
+  metadata: {
+    attachments?: Array<{
+      type: 'image' | 'video';
+      url: string;
+    }>;
+    [key: string]: any;
+  } | null;
 }
 
 export interface FeedbackFormData {
