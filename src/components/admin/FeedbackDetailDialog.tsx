@@ -91,7 +91,10 @@ export const FeedbackDetailDialog: React.FC<FeedbackDetailDialogProps> = ({
         updates.resolved_at = new Date().toISOString();
       }
 
+
+      // @ts-ignore - user_feedbacks table types not yet generated
       const { error } = await supabase
+        // @ts-ignore
         .from('user_feedbacks')
         .update(updates)
         .eq('id', feedback.id);
@@ -119,7 +122,9 @@ export const FeedbackDetailDialog: React.FC<FeedbackDetailDialogProps> = ({
 
   const handleDelete = async () => {
     try {
+      // @ts-ignore - user_feedbacks table types not yet generated
       const { error } = await supabase
+        // @ts-ignore
         .from('user_feedbacks')
         .delete()
         .eq('id', feedback.id);

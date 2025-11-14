@@ -117,6 +117,7 @@ const Feedback = () => {
           })),
       };
 
+      // @ts-ignore - user_feedbacks table types not yet generated
       const { error } = await supabase.from('user_feedbacks').insert({
         name: data.name,
         email: data.email,
