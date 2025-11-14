@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { User, Mail, Phone, Calendar, ExternalLink, Save, Trash2, X } from 'lucide-react';
+import { User, Mail, Phone, Calendar, ExternalLink, Save, Trash2, X, Paperclip, Image as ImageIcon, Video as VideoIcon } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -218,6 +218,78 @@ export const FeedbackDetailDialog: React.FC<FeedbackDetailDialogProps> = ({
                 </div>
               </CardContent>
             </Card>
+
+            {/* Attachments Section */}
+            {feedback.metadata?.attachments && feedback.metadata.attachments.length > 0 && (
+              <>
+                <Separator />
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-sm flex items-center gap-2">
+                      <Paperclip className="w-4 h-4" />
+                      Lampiran ({feedback.metadata.attachments.length})
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {feedback.metadata.attachments.map((attachment: any, index: number) => (
+                      <div key={index} className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <Badge variant="outline">
+                            {attachment.type === 'image' ? (
+                              <>
+                                <ImageIcon className="w-3 h-3 mr-1" />
+                                Gambar
+                              </>
+                            ) : (
+                              <>
+                                <VideoIcon className="w-3 h-3 mr-1" />
+                                Video
+                              </>
+                            )}
+                          </Badge>
+                          <a
+                            href={attachment.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-sm text-primary hover:underline flex items-center gap-1"
+                          >
+                            Buka di tab baru
+                            <ExternalLink className="w-3 h-3" />
+                          </a>
+                        </div>
+
+                        {/* Preview */}
+                        {attachment.type === 'image' ? (
+                          <div className="relative w-full max-w-md h-48 bg-muted rounded-lg overflow-hidden border">
+                            <img
+                              src={attachment.url}
+                              alt={`Attachment ${index + 1}`}
+                              className="w-full h-full object-contain"
+                              onError={(e) => {
+                                const target = e.currentTarget;
+                                target.style.display = 'none';
+                                const parent = target.parentElement;
+                                if (parent) {
+                                  parent.innerHTML = `
+                                    <div class="flex items-center justify-center h-full">
+                                      <p class="text-sm text-muted-foreground">⚠️ Gambar tidak dapat dimuat</p>
+                                    </div>
+                                  `;
+                                }
+                              }}
+                            />
+                          </div>
+                        ) : (
+                          <div className="p-3 bg-muted rounded-lg">
+                            <p className="text-sm break-all">{attachment.url}</p>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </CardContent>
+                </Card>
+              </>
+            )}
 
             {/* Admin Actions */}
             <Card>
