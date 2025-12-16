@@ -113,50 +113,50 @@ const generateSEOOptimizedArticle = async (request: ArticleRequest): Promise<Art
     const faqWordsPer = Math.floor(sectionBudgets.faq / faqCount);
     
     return `
-EXACT ARTICLE STRUCTURE FOR ${totalWords} WORDS (AI OVERVIEW OPTIMIZED):
+STRUKTUR ARTIKEL ${totalWords} KATA (OPTIMASI AI OVERVIEW):
 
-1. H1: Compelling headline dengan target keyword di awal
+1. H1: Judul menarik dengan target keyword di awal
 
-2. TL;DR / RINGKASAN (${sectionBudgets.tldr} kata):
+2. RINGKASAN (${sectionBudgets.tldr} kata):
    - Jawaban langsung untuk pertanyaan utama dalam 2-3 kalimat
    - Format: "[Keyword] adalah [definisi] yang membantu [target audience] untuk [manfaat utama]"
    - HARUS bisa berdiri sendiri sebagai jawaban lengkap
 
-3. INTRODUCTION (${sectionBudgets.intro} kata):
+3. PENDAHULUAN (${sectionBudgets.intro} kata):
    - Kalimat pertama HARUS langsung menjawab: "Apa itu ${targetKeyword}?"
    - Hook yang menarik perhatian
    - Preview apa yang akan dibahas
 
-4. ${h2SectionsCount} MAIN H2 SECTIONS (masing-masing ${h2WordsPer} kata, total: ${sectionBudgets.mainSections} kata):
-   - Setiap section dimulai dengan DIRECT ANSWER (1-2 kalimat pertama)
+4. ${h2SectionsCount} BAGIAN UTAMA H2 (masing-masing ${h2WordsPer} kata, total: ${sectionBudgets.mainSections} kata):
+   - Setiap section dimulai dengan JAWABAN LANGSUNG (1-2 kalimat pertama)
    - Lalu penjelasan detail dengan contoh konkret
    - Include H3 sub-sections untuk breakdown detail
    - Gunakan bullet points untuk list 3+ items
    - Gunakan numbered list untuk proses/langkah-langkah
    - Akhiri dengan key takeaway atau tips praktis
 
-5. FAQ SECTION (${faqCount} pertanyaan, total ${sectionBudgets.faq} kata, masing-masing ~${faqWordsPer} kata):
+5. PERTANYAAN UMUM (${faqCount} pertanyaan, total ${sectionBudgets.faq} kata, masing-masing ~${faqWordsPer} kata):
    - Format: "Apa/Bagaimana/Mengapa/Kapan [topic]?"
    - Jawaban langsung 30-50 kata di kalimat PERTAMA
    - Expand dengan 2-3 kalimat tambahan
    - Match "People Also Ask" search intent
 
-6. KEY TAKEAWAYS (${sectionBudgets.takeaways} kata):
+6. POIN-POIN PENTING (${sectionBudgets.takeaways} kata):
    - 5-7 bullet points utama dari artikel
    - Masing-masing 1-2 kalimat actionable
 
-7. CONCLUSION (${sectionBudgets.conclusion} kata):
+7. KESIMPULAN (${sectionBudgets.conclusion} kata):
    - Ringkas main points
    - Call-to-action yang jelas
 
-WORD COUNT VERIFICATION:
-- TL;DR: ${sectionBudgets.tldr} kata
-- Introduction: ${sectionBudgets.intro} kata
-- Main sections: ${sectionBudgets.mainSections} kata
-- FAQ: ${sectionBudgets.faq} kata
-- Key Takeaways: ${sectionBudgets.takeaways} kata
-- Conclusion: ${sectionBudgets.conclusion} kata
-- TOTAL MUST BE: ${totalWords} kata (no more, no less)`;
+VERIFIKASI JUMLAH KATA:
+- Ringkasan: ${sectionBudgets.tldr} kata
+- Pendahuluan: ${sectionBudgets.intro} kata
+- Bagian utama: ${sectionBudgets.mainSections} kata
+- Pertanyaan Umum: ${sectionBudgets.faq} kata
+- Poin-Poin Penting: ${sectionBudgets.takeaways} kata
+- Kesimpulan: ${sectionBudgets.conclusion} kata
+- TOTAL HARUS: ${totalWords} kata (tidak lebih, tidak kurang)`;
   };
 
   // AI Overview optimization rules with CRITICAL word count enforcement
@@ -178,10 +178,15 @@ You MUST follow these rules:
 4. Use neutral, factual, and informative tone.
 5. Avoid promotional language, hype, or subjective claims.
 6. Include bullet points for features, benefits, or lists.
-7. Always include an FAQ section with detailed Q&A (50-60 words per answer).
+7. Always include FAQ section with detailed Q&A (50-60 words per answer).
 8. Ensure each FAQ answer can stand alone as a complete response.
 9. Optimize content for extraction by Google AI Overview.
-10. Write in Indonesian language.`;
+10. Write ENTIRELY in Indonesian language - ALL headings MUST be in Indonesian:
+    - Use "Ringkasan" (NOT "TL;DR", "Summary", or "TL;DR / RINGKASAN")
+    - Use "Pendahuluan" (NOT "Introduction")
+    - Use "Pertanyaan Umum" (NOT "FAQ")
+    - Use "Poin-Poin Penting" (NOT "Key Takeaways")
+    - Use "Kesimpulan" (NOT "Conclusion")`;
 
   const systemPrompt = `${aiOverviewRules}
 
