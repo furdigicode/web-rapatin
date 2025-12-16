@@ -159,148 +159,54 @@ WORD COUNT VERIFICATION:
 - TOTAL MUST BE: ${totalWords} kata (no more, no less)`;
   };
 
-  // AI Overview optimization requirements
-  const aiOverviewRequirements = `
-🎯 GOOGLE AI OVERVIEW OPTIMIZATION (CRITICAL FOR RANKING):
+  // AI Overview optimization rules (clean & focused)
+  const aiOverviewRules = `You are an AI article writer specialized in Google AI Overview SEO.
 
-1. DIRECT ANSWER FIRST (TL;DR Pattern):
-   - Paragraf pertama HARUS langsung menjawab pertanyaan utama dalam 2-3 kalimat
-   - Jangan basa-basi atau intro panjang
-   - Format: "[Keyword] adalah... yang berfungsi untuk... dengan manfaat..."
-   - Google AI Overview akan mengutip bagian ini
+You MUST follow these rules:
+1. Answer the main keyword directly in the first paragraph (1–2 sentences).
+2. Use clear and rigid structure with H1, H2, and H3 headings.
+3. Write short paragraphs (maximum 2 sentences per paragraph).
+4. Use neutral, factual, and informative tone.
+5. Avoid promotional language, hype, or subjective claims.
+6. Include bullet points for features, benefits, or lists.
+7. Always include an FAQ section with 4–6 concise Q&A.
+8. Ensure each FAQ answer can stand alone.
+9. Optimize content for extraction by Google AI Overview.
+10. Write in Indonesian language.`;
 
-2. FRAGMENT-FRIENDLY STRUCTURE:
-   - Setiap H2 section HARUS bisa berdiri sendiri sebagai jawaban lengkap
-   - Format per section: Direct Answer → Penjelasan → Contoh konkret → Tips praktis
-   - Gunakan subheading (H3) untuk breakdown detail
-   - Setiap section harus "self-contained" untuk AI extraction
+  const systemPrompt = `${aiOverviewRules}
 
-3. FEATURED SNIPPET OPTIMIZATION:
-   - Sertakan definisi singkat di awal setiap section
-   - Buat numbered lists untuk proses/langkah-langkah (1, 2, 3...)
-   - Tambahkan bullet points untuk fitur/manfaat/tips
-   - Sertakan tabel perbandingan jika relevan (HTML table)
-
-4. E-E-A-T SIGNALS (Experience, Expertise, Authority, Trust):
-   - Sertakan statistik dan data terkini (tahun ${currentYear})
-   - Kutip sumber terpercaya atau best practices industri
-   - Berikan expert insight atau perspektif profesional
-   - Tambahkan "berdasarkan pengalaman" atau case study nyata
-   - Gunakan frasa seperti "Menurut praktik terbaik...", "Data menunjukkan..."
-
-5. NATURAL LANGUAGE & CONVERSATIONAL:
-   - Tulis seperti menjelaskan ke teman yang bertanya
-   - Hindari bahasa terlalu formal atau akademis
-   - Gunakan "Anda" bukan "pembaca" atau "user"
-   - Sertakan rhetorical questions untuk engagement
-   - Hindari keyword stuffing - keyword harus natural
-
-6. COMPREHENSIVE FAQ SECTION (People Also Ask):
-   - Pertanyaan harus match search intent nyata
-   - Jawaban langsung di kalimat pertama (max 40 kata)
-   - Lalu expand dengan detail tambahan
-   - Include questions seperti:
-     * "Apa itu [keyword]?"
-     * "Bagaimana cara [keyword]?"
-     * "Apa manfaat [keyword]?"
-     * "Apa perbedaan [keyword] dengan [alternatif]?"
-     * "[Keyword] untuk siapa?"
-`;
-
-  const systemPrompt = `You are an expert SEO content writer specializing in creating articles optimized for Google AI Overview. Create high-quality, SEO-optimized articles in Indonesian language.
-
-🚨 CRITICAL WORD COUNT REQUIREMENT:
-- You MUST write EXACTLY ${targetWordsAim} words - NO MORE, NO LESS
-- This is a HARD REQUIREMENT - count words as you write
-- Do NOT stop writing until you reach EXACTLY ${targetWordsAim} words
-- Each section must meet its exact word budget
-
-${aiOverviewRequirements}
+WORD COUNT REQUIREMENT:
+- Write EXACTLY ${targetWordsAim} words (count as you write)
+- Each section must meet its word budget
 
 ${getContentStructure(targetWordsAim, budgets)}
 
-KEY SEO REQUIREMENTS:
-- Target keyword density: 1-2% (natural placement)
-- Use H1, H2, H3 structure properly
-- Include LSI keywords related to main keyword
-- Write compelling meta descriptions (140-160 characters)
-- Create SEO-friendly titles (50-60 characters)
-- Include comprehensive FAQ section for featured snippets
-
-CONTENT DEPTH REQUIREMENTS:
-- Include specific examples and real-world applications
-- Add statistics, data, and research findings (${currentYear} data preferred)
-- Provide step-by-step instructions or guides
-- Include comparison tables or lists where relevant
-- Add practical tips and best practices
-- Use storytelling elements to engage readers
-- Include industry insights and expert opinions
-
-STRICT JSON OUTPUT RULES:
-- Return ONLY a valid JSON object (no markdown, no code fences)
-- Keys must match exactly the schema below
-- All string values must be valid JSON strings
-
 WRITING STYLE: ${tone}
 TARGET AUDIENCE: ${audience}
-EXACT WORD COUNT TARGET: ${targetWordsAim} words (STRICTLY ENFORCED)
 
-Return response in JSON format with these exact fields:
+Return response in JSON format:
 {
-  "title": "SEO-optimized title dengan keyword di awal (50-60 chars)",
-  "content": "Full article content in HTML format dengan proper headings, dimulai dengan TL;DR section",
-  "excerpt": "Compelling 2-3 sentence summary yang bisa dikutip AI Overview",
-  "seoTitle": "SEO title 50-60 characters dengan keyword di awal",
-  "metaDescription": "Meta description 140-160 chars dengan value proposition",
-  "focusKeyword": "Primary target keyword",
+  "title": "SEO title dengan keyword di awal (50-60 chars)",
+  "content": "Full article in HTML format with proper H1, H2, H3",
+  "excerpt": "2-3 sentence summary for AI Overview",
+  "seoTitle": "SEO title 50-60 characters",
+  "metaDescription": "Meta description 140-160 chars",
+  "focusKeyword": "Primary keyword",
   "slug": "url-friendly-slug"
 }`;
 
-  const userPrompt = `Create a comprehensive, AI Overview-optimized article about: ${targetKeyword}
+  const userPrompt = `Write an article about: ${targetKeyword}
 
-${title ? `Suggested title: ${title}` : ''}
-${additionalKeywords && additionalKeywords.length > 0 ? `Related keywords to include naturally: ${additionalKeywords.join(', ')}` : ''}
-${outlinePoints && outlinePoints.length > 0 ? `Include these specific points in detail: ${outlinePoints.join(', ')}` : ''}
+${title ? `Title: ${title}` : ''}
+${additionalKeywords && additionalKeywords.length > 0 ? `Include keywords: ${additionalKeywords.join(', ')}` : ''}
+${outlinePoints && outlinePoints.length > 0 ? `Cover these points: ${outlinePoints.join(', ')}` : ''}
 
-🚨 AI OVERVIEW OPTIMIZATION REQUIREMENTS:
-
-1. OPENING/TL;DR (CRITICAL FOR AI OVERVIEW):
-   - Kalimat pertama HARUS langsung menjawab: "Apa itu ${targetKeyword}?"
-   - Kalimat kedua: manfaat utama
-   - Kalimat ketiga: siapa yang membutuhkan
-   - Bagian ini akan dikutip oleh Google AI Overview
-   
-2. STRUCTURE FOR AI EXTRACTION:
-   - Setiap H2 section harus "self-contained" (bisa diambil AI sebagai jawaban)
-   - Format setiap H2: Direct Answer → Explanation → Example → Tip
-   - Gunakan bullet points untuk list 3+ items
-   - Gunakan numbered list untuk proses/langkah
-
-3. FAQ YANG MATCH SEARCH INTENT:
-   - "Apa itu [keyword]?" → Definisi langsung
-   - "Bagaimana cara [keyword]?" → Step-by-step numbered list
-   - "Apa manfaat [keyword]?" → Bullet points
-   - "Apa perbedaan [keyword] dengan [alternatif]?" → Comparison
-   - "[Keyword] untuk siapa?" → Target audience explanation
-
-4. DATA & CREDIBILITY:
-   - Sertakan minimal 3-5 statistik/data (tahun ${currentYear})
-   - Reference ke best practices atau standar industri
-   - Gunakan frasa "Berdasarkan penelitian...", "Menurut praktik terbaik..."
-   - Tambahkan case study atau contoh nyata
-
-5. BAHASA INDONESIA YANG NATURAL:
-   - Conversational tapi tetap profesional
-   - Gunakan "Anda" untuk sapaan
-   - Hindari jargon berlebihan, jelaskan istilah teknis
-   - Tulis seperti menjelaskan ke teman
-
-CRITICAL REQUIREMENTS:
-- Write in Indonesian language
-- MUST write EXACTLY ${targetWordsAim} words (count as you write!)
-- Focus on primary keyword: ${targetKeyword}
-- Make every section AI Overview-ready (self-contained answers)
-- Include detailed examples and ${currentYear} statistics`;
+Requirements:
+- EXACTLY ${targetWordsAim} words
+- Indonesian language
+- Include ${length === 'short' ? '4' : length === 'medium' ? '5' : '6'} FAQ questions
+- Data/statistics from ${currentYear}`;
 
   let articleData: any;
 
