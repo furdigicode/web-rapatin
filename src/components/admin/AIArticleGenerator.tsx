@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, Sparkles, CheckCircle, Image as ImageIcon } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
@@ -27,7 +27,7 @@ interface GenerationRequest {
   length: 'short' | 'medium' | 'long';
   audience: string;
   outlinePoints?: string[];
-  provider: 'openai' | 'anthropic';
+  provider: 'gpt-4o' | 'gpt-5-mini' | 'gpt-5' | 'claude-sonnet-4' | 'claude-sonnet-3.5';
 }
 
 const AIArticleGenerator: React.FC<AIArticleGeneratorProps> = ({ 
@@ -47,7 +47,7 @@ const AIArticleGenerator: React.FC<AIArticleGeneratorProps> = ({
     length: 'medium',
     audience: '',
     outlinePoints: [],
-    provider: 'openai'
+    provider: 'gpt-4o'
   });
   
   const [outlineInput, setOutlineInput] = useState('');
@@ -282,16 +282,25 @@ const AIArticleGenerator: React.FC<AIArticleGeneratorProps> = ({
             </Select>
           </div>
 
-          {/* AI Provider */}
+          {/* AI Model */}
           <div className="space-y-2">
-            <Label>AI Provider</Label>
+            <Label>AI Model</Label>
             <Select value={formData.provider} onValueChange={(value) => handleInputChange('provider', value)}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="openai">OpenAI GPT-5</SelectItem>
-                <SelectItem value="anthropic">Claude Sonnet 4</SelectItem>
+                <SelectGroup>
+                  <SelectLabel>OpenAI</SelectLabel>
+                  <SelectItem value="gpt-4o">GPT-4o (Cepat & Stabil)</SelectItem>
+                  <SelectItem value="gpt-5-mini">GPT-5 Mini (Balanced)</SelectItem>
+                  <SelectItem value="gpt-5">GPT-5 (Flagship - Lambat)</SelectItem>
+                </SelectGroup>
+                <SelectGroup>
+                  <SelectLabel>Anthropic</SelectLabel>
+                  <SelectItem value="claude-sonnet-4">Claude Sonnet 4 (Recommended)</SelectItem>
+                  <SelectItem value="claude-sonnet-3.5">Claude Sonnet 3.5 (Legacy)</SelectItem>
+                </SelectGroup>
               </SelectContent>
             </Select>
           </div>
