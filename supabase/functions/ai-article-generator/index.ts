@@ -204,16 +204,43 @@ CONTENT DEPTH GUIDELINES:
 
   let articleData: any;
 
-  if (provider === 'openai' && openAIApiKey) {
-    const body = {
-      model: 'gpt-5-2025-08-07',
+  // Model configurations
+  const openAIModels: Record<string, { model: string; useNewParams: boolean }> = {
+    'gpt-4o': { model: 'gpt-4o', useNewParams: false },
+    'gpt-5-mini': { model: 'gpt-5-mini-2025-08-07', useNewParams: true },
+    'gpt-5': { model: 'gpt-5-2025-08-07', useNewParams: true },
+  };
+
+  const anthropicModels: Record<string, string> = {
+    'claude-sonnet-4': 'claude-sonnet-4-5',
+    'claude-sonnet-3.5': 'claude-3-5-sonnet-20241022',
+  };
+
+  // Check if it's an OpenAI model
+  if (openAIModels[provider]) {
+    if (!openAIApiKey) {
+      throw new Error('OpenAI API key not configured');
+    }
+
+    const modelConfig = openAIModels[provider];
+    console.log('Calling OpenAI with model:', modelConfig.model);
+
+    const body: any = {
+      model: modelConfig.model,
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userPrompt }
       ],
       response_format: { type: 'json_object' },
-      max_completion_tokens: maxTokens,
     };
+
+    // GPT-4o uses old params (max_tokens, temperature), GPT-5 series uses new params
+    if (modelConfig.useNewParams) {
+      body.max_completion_tokens = maxTokens;
+    } else {
+      body.max_tokens = maxTokens;
+      body.temperature = 0.4;
+    }
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -223,6 +250,14 @@ CONTENT DEPTH GUIDELINES:
       },
       body: JSON.stringify(body),
     });
+
+    console.log('OpenAI response status:', response.status);
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('OpenAI API Error:', response.status, errorData);
+      throw new Error(`OpenAI API error: ${response.status} - ${errorData?.error?.message || 'Unknown error'}`);
+    }
 
     const data = await response.json();
     const content = data?.choices?.[0]?.message?.content || '';
@@ -236,7 +271,14 @@ CONTENT DEPTH GUIDELINES:
       }
       articleData = JSON.parse(jsonMatch[0]);
     }
-  } else if (provider === 'anthropic' && anthropicApiKey) {
+  } else if (anthropicModels[provider]) {
+    if (!anthropicApiKey) {
+      throw new Error('Anthropic API key not configured');
+    }
+
+    const modelName = anthropicModels[provider];
+    console.log('Calling Anthropic with model:', modelName);
+
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -245,7 +287,7 @@ CONTENT DEPTH GUIDELINES:
         'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-5',
+        model: modelName,
         max_tokens: Math.min(maxTokens, 8000),
         messages: [
           {
@@ -257,10 +299,17 @@ CONTENT DEPTH GUIDELINES:
       }),
     });
 
+    console.log('Anthropic response status:', response.status);
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('Anthropic API Error:', response.status, errorData);
+      throw new Error(`Anthropic API error: ${response.status} - ${errorData?.error?.message || 'Unknown error'}`);
+    }
+
     const data = await response.json();
     const content = data.content?.[0]?.text || '';
     
-    // Parse JSON response (single attempt, no retry)
     const jsonMatch = content.match(/\{[\s\S]*\}/);
     if (jsonMatch) {
       articleData = JSON.parse(jsonMatch[0]);
@@ -270,7 +319,7 @@ CONTENT DEPTH GUIDELINES:
       throw new Error('Failed to parse AI response');
     }
   } else {
-    throw new Error(`No valid API key found for provider: ${provider}`);
+    throw new Error(`Unknown model/provider: ${provider}. Valid options: gpt-4o, gpt-5-mini, gpt-5, claude-sonnet-4, claude-sonnet-3.5`);
   }
 
   // Search for cover image based on the target keyword
@@ -299,15 +348,6 @@ serve(async (req) => {
     // Validate required fields
     if (!request.targetKeyword || !request.tone || !request.length || !request.provider) {
       throw new Error('Missing required fields: targetKeyword, tone, length, provider');
-    }
-    
-    // Check if API keys are available
-    if (request.provider === 'openai' && !openAIApiKey) {
-      throw new Error('OpenAI API key not configured');
-    }
-    
-    if (request.provider === 'anthropic' && !anthropicApiKey) {
-      throw new Error('Anthropic API key not configured');
     }
     
     const article = await generateSEOOptimizedArticle(request);
