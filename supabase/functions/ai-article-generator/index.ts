@@ -159,26 +159,37 @@ WORD COUNT VERIFICATION:
 - TOTAL MUST BE: ${totalWords} kata (no more, no less)`;
   };
 
-  // AI Overview optimization rules (clean & focused)
+  // AI Overview optimization rules with CRITICAL word count enforcement
+  const h2SectionsCount = length === 'short' ? 5 : length === 'medium' ? 6 : 8;
+  const h2WordsMin = Math.floor(budgets.mainSections / h2SectionsCount);
+  
   const aiOverviewRules = `You are an AI article writer specialized in Google AI Overview SEO.
+
+⚠️ CRITICAL WORD COUNT RULE ⚠️
+- You MUST write EXACTLY ${targetWordsAim} words - this is MANDATORY
+- Articles shorter than ${Math.floor(targetWordsAim * 0.9)} words will be REJECTED
+- Each H2 section MUST have at least ${h2WordsMin} words
+- Write COMPREHENSIVE, DETAILED explanations - NOT summaries
 
 You MUST follow these rules:
 1. Answer the main keyword directly in the first paragraph (1–2 sentences).
 2. Use clear and rigid structure with H1, H2, and H3 headings.
-3. Write short paragraphs (maximum 2 sentences per paragraph).
+3. Write comprehensive paragraphs with detailed explanations and examples.
 4. Use neutral, factual, and informative tone.
 5. Avoid promotional language, hype, or subjective claims.
 6. Include bullet points for features, benefits, or lists.
-7. Always include an FAQ section with 4–6 concise Q&A.
-8. Ensure each FAQ answer can stand alone.
+7. Always include an FAQ section with detailed Q&A (50-60 words per answer).
+8. Ensure each FAQ answer can stand alone as a complete response.
 9. Optimize content for extraction by Google AI Overview.
 10. Write in Indonesian language.`;
 
   const systemPrompt = `${aiOverviewRules}
 
-WORD COUNT REQUIREMENT:
-- Write EXACTLY ${targetWordsAim} words (count as you write)
-- Each section must meet its word budget
+⚠️ MANDATORY WORD COUNT: ${targetWordsAim} WORDS ⚠️
+- This is NOT optional - you MUST hit this target
+- Minimum acceptable: ${Math.floor(targetWordsAim * 0.9)} words
+- Count: Introduction (${budgets.intro}w) + Main Sections (${budgets.mainSections}w) + FAQ (${budgets.faq}w) + Conclusion (${budgets.conclusion}w) = ${targetWordsAim}w
+- If your response is too short, ADD MORE DETAIL to each section
 
 ${getContentStructure(targetWordsAim, budgets)}
 
@@ -196,17 +207,23 @@ Return response in JSON format:
   "slug": "url-friendly-slug"
 }`;
 
-  const userPrompt = `Write an article about: ${targetKeyword}
+  const faqCount = length === 'short' ? 6 : length === 'medium' ? 8 : 10;
+  
+  const userPrompt = `Write a COMPREHENSIVE article about: ${targetKeyword}
 
 ${title ? `Title: ${title}` : ''}
 ${additionalKeywords && additionalKeywords.length > 0 ? `Include keywords: ${additionalKeywords.join(', ')}` : ''}
 ${outlinePoints && outlinePoints.length > 0 ? `Cover these points: ${outlinePoints.join(', ')}` : ''}
 
-Requirements:
-- EXACTLY ${targetWordsAim} words
+⚠️ CRITICAL REQUIREMENTS:
+- EXACTLY ${targetWordsAim} words (NOT ${Math.floor(targetWordsAim * 0.5)}, NOT ${Math.floor(targetWordsAim * 0.8)}, but EXACTLY ${targetWordsAim})
+- Write DETAILED explanations for each section - this is NOT a summary
+- Each main H2 section: minimum ${h2WordsMin} words with examples and details
+- FAQ: ${faqCount} questions with 50-60 word comprehensive answers each
 - Indonesian language
-- Include ${length === 'short' ? '4' : length === 'medium' ? '5' : '6'} FAQ questions
-- Data/statistics from ${currentYear}`;
+- Data/statistics from ${currentYear}
+
+DO NOT write a short summary. Write a FULL, COMPREHENSIVE article with detailed explanations.`;
 
   let articleData: any;
 
@@ -245,7 +262,7 @@ Requirements:
       body.max_completion_tokens = maxTokens;
     } else {
       body.max_tokens = maxTokens;
-      body.temperature = 0.4;
+      body.temperature = 0.7; // Increased from 0.4 for more elaborative writing
     }
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
