@@ -206,14 +206,13 @@ CONTENT DEPTH GUIDELINES:
 
   if (provider === 'openai' && openAIApiKey) {
     const body = {
-      model: 'gpt-4o',
+      model: 'gpt-5-2025-08-07',
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userPrompt }
       ],
       response_format: { type: 'json_object' },
-      temperature: 0.4,
-      max_tokens: maxTokens,
+      max_completion_tokens: maxTokens,
     };
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -246,7 +245,7 @@ CONTENT DEPTH GUIDELINES:
         'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
-        model: 'claude-3-5-sonnet-20241022',
+        model: 'claude-sonnet-4-5',
         max_tokens: Math.min(maxTokens, 8000),
         messages: [
           {

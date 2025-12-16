@@ -320,6 +320,74 @@ export type Database = {
         }
         Relationships: []
       }
+      user_feedbacks: {
+        Row: {
+          admin_notes: string | null
+          created_at: string
+          email: string
+          id: string
+          message: string
+          metadata: Json | null
+          name: string
+          page_url: string | null
+          phone: string | null
+          priority: string
+          resolved_at: string | null
+          resolved_by: string | null
+          status: string
+          subject: string
+          type: string
+          updated_at: string
+          user_agent: string | null
+        }
+        Insert: {
+          admin_notes?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          message: string
+          metadata?: Json | null
+          name: string
+          page_url?: string | null
+          phone?: string | null
+          priority?: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: string
+          subject: string
+          type: string
+          updated_at?: string
+          user_agent?: string | null
+        }
+        Update: {
+          admin_notes?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          message?: string
+          metadata?: Json | null
+          name?: string
+          page_url?: string | null
+          phone?: string | null
+          priority?: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: string
+          subject?: string
+          type?: string
+          updated_at?: string
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_feedbacks_resolved_by_fkey"
+            columns: ["resolved_by"]
+            isOneToOne: false
+            referencedRelation: "admin_users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_notification_read_status: {
         Row: {
           created_at: string
@@ -547,14 +615,8 @@ export type Database = {
           vote_count: number
         }[]
       }
-      is_admin_user: {
-        Args: Record<PropertyKey, never>
-        Returns: boolean
-      }
-      is_custom_admin_user: {
-        Args: Record<PropertyKey, never>
-        Returns: boolean
-      }
+      is_admin_user: { Args: never; Returns: boolean }
+      is_custom_admin_user: { Args: never; Returns: boolean }
     }
     Enums: {
       [_ in never]: never
