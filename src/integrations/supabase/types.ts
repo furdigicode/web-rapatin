@@ -82,37 +82,61 @@ export type Database = {
       article_notifications: {
         Row: {
           blog_post_id: string | null
+          button_text: string | null
+          button_url: string | null
           category: string | null
           created_at: string | null
+          display_frequency: string | null
           excerpt: string | null
           id: string
           image_url: string | null
+          is_active: boolean | null
           notification_type: string | null
+          popup_click_count: number | null
+          popup_view_count: number | null
+          priority: number | null
           read: boolean | null
+          show_close_button: boolean | null
           target_url: string | null
           title: string
         }
         Insert: {
           blog_post_id?: string | null
+          button_text?: string | null
+          button_url?: string | null
           category?: string | null
           created_at?: string | null
+          display_frequency?: string | null
           excerpt?: string | null
           id?: string
           image_url?: string | null
+          is_active?: boolean | null
           notification_type?: string | null
+          popup_click_count?: number | null
+          popup_view_count?: number | null
+          priority?: number | null
           read?: boolean | null
+          show_close_button?: boolean | null
           target_url?: string | null
           title: string
         }
         Update: {
           blog_post_id?: string | null
+          button_text?: string | null
+          button_url?: string | null
           category?: string | null
           created_at?: string | null
+          display_frequency?: string | null
           excerpt?: string | null
           id?: string
           image_url?: string | null
+          is_active?: boolean | null
           notification_type?: string | null
+          popup_click_count?: number | null
+          popup_view_count?: number | null
+          priority?: number | null
           read?: boolean | null
+          show_close_button?: boolean | null
           target_url?: string | null
           title?: string
         }

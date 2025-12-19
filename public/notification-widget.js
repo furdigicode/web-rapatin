@@ -1,13 +1,14 @@
 /**
  * Blog Notification Widget Embed Script
- * Version: 1.0.0
+ * Version: 2.0.0 - Added Popup Support
  * 
  * Usage:
  * <script src="https://yoursite.com/notification-widget.js" 
  *   data-blog-notifications="true"
  *   data-limit="5"
  *   data-position="top-right"
- *   data-theme="auto">
+ *   data-theme="auto"
+ *   data-popup="true">
  * </script>
  */
 
@@ -16,6 +17,7 @@
 
   // Configuration
   const WIDGET_ID = 'blog-notification-widget-container';
+  const POPUP_ID = 'blog-notification-popup-container';
   const BASE_URL = 'https://mepznzrijuoyvjcmkspf.supabase.co/functions/v1';
   const SUPABASE_URL = 'https://mepznzrijuoyvjcmkspf.supabase.co';
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1lcHpuenJpanVveXZqY21rc3BmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDczNzU5NDcsImV4cCI6MjA2Mjk1MTk0N30.mIGM28Ztelp6enqg36m03SB7v_Vlsruyd79Rj9mRUuA';
@@ -38,7 +40,8 @@
       theme: script.dataset.theme || 'auto',
       autoHide: script.dataset.autoHide === 'true',
       autoHideDelay: parseInt(script.dataset.autoHideDelay || '5000'),
-      realtime: script.dataset.realtime !== 'false' // enabled by default
+      realtime: script.dataset.realtime !== 'false', // enabled by default
+      popup: script.dataset.popup !== 'false' // popup enabled by default
     };
   }
 
@@ -203,13 +206,266 @@
     return userId;
   }
 
+  // Check if popup was already shown based on display frequency
+  function shouldShowPopup(popup) {
+    const popupKey = `popup_shown_${popup.id}`;
+    
+    if (popup.display_frequency === 'once') {
+      return !localStorage.getItem(popupKey);
+    } else if (popup.display_frequency === 'every_session') {
+      return !sessionStorage.getItem(popupKey);
+    }
+    // 'every_visit' - always show
+    return true;
+  }
+
+  // Mark popup as shown
+  function markPopupAsShown(popup) {
+    const popupKey = `popup_shown_${popup.id}`;
+    
+    if (popup.display_frequency === 'once') {
+      localStorage.setItem(popupKey, 'true');
+    } else if (popup.display_frequency === 'every_session') {
+      sessionStorage.setItem(popupKey, 'true');
+    }
+  }
+
+  // Track popup interaction
+  async function trackPopupInteraction(popupId, interactionType) {
+    try {
+      await fetch(`${BASE_URL}/track-popup-interaction`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ popupId, interactionType })
+      });
+    } catch (error) {
+      console.error('Error tracking popup interaction:', error);
+    }
+  }
+
+  // Fetch popup notifications
+  async function fetchPopupNotifications() {
+    try {
+      const response = await fetch(`${BASE_URL}/get-notifications?type=popup&limit=10`);
+      if (!response.ok) throw new Error('Failed to fetch popup notifications');
+      
+      const popups = await response.json();
+      // Filter based on display frequency and sort by priority
+      return popups
+        .filter(popup => popup.is_active && shouldShowPopup(popup))
+        .sort((a, b) => (b.priority || 0) - (a.priority || 0));
+    } catch (error) {
+      console.error('Error fetching popup notifications:', error);
+      return [];
+    }
+  }
+
+  // Create popup HTML
+  function createPopupHTML(popup, config) {
+    const themeStyles = config.theme === 'dark' 
+      ? 'background: #1f2937; color: white; border: 1px solid #374151;'
+      : 'background: white; color: #1a1a1a; border: 1px solid #e5e5e5;';
+
+    const closeButtonHtml = popup.show_close_button !== false ? `
+      <button id="popup-close-btn" style="
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: ${config.theme === 'dark' ? '#9ca3af' : '#6b7280'};
+        font-size: 24px;
+        line-height: 1;
+        padding: 4px;
+        border-radius: 4px;
+        transition: all 0.2s;
+      " onmouseover="this.style.backgroundColor='${config.theme === 'dark' ? '#374151' : '#f3f4f6'}'" onmouseout="this.style.backgroundColor='transparent'">&times;</button>
+    ` : '';
+
+    const imageHtml = popup.image_url ? `
+      <div style="
+        width: 100%;
+        max-height: 200px;
+        overflow: hidden;
+        border-radius: 8px;
+        margin-bottom: 16px;
+      ">
+        <img src="${popup.image_url}" alt="${popup.title}" style="
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        " />
+      </div>
+    ` : '';
+
+    const buttonHtml = popup.button_text ? `
+      <button id="popup-cta-btn" style="
+        background: linear-gradient(135deg, hsl(196, 80%, 45%), hsl(196, 80%, 35%));
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        width: 100%;
+        transition: all 0.2s;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(0,0,0,0.2)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.15)'">${popup.button_text}</button>
+    ` : '';
+
+    return `
+      <div id="popup-overlay" style="
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(4px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 99999;
+        animation: fadeIn 0.3s ease;
+        padding: 20px;
+      ">
+        <div id="popup-content" style="
+          ${themeStyles}
+          max-width: 420px;
+          width: 100%;
+          padding: 24px;
+          border-radius: 16px;
+          box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+          position: relative;
+          animation: slideUp 0.3s ease;
+          max-height: 90vh;
+          overflow-y: auto;
+        ">
+          ${closeButtonHtml}
+          ${imageHtml}
+          <h2 style="
+            margin: 0 0 12px 0;
+            font-size: 20px;
+            font-weight: 700;
+            line-height: 1.3;
+            padding-right: ${popup.show_close_button !== false ? '32px' : '0'};
+          ">${popup.title}</h2>
+          ${popup.excerpt ? `
+            <p style="
+              margin: 0 0 20px 0;
+              font-size: 15px;
+              line-height: 1.6;
+              color: ${config.theme === 'dark' ? '#d1d5db' : '#4b5563'};
+            ">${popup.excerpt}</p>
+          ` : ''}
+          ${buttonHtml}
+        </div>
+      </div>
+      <style>
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        @keyframes slideUp {
+          from { opacity: 0; transform: translateY(20px) scale(0.95); }
+          to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        @keyframes fadeOut {
+          from { opacity: 1; }
+          to { opacity: 0; }
+        }
+      </style>
+    `;
+  }
+
+  // Show popup notification
+  async function showPopup(popup, config) {
+    // Create popup container
+    let popupContainer = document.getElementById(POPUP_ID);
+    if (popupContainer) {
+      popupContainer.remove();
+    }
+
+    popupContainer = document.createElement('div');
+    popupContainer.id = POPUP_ID;
+    popupContainer.innerHTML = createPopupHTML(popup, config);
+    document.body.appendChild(popupContainer);
+
+    // Track view
+    trackPopupInteraction(popup.id, 'view');
+
+    // Mark as shown
+    markPopupAsShown(popup);
+
+    // Setup event listeners
+    const overlay = document.getElementById('popup-overlay');
+    const closeBtn = document.getElementById('popup-close-btn');
+    const ctaBtn = document.getElementById('popup-cta-btn');
+
+    const closePopup = () => {
+      overlay.style.animation = 'fadeOut 0.2s ease';
+      setTimeout(() => {
+        popupContainer.remove();
+      }, 200);
+    };
+
+    if (closeBtn) {
+      closeBtn.addEventListener('click', closePopup);
+    }
+
+    // Close on overlay click (outside popup content)
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) {
+        closePopup();
+      }
+    });
+
+    // CTA button click
+    if (ctaBtn && popup.button_url) {
+      ctaBtn.addEventListener('click', () => {
+        trackPopupInteraction(popup.id, 'click');
+        if (popup.button_url.startsWith('http')) {
+          window.open(popup.button_url, '_blank');
+        } else {
+          window.location.href = popup.button_url;
+        }
+        closePopup();
+      });
+    }
+
+    // Close on Escape key
+    const handleEscape = (e) => {
+      if (e.key === 'Escape') {
+        closePopup();
+        document.removeEventListener('keydown', handleEscape);
+      }
+    };
+    document.addEventListener('keydown', handleEscape);
+  }
+
+  // Initialize popup notifications
+  async function initPopups(config) {
+    if (!config.popup) return;
+
+    const popups = await fetchPopupNotifications();
+    if (popups.length > 0) {
+      // Show highest priority popup
+      showPopup(popups[0], config);
+    }
+  }
+
   // Fetch notifications from API
   async function fetchNotifications(config) {
     try {
       const userId = getUserId();
       const params = new URLSearchParams({
         limit: config.limit.toString(),
-        userId: userId
+        userId: userId,
+        type: 'widget'
       });
       
       if (config.categories) {
@@ -451,6 +707,14 @@
 
   // Handle new notification from real-time
   function handleNewNotification(notification, config) {
+    // Check if it's a popup notification
+    if (notification.notification_type === 'popup' && notification.is_active && config.popup) {
+      if (shouldShowPopup(notification)) {
+        showPopup(notification, config);
+      }
+      return;
+    }
+
     // Check if notification matches category filter
     if (config.categories && notification.category) {
       const allowedCategories = config.categories.split(',').map(c => c.trim());
@@ -559,6 +823,9 @@
       }
     }
     
+    // Initialize popup notifications
+    initPopups(config);
+    
     // Get DOM elements
     const button = document.getElementById('notification-button');
     const panel = document.getElementById('notification-panel');
@@ -662,15 +929,29 @@
       // Cleanup real-time subscription
       cleanupRealtime();
       
-      // Remove container
-      const container = document.getElementById(WIDGET_ID);
-      if (container) {
-        container.remove();
+      // Remove containers
+      const widgetContainer = document.getElementById(WIDGET_ID);
+      if (widgetContainer) {
+        widgetContainer.remove();
+      }
+      
+      const popupContainer = document.getElementById(POPUP_ID);
+      if (popupContainer) {
+        popupContainer.remove();
       }
       
       // Reset global state
       currentNotifications = [];
       widgetConfig = null;
+    },
+    showPopup: async function(popupId) {
+      // Manually show a specific popup
+      const response = await fetch(`${BASE_URL}/get-notifications?type=popup&limit=100`);
+      const popups = await response.json();
+      const popup = popups.find(p => p.id === popupId);
+      if (popup) {
+        showPopup(popup, widgetConfig || getConfig());
+      }
     }
   };
 
