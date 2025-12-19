@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Edit, Trash, Eye, ArrowRight, Calendar, Tag, User, Link as LinkIcon, Image as ImageIcon } from 'lucide-react';
+import { Plus, Edit, Trash, Eye, ArrowRight, Calendar, Tag, User, Link as LinkIcon, Image as ImageIcon, Clock } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { Textarea } from "@/components/ui/textarea";
 import RichTextEditor from '@/components/admin/RichTextEditor';
@@ -21,6 +21,8 @@ import { calculateWordCount } from '@/utils/wordCount';
 import { EnhancedCoverImageSelector } from "@/components/admin/EnhancedCoverImageSelector";
 import { BlogPreviewDialog } from '@/components/admin/BlogPreviewDialog';
 import { PublishConfirmationDialog } from '@/components/admin/PublishConfirmationDialog';
+import { ScheduledBadge } from '@/components/admin/ScheduledBadge';
+import { toDatetimeLocalFormat, fromDatetimeLocalFormat } from '@/hooks/useScheduledCountdown';
 
 const BlogManagement = () => {
   const { toast } = useToast();
@@ -640,9 +642,16 @@ const BlogManagement = () => {
                     <Input
                       id="publishedAt"
                       type="datetime-local"
-                      value={formData.publishedAt}
-                      onChange={(e) => handleInputChange('publishedAt', e.target.value)}
+                      value={toDatetimeLocalFormat(formData.publishedAt)}
+                      min={toDatetimeLocalFormat(new Date().toISOString())}
+                      onChange={(e) => {
+                        const isoValue = fromDatetimeLocalFormat(e.target.value);
+                        handleInputChange('publishedAt', isoValue);
+                      }}
                     />
+                    <p className="text-xs text-muted-foreground">
+                      Artikel akan dipublikasikan secara otomatis pada waktu yang ditentukan
+                    </p>
                   </div>
                 )}
               </CardContent>
@@ -715,21 +724,18 @@ const BlogManagement = () => {
                       )}
                       
                       <div className="space-y-3">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <span className={`px-2 py-0.5 text-xs rounded-full ${
-                            post.status === 'published' 
-                              ? 'bg-green-100 text-green-800' 
-                              : post.status === 'scheduled'
-                              ? 'bg-blue-100 text-blue-800'
-                              : 'bg-amber-100 text-amber-800'
-                          }`}>
-                            {post.status === 'published' 
-                              ? 'Published' 
-                              : post.status === 'scheduled'
-                              ? 'Scheduled'
-                              : 'Draft'
-                            }
-                          </span>
+                        <div className="flex flex-wrap items-start gap-2">
+                          {post.status === 'scheduled' && post.publishedAt ? (
+                            <ScheduledBadge publishedAt={post.publishedAt} />
+                          ) : (
+                            <span className={`px-2 py-0.5 text-xs rounded-full ${
+                              post.status === 'published' 
+                                ? 'bg-green-100 text-green-800' 
+                                : 'bg-amber-100 text-amber-800'
+                            }`}>
+                              {post.status === 'published' ? 'Published' : 'Draft'}
+                            </span>
+                          )}
                           <span className="text-xs text-muted-foreground">{post.date}</span>
                           <span className="text-xs text-muted-foreground">•</span>
                           <span className="text-xs text-muted-foreground">{post.category}</span>
@@ -814,21 +820,18 @@ const BlogManagement = () => {
                       <div className="flex-1">
                         <div className="flex justify-between items-start">
                           <div>
-                            <div className="flex items-center gap-2 mb-2">
-                              <span className={`px-2 py-0.5 text-xs rounded-full ${
-                                post.status === 'published' 
-                                  ? 'bg-green-100 text-green-800' 
-                                  : post.status === 'scheduled'
-                                  ? 'bg-blue-100 text-blue-800'
-                                  : 'bg-amber-100 text-amber-800'
-                              }`}>
-                                {post.status === 'published' 
-                                  ? 'Published' 
-                                  : post.status === 'scheduled'
-                                  ? 'Scheduled'
-                                  : 'Draft'
-                                }
-                              </span>
+                            <div className="flex items-start gap-2 mb-2">
+                              {post.status === 'scheduled' && post.publishedAt ? (
+                                <ScheduledBadge publishedAt={post.publishedAt} />
+                              ) : (
+                                <span className={`px-2 py-0.5 text-xs rounded-full ${
+                                  post.status === 'published' 
+                                    ? 'bg-green-100 text-green-800' 
+                                    : 'bg-amber-100 text-amber-800'
+                                }`}>
+                                  {post.status === 'published' ? 'Published' : 'Draft'}
+                                </span>
+                              )}
                               <span className="text-xs text-muted-foreground">{post.date}</span>
                               <span className="text-xs text-muted-foreground">•</span>
                               <span className="text-xs text-muted-foreground">{post.category}</span>

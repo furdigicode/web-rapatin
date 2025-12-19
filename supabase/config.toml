@@ -1,4 +1,3 @@
-
 project_id = "mepznzrijuoyvjcmkspf"
 
 [functions.admin-auth]
@@ -14,4 +13,7 @@ verify_jwt = false
 verify_jwt = false
 
 [functions.mark-all-notifications-read]
+verify_jwt = false
+
+[functions.publish-scheduled-posts]
 verify_jwt = false
