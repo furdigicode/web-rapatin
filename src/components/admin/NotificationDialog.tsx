@@ -162,12 +162,12 @@ export const NotificationDialog: React.FC<NotificationDialogProps> = ({
       } else {
         const insertPayload = {
           ...payload,
-          blog_post_id: null as string | null
+          blog_post_id: null
         };
         
         const { error } = await supabase
           .from('article_notifications')
-          .insert(insertPayload);
+          .insert(insertPayload as any);
 
         if (error) {
           console.error('Error creating notification:', error);
