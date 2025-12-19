@@ -24,8 +24,9 @@ serve(async (req) => {
     const limit = parseInt(url.searchParams.get('limit') || '10');
     const categories = url.searchParams.get('categories');
     const userId = url.searchParams.get('userId') || 'anonymous';
+    const type = url.searchParams.get('type'); // 'popup' or 'widget' or null for all
 
-    console.log('Fetching notifications with params:', { limit, categories, userId });
+    console.log('Fetching notifications with params:', { limit, categories, userId, type });
 
     // Build query with left join to get blog post slug and user read status
     let query = supabase
@@ -41,6 +42,15 @@ serve(async (req) => {
     // Filter user read status by user_id
     if (userId) {
       query = query.eq('user_notification_read_status.user_id', userId);
+    }
+
+    // Filter by notification type
+    if (type === 'popup') {
+      query = query.eq('notification_type', 'popup')
+                   .eq('is_active', true)
+                   .order('priority', { ascending: false });
+    } else if (type === 'widget') {
+      query = query.in('notification_type', ['new_article', 'custom']);
     }
 
     // Filter by categories if provided
