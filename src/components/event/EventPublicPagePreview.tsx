@@ -1,6 +1,40 @@
 import React from 'react';
 import SectionContainer from '@/components/layout/SectionContainer';
 import { Badge } from '@/components/ui/badge';
+import { Globe, CreditCard, Tag, ClipboardList, Calendar, Share2 } from 'lucide-react';
+
+const previewFeatures = [
+  {
+    icon: Globe,
+    title: "Halaman Landing Profesional",
+    description: "Desain profesional otomatis tanpa perlu buat website terpisah"
+  },
+  {
+    icon: CreditCard,
+    title: "Pembayaran Terintegrasi",
+    description: "Bayar langsung via QRIS, VA, E-Wallet, dan Kartu Kredit"
+  },
+  {
+    icon: Tag,
+    title: "Harga Diskon & Early Bird",
+    description: "Tampilkan harga coret untuk menarik peserta mendaftar awal"
+  },
+  {
+    icon: ClipboardList,
+    title: "Form Registrasi Custom",
+    description: "Kumpulkan data peserta dengan form yang bisa disesuaikan"
+  },
+  {
+    icon: Calendar,
+    title: "Info Event Lengkap",
+    description: "Tanggal, waktu, quota, dan deskripsi ditampilkan jelas"
+  },
+  {
+    icon: Share2,
+    title: "Link Shareable",
+    description: "Link unik untuk share ke WhatsApp, sosmed, atau embed website"
+  }
+];
 
 const EventPublicPagePreview: React.FC = () => {
   return (
@@ -36,6 +70,24 @@ const EventPublicPagePreview: React.FC = () => {
           {/* Gradient overlay at bottom for smooth fade */}
           <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-background/80 to-transparent" />
         </div>
+      </div>
+
+      {/* Feature Points Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-12 max-w-5xl mx-auto">
+        {previewFeatures.map((feature, index) => (
+          <div 
+            key={index}
+            className="flex items-start gap-4 p-5 rounded-xl bg-background border border-border/50 hover:border-primary/30 hover:shadow-md transition-all duration-300"
+          >
+            <div className="flex-shrink-0 w-11 h-11 rounded-lg bg-primary/10 flex items-center justify-center">
+              <feature.icon className="w-5 h-5 text-primary" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-foreground mb-1">{feature.title}</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">{feature.description}</p>
+            </div>
+          </div>
+        ))}
       </div>
     </SectionContainer>
   );
