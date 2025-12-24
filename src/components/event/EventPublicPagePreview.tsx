@@ -41,7 +41,7 @@ const EventPublicPagePreview: React.FC = () => {
     <SectionContainer background="accent" className="overflow-hidden">
       <div className="text-center mb-12">
         <div className="inline-flex items-center py-1 px-4 bg-accent rounded-full mb-4">
-          <span className="text-xs font-medium text-primary">Harga Transparan</span>
+          <span className="text-xs font-medium text-primary">Public Event Page</span>
         </div>
         <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
           Tampilan Halaman Event untuk <span className="text-primary">Peserta Anda</span>
