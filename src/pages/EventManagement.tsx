@@ -7,6 +7,7 @@ import GenericFeatureGrid from '@/components/shared/GenericFeatureGrid';
 import GenericStepsSection from '@/components/shared/GenericStepsSection';
 import PlatformOptionsSection from '@/components/shared/PlatformOptionsSection';
 import EventComparisonSection from '@/components/event/EventComparisonSection';
+import EventPublicPagePreview from '@/components/event/EventPublicPagePreview';
 import EventPricingSection from '@/components/event/EventPricingSection';
 import TestimonialSection from '@/components/TestimonialSection';
 import FinalCTA from '@/components/FinalCTA';
@@ -72,6 +73,8 @@ const EventManagement: React.FC = () => {
           content={eventHowItWorksContent}
           sectionId="how-it-works"
         />
+        
+        <EventPublicPagePreview />
         
         <EventComparisonSection />
         
