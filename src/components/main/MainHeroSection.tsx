@@ -5,27 +5,22 @@ import FreeTrialModal from "@/components/ui/free-trial-modal";
 import OptimizedImage from "@/components/ui/optimized-image";
 import BrandCarousel from "@/components/shared/BrandCarousel";
 import { shouldShowModal, getRedirectUrl } from "@/hooks/useURLParams";
-
 const AnimatedText = lazy(() => import("@/components/ui/animated-text"));
-
 const MainHeroSection: React.FC = () => {
   const [modalOpen, setModalOpen] = useState(false);
-
   const scrollToProducts = () => {
     const productSection = document.getElementById("product-showcase");
     if (productSection) {
       productSection.scrollIntoView({
         behavior: "smooth",
-        block: "start",
+        block: "start"
       });
     }
   };
-
   const handleRegistration = () => {
     if (typeof window.fbq === "function") {
       window.fbq("track", "CTAClick");
     }
-
     if (shouldShowModal()) {
       setModalOpen(true);
     } else {
@@ -33,9 +28,7 @@ const MainHeroSection: React.FC = () => {
       window.open(redirectUrl, "_blank");
     }
   };
-
-  return (
-    <>
+  return <>
       <section className="pt-28 pb-12 md:pt-32 md:pb-24 overflow-hidden bg-hero-pattern flex flex-col items-center">
         <div className="container mx-auto px-4 md:px-6 flex flex-col items-center">
           <div className="inline-flex items-center py-1 px-4 bg-accent/70 rounded-full backdrop-blur-sm mt-0 mb-4 animate-fade-in mx-auto">
@@ -54,12 +47,8 @@ const MainHeroSection: React.FC = () => {
             berlangganan. Tanpa komitmen.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 pt-2 mb-8 justify-center animate-fade-in">
-            <Button
-              size="lg"
-              className="bg-primary hover:bg-primary/90 text-white rounded-lg h-12 px-8"
-              onClick={handleRegistration}
-            >
-              Mulai Gratis Sekarang
+            <Button size="lg" className="bg-primary hover:bg-primary/90 text-white rounded-lg h-12 px-8" onClick={handleRegistration}>
+               Daftar Sekarang
             </Button>
             <Button variant="outline" size="lg" className="rounded-lg h-12 px-8" onClick={scrollToProducts}>
               Lihat Produk
@@ -84,15 +73,10 @@ const MainHeroSection: React.FC = () => {
             </div>
           </div>
           <div className="max-w-full mt-8 mb-10 animate-slide-in-right">
-            <OptimizedImage
-              src="https://mepznzrijuoyvjcmkspf.supabase.co/storage/v1/object/public/brands/dasbor_rapatin.webp"
-              alt="All in One Scheduling Platform - Dashboard Rapatin untuk meeting, event, dan appointment"
-              width={1200}
-              height={675}
-              priority
-              className="w-full rounded-2xl shadow-elevation border border-white/40 bg-white object-cover"
-              style={{ background: "rgba(255,255,255,0.9)", maxHeight: "800px" }}
-            />
+            <OptimizedImage src="https://mepznzrijuoyvjcmkspf.supabase.co/storage/v1/object/public/brands/dasbor_rapatin.webp" alt="All in One Scheduling Platform - Dashboard Rapatin untuk meeting, event, dan appointment" width={1200} height={675} priority className="w-full rounded-2xl shadow-elevation border border-white/40 bg-white object-cover" style={{
+            background: "rgba(255,255,255,0.9)",
+            maxHeight: "800px"
+          }} />
           </div>
 
           {/* Brand Carousel Section */}
@@ -112,8 +96,6 @@ const MainHeroSection: React.FC = () => {
       </section>
 
       {shouldShowModal() && <FreeTrialModal isOpen={modalOpen} onClose={() => setModalOpen(false)} />}
-    </>
-  );
+    </>;
 };
-
 export default MainHeroSection;
