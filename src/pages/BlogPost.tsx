@@ -311,10 +311,14 @@ const BlogPost = () => {
                     </Link>
                     <ChevronRight size={14} />
                     <Link to="/blog" className="hover:text-white">Blog</Link>
-                    <ChevronRight size={14} />
-                    <Badge variant="secondary" className="bg-white/20 text-white border-white/30">
-                      {post.category}
-                    </Badge>
+                    {post.category && (
+                      <>
+                        <ChevronRight size={14} />
+                        <Badge variant="secondary" className="bg-white/20 text-white border-white/30">
+                          {post.category}
+                        </Badge>
+                      </>
+                    )}
                   </nav>
                   
                   <h1 className="text-xl md:text-3xl lg:text-4xl font-bold mb-3 leading-tight">
@@ -349,8 +353,12 @@ const BlogPost = () => {
                   </Link>
                   <ChevronRight size={14} />
                   <Link to="/blog" className="hover:text-foreground">Blog</Link>
-                  <ChevronRight size={14} />
-                  <Badge variant="outline">{post.category}</Badge>
+                  {post.category && (
+                    <>
+                      <ChevronRight size={14} />
+                      <Badge variant="outline">{post.category}</Badge>
+                    </>
+                  )}
                 </nav>
                 
                 <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-4 leading-tight">

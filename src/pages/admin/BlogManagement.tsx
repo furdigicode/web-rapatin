@@ -365,6 +365,15 @@ const BlogManagement = () => {
       });
       return;
     }
+
+    if (!formData.category) {
+      toast({
+        variant: "destructive",
+        title: "Terjadi kesalahan",
+        description: "Kategori harus dipilih",
+      });
+      return;
+    }
     
     let finalSlug = formData.slug;
     if (!finalSlug) {
@@ -409,6 +418,15 @@ const BlogManagement = () => {
         variant: "destructive",
         title: "Terjadi kesalahan",
         description: "Judul dan konten harus diisi",
+      });
+      return;
+    }
+
+    if (!formData.category) {
+      toast({
+        variant: "destructive",
+        title: "Terjadi kesalahan",
+        description: "Kategori harus dipilih",
       });
       return;
     }
@@ -608,6 +626,7 @@ const BlogManagement = () => {
                     onChange={(e) => handleInputChange('category', e.target.value)}
                     className="w-full px-3 py-2 rounded-md border focus:outline-none focus:ring-2 focus:ring-primary/50"
                   >
+                    <option value="">-- Pilih Kategori --</option>
                     {categories.map((category) => (
                       <option key={category} value={category}>{category}</option>
                     ))}
