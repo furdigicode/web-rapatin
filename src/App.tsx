@@ -56,8 +56,8 @@ const VotingCategoryManagement = lazy(() => import("./pages/admin/VotingCategory
 const VotingResults = lazy(() => import("./pages/admin/VotingResults"));
 const FeedbackManagement = lazy(() => import("./pages/admin/FeedbackManagement"));
 
-// Sitemap - Lazy loaded
-const SitemapXML = lazy(() => import("./pages/SitemapXML"));
+// Sitemap page (for viewing/debugging) - Lazy loaded
+const Sitemap = lazy(() => import("./pages/Sitemap"));
 
 // Loading fallback component
 const PageLoader = () => (
@@ -110,8 +110,8 @@ const AppRoutes = () => {
         {/* Feedback Page */}
         <Route path="/feedback" element={<Feedback />} />
         
-        {/* Sitemap */}
-        <Route path="/sitemap.xml" element={<SitemapXML />} />
+        {/* Sitemap Debug Page */}
+        <Route path="/sitemap" element={<Sitemap />} />
         
         {/* Admin Routes */}
         <Route path="/admin/login" element={<AdminLogin />} />
