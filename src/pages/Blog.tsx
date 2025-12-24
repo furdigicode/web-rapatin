@@ -144,9 +144,11 @@ const Blog = () => {
                     {/* Content */}
                     <CardContent className="p-6 flex-1 flex flex-col">
                       {/* Category Badge */}
-                      <Badge variant="secondary" className="w-fit mb-3 text-xs">
-                        {post.category}
-                      </Badge>
+                      {post.category && (
+                        <Badge variant="secondary" className="w-fit mb-3 text-xs">
+                          {post.category}
+                        </Badge>
+                      )}
                       
                       {/* Title */}
                       <h3 className="text-xl font-semibold mb-3 group-hover:text-primary transition-colors line-clamp-2">
