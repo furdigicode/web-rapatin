@@ -31,7 +31,7 @@ serve(async (req) => {
 
     let query = supabase
       .from('guest_orders')
-      .select('id, name, email, meeting_date, participant_count, price, payment_status, zoom_link, zoom_passcode, meeting_id, expired_at, paid_at, created_at');
+      .select('id, name, email, whatsapp, meeting_date, meeting_time, meeting_topic, custom_passcode, participant_count, price, payment_status, zoom_link, zoom_passcode, meeting_id, xendit_invoice_url, expired_at, paid_at, created_at');
 
     if (orderId) {
       query = query.eq('id', orderId);
@@ -59,13 +59,18 @@ serve(async (req) => {
           id: order.id,
           name: order.name,
           email: order.email,
+          whatsapp: order.whatsapp,
           meeting_date: order.meeting_date,
+          meeting_time: order.meeting_time,
+          meeting_topic: order.meeting_topic,
+          custom_passcode: order.custom_passcode,
           participant_count: order.participant_count,
           price: order.price,
           payment_status: order.payment_status,
           zoom_link: order.zoom_link,
           zoom_passcode: order.zoom_passcode,
           meeting_id: order.meeting_id,
+          xendit_invoice_url: order.xendit_invoice_url,
           expired_at: order.expired_at,
           paid_at: order.paid_at,
           created_at: order.created_at,

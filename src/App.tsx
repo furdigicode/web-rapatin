@@ -21,8 +21,8 @@ const Appointment = lazy(() => import("./pages/Appointment"));
 const SewaZoomHarian = lazy(() => import("./pages/SewaZoomHarian"));
 const EventManagement = lazy(() => import("./pages/EventManagement"));
 const QuickOrder = lazy(() => import("./pages/QuickOrder"));
-const QuickOrderSuccess = lazy(() => import("./pages/QuickOrderSuccess"));
-const QuickOrderPending = lazy(() => import("./pages/QuickOrderPending"));
+const QuickOrderDetail = lazy(() => import("./pages/QuickOrderDetail"));
+const LegacyRedirect = lazy(() => import("./components/quick-order/LegacyRedirect"));
 
 // Feature Pages - Lazy loaded
 const BayarSesuaiPakai = lazy(() => import("./pages/fitur/BayarSesuaiPakai"));
@@ -91,8 +91,10 @@ const AppRoutes = () => {
         <Route path="/appointment" element={<Appointment />} />
         <Route path="/event-management" element={<EventManagement />} />
         <Route path="/quick-order" element={<QuickOrder />} />
-        <Route path="/quick-order/success" element={<QuickOrderSuccess />} />
-        <Route path="/quick-order/pending" element={<QuickOrderPending />} />
+        <Route path="/quick-order/:orderId" element={<QuickOrderDetail />} />
+        {/* Legacy redirects for backward compatibility */}
+        <Route path="/quick-order/success" element={<LegacyRedirect />} />
+        <Route path="/quick-order/pending" element={<LegacyRedirect />} />
         
         {/* Feature Pages */}
         <Route path="/fitur/bayar-sesuai-pakai" element={<BayarSesuaiPakai />} />
