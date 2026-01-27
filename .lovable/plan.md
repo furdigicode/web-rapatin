@@ -1,182 +1,177 @@
 
-# Rencana: Migrasi dari Xendit Invoice API v2 ke Sessions API v3
+# Rencana: Update Webhook Handler untuk Sessions API v3
 
-## Ringkasan
-Mengganti penggunaan Xendit Invoice API (`/v2/invoices`) dengan Sessions API (`/sessions`) untuk membuat payment link sesuai dengan format terbaru yang Anda berikan.
+## Masalah yang Ditemukan
 
-## Perbandingan API
+Dari log, webhook menerima payload dengan benar tapi gagal memprosesnya:
+```
+ERROR Missing invoice id in webhook payload
+```
+
+### Perbedaan Struktur Payload
 
 | Aspek | Invoice API v2 (Lama) | Sessions API v3 (Baru) |
 |-------|----------------------|------------------------|
-| Endpoint | `api.xendit.co/v2/invoices` | `api.xendit.co/sessions` |
-| ID Field | `external_id` | `reference_id` |
-| Redirect Success | `success_redirect_url` | `success_return_url` |
-| Redirect Failure | `failure_redirect_url` | `cancel_return_url` |
-| Response URL | `invoice_url` | `payment_link_url` |
-| Session Type | - | `session_type: "PAY"` |
-| Mode | - | `mode: "PAYMENT_LINK"` |
-| Country | - | `country: "ID"` (wajib) |
+| Event Type | Tidak ada (implicit) | `payload.event` |
+| ID | `payload.id` | `payload.data.payment_session_id` |
+| Status | `payload.status` | `payload.data.status` |
+| Timestamp | `payload.paid_at` | `payload.data.updated` |
+| Reference | Tidak ada | `payload.data.reference_id` |
 
-## Perubahan File
-
-### File yang Diubah: `supabase/functions/create-guest-order/index.ts`
-
-### Perubahan Request Body
-
-**Sebelum (Invoice API v2):**
-```typescript
-const xenditResponse = await fetch("https://api.xendit.co/v2/invoices", {
-  method: "POST",
-  headers: {
-    Authorization: `Basic ${btoa(xenditSecretKey + ":")}`,
-    "Content-Type": "application/json",
-  },
-  body: JSON.stringify({
-    external_id: invoiceExternalId,
-    amount: price,
-    payer_email: email,
-    description: `Sewa Zoom Meeting - ${participant_count} Peserta - ${meeting_date}`,
-    invoice_duration: 86400,
-    customer: {
-      given_names: name,
-      email: email,
-      mobile_number: cleanWhatsapp,
-    },
-    success_redirect_url: `https://rapatin.lovable.app/quick-order/${accessSlug}`,
-    failure_redirect_url: `https://rapatin.lovable.app/quick-order/${accessSlug}`,
-    currency: "IDR",
-    items: [...],
-  }),
-});
-```
-
-**Sesudah (Sessions API v3):**
-```typescript
-const xenditResponse = await fetch("https://api.xendit.co/sessions", {
-  method: "POST",
-  headers: {
-    Authorization: `Basic ${btoa(xenditSecretKey + ":")}`,
-    "Content-Type": "application/json",
-  },
-  body: JSON.stringify({
-    reference_id: sessionReferenceId,
-    session_type: "PAY",
-    mode: "PAYMENT_LINK",
-    amount: price,
-    currency: "IDR",
-    country: "ID",
-    customer: {
-      reference_id: `cust_${Date.now()}`,
-      type: "INDIVIDUAL",
-      email: email,
-      mobile_number: cleanWhatsapp,
-      individual_detail: {
-        given_names: name,
-      },
-    },
-    items: [
-      {
-        reference_id: `item_zoom_${participant_count}`,
-        name: `Sewa Zoom ${participant_count} Peserta`,
-        description: `Meeting: ${meeting_topic} - ${meeting_date}`,
-        type: "DIGITAL_PRODUCT",
-        category: "SERVICE",
-        net_unit_amount: price,
-        quantity: 1,
-        currency: "IDR",
-        url: "https://rapatin.id/sewa-zoom-harian",
-      },
-    ],
-    capture_method: "AUTOMATIC",
-    locale: "id",
-    description: `Sewa Zoom Meeting - ${participant_count} Peserta - ${meeting_date}`,
-    success_return_url: `https://rapatin.lovable.app/quick-order/${accessSlug}`,
-    cancel_return_url: `https://rapatin.lovable.app/quick-order/${accessSlug}`,
-  }),
-});
-```
-
-### Perubahan Response Handling
-
-**Sebelum:**
-```typescript
-const xenditInvoice = await xenditResponse.json();
-// Response: { id: "...", invoice_url: "https://checkout.xendit.co/..." }
-
-xendit_invoice_id: xenditInvoice.id,
-xendit_invoice_url: xenditInvoice.invoice_url,
-```
-
-**Sesudah:**
-```typescript
-const xenditSession = await xenditResponse.json();
-// Response: { id: "...", payment_link_url: "https://checkout.xendit.co/..." }
-
-xendit_invoice_id: xenditSession.id,
-xendit_invoice_url: xenditSession.payment_link_url,
-```
-
-## Mapping Field Lengkap
-
-| Field Lama | Field Baru | Keterangan |
-|------------|-----------|------------|
-| `external_id` | `reference_id` | ID unik transaksi |
-| - | `session_type` | `"PAY"` untuk pembayaran |
-| - | `mode` | `"PAYMENT_LINK"` untuk hosted checkout |
-| `amount` | `amount` | Sama |
-| `currency` | `currency` | Sama (`"IDR"`) |
-| - | `country` | Wajib: `"ID"` untuk Indonesia |
-| `payer_email` | `customer.email` | Dipindah ke customer object |
-| `customer.given_names` | `customer.individual_detail.given_names` | Nested lebih dalam |
-| `customer.email` | `customer.email` | Sama |
-| `customer.mobile_number` | `customer.mobile_number` | Sama |
-| - | `customer.reference_id` | ID unik customer (baru) |
-| - | `customer.type` | `"INDIVIDUAL"` |
-| `items[].name` | `items[].name` | Sama |
-| `items[].quantity` | `items[].quantity` | Sama |
-| `items[].price` | `items[].net_unit_amount` | Nama field berubah |
-| - | `items[].reference_id` | ID unik item (baru) |
-| - | `items[].type` | `"DIGITAL_PRODUCT"` |
-| - | `items[].category` | `"SERVICE"` |
-| - | `items[].description` | Deskripsi item |
-| - | `items[].url` | URL produk |
-| `invoice_duration` | - | Tidak ada di Sessions (default 24 jam) |
-| `success_redirect_url` | `success_return_url` | Nama berubah |
-| `failure_redirect_url` | `cancel_return_url` | Nama berubah |
-| - | `capture_method` | `"AUTOMATIC"` |
-| - | `locale` | `"id"` untuk bahasa Indonesia |
-
-## Struktur Response Sessions API
+### Contoh Payload Sessions API v3
 
 ```json
 {
-  "id": "ps-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-  "reference_id": "RAPATIN-1234567890-abc123",
-  "session_type": "PAY",
-  "status": "PENDING",
-  "payment_link_url": "https://checkout.xendit.co/sessions/ps-xxx...",
-  "created_at": "2026-01-27T06:00:00.000Z",
-  "expires_at": "2026-01-28T06:00:00.000Z"
+  "event": "payment_session.completed",
+  "data": {
+    "payment_session_id": "ps-697885f20a1f5b668283874b",
+    "reference_id": "RAPATIN-1769506290119-l1cd5f",
+    "status": "COMPLETED",
+    "updated": "2026-01-27T09:33:13.945Z"
+  }
 }
 ```
 
-## Perubahan Database
+## File yang Diubah
 
-Tidak ada perubahan schema database karena field yang disimpan tetap sama:
-- `xendit_invoice_id` menyimpan `session.id`
-- `xendit_invoice_url` menyimpan `session.payment_link_url`
-- `expired_at` bisa diambil dari response `expires_at` atau tetap dihitung manual
+### `supabase/functions/xendit-webhook/index.ts`
+
+## Perubahan Utama
+
+### 1. Deteksi Format Payload (v2 vs v3)
+
+Menambahkan logika untuk mendeteksi apakah payload dari Invoice API atau Sessions API:
+
+```typescript
+// Detect if this is Sessions API v3 (has 'event' and 'data' fields)
+const isSessionsApi = payload.event && payload.data;
+```
+
+### 2. Ekstrak Data Berdasarkan Format
+
+**Untuk Sessions API v3:**
+```typescript
+if (isSessionsApi) {
+  const { event, data } = payload;
+  
+  // Handle different session events
+  if (event === 'payment_session.completed') {
+    sessionId = data.payment_session_id;
+    status = data.status; // COMPLETED
+    paidAt = data.updated;
+  } else if (event === 'payment_session.expired') {
+    sessionId = data.payment_session_id;
+    status = 'EXPIRED';
+  }
+}
+```
+
+**Fallback untuk Invoice API v2 (backward compatible):**
+```typescript
+else {
+  // Legacy Invoice API format
+  sessionId = payload.id;
+  status = payload.status;
+  paidAt = payload.paid_at;
+}
+```
+
+### 3. Update Mapping Status
+
+Sessions API v3 menggunakan status yang berbeda:
+
+| Sessions API v3 | Mapping ke Database |
+|-----------------|---------------------|
+| `COMPLETED` | `paid` |
+| `EXPIRED` | `expired` |
+| `FAILED` | `failed` |
+| Lainnya | `pending` |
+
+```typescript
+let paymentStatus = 'pending';
+if (status === 'COMPLETED') {
+  paymentStatus = 'paid';
+} else if (status === 'EXPIRED') {
+  paymentStatus = 'expired';
+} else if (status === 'FAILED') {
+  paymentStatus = 'failed';
+}
+```
+
+### 4. Update Query Database
+
+Karena kita menyimpan `payment_session_id` di kolom `xendit_invoice_id`:
+
+```typescript
+const { data: order, error: findError } = await supabase
+  .from('guest_orders')
+  .select('*')
+  .eq('xendit_invoice_id', sessionId)
+  .single();
+```
+
+### 5. Handle paid_at
+
+Sessions API v3 tidak memiliki `paid_at` field, tapi ada `updated`:
+
+```typescript
+if (paymentStatus === 'paid') {
+  updateData.paid_at = paidAt || new Date().toISOString();
+}
+```
+
+## Alur Lengkap Setelah Update
+
+```text
+1. Xendit mengirim webhook dengan event "payment_session.completed"
+   ↓
+2. Webhook handler menerima dan log payload
+   ↓
+3. Deteksi: payload.event exists → Sessions API v3
+   ↓
+4. Ekstrak: payment_session_id, status, updated dari payload.data
+   ↓
+5. Query database: WHERE xendit_invoice_id = payment_session_id
+   ↓
+6. Update order status: payment_status = 'paid'
+   ↓
+7. Jika paid → Call Rapatin API untuk buat meeting
+   ↓
+8. Return success response
+```
+
+## Event Types yang Di-handle
+
+| Event | Action |
+|-------|--------|
+| `payment_session.completed` | Update status ke `paid`, buat meeting Rapatin |
+| `payment_session.expired` | Update status ke `expired` |
+| `payment_session.failed` | Update status ke `failed` |
+
+## Backward Compatibility
+
+Handler tetap mendukung format Invoice API v2 jika masih ada webhook lama yang terkirim. Ini dilakukan dengan pengecekan keberadaan field `event`:
+
+```typescript
+if (payload.event && payload.data) {
+  // Sessions API v3
+} else {
+  // Invoice API v2 (legacy)
+}
+```
 
 ## Urutan Implementasi
 
-1. Update endpoint dari `/v2/invoices` ke `/sessions`
-2. Ubah struktur request body sesuai format Sessions API
-3. Update response handling untuk menggunakan `payment_link_url`
-4. Deploy dan test edge function
-5. Verifikasi webhook masih kompatibel (jika ada perubahan)
+1. Update parsing payload untuk detect Sessions API v3
+2. Ekstrak `payment_session_id` dan `status` dari `payload.data`
+3. Update status mapping (COMPLETED → paid)
+4. Keep backward compatibility untuk Invoice API v2
+5. Deploy dan test dengan simulasi webhook
 
-## Catatan Penting
+## Testing
 
-- **Webhook**: Perlu dicek apakah webhook handler (`xendit-webhook`) perlu disesuaikan dengan format callback Sessions API
-- **Locale**: Menggunakan `"id"` agar halaman checkout dalam bahasa Indonesia
-- **Type Item**: Menggunakan `"DIGITAL_PRODUCT"` karena produk adalah layanan digital (Zoom meeting)
+Setelah deploy, simulasi pembayaran lagi untuk memastikan:
+- Webhook diterima dan diproses dengan benar
+- Order status terupdate ke `paid`
+- Meeting Rapatin berhasil dibuat
+- Zoom link tersimpan di database
