@@ -1,186 +1,176 @@
 
 
-# Rencana: Halaman Quick Order untuk Guest
+# Rencana: Integrasi API Rapatin + Tambah Input Jam Meeting
 
 ## Ringkasan
-Membuat halaman order khusus untuk tamu (guest checkout) di website Rapatin, yang memungkinkan user memesan meeting Zoom sekali pakai tanpa perlu mendaftar ke aplikasi. Proses pembayaran menggunakan Xendit, dan setelah pembayaran sukses, sistem akan otomatis memanggil API aplikasi Rapatin untuk membuat jadwal meeting.
+Mengimplementasikan integrasi penuh dengan API Rapatin untuk membuat jadwal Zoom meeting secara otomatis setelah pembayaran sukses. Juga menambahkan input jam meeting di form Quick Order.
 
-## Alur Proses (User Flow)
+## Perubahan yang Diperlukan
 
-```text
-+-------------------+     +------------------+     +-------------------+
-|  1. Guest mengisi |---->| 2. Pilih paket & |---->| 3. Redirect ke    |
-|     form order    |     |    konfirmasi    |     |    Xendit payment |
-+-------------------+     +------------------+     +-------------------+
-                                                            |
-                                                            v
-+-------------------+     +------------------+     +-------------------+
-|  6. Terima email  |<----| 5. Panggil API   |<----| 4. Xendit webhook |
-|     konfirmasi    |     |    Rapatin App   |     |    sukses bayar   |
-+-------------------+     +------------------+     +-------------------+
-```
+### 1. Tambahkan Secrets Rapatin ke Supabase
 
-## Langkah Implementasi
+Perlu menambahkan 2 secrets baru:
+- `RAPATIN_EMAIL` - Email akun internal untuk login ke API Rapatin
+- `RAPATIN_PASSWORD` - Password akun internal untuk login
 
-### 1. Database - Tabel Order Guest
-Membuat tabel baru untuk menyimpan order dari guest:
+### 2. Update Database Schema
 
-**Tabel: `guest_orders`**
+Tambahkan kolom baru di tabel `guest_orders`:
+
 | Kolom | Tipe | Deskripsi |
 |-------|------|-----------|
-| id | uuid | Primary key |
-| name | text | Nama pemesan |
-| email | text | Email pemesan |
-| whatsapp | text | Nomor WhatsApp |
-| meeting_date | date | Tanggal meeting |
-| participant_count | integer | Jumlah peserta (100/300/500/1000) |
-| price | integer | Harga dalam Rupiah |
-| payment_method | text | QRIS/VA/E-Wallet |
-| payment_status | text | pending/paid/failed/expired |
-| xendit_invoice_id | text | ID Invoice dari Xendit |
-| xendit_invoice_url | text | URL pembayaran Xendit |
-| rapatin_order_id | text | ID order dari API Rapatin (setelah sukses) |
-| zoom_link | text | Link Zoom (dari API Rapatin) |
-| created_at | timestamp | Waktu order dibuat |
-| paid_at | timestamp | Waktu pembayaran berhasil |
-| expired_at | timestamp | Waktu kadaluarsa pembayaran |
+| meeting_time | text | Jam meeting yang dipilih user (format HH:mm) |
 
-### 2. Edge Functions
+### 3. Update Frontend - Form Quick Order
 
-#### a. `create-guest-order` (POST)
-- Menerima data form dari halaman Quick Order
-- Validasi input (nama, email, WhatsApp, tanggal, jumlah peserta)
-- Hitung harga berdasarkan jumlah peserta
-- Buat invoice di Xendit menggunakan API
-- Simpan order ke database dengan status "pending"
-- Return URL pembayaran Xendit
+**File: `src/components/quick-order/QuickOrderForm.tsx`**
 
-#### b. `xendit-webhook` (POST)  
-- Menerima callback dari Xendit saat pembayaran berhasil/gagal
-- Verifikasi signature webhook dari Xendit
-- Update status order di database
-- Jika sukses: panggil API Rapatin untuk buat jadwal meeting
-- Simpan hasil (zoom_link, rapatin_order_id) ke database
-- Kirim notifikasi email ke guest (opsional, bisa pakai Xendit notification)
+Perubahan:
+- Tambahkan field input untuk memilih jam meeting (dropdown/select)
+- Pilihan jam: 00:00 - 23:00 (increment per jam)
+- Update form schema untuk include `meeting_time`
+- Kirim `meeting_time` ke edge function
 
-#### c. `check-order-status` (GET)
-- Endpoint untuk cek status order berdasarkan order ID
-- Digunakan di halaman konfirmasi untuk polling status
+**Contoh UI Time Picker:**
+```text
++-------------------------+
+| Jam Meeting             |
+| [ 09:00           ▼ ]   |
++-------------------------+
+```
 
-### 3. Halaman Frontend
+### 4. Update Edge Function - create-guest-order
 
-#### a. `/quick-order` - Halaman Form Order
-**Komponen:**
-- Hero section dengan penjelasan singkat
-- Form input:
-  - Nama lengkap
-  - Email
-  - WhatsApp
-  - Date picker (tanggal meeting)
-  - Dropdown jumlah peserta (100/300/500/1000)
-- Pricing card yang update dinamis berdasarkan pilihan
-- Tombol "Bayar Sekarang"
-- Metode pembayaran yang didukung (QRIS, VA, E-Wallet)
+**File: `supabase/functions/create-guest-order/index.ts`**
 
-**UI/UX:**
-- Desain clean dan fokus pada konversi
-- Mobile-friendly
-- Loading state saat proses pembayaran
-- Error handling yang jelas
+Perubahan:
+- Terima parameter `meeting_time` dari frontend
+- Simpan `meeting_time` ke database
 
-#### b. `/quick-order/payment` - Redirect ke Xendit
-- Halaman loading singkat sebelum redirect ke Xendit
-- Atau embed Xendit checkout (jika tersedia)
+### 5. Update Edge Function - xendit-webhook (Integrasi Rapatin)
 
-#### c. `/quick-order/success` - Konfirmasi Sukses
-- Menampilkan detail order
-- Link Zoom meeting
-- Instruksi selanjutnya
-- Opsi download receipt
+**File: `supabase/functions/xendit-webhook/index.ts`**
 
-#### d. `/quick-order/pending` - Menunggu Pembayaran
-- Status pembayaran pending
-- Timer countdown expired
-- Tombol refresh/cek ulang
+Implementasi lengkap integrasi Rapatin API:
 
-### 4. Secrets yang Diperlukan
-Perlu ditambahkan ke Supabase Secrets:
-- `XENDIT_SECRET_KEY` - API key Xendit
-- `XENDIT_WEBHOOK_TOKEN` - Token untuk verifikasi webhook
-- `RAPATIN_API_URL` - Base URL API aplikasi Rapatin
-- `RAPATIN_API_KEY` - API key untuk autentikasi ke Rapatin
+**Alur Proses:**
+```text
++------------------+     +------------------+     +------------------+
+| 1. Webhook       |---->| 2. Login ke API  |---->| 3. Create        |
+|    Xendit        |     |    Rapatin       |     |    Schedule      |
++------------------+     +------------------+     +------------------+
+                                                          |
+                                                          v
++------------------+     +------------------+     +------------------+
+| 6. Update order  |<----| 5. Simpan zoom   |<----| 4. Get join_url  |
+|    status = paid |     |    link & passcode|    |    dari response |
++------------------+     +------------------+     +------------------+
+```
 
-### 5. Struktur File
+**Step by Step:**
+
+1. **Login ke Rapatin API**
+   - Endpoint: `POST https://api.rapatin.id/auth/login`
+   - Body: `{ email, password, device: "webhook" }`
+   - Response: `data.token`
+
+2. **Create Schedule**
+   - Endpoint: `POST https://api.rapatin.id/schedules`
+   - Header: `Authorization: Bearer {token}`
+   - Body:
+     ```json
+     {
+       "product_id": 1-4 (berdasarkan participant_count),
+       "topic": "Quick Order - {nama pemesan}",
+       "passcode": "{generated 6 digit}",
+       "start_date": "{meeting_date}",
+       "start_time": "{meeting_time}",
+       "recurring": false,
+       "is_meeting_registration": false,
+       "is_meeting_qna": false,
+       "is_language_interpretation": false,
+       "is_mute_participant_upon_entry": false,
+       "is_req_permission_to_unmute_participants": false
+     }
+     ```
+
+3. **Map participant_count ke product_id:**
+   - 100 peserta → product_id: 1
+   - 300 peserta → product_id: 2
+   - 500 peserta → product_id: 3
+   - 1000 peserta → product_id: 4
+
+4. **Simpan Response ke Database:**
+   - `zoom_link` = `data.join_url`
+   - `zoom_passcode` = `data.passcode`
+   - `meeting_id` = `data.meeting_id`
+   - `rapatin_order_id` = `data.id`
+
+### 6. Update PricingSummary Component
+
+**File: `src/components/quick-order/PricingSummary.tsx`**
+
+Perubahan:
+- Tampilkan jam meeting yang dipilih di ringkasan order
+
+## Detail Teknis
+
+### Struktur File yang Diubah
 
 ```text
 src/
-├── pages/
-│   └── QuickOrder.tsx           # Halaman utama form order
-│   └── QuickOrderSuccess.tsx    # Halaman konfirmasi sukses
-│   └── QuickOrderPending.tsx    # Halaman menunggu pembayaran
 ├── components/
 │   └── quick-order/
-│       ├── QuickOrderForm.tsx   # Form input data
-│       ├── PackageSelector.tsx  # Pilihan paket peserta
-│       ├── PricingSummary.tsx   # Ringkasan harga
-│       └── PaymentMethods.tsx   # Tampilan metode pembayaran
+│       ├── QuickOrderForm.tsx    # Tambah time picker
+│       └── PricingSummary.tsx    # Tampilkan jam meeting
 
 supabase/
 ├── functions/
 │   ├── create-guest-order/
-│   │   └── index.ts
-│   ├── xendit-webhook/
-│   │   └── index.ts
-│   └── check-order-status/
-│       └── index.ts
+│   │   └── index.ts              # Terima meeting_time
+│   └── xendit-webhook/
+│       └── index.ts              # Integrasi Rapatin API
+```
+
+### Error Handling untuk Rapatin API
+
+Webhook akan handle berbagai skenario error:
+- **Login gagal**: Log error, order tetap marked as paid (perlu manual follow-up)
+- **Create schedule gagal**: Log error, simpan error message ke database
+- **Network timeout**: Retry mechanism dengan 3 attempts
+
+### Passcode Generation
+
+Generate 6 digit random passcode untuk meeting:
+```typescript
+const passcode = Math.random().toString().slice(2, 8);
 ```
 
 ## Keamanan
 
-1. **RLS Policies untuk guest_orders:**
-   - Public dapat INSERT (membuat order baru)
-   - Admin dapat SELECT/UPDATE semua order
-   - Guest dapat SELECT order berdasarkan ID + email match
+1. **Secrets disimpan di Supabase Edge Function Secrets**
+   - RAPATIN_EMAIL
+   - RAPATIN_PASSWORD
+   
+2. **Token Rapatin hanya digunakan sekali per request**
+   - Tidak perlu caching karena flow adalah per-payment webhook
 
-2. **Webhook Security:**
-   - Verifikasi signature Xendit
-   - Rate limiting
-   - Idempotency check (mencegah double processing)
+## Urutan Implementasi
 
-3. **Input Validation:**
-   - Server-side validation menggunakan Zod
-   - Sanitasi input WhatsApp dan email
-   - Validasi tanggal (tidak boleh tanggal lampau)
-
-## Estimasi Harga (Mengikuti Pricing Existing)
-
-| Peserta | Harga Promo | Harga Normal |
-|---------|-------------|--------------|
-| 100 | Rp 10.000 | Rp 20.000 |
-| 300 | Rp 25.000 | Rp 40.000 |
-| 500 | Rp 55.000 | Rp 70.000 |
-| 1000 | Rp 100.000 | Rp 130.000 |
-
-## Detail Teknis
-
-### Xendit Integration
-- Menggunakan Xendit Invoice API untuk buat invoice
-- Payment methods: QRIS, VA (BCA/BNI/BRI/Mandiri), E-Wallet (GoPay/OVO/DANA)
-- Invoice expiry: 24 jam
-- Webhook untuk notifikasi pembayaran
-
-### API Rapatin Integration
-- Endpoint yang dipanggil setelah payment sukses
-- Mengirim: nama, email, whatsapp, tanggal, jumlah peserta
-- Menerima: zoom_link, meeting_id, passcode, rapatin_order_id
-
-### Urutan Implementasi
-1. Setup Xendit API secrets
-2. Buat tabel database `guest_orders`
-3. Buat edge function `create-guest-order`
-4. Buat edge function `xendit-webhook`
-5. Buat halaman `/quick-order` dengan form
-6. Buat halaman sukses dan pending
+1. Request secrets RAPATIN_EMAIL dan RAPATIN_PASSWORD
+2. Buat database migration untuk kolom `meeting_time`
+3. Update `QuickOrderForm.tsx` - tambah time picker
+4. Update `PricingSummary.tsx` - tampilkan jam meeting
+5. Update `create-guest-order` edge function
+6. Implementasi Rapatin API di `xendit-webhook` edge function
 7. Testing end-to-end
-8. Integrasi dengan API Rapatin (setelah API endpoint dikonfirmasi)
+
+## Testing Checklist
+
+- [ ] Form bisa memilih jam meeting
+- [ ] Jam meeting tersimpan di database
+- [ ] Login ke Rapatin API berhasil
+- [ ] Schedule berhasil dibuat di Rapatin
+- [ ] Zoom link tersimpan di database
+- [ ] Halaman success menampilkan zoom link
 
