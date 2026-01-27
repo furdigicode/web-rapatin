@@ -174,30 +174,66 @@ serve(async (req) => {
     const payload = await req.json();
     console.log("Received Xendit webhook:", JSON.stringify(payload));
 
-    const { id, status, paid_at } = payload;
+    // Detect if this is Sessions API v3 (has 'event' and 'data' fields) or Invoice API v2
+    const isSessionsApi = payload.event && payload.data;
+    
+    let sessionId: string;
+    let status: string;
+    let paidAt: string | null = null;
 
-    if (!id) {
-      console.error("Missing invoice id in webhook payload");
+    if (isSessionsApi) {
+      // Sessions API v3 format
+      const { event, data } = payload;
+      console.log("Detected Sessions API v3 format, event:", event);
+      
+      sessionId = data.payment_session_id;
+      status = data.status;
+      paidAt = data.updated;
+      
+      // Log event type for debugging
+      if (event === 'payment_session.completed') {
+        console.log("Processing payment_session.completed event");
+      } else if (event === 'payment_session.expired') {
+        console.log("Processing payment_session.expired event");
+        status = 'EXPIRED';
+      } else if (event === 'payment_session.failed') {
+        console.log("Processing payment_session.failed event");
+        status = 'FAILED';
+      } else {
+        console.log("Unknown session event:", event);
+      }
+    } else {
+      // Legacy Invoice API v2 format (backward compatibility)
+      console.log("Detected Invoice API v2 format (legacy)");
+      sessionId = payload.id;
+      status = payload.status;
+      paidAt = payload.paid_at;
+    }
+
+    if (!sessionId) {
+      console.error("Missing session/invoice id in webhook payload");
       return new Response(
         JSON.stringify({ error: 'Invalid payload' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
+    console.log("Extracted webhook data:", { sessionId, status, paidAt });
+
     // Initialize Supabase client
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Find the order by xendit_invoice_id
+    // Find the order by xendit_invoice_id (stores payment_session_id for v3)
     const { data: order, error: findError } = await supabase
       .from('guest_orders')
       .select('*')
-      .eq('xendit_invoice_id', id)
+      .eq('xendit_invoice_id', sessionId)
       .single();
 
     if (findError || !order) {
-      console.error("Order not found for invoice:", id, findError);
+      console.error("Order not found for session/invoice:", sessionId, findError);
       return new Response(
         JSON.stringify({ error: 'Order not found' }),
         { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -214,8 +250,10 @@ serve(async (req) => {
     }
 
     // Map Xendit status to our status
+    // Sessions API v3: COMPLETED, EXPIRED, FAILED
+    // Invoice API v2: PAID, SETTLED, EXPIRED, FAILED
     let paymentStatus = 'pending';
-    if (status === 'PAID' || status === 'SETTLED') {
+    if (status === 'COMPLETED' || status === 'PAID' || status === 'SETTLED') {
       paymentStatus = 'paid';
     } else if (status === 'EXPIRED') {
       paymentStatus = 'expired';
@@ -230,8 +268,10 @@ serve(async (req) => {
       payment_status: paymentStatus,
     };
 
-    if (paymentStatus === 'paid' && paid_at) {
-      updateData.paid_at = paid_at;
+    if (paymentStatus === 'paid' && paidAt) {
+      updateData.paid_at = paidAt;
+    } else if (paymentStatus === 'paid') {
+      updateData.paid_at = new Date().toISOString();
     }
 
     // If payment is successful, call Rapatin API to create meeting
