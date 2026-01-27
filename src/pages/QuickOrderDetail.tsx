@@ -1,0 +1,547 @@
+import { useEffect, useState, useCallback } from "react";
+import { useParams, Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
+import { 
+  CheckCircle2, 
+  Copy, 
+  ExternalLink, 
+  Loader2, 
+  AlertCircle, 
+  Clock, 
+  RefreshCw, 
+  ArrowRight,
+  User,
+  Mail,
+  Phone,
+  Calendar,
+  Users,
+  MessageSquare,
+  CreditCard
+} from "lucide-react";
+import { toast } from "sonner";
+
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
+
+interface OrderDetails {
+  id: string;
+  name: string;
+  email: string;
+  whatsapp: string;
+  meeting_date: string;
+  meeting_time: string | null;
+  meeting_topic: string | null;
+  custom_passcode: string | null;
+  participant_count: number;
+  price: number;
+  payment_status: 'pending' | 'paid' | 'expired';
+  zoom_link: string | null;
+  zoom_passcode: string | null;
+  meeting_id: string | null;
+  xendit_invoice_url: string | null;
+  expired_at: string | null;
+  paid_at: string | null;
+  created_at: string;
+}
+
+const formatRupiah = (amount: number) => {
+  return new Intl.NumberFormat('id-ID', {
+    style: 'currency',
+    currency: 'IDR',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(amount);
+};
+
+const formatDate = (dateStr: string) => {
+  const date = new Date(dateStr);
+  return new Intl.DateTimeFormat('id-ID', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  }).format(date);
+};
+
+const formatDateTime = (dateStr: string) => {
+  const date = new Date(dateStr);
+  return new Intl.DateTimeFormat('id-ID', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(date);
+};
+
+export default function QuickOrderDetail() {
+  const { orderId } = useParams<{ orderId: string }>();
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  
+  const [order, setOrder] = useState<OrderDetails | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [checking, setChecking] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [timeLeft, setTimeLeft] = useState<string>("");
+
+  // Handle backward compatibility - redirect from old URL format
+  useEffect(() => {
+    const queryOrderId = searchParams.get('order_id');
+    if (queryOrderId && !orderId) {
+      navigate(`/quick-order/${queryOrderId}`, { replace: true });
+    }
+  }, [searchParams, orderId, navigate]);
+
+  const fetchOrder = useCallback(async (showLoadingState = false) => {
+    if (!orderId) {
+      setError("Order ID tidak ditemukan");
+      setLoading(false);
+      return;
+    }
+
+    if (showLoadingState) {
+      setChecking(true);
+    }
+
+    try {
+      const response = await fetch(
+        `https://mepznzrijuoyvjcmkspf.supabase.co/functions/v1/check-order-status?order_id=${orderId}`,
+        {
+          headers: {
+            'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1lcHpuenJpanVveXZqY21rc3BmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDczNzU5NDcsImV4cCI6MjA2Mjk1MTk0N30.mIGM28Ztelp6enqg36m03SB7v_Vlsruyd79Rj9mRUuA',
+          },
+        }
+      );
+
+      const result = await response.json();
+
+      if (!response.ok || result.error) {
+        setError(result.error || "Gagal mengambil data order");
+        setLoading(false);
+        setChecking(false);
+        return;
+      }
+
+      setOrder(result.order);
+      setError(null);
+    } catch (err) {
+      console.error("Error fetching order:", err);
+      setError("Terjadi kesalahan saat mengambil data order");
+    } finally {
+      setLoading(false);
+      setChecking(false);
+    }
+  }, [orderId]);
+
+  // Initial fetch and polling
+  useEffect(() => {
+    fetchOrder();
+    
+    // Only poll if status is pending
+    const interval = setInterval(() => {
+      if (order?.payment_status === 'pending') {
+        fetchOrder();
+      }
+    }, 10000);
+
+    return () => clearInterval(interval);
+  }, [fetchOrder, order?.payment_status]);
+
+  // Countdown timer
+  useEffect(() => {
+    if (!order?.expired_at || order.payment_status !== 'pending') return;
+
+    const updateCountdown = () => {
+      const now = new Date().getTime();
+      const expiry = new Date(order.expired_at!).getTime();
+      const diff = expiry - now;
+
+      if (diff <= 0) {
+        setTimeLeft("Kadaluarsa");
+        return;
+      }
+
+      const hours = Math.floor(diff / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+      setTimeLeft(
+        `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
+      );
+    };
+
+    updateCountdown();
+    const timer = setInterval(updateCountdown, 1000);
+    return () => clearInterval(timer);
+  }, [order?.expired_at, order?.payment_status]);
+
+  const copyToClipboard = (text: string, label: string) => {
+    navigator.clipboard.writeText(text);
+    toast.success(`${label} berhasil disalin`);
+  };
+
+  const handleCheckStatus = () => {
+    fetchOrder(true);
+  };
+
+  // Loading state
+  if (loading) {
+    return (
+      <>
+        <Navbar />
+        <main className="min-h-screen flex items-center justify-center">
+          <div className="text-center">
+            <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto mb-4" />
+            <p className="text-muted-foreground">Memuat detail order...</p>
+          </div>
+        </main>
+        <Footer />
+      </>
+    );
+  }
+
+  // Error state
+  if (error || !order) {
+    return (
+      <>
+        <Helmet>
+          <title>Order Tidak Ditemukan | Rapatin</title>
+        </Helmet>
+        <Navbar />
+        <main className="min-h-screen flex items-center justify-center p-4">
+          <Card className="max-w-md w-full">
+            <CardContent className="pt-6 text-center">
+              <AlertCircle className="w-16 h-16 text-destructive mx-auto mb-4" />
+              <h1 className="text-xl font-bold mb-2">Order Tidak Ditemukan</h1>
+              <p className="text-muted-foreground mb-6">
+                {error || "Order yang Anda cari tidak ditemukan."}
+              </p>
+              <Button asChild>
+                <Link to="/quick-order">Buat Order Baru</Link>
+              </Button>
+            </CardContent>
+          </Card>
+        </main>
+        <Footer />
+      </>
+    );
+  }
+
+  const isPaid = order.payment_status === 'paid';
+  const isPending = order.payment_status === 'pending';
+  const isExpired = order.payment_status === 'expired' || timeLeft === "Kadaluarsa";
+
+  const getStatusConfig = () => {
+    if (isPaid) {
+      return {
+        icon: CheckCircle2,
+        iconColor: "text-green-600",
+        bgColor: "bg-green-50 dark:bg-green-950/30",
+        title: "Pembayaran Berhasil!",
+        subtitle: "Terima kasih telah menggunakan Rapatin",
+        badge: { label: "Lunas", className: "bg-green-500 text-white" }
+      };
+    }
+    if (isExpired) {
+      return {
+        icon: AlertCircle,
+        iconColor: "text-destructive",
+        bgColor: "bg-red-50 dark:bg-red-950/30",
+        title: "Pembayaran Kadaluarsa",
+        subtitle: "Batas waktu pembayaran telah berakhir",
+        badge: { label: "Kadaluarsa", className: "bg-red-500 text-white" }
+      };
+    }
+    return {
+      icon: Clock,
+      iconColor: "text-yellow-600",
+      bgColor: "bg-yellow-50 dark:bg-yellow-950/30",
+      title: "Menunggu Pembayaran",
+      subtitle: "Silakan selesaikan pembayaran Anda",
+      badge: { label: "Menunggu", className: "bg-yellow-500 text-white" }
+    };
+  };
+
+  const statusConfig = getStatusConfig();
+  const StatusIcon = statusConfig.icon;
+
+  return (
+    <>
+      <Helmet>
+        <title>
+          {isPaid ? "Pembayaran Berhasil" : isPending ? "Menunggu Pembayaran" : "Pembayaran Kadaluarsa"} | Rapatin
+        </title>
+      </Helmet>
+
+      <Navbar />
+
+      <main className="min-h-screen bg-gradient-to-b from-background to-muted/30 py-24">
+        <div className="container mx-auto px-4">
+          <div className="max-w-2xl mx-auto space-y-6">
+            {/* Status Header */}
+            <Card className="overflow-hidden">
+              <div className={`p-6 text-center ${statusConfig.bgColor}`}>
+                <StatusIcon className={`w-16 h-16 ${statusConfig.iconColor} mx-auto mb-4`} />
+                <h1 className="text-2xl font-bold mb-2">{statusConfig.title}</h1>
+                <p className="text-muted-foreground">{statusConfig.subtitle}</p>
+                <Badge className={`mt-3 ${statusConfig.badge.className}`}>
+                  {statusConfig.badge.label}
+                </Badge>
+              </div>
+
+              {/* Pending: Countdown & Actions */}
+              {isPending && !isExpired && (
+                <CardContent className="p-6 space-y-4">
+                  {timeLeft && (
+                    <div className="bg-yellow-50 dark:bg-yellow-950/30 rounded-xl p-4 text-center">
+                      <p className="text-sm text-muted-foreground mb-1">Sisa waktu pembayaran</p>
+                      <p className="text-3xl font-mono font-bold text-yellow-700 dark:text-yellow-300">
+                        {timeLeft}
+                      </p>
+                    </div>
+                  )}
+
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    {order.xendit_invoice_url && (
+                      <Button asChild className="flex-1">
+                        <a href={order.xendit_invoice_url} target="_blank" rel="noopener noreferrer">
+                          <ExternalLink className="w-4 h-4 mr-2" />
+                          Lanjutkan Pembayaran
+                        </a>
+                      </Button>
+                    )}
+                    <Button
+                      onClick={handleCheckStatus}
+                      disabled={checking}
+                      variant="outline"
+                      className="flex-1"
+                    >
+                      {checking ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Memeriksa...
+                        </>
+                      ) : (
+                        <>
+                          <RefreshCw className="w-4 h-4 mr-2" />
+                          Cek Status Pembayaran
+                        </>
+                      )}
+                    </Button>
+                  </div>
+
+                  <p className="text-xs text-center text-muted-foreground">
+                    Halaman ini otomatis memperbarui status setiap 10 detik
+                  </p>
+                </CardContent>
+              )}
+
+              {/* Expired: CTA */}
+              {isExpired && (
+                <CardContent className="p-6">
+                  <Button asChild className="w-full">
+                    <Link to="/quick-order">
+                      Buat Order Baru
+                      <ArrowRight className="w-4 h-4 ml-2" />
+                    </Link>
+                  </Button>
+                </CardContent>
+              )}
+            </Card>
+
+            {/* Order Details */}
+            <Card>
+              <CardContent className="p-6 space-y-6">
+                <h2 className="font-semibold text-lg">Detail Order</h2>
+                
+                <div className="space-y-4">
+                  <div className="flex items-start gap-3">
+                    <User className="w-5 h-5 text-muted-foreground mt-0.5" />
+                    <div>
+                      <p className="text-sm text-muted-foreground">Nama</p>
+                      <p className="font-medium">{order.name}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-3">
+                    <Mail className="w-5 h-5 text-muted-foreground mt-0.5" />
+                    <div>
+                      <p className="text-sm text-muted-foreground">Email</p>
+                      <p className="font-medium">{order.email}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-3">
+                    <Phone className="w-5 h-5 text-muted-foreground mt-0.5" />
+                    <div>
+                      <p className="text-sm text-muted-foreground">WhatsApp</p>
+                      <p className="font-medium">{order.whatsapp}</p>
+                    </div>
+                  </div>
+
+                  {order.meeting_topic && (
+                    <div className="flex items-start gap-3">
+                      <MessageSquare className="w-5 h-5 text-muted-foreground mt-0.5" />
+                      <div>
+                        <p className="text-sm text-muted-foreground">Topik Meeting</p>
+                        <p className="font-medium">{order.meeting_topic}</p>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="flex items-start gap-3">
+                    <Calendar className="w-5 h-5 text-muted-foreground mt-0.5" />
+                    <div>
+                      <p className="text-sm text-muted-foreground">Tanggal Meeting</p>
+                      <p className="font-medium">
+                        {formatDate(order.meeting_date)}
+                        {order.meeting_time && ` • ${order.meeting_time} WIB`}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-3">
+                    <Users className="w-5 h-5 text-muted-foreground mt-0.5" />
+                    <div>
+                      <p className="text-sm text-muted-foreground">Kapasitas Peserta</p>
+                      <p className="font-medium">{order.participant_count} Peserta</p>
+                    </div>
+                  </div>
+
+                  <Separator />
+
+                  <div className="flex items-start gap-3">
+                    <CreditCard className="w-5 h-5 text-muted-foreground mt-0.5" />
+                    <div className="flex-1">
+                      <p className="text-sm text-muted-foreground">Total Bayar</p>
+                      <p className="text-xl font-bold text-primary">{formatRupiah(order.price)}</p>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Zoom Details (only for paid orders) */}
+            {isPaid && (
+              <Card>
+                <CardContent className="p-6 space-y-6">
+                  <h2 className="font-semibold text-lg">Detail Zoom Meeting</h2>
+
+                  {order.zoom_link ? (
+                    <div className="space-y-4">
+                      {order.meeting_id && (
+                        <div>
+                          <span className="text-sm text-muted-foreground block mb-1">Meeting ID</span>
+                          <div className="flex items-center gap-2">
+                            <code className="flex-1 bg-muted p-3 rounded-lg text-sm font-mono">
+                              {order.meeting_id}
+                            </code>
+                            <Button
+                              size="icon"
+                              variant="outline"
+                              onClick={() => copyToClipboard(order.meeting_id!, "Meeting ID")}
+                            >
+                              <Copy className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+
+                      {order.zoom_passcode && (
+                        <div>
+                          <span className="text-sm text-muted-foreground block mb-1">Passcode</span>
+                          <div className="flex items-center gap-2">
+                            <code className="flex-1 bg-muted p-3 rounded-lg text-sm font-mono">
+                              {order.zoom_passcode}
+                            </code>
+                            <Button
+                              size="icon"
+                              variant="outline"
+                              onClick={() => copyToClipboard(order.zoom_passcode!, "Passcode")}
+                            >
+                              <Copy className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+
+                      <div>
+                        <span className="text-sm text-muted-foreground block mb-1">Link Meeting</span>
+                        <div className="flex items-center gap-2">
+                          <code className="flex-1 bg-muted p-3 rounded-lg text-sm break-all">
+                            {order.zoom_link}
+                          </code>
+                          <Button
+                            size="icon"
+                            variant="outline"
+                            onClick={() => copyToClipboard(order.zoom_link!, "Link meeting")}
+                          >
+                            <Copy className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </div>
+
+                      <Button asChild className="w-full mt-4">
+                        <a href={order.zoom_link} target="_blank" rel="noopener noreferrer">
+                          <ExternalLink className="w-4 h-4 mr-2" />
+                          Buka Zoom Meeting
+                        </a>
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="bg-blue-50 dark:bg-blue-950/30 rounded-xl p-6 text-center">
+                      <Loader2 className="w-10 h-10 text-blue-600 animate-spin mx-auto mb-3" />
+                      <p className="font-medium text-blue-800 dark:text-blue-200">
+                        Link Zoom sedang diproses...
+                      </p>
+                      <p className="text-sm text-blue-600 dark:text-blue-300 mt-1">
+                        Link akan dikirim ke email dan WhatsApp Anda
+                      </p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Timeline Info (for paid orders) */}
+            {isPaid && order.paid_at && (
+              <Card>
+                <CardContent className="p-6">
+                  <h2 className="font-semibold text-lg mb-4">Riwayat</h2>
+                  <div className="space-y-3 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Order dibuat</span>
+                      <span>{formatDateTime(order.created_at)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Pembayaran diterima</span>
+                      <span className="text-green-600 font-medium">{formatDateTime(order.paid_at)}</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Footer Actions */}
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Button asChild variant="outline" className="flex-1">
+                <Link to="/quick-order">Buat Order Baru</Link>
+              </Button>
+              <Button asChild variant="outline" className="flex-1">
+                <Link to="/">Kembali ke Beranda</Link>
+              </Button>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <Footer />
+    </>
+  );
+}
