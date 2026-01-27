@@ -1,6 +1,8 @@
 import { useEffect, useState, useCallback } from "react";
-import { useParams, Link, useNavigate, useSearchParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
+import { format } from "date-fns";
+import { id } from "date-fns/locale";
 import { 
   CheckCircle2, 
   Copy, 
@@ -18,7 +20,8 @@ import {
   MessageSquare,
   CreditCard,
   AlertTriangle,
-  MessageCircle
+  MessageCircle,
+  Repeat
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -50,6 +53,17 @@ interface OrderDetails {
   expired_at: string | null;
   paid_at: string | null;
   created_at: string;
+  // Recurring fields
+  is_recurring: boolean | null;
+  recurrence_type: number | null;
+  repeat_interval: number | null;
+  weekly_days: number[] | null;
+  monthly_day: number | null;
+  monthly_week: number | null;
+  end_type: string | null;
+  recurrence_end_date: string | null;
+  recurrence_count: number | null;
+  total_days: number | null;
 }
 
 const formatRupiah = (amount: number) => {
@@ -477,7 +491,9 @@ export default function QuickOrderDetail() {
                   <div className="flex items-start gap-3">
                     <Calendar className="w-5 h-5 text-muted-foreground mt-0.5" />
                     <div>
-                      <p className="text-sm text-muted-foreground">Tanggal Meeting</p>
+                      <p className="text-sm text-muted-foreground">
+                        {order.is_recurring ? 'Tanggal Mulai' : 'Tanggal Meeting'}
+                      </p>
                       <p className="font-medium">
                         {formatDate(order.meeting_date)}
                         {order.meeting_time && ` • ${order.meeting_time} WIB`}
@@ -492,6 +508,24 @@ export default function QuickOrderDetail() {
                       <p className="font-medium">{order.participant_count} Peserta</p>
                     </div>
                   </div>
+
+                  {/* Recurring Info */}
+                  {order.is_recurring && order.total_days && order.total_days > 1 && (
+                    <div className="flex items-start gap-3">
+                      <Repeat className="w-5 h-5 text-muted-foreground mt-0.5" />
+                      <div>
+                        <p className="text-sm text-muted-foreground">Meeting Berulang</p>
+                        <p className="font-medium">{order.total_days} sesi meeting</p>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          {order.recurrence_type === 1 && `Setiap ${order.repeat_interval || 1} hari`}
+                          {order.recurrence_type === 2 && `Setiap ${order.repeat_interval || 1} minggu`}
+                          {order.recurrence_type === 3 && `Setiap ${order.repeat_interval || 1} bulan`}
+                          {order.end_type === 'end_date' && order.recurrence_end_date && 
+                            ` sampai ${format(new Date(order.recurrence_end_date), 'd MMM yyyy', { locale: id })}`}
+                        </p>
+                      </div>
+                    </div>
+                  )}
 
                   <Separator />
 

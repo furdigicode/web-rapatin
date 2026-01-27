@@ -1,4 +1,6 @@
-import { CalendarDays, Users, Receipt, Shield, Clock, MessageSquare, CheckCircle2 } from "lucide-react";
+import { CalendarDays, Users, Receipt, Shield, Clock, MessageSquare, CheckCircle2, Repeat } from "lucide-react";
+import { format } from "date-fns";
+import { id } from "date-fns/locale";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
@@ -16,9 +18,13 @@ interface PricingSummaryProps {
   meetingDate: Date | undefined;
   meetingTime?: string;
   price: number;
+  totalPrice?: number;
   meetingTopic?: string;
   customPasscode?: string;
   meetingSettings?: MeetingSettings;
+  isRecurring?: boolean;
+  totalDays?: number;
+  recurringDates?: Date[];
 }
 
 const formatRupiah = (amount: number) => {
@@ -39,6 +45,10 @@ const formatDate = (date: Date) => {
   }).format(date);
 };
 
+const formatShortDate = (date: Date) => {
+  return format(date, 'd MMM yyyy', { locale: id });
+};
+
 const FEATURE_LABELS: Record<keyof MeetingSettings, string> = {
   is_meeting_registration: "Registrasi Peserta",
   is_meeting_qna: "Fitur Q&A",
@@ -52,15 +62,22 @@ export function PricingSummary({
   meetingDate, 
   meetingTime, 
   price,
+  totalPrice,
   meetingTopic,
   customPasscode,
   meetingSettings,
+  isRecurring = false,
+  totalDays = 1,
+  recurringDates = [],
 }: PricingSummaryProps) {
   const activeFeatures = meetingSettings 
     ? (Object.entries(meetingSettings) as [keyof MeetingSettings, boolean][])
         .filter(([_, value]) => value)
         .map(([key]) => FEATURE_LABELS[key])
     : [];
+
+  // Use totalPrice if provided, otherwise calculate from price
+  const finalPrice = totalPrice ?? (price * totalDays);
 
   return (
     <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
@@ -96,7 +113,7 @@ export function PricingSummary({
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 text-muted-foreground">
               <CalendarDays className="w-4 h-4" />
-              <span>Tanggal</span>
+              <span>{isRecurring ? 'Tanggal Mulai' : 'Tanggal'}</span>
             </div>
             <span className="font-medium text-right">
               {meetingDate ? formatDate(meetingDate) : '-'}
@@ -123,7 +140,7 @@ export function PricingSummary({
           <Separator className="my-3" />
           
           <div className="flex items-center justify-between">
-            <span className="text-muted-foreground">Durasi</span>
+            <span className="text-muted-foreground">Durasi per Sesi</span>
             <span className="font-medium">24 Jam (Full Day)</span>
           </div>
           
@@ -131,6 +148,42 @@ export function PricingSummary({
             <span className="text-muted-foreground">Platform</span>
             <span className="font-medium">Zoom Meeting</span>
           </div>
+
+          {/* Recurring Info */}
+          {isRecurring && totalDays > 1 && (
+            <>
+              <Separator className="my-3" />
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <Repeat className="w-4 h-4" />
+                    <span>Meeting Berulang</span>
+                  </div>
+                  <Badge variant="secondary">{totalDays} sesi</Badge>
+                </div>
+
+                {/* Show first few dates */}
+                {recurringDates.length > 0 && (
+                  <div className="bg-muted/50 rounded-lg p-3 space-y-1">
+                    <span className="text-xs text-muted-foreground">Jadwal meeting:</span>
+                    <ul className="text-sm space-y-0.5">
+                      {recurringDates.slice(0, 5).map((date, index) => (
+                        <li key={index} className="flex items-center gap-2">
+                          <span className="w-4 text-xs text-muted-foreground">{index + 1}.</span>
+                          <span>{formatShortDate(date)}</span>
+                        </li>
+                      ))}
+                      {recurringDates.length > 5 && (
+                        <li className="text-xs text-muted-foreground pl-6">
+                          +{recurringDates.length - 5} jadwal lainnya
+                        </li>
+                      )}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            </>
+          )}
 
           {activeFeatures.length > 0 && (
             <>
@@ -154,11 +207,26 @@ export function PricingSummary({
           )}
           
           <Separator className="my-3" />
+
+          {/* Price Breakdown for Recurring */}
+          {isRecurring && totalDays > 1 && (
+            <div className="space-y-2 bg-muted/30 rounded-lg p-3">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">Harga per sesi</span>
+                <span>{price > 0 ? formatRupiah(price) : '-'}</span>
+              </div>
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">Jumlah sesi</span>
+                <span>×{totalDays}</span>
+              </div>
+              <Separator className="my-2" />
+            </div>
+          )}
           
           <div className="flex items-center justify-between text-lg">
             <span className="font-semibold">Total Bayar</span>
             <span className="font-bold text-primary">
-              {price > 0 ? formatRupiah(price) : '-'}
+              {finalPrice > 0 ? formatRupiah(finalPrice) : '-'}
             </span>
           </div>
         </div>
