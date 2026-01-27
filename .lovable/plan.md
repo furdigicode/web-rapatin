@@ -1,144 +1,93 @@
 
 
-# Rencana: Reorder Field Detail Meeting di Quick Order Form
+# Rencana: Set Default Tanggal dan Jam Meeting
 
 ## Ringkasan
-Mengubah urutan field di section "Detail Meeting" dan membuat Tanggal & Jam dalam satu baris horizontal, serta menetapkan default jumlah peserta ke 100.
+Menambahkan nilai default untuk field tanggal (hari ini) dan jam (jam berikutnya dari waktu saat ini) di form Quick Order.
 
 ## Perubahan yang Diperlukan
 
-### Urutan Field Baru
-
-```text
-Detail Meeting
-├── 1. Jumlah Peserta (default: 100)
-├── 2. Topik Meeting
-├── 3. Tanggal & Jam ─────────────────┐
-│      [Tanggal Meeting] [Jam Meeting]│  ← Satu baris horizontal
-│                                      ┘
-├── 4. Passcode (Opsional)
-└── 5. Pengaturan Meeting Lanjutan (Collapsible)
-```
-
 ### File yang Diubah
 
-**1. `src/components/quick-order/QuickOrderForm.tsx`**
-
-Perubahan:
-- Set default `selectedPackage` ke `100` (bukan `null`)
-- Set default `participant_count` di form ke `100`
-- Pindahkan PackageSelector ke posisi pertama di section "Detail Meeting"
-- Pindahkan field Topik Meeting dari `MeetingSettingsSection` ke `QuickOrderForm`
-- Buat wrapper `div` dengan `grid grid-cols-2 gap-4` untuk Tanggal & Jam
-- Pindahkan field Passcode dari `MeetingSettingsSection` ke `QuickOrderForm`
-- Sisakan hanya Collapsible pengaturan lanjutan di `MeetingSettingsSection`
-
-**Layout Baru:**
-```text
-<div className="space-y-4">
-  <h3>Detail Meeting</h3>
-  
-  {/* 1. Jumlah Peserta */}
-  <PackageSelector ... />
-  
-  {/* 2. Topik Meeting */}
-  <Input meeting_topic ... />
-  
-  {/* 3. Tanggal & Jam (horizontal) */}
-  <div className="grid grid-cols-2 gap-4">
-    <DatePicker meeting_date ... />
-    <TimePicker meeting_time ... />
-  </div>
-  
-  {/* 4. Passcode */}
-  <Input custom_passcode ... />
-  
-  {/* 5. Pengaturan Lanjutan */}
-  <MeetingSettingsSection ... />  <!-- Hanya berisi Collapsible -->
-</div>
-```
-
-**2. `src/components/quick-order/MeetingSettingsSection.tsx`**
-
-Perubahan:
-- Hapus field `meeting_topic` dan `custom_passcode` (dipindah ke parent)
-- Sisakan hanya Collapsible dengan 5 toggle pengaturan lanjutan
+**`src/components/quick-order/QuickOrderForm.tsx`**
 
 ### Detail Implementasi
 
-**Default 100 Peserta:**
-```typescript
-// Di QuickOrderForm.tsx
-const [selectedPackage, setSelectedPackage] = useState<number>(100);
+**1. Helper Function untuk Menghitung Jam Berikutnya:**
 
-// Di form defaultValues
+```typescript
+// Fungsi untuk mendapatkan jam berikutnya
+const getNextHour = (): string => {
+  const now = new Date();
+  let nextHour = now.getHours() + 1;
+  
+  // Jika sudah jam 23, kembali ke 00
+  if (nextHour >= 24) {
+    nextHour = 0;
+  }
+  
+  return `${nextHour.toString().padStart(2, '0')}:00`;
+};
+```
+
+**2. Update Default Values di Form:**
+
+```typescript
 const form = useForm<FormValues>({
   resolver: zodResolver(formSchema),
   defaultValues: {
-    participant_count: 100, // Default ke 100
-    // ... other defaults
+    name: "",
+    email: "",
+    whatsapp: "",
+    participant_count: 100,
+    meeting_date: new Date(), // Default: hari ini
+    meeting_time: getNextHour(), // Default: jam berikutnya
+    meeting_topic: "",
+    custom_passcode: "",
+    is_meeting_registration: false,
+    is_meeting_qna: false,
+    is_language_interpretation: false,
+    is_mute_upon_entry: false,
+    is_req_unmute_permission: false,
   },
 });
 ```
 
-**Layout Horizontal Tanggal & Jam:**
-```tsx
-<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-  {/* Tanggal Meeting */}
-  <FormField
-    name="meeting_date"
-    ...
-  />
-  
-  {/* Jam Meeting */}
-  <FormField
-    name="meeting_time"
-    ...
-  />
-</div>
+**3. Update Select Component untuk Time:**
+
+```typescript
+<Select 
+  onValueChange={field.onChange} 
+  value={field.value}  // Gunakan value bukan defaultValue
+>
 ```
 
-### Hasil Akhir UI
+### Contoh Behavior
+
+| Waktu Saat Ini | Default Jam |
+|----------------|-------------|
+| 11:19 | 12:00 |
+| 09:45 | 10:00 |
+| 23:30 | 00:00 |
+| 00:15 | 01:00 |
+
+### Hasil Akhir
 
 ```text
 ┌─────────────────────────────────────────────────┐
-│ Detail Meeting                                   │
-├─────────────────────────────────────────────────┤
-│ Jumlah Peserta                                   │
-│ ┌────┐ ┌────┐ ┌────┐ ┌─────┐                    │
-│ │100 │ │300 │ │500 │ │1000 │                    │
-│ │ ✓  │ │    │ │    │ │     │  ← Default 100     │
-│ └────┘ └────┘ └────┘ └─────┘                    │
-├─────────────────────────────────────────────────┤
-│ Topik Meeting                                    │
-│ [Team Meeting Weekly                        ]    │
+│ Tanggal & Jam                                    │
 ├─────────────────────────────────────────────────┤
 │ ┌──────────────────┐ ┌──────────────────┐       │
 │ │ Tanggal Meeting  │ │ Jam Meeting      │       │
-│ │ [Senin, 27 Jan ] │ │ [09:00      ▼]   │       │
+│ │ [Senin, 27 Jan ] │ │ [12:00      ▼]   │       │
+│ │   ← Hari ini     │ │   ← Jam berikut  │       │
 │ └──────────────────┘ └──────────────────┘       │
-├─────────────────────────────────────────────────┤
-│ Passcode (Opsional)                              │
-│ [123456                                     ]    │
-│ Kosongkan untuk auto-generate                    │
-├─────────────────────────────────────────────────┤
-│ ▼ Pengaturan Meeting Lanjutan                    │
-│   ┌─────────────────────────────────────────┐   │
-│   │ [ ] Registrasi Peserta                  │   │
-│   │ [ ] Fitur Q&A                           │   │
-│   │ [ ] Interpretasi Bahasa                 │   │
-│   │ [ ] Mute Saat Masuk                     │   │
-│   │ [ ] Minta Izin Unmute                   │   │
-│   └─────────────────────────────────────────┘   │
 └─────────────────────────────────────────────────┘
 ```
 
-## Urutan Implementasi
+### Urutan Implementasi
 
-1. Update `MeetingSettingsSection.tsx` - Hapus field topic & passcode
-2. Update `QuickOrderForm.tsx`:
-   - Set default selectedPackage ke 100
-   - Reorder fields sesuai urutan baru
-   - Tambah field topic & passcode langsung di form
-   - Buat layout horizontal untuk tanggal & jam
+1. Tambahkan helper function `getNextHour()` di atas komponen
+2. Update `defaultValues` di `useForm` untuk include `meeting_date` dan `meeting_time`
+3. Ubah `defaultValue` menjadi `value` pada Select component agar controlled
 
