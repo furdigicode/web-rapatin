@@ -19,6 +19,7 @@ interface OrderRequest {
   email: string;
   whatsapp: string;
   meeting_date: string;
+  meeting_time: string;
   participant_count: number;
 }
 
@@ -29,11 +30,11 @@ serve(async (req) => {
   }
 
   try {
-    const { name, email, whatsapp, meeting_date, participant_count } = await req.json() as OrderRequest;
+    const { name, email, whatsapp, meeting_date, meeting_time, participant_count } = await req.json() as OrderRequest;
 
     // Validation
-    if (!name || !email || !whatsapp || !meeting_date || !participant_count) {
-      console.error("Validation failed: missing required fields", { name, email, whatsapp, meeting_date, participant_count });
+    if (!name || !email || !whatsapp || !meeting_date || !meeting_time || !participant_count) {
+      console.error("Validation failed: missing required fields", { name, email, whatsapp, meeting_date, meeting_time, participant_count });
       return new Response(
         JSON.stringify({ error: 'Semua field harus diisi' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -148,6 +149,7 @@ serve(async (req) => {
         email,
         whatsapp: cleanWhatsapp,
         meeting_date,
+        meeting_time,
         participant_count,
         price,
         payment_status: 'pending',

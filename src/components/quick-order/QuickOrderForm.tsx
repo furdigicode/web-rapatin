@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
-import { CalendarIcon, Loader2 } from "lucide-react";
+import { CalendarIcon, Clock, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -23,11 +23,24 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { PackageSelector, packages } from "./PackageSelector";
 import { PricingSummary } from "./PricingSummary";
 import { PaymentMethods } from "./PaymentMethods";
+
+// Generate time options from 00:00 to 23:00
+const timeOptions = Array.from({ length: 24 }, (_, i) => {
+  const hour = i.toString().padStart(2, '0');
+  return { value: `${hour}:00`, label: `${hour}:00` };
+});
 
 const formSchema = z.object({
   name: z.string().min(2, "Nama minimal 2 karakter").max(100, "Nama maksimal 100 karakter"),
@@ -38,6 +51,9 @@ const formSchema = z.object({
     .regex(/^[0-9+]+$/, "Nomor WhatsApp hanya boleh angka"),
   meeting_date: z.date({
     required_error: "Tanggal meeting harus dipilih",
+  }),
+  meeting_time: z.string({
+    required_error: "Jam meeting harus dipilih",
   }),
   participant_count: z.number({
     required_error: "Pilih jumlah peserta",
@@ -60,8 +76,9 @@ export function QuickOrderForm() {
   });
 
   const watchedDate = form.watch("meeting_date");
+  const watchedTime = form.watch("meeting_time");
   
-  const currentPrice = selectedPackage 
+  const currentPrice = selectedPackage
     ? packages.find(p => p.participants === selectedPackage)?.promoPrice || 0 
     : 0;
 
@@ -80,6 +97,7 @@ export function QuickOrderForm() {
           email: values.email,
           whatsapp: values.whatsapp,
           meeting_date: format(values.meeting_date, 'yyyy-MM-dd'),
+          meeting_time: values.meeting_time,
           participant_count: values.participant_count,
         },
       });
@@ -210,6 +228,38 @@ export function QuickOrderForm() {
 
               <FormField
                 control={form.control}
+                name="meeting_time"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Jam Mulai Meeting</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Pilih jam meeting">
+                            {field.value && (
+                              <span className="flex items-center gap-2">
+                                <Clock className="h-4 w-4" />
+                                {field.value}
+                              </span>
+                            )}
+                          </SelectValue>
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent className="max-h-60">
+                        {timeOptions.map((option) => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
                 name="participant_count"
                 render={() => (
                   <FormItem>
@@ -232,6 +282,7 @@ export function QuickOrderForm() {
             <PricingSummary
               participantCount={selectedPackage}
               meetingDate={watchedDate}
+              meetingTime={watchedTime}
               price={currentPrice}
             />
 

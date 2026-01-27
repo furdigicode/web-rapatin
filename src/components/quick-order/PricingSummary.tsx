@@ -1,10 +1,11 @@
-import { CalendarDays, Users, Receipt, Shield } from "lucide-react";
+import { CalendarDays, Users, Receipt, Shield, Clock } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 
 interface PricingSummaryProps {
   participantCount: number | null;
   meetingDate: Date | undefined;
+  meetingTime?: string;
   price: number;
 }
 
@@ -26,7 +27,7 @@ const formatDate = (date: Date) => {
   }).format(date);
 };
 
-export function PricingSummary({ participantCount, meetingDate, price }: PricingSummaryProps) {
+export function PricingSummary({ participantCount, meetingDate, meetingTime, price }: PricingSummaryProps) {
   return (
     <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
       <CardContent className="p-6">
@@ -53,6 +54,16 @@ export function PricingSummary({ participantCount, meetingDate, price }: Pricing
             </div>
             <span className="font-medium text-right">
               {meetingDate ? formatDate(meetingDate) : '-'}
+            </span>
+          </div>
+
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <Clock className="w-4 h-4" />
+              <span>Jam Mulai</span>
+            </div>
+            <span className="font-medium">
+              {meetingTime || '-'}
             </span>
           </div>
           
