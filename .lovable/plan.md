@@ -1,174 +1,105 @@
 
-
-# Rencana: Custom Slug untuk Quick Order Detail
+# Rencana: Masking Data Email dan WhatsApp
 
 ## Ringkasan
-Mengganti penggunaan UUID Order ID dengan slug custom yang di-generate sistem menggunakan kombinasi huruf besar, kecil, dan angka sepanjang 24 karakter untuk meningkatkan keamanan akses halaman detail order.
+Menambahkan fungsi masking untuk menyembunyikan sebagian karakter pada data sensitif (email dan nomor WhatsApp) di halaman Quick Order Detail agar lebih aman jika link dibagikan atau dilihat orang lain.
 
-## Analisis Keamanan
+## Contoh Masking
 
-| Pendekatan | Entropy | Kemungkinan Tebak |
-|------------|---------|-------------------|
-| UUID (hex) | ~122 bit | Sulit, tapi bisa bocor |
-| Custom 24 char (62 alphabet) | ~143 bit | Sangat sulit ditebak |
+| Data Asli | Setelah Masking |
+|-----------|-----------------|
+| `rapatinapp@gmail.com` | `rap*****@gmail.com` |
+| `johndoe@company.co.id` | `joh****@company.co.id` |
+| `081234567890` | `0812****7890` |
+| `+6281234567890` | `+6281****7890` |
 
-Contoh slug: `A7kx9Ym2PqR5wN8vL3jB6tCs`
+## Logika Masking
 
-## Perubahan Database
+### Email Masking
+- Tampilkan 3 karakter pertama dari username
+- Ganti sisanya dengan asterisk (`*`)
+- Tampilkan domain lengkap (setelah `@`)
+- Contoh: `john.doe@example.com` → `joh*****@example.com`
 
-### Tambah Kolom Baru: `access_slug`
-```sql
-ALTER TABLE guest_orders 
-ADD COLUMN access_slug TEXT UNIQUE;
+### WhatsApp Masking
+- Tampilkan 4 digit pertama (termasuk kode negara jika ada)
+- Ganti 4 digit tengah dengan asterisk
+- Tampilkan 4 digit terakhir
+- Contoh: `081234567890` → `0812****7890`
 
--- Buat index untuk lookup cepat
-CREATE UNIQUE INDEX idx_guest_orders_access_slug ON guest_orders(access_slug);
-```
+## Perubahan File
 
-## File yang Diubah
+### File yang Diubah: `src/pages/QuickOrderDetail.tsx`
 
-### 1. Database Migration
-Tambah kolom `access_slug` ke tabel `guest_orders`
+Tambahkan 2 fungsi helper untuk masking:
 
-### 2. `supabase/functions/create-guest-order/index.ts`
-- Generate slug 24 karakter saat membuat order
-- Simpan ke kolom `access_slug`
-- Update redirect URL Xendit ke format baru
-- Return `access_slug` di response
-
-### 3. `supabase/functions/check-order-status/index.ts`
-- Ubah query untuk lookup berdasarkan `access_slug` (bukan `id`)
-- Tetap support query by `id` untuk admin
-
-### 4. `src/pages/QuickOrderDetail.tsx`
-- Ubah parameter URL dari `orderId` menjadi `slug`
-- Update fetch untuk menggunakan slug
-
-### 5. `src/components/quick-order/LegacyRedirect.tsx`
-- Update untuk handle format lama
-
-### 6. `src/App.tsx`
-- Update route pattern
-
-## Detail Implementasi
-
-### Fungsi Generate Slug (Edge Function)
 ```typescript
-function generateAccessSlug(length: number = 24): string {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  const array = new Uint8Array(length);
-  crypto.getRandomValues(array);
-  return Array.from(array, byte => chars[byte % chars.length]).join('');
-}
-```
-
-### Perubahan URL
-
-| Sebelum | Sesudah |
-|---------|---------|
-| `/quick-order/550e8400-e29b-41d4-a716-446655440000` | `/quick-order/A7kx9Ym2PqR5wN8vL3jB6tCs` |
-
-### Update create-guest-order
-```typescript
-// Generate secure access slug
-const accessSlug = generateAccessSlug(24);
-
-// Insert ke database dengan access_slug
-const { data: order, error: dbError } = await supabase
-  .from("guest_orders")
-  .insert({
-    // ... fields lainnya
-    access_slug: accessSlug,
-  })
-  .select()
-  .single();
-
-// Update Xendit redirect URLs
-success_redirect_url: `https://rapatin.lovable.app/quick-order/${accessSlug}`,
-failure_redirect_url: `https://rapatin.lovable.app/quick-order/${accessSlug}`,
-
-// Return access_slug di response
-return new Response(
-  JSON.stringify({
-    success: true,
-    order_id: order.id,
-    access_slug: accessSlug,  // Untuk redirect frontend
-    invoice_url: xenditInvoice.invoice_url,
-  }),
-  // ...
-);
-```
-
-### Update check-order-status
-```typescript
-// Query berdasarkan access_slug
-let query = supabase
-  .from('guest_orders')
-  .select('...');
-
-// Support slug (public) dan id (admin)
-const slug = url.searchParams.get('slug');
-const orderId = url.searchParams.get('order_id');
-
-if (slug) {
-  query = query.eq('access_slug', slug);
-} else if (orderId) {
-  query = query.eq('id', orderId);
-}
-```
-
-### Update QuickOrderDetail.tsx
-```typescript
-export default function QuickOrderDetail() {
-  const { slug } = useParams<{ slug: string }>();
+// Fungsi masking email
+const maskEmail = (email: string): string => {
+  const [username, domain] = email.split('@');
+  if (!domain) return email;
   
-  const fetchOrder = useCallback(async () => {
-    const response = await fetch(
-      `https://mepznzrijuoyvjcmkspf.supabase.co/functions/v1/check-order-status?slug=${slug}`,
-      // ...
-    );
-  }, [slug]);
-}
+  const visibleChars = Math.min(3, username.length);
+  const masked = username.slice(0, visibleChars) + '*'.repeat(Math.max(username.length - visibleChars, 3));
+  
+  return `${masked}@${domain}`;
+};
+
+// Fungsi masking nomor telepon/WhatsApp
+const maskPhone = (phone: string): string => {
+  // Hapus semua karakter non-digit untuk penghitungan
+  const digitsOnly = phone.replace(/\D/g, '');
+  
+  if (digitsOnly.length < 8) return phone;
+  
+  // Tampilkan 4 digit pertama dan 4 digit terakhir
+  const prefix = phone.slice(0, 4);
+  const suffix = phone.slice(-4);
+  const middleLength = phone.length - 8;
+  
+  return `${prefix}${'*'.repeat(Math.max(middleLength, 4))}${suffix}`;
+};
 ```
 
-### Update App.tsx Route
-```typescript
-// Ganti orderId dengan slug
-<Route path="/quick-order/:slug" element={<QuickOrderDetail />} />
+### Lokasi Perubahan di JSX
+
+```tsx
+// Baris 366 - Email (sebelumnya)
+<p className="font-medium">{order.email}</p>
+
+// Menjadi
+<p className="font-medium">{maskEmail(order.email)}</p>
+
+// Baris 374 - WhatsApp (sebelumnya)
+<p className="font-medium">{order.whatsapp}</p>
+
+// Menjadi
+<p className="font-medium">{maskPhone(order.whatsapp)}</p>
 ```
 
-## Alur Lengkap
+## Hasil Akhir
 
 ```text
-1. User submit Quick Order Form
-   ↓
-2. Edge function generate slug: "A7kx9Ym2PqR5wN8vL3jB6tCs"
-   ↓
-3. Simpan ke database dengan kolom access_slug
-   ↓
-4. Set Xendit redirect ke /quick-order/A7kx9Ym2PqR5wN8vL3jB6tCs
-   ↓
-5. Return slug ke frontend
-   ↓
-6. Frontend redirect ke /quick-order/A7kx9Ym2PqR5wN8vL3jB6tCs
-   ↓
-7. Halaman QuickOrderDetail fetch data via slug
+┌─────────────────────────────────────────────────┐
+│ DETAIL ORDER                                     │
+│ ├─ Nama      : John Doe                         │
+│ ├─ Email     : joh*****@gmail.com      (masked) │
+│ ├─ WhatsApp  : 0812****7890            (masked) │
+│ ├─ Topik     : Team Meeting Weekly              │
+│ └─ ...                                          │
+└─────────────────────────────────────────────────┘
 ```
 
-## Keunggulan Pendekatan Ini
+## Catatan Keamanan
 
-1. **URL Lebih Pendek**: 24 karakter vs 36 karakter UUID
-2. **Entropy Tinggi**: ~143 bit, sangat sulit ditebak secara brute-force
-3. **Tidak Bocorkan Struktur**: UUID bisa menunjukkan pola database
-4. **Backward Compatible**: Tetap bisa lookup by ID untuk keperluan admin
-5. **No Extra Auth Required**: Customer cukup punya link untuk akses
+- Masking hanya dilakukan di **frontend** untuk display
+- Data asli tetap tersimpan di database (tidak berubah)
+- Data asli tetap dikirim ke email/WhatsApp customer
+- Ini mencegah orang yang tidak berhak melihat data lengkap jika mendapat akses ke link
 
 ## Urutan Implementasi
 
-1. **Database Migration** - Tambah kolom `access_slug`
-2. **Update create-guest-order** - Generate dan simpan slug
-3. **Update check-order-status** - Query by slug
-4. **Update QuickOrderDetail.tsx** - Gunakan slug dari URL
-5. **Update App.tsx** - Ganti route parameter
-6. **Update LegacyRedirect** - Handle format lama
-
+1. Tambahkan fungsi `maskEmail()` di `QuickOrderDetail.tsx`
+2. Tambahkan fungsi `maskPhone()` di `QuickOrderDetail.tsx`
+3. Update tampilan email untuk menggunakan masking
+4. Update tampilan WhatsApp untuk menggunakan masking
