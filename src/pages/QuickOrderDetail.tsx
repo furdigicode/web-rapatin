@@ -26,6 +26,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
+import { Textarea } from "@/components/ui/textarea";
 
 interface OrderDetails {
   id: string;
@@ -77,6 +78,34 @@ const formatDateTime = (dateStr: string) => {
     hour: '2-digit',
     minute: '2-digit',
   }).format(date);
+};
+
+const formatDateForInvitation = (dateStr: string, timeStr: string | null) => {
+  const date = new Date(dateStr);
+  const options: Intl.DateTimeFormatOptions = {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  };
+  const formattedDate = date.toLocaleDateString('en-US', options);
+  const time = timeStr || '00:00';
+  return `${formattedDate} ${time} Jakarta`;
+};
+
+const generateInvitationText = (order: OrderDetails): string => {
+  const dateTime = formatDateForInvitation(order.meeting_date, order.meeting_time);
+  const topic = order.meeting_topic || 'Zoom Meeting';
+  
+  return `${order.name} is inviting you to a scheduled Zoom meeting.
+
+Topic: ${topic}
+Time: ${dateTime}
+
+Join Zoom Meeting
+${order.zoom_link}
+
+Meeting ID: ${order.meeting_id}
+Passcode: ${order.zoom_passcode}`;
 };
 
 // Masking functions for sensitive data
@@ -498,6 +527,30 @@ export default function QuickOrderDetail() {
                             <Copy className="w-4 h-4" />
                           </Button>
                         </div>
+                      </div>
+
+                      {/* Invitation Text */}
+                      <Separator />
+                      <div>
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm text-muted-foreground">Invitation</span>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => copyToClipboard(
+                              generateInvitationText(order), 
+                              "Invitation"
+                            )}
+                          >
+                            <Copy className="w-3 h-3 mr-1" />
+                            Copy
+                          </Button>
+                        </div>
+                        <Textarea
+                          readOnly
+                          value={generateInvitationText(order)}
+                          className="min-h-[180px] font-mono text-xs resize-none bg-muted cursor-default"
+                        />
                       </div>
 
                       <Button asChild className="w-full mt-4">
