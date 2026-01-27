@@ -80,9 +80,7 @@ const formatDateTime = (dateStr: string) => {
 };
 
 export default function QuickOrderDetail() {
-  const { orderId } = useParams<{ orderId: string }>();
-  const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
+  const { slug } = useParams<{ slug: string }>();
   
   const [order, setOrder] = useState<OrderDetails | null>(null);
   const [loading, setLoading] = useState(true);
@@ -90,17 +88,9 @@ export default function QuickOrderDetail() {
   const [error, setError] = useState<string | null>(null);
   const [timeLeft, setTimeLeft] = useState<string>("");
 
-  // Handle backward compatibility - redirect from old URL format
-  useEffect(() => {
-    const queryOrderId = searchParams.get('order_id');
-    if (queryOrderId && !orderId) {
-      navigate(`/quick-order/${queryOrderId}`, { replace: true });
-    }
-  }, [searchParams, orderId, navigate]);
-
   const fetchOrder = useCallback(async (showLoadingState = false) => {
-    if (!orderId) {
-      setError("Order ID tidak ditemukan");
+    if (!slug) {
+      setError("Order tidak ditemukan");
       setLoading(false);
       return;
     }
@@ -111,7 +101,7 @@ export default function QuickOrderDetail() {
 
     try {
       const response = await fetch(
-        `https://mepznzrijuoyvjcmkspf.supabase.co/functions/v1/check-order-status?order_id=${orderId}`,
+        `https://mepznzrijuoyvjcmkspf.supabase.co/functions/v1/check-order-status?slug=${slug}`,
         {
           headers: {
             'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1lcHpuenJpanVveXZqY21rc3BmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDczNzU5NDcsImV4cCI6MjA2Mjk1MTk0N30.mIGM28Ztelp6enqg36m03SB7v_Vlsruyd79Rj9mRUuA',
@@ -137,7 +127,7 @@ export default function QuickOrderDetail() {
       setLoading(false);
       setChecking(false);
     }
-  }, [orderId]);
+  }, [slug]);
 
   // Initial fetch and polling
   useEffect(() => {

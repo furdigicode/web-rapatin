@@ -14,12 +14,13 @@ serve(async (req) => {
 
   try {
     const url = new URL(req.url);
+    const slug = url.searchParams.get('slug');
     const orderId = url.searchParams.get('order_id');
     const externalId = url.searchParams.get('external_id');
 
-    if (!orderId && !externalId) {
+    if (!slug && !orderId && !externalId) {
       return new Response(
-        JSON.stringify({ error: 'order_id or external_id is required' }),
+        JSON.stringify({ error: 'slug, order_id, or external_id is required' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -31,26 +32,29 @@ serve(async (req) => {
 
     let query = supabase
       .from('guest_orders')
-      .select('id, name, email, whatsapp, meeting_date, meeting_time, meeting_topic, custom_passcode, participant_count, price, payment_status, zoom_link, zoom_passcode, meeting_id, xendit_invoice_url, expired_at, paid_at, created_at');
+      .select('id, name, email, whatsapp, meeting_date, meeting_time, meeting_topic, custom_passcode, participant_count, price, payment_status, zoom_link, zoom_passcode, meeting_id, xendit_invoice_url, expired_at, paid_at, created_at, access_slug');
 
-    if (orderId) {
+    // Priority: slug > orderId > externalId
+    if (slug) {
+      query = query.eq('access_slug', slug);
+    } else if (orderId) {
       query = query.eq('id', orderId);
     } else if (externalId) {
       // Extract invoice ID from external_id if needed
       query = query.ilike('xendit_invoice_id', `%${externalId}%`);
     }
 
-    const { data: order, error } = await query.single();
+    const { data: order, error } = await query.maybeSingle();
 
     if (error || !order) {
-      console.error("Order not found:", { orderId, externalId }, error);
+      console.error("Order not found:", { slug, orderId, externalId }, error);
       return new Response(
         JSON.stringify({ error: 'Order tidak ditemukan' }),
         { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    console.log("Order status check:", { orderId: order.id, status: order.payment_status });
+    console.log("Order status check:", { slug: order.access_slug, orderId: order.id, status: order.payment_status });
 
     return new Response(
       JSON.stringify({
