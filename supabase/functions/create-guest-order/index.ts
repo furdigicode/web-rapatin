@@ -125,56 +125,68 @@ serve(async (req) => {
       });
     }
 
-    const invoiceExternalId = `RAPATIN-${Date.now()}-${Math.random().toString(36).substring(7)}`;
-    const invoiceExpiry = new Date();
-    invoiceExpiry.setHours(invoiceExpiry.getHours() + 24); // 24 hours expiry
-
     // Generate secure access slug for the order
     const accessSlug = generateAccessSlug(24);
 
-    console.log("Creating Xendit invoice for:", { email, price, participant_count, accessSlug });
+    const sessionReferenceId = `RAPATIN-${Date.now()}-${Math.random().toString(36).substring(7)}`;
+    const customerReferenceId = `cust_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+    
+    console.log("Creating Xendit session for:", { email, price, participant_count, accessSlug, sessionReferenceId });
 
-    const xenditResponse = await fetch("https://api.xendit.co/v2/invoices", {
+    const xenditResponse = await fetch("https://api.xendit.co/sessions", {
       method: "POST",
       headers: {
         Authorization: `Basic ${btoa(xenditSecretKey + ":")}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        external_id: invoiceExternalId,
+        reference_id: sessionReferenceId,
+        session_type: "PAY",
+        mode: "PAYMENT_LINK",
         amount: price,
-        payer_email: email,
-        description: `Sewa Zoom Meeting - ${participant_count} Peserta - ${meeting_date}`,
-        invoice_duration: 86400, // 24 hours in seconds
+        currency: "IDR",
+        country: "ID",
         customer: {
-          given_names: name,
+          reference_id: customerReferenceId,
+          type: "INDIVIDUAL",
           email: email,
           mobile_number: cleanWhatsapp,
+          individual_detail: {
+            given_names: name,
+          },
         },
-        success_redirect_url: `https://rapatin.lovable.app/quick-order/${accessSlug}`,
-        failure_redirect_url: `https://rapatin.lovable.app/quick-order/${accessSlug}`,
-        currency: "IDR",
         items: [
           {
+            reference_id: `item_zoom_${participant_count}_${Date.now()}`,
             name: `Sewa Zoom ${participant_count} Peserta`,
+            description: `Meeting: ${meeting_topic} - ${meeting_date}`,
+            type: "DIGITAL_PRODUCT",
+            category: "SERVICE",
+            net_unit_amount: price,
             quantity: 1,
-            price: price,
+            currency: "IDR",
+            url: "https://rapatin.id/sewa-zoom-harian",
           },
         ],
+        capture_method: "AUTOMATIC",
+        locale: "id",
+        description: `Sewa Zoom Meeting - ${participant_count} Peserta - ${meeting_date}`,
+        success_return_url: `https://rapatin.lovable.app/quick-order/${accessSlug}`,
+        cancel_return_url: `https://rapatin.lovable.app/quick-order/${accessSlug}`,
       }),
     });
 
     if (!xenditResponse.ok) {
       const errorText = await xenditResponse.text();
-      console.error("Xendit API error:", xenditResponse.status, errorText);
-      return new Response(JSON.stringify({ error: "Gagal membuat invoice pembayaran" }), {
+      console.error("Xendit Sessions API error:", xenditResponse.status, errorText);
+      return new Response(JSON.stringify({ error: "Gagal membuat payment session" }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    const xenditInvoice = await xenditResponse.json();
-    console.log("Xendit invoice created:", xenditInvoice.id);
+    const xenditSession = await xenditResponse.json();
+    console.log("Xendit session created:", xenditSession.id, "URL:", xenditSession.payment_link_url);
 
     // Save order to database
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
@@ -192,9 +204,9 @@ serve(async (req) => {
         participant_count,
         price,
         payment_status: "pending",
-        xendit_invoice_id: xenditInvoice.id,
-        xendit_invoice_url: xenditInvoice.invoice_url,
-        expired_at: invoiceExpiry.toISOString(),
+        xendit_invoice_id: xenditSession.id,
+        xendit_invoice_url: xenditSession.payment_link_url,
+        expired_at: xenditSession.expires_at || new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
         meeting_topic,
         custom_passcode: custom_passcode || null,
         is_meeting_registration: is_meeting_registration || false,
@@ -222,9 +234,9 @@ serve(async (req) => {
         success: true,
         order_id: order.id,
         access_slug: accessSlug,
-        external_id: invoiceExternalId,
-        invoice_url: xenditInvoice.invoice_url,
-        expired_at: invoiceExpiry.toISOString(),
+        session_id: xenditSession.id,
+        invoice_url: xenditSession.payment_link_url,
+        expired_at: xenditSession.expires_at || new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
