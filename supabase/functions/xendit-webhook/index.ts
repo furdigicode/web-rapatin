@@ -74,6 +74,11 @@ interface CreateScheduleParams {
   passcode: string;
   startDate: string;
   startTime: string;
+  isMeetingRegistration: boolean;
+  isMeetingQna: boolean;
+  isLanguageInterpretation: boolean;
+  isMuteUponEntry: boolean;
+  isReqUnmutePermission: boolean;
 }
 
 interface RapatinScheduleResponse {
@@ -106,11 +111,11 @@ async function createRapatinSchedule(params: CreateScheduleParams): Promise<Rapa
         start_date: params.startDate,
         start_time: params.startTime,
         recurring: false,
-        is_meeting_registration: false,
-        is_meeting_qna: false,
-        is_language_interpretation: false,
-        is_mute_participant_upon_entry: false,
-        is_req_permission_to_unmute_participants: false,
+        is_meeting_registration: params.isMeetingRegistration,
+        is_meeting_qna: params.isMeetingQna,
+        is_language_interpretation: params.isLanguageInterpretation,
+        is_mute_participant_upon_entry: params.isMuteUponEntry,
+        is_req_permission_to_unmute_participants: params.isReqUnmutePermission,
       }),
     });
 
@@ -241,17 +246,23 @@ serve(async (req) => {
         const productId = PARTICIPANT_TO_PRODUCT_ID[order.participant_count];
         
         if (productId) {
-          // Step 3: Generate passcode and create schedule
-          const passcode = generatePasscode();
+          // Step 3: Use custom passcode or generate one
+          const passcode = order.custom_passcode || generatePasscode();
           const meetingTime = order.meeting_time || '09:00'; // Default to 09:00 if not set
+          const topic = order.meeting_topic || `Quick Order - ${order.name}`;
           
           const scheduleResult = await createRapatinSchedule({
             token: rapatinToken,
             productId,
-            topic: `Quick Order - ${order.name}`,
+            topic,
             passcode,
             startDate: order.meeting_date,
             startTime: meetingTime,
+            isMeetingRegistration: order.is_meeting_registration || false,
+            isMeetingQna: order.is_meeting_qna || false,
+            isLanguageInterpretation: order.is_language_interpretation || false,
+            isMuteUponEntry: order.is_mute_upon_entry || false,
+            isReqUnmutePermission: order.is_req_unmute_permission || false,
           });
 
           if (scheduleResult) {

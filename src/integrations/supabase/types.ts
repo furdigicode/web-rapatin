@@ -290,12 +290,19 @@ export type Database = {
       guest_orders: {
         Row: {
           created_at: string
+          custom_passcode: string | null
           email: string
           expired_at: string | null
           id: string
+          is_language_interpretation: boolean | null
+          is_meeting_qna: boolean | null
+          is_meeting_registration: boolean | null
+          is_mute_upon_entry: boolean | null
+          is_req_unmute_permission: boolean | null
           meeting_date: string
           meeting_id: string | null
           meeting_time: string | null
+          meeting_topic: string | null
           name: string
           paid_at: string | null
           participant_count: number
@@ -312,12 +319,19 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          custom_passcode?: string | null
           email: string
           expired_at?: string | null
           id?: string
+          is_language_interpretation?: boolean | null
+          is_meeting_qna?: boolean | null
+          is_meeting_registration?: boolean | null
+          is_mute_upon_entry?: boolean | null
+          is_req_unmute_permission?: boolean | null
           meeting_date: string
           meeting_id?: string | null
           meeting_time?: string | null
+          meeting_topic?: string | null
           name: string
           paid_at?: string | null
           participant_count: number
@@ -334,12 +348,19 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          custom_passcode?: string | null
           email?: string
           expired_at?: string | null
           id?: string
+          is_language_interpretation?: boolean | null
+          is_meeting_qna?: boolean | null
+          is_meeting_registration?: boolean | null
+          is_mute_upon_entry?: boolean | null
+          is_req_unmute_permission?: boolean | null
           meeting_date?: string
           meeting_id?: string | null
           meeting_time?: string | null
+          meeting_topic?: string | null
           name?: string
           paid_at?: string | null
           participant_count?: number

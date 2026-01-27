@@ -21,6 +21,13 @@ interface OrderRequest {
   meeting_date: string;
   meeting_time: string;
   participant_count: number;
+  meeting_topic: string;
+  custom_passcode?: string | null;
+  is_meeting_registration?: boolean;
+  is_meeting_qna?: boolean;
+  is_language_interpretation?: boolean;
+  is_mute_upon_entry?: boolean;
+  is_req_unmute_permission?: boolean;
 }
 
 serve(async (req) => {
@@ -30,11 +37,25 @@ serve(async (req) => {
   }
 
   try {
-    const { name, email, whatsapp, meeting_date, meeting_time, participant_count } = await req.json() as OrderRequest;
+    const { 
+      name, 
+      email, 
+      whatsapp, 
+      meeting_date, 
+      meeting_time, 
+      participant_count,
+      meeting_topic,
+      custom_passcode,
+      is_meeting_registration,
+      is_meeting_qna,
+      is_language_interpretation,
+      is_mute_upon_entry,
+      is_req_unmute_permission,
+    } = await req.json() as OrderRequest;
 
     // Validation
-    if (!name || !email || !whatsapp || !meeting_date || !meeting_time || !participant_count) {
-      console.error("Validation failed: missing required fields", { name, email, whatsapp, meeting_date, meeting_time, participant_count });
+    if (!name || !email || !whatsapp || !meeting_date || !meeting_time || !participant_count || !meeting_topic) {
+      console.error("Validation failed: missing required fields", { name, email, whatsapp, meeting_date, meeting_time, participant_count, meeting_topic });
       return new Response(
         JSON.stringify({ error: 'Semua field harus diisi' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -156,6 +177,13 @@ serve(async (req) => {
         xendit_invoice_id: xenditInvoice.id,
         xendit_invoice_url: xenditInvoice.invoice_url,
         expired_at: invoiceExpiry.toISOString(),
+        meeting_topic,
+        custom_passcode: custom_passcode || null,
+        is_meeting_registration: is_meeting_registration || false,
+        is_meeting_qna: is_meeting_qna || false,
+        is_language_interpretation: is_language_interpretation || false,
+        is_mute_upon_entry: is_mute_upon_entry || false,
+        is_req_unmute_permission: is_req_unmute_permission || false,
       })
       .select()
       .single();
