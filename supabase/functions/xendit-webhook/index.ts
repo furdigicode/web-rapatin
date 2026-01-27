@@ -6,6 +6,139 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-callback-token',
 };
 
+// Map participant count to Rapatin product_id
+const PARTICIPANT_TO_PRODUCT_ID: Record<number, number> = {
+  100: 1,
+  300: 2,
+  500: 3,
+  1000: 4,
+};
+
+// Generate 6 digit random passcode
+function generatePasscode(): string {
+  return Math.random().toString().slice(2, 8).padStart(6, '0');
+}
+
+// Login to Rapatin API and get access token
+async function loginToRapatin(): Promise<string | null> {
+  const email = Deno.env.get('RAPATIN_EMAIL');
+  const password = Deno.env.get('RAPATIN_PASSWORD');
+
+  if (!email || !password) {
+    console.error("RAPATIN_EMAIL or RAPATIN_PASSWORD not configured");
+    return null;
+  }
+
+  console.log("Attempting to login to Rapatin API...");
+
+  try {
+    const response = await fetch('https://api.rapatin.id/auth/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: JSON.stringify({
+        email,
+        password,
+        device: 'webhook',
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Rapatin login failed:", response.status, errorText);
+      return null;
+    }
+
+    const result = await response.json();
+    
+    if (result.response?.status === 'success' && result.data?.token) {
+      console.log("Rapatin login successful");
+      return result.data.token;
+    }
+
+    console.error("Rapatin login response missing token:", JSON.stringify(result));
+    return null;
+  } catch (error) {
+    console.error("Rapatin login error:", error);
+    return null;
+  }
+}
+
+// Create schedule in Rapatin API
+interface CreateScheduleParams {
+  token: string;
+  productId: number;
+  topic: string;
+  passcode: string;
+  startDate: string;
+  startTime: string;
+}
+
+interface RapatinScheduleResponse {
+  id?: string;
+  join_url?: string;
+  passcode?: string;
+  meeting_id?: string;
+}
+
+async function createRapatinSchedule(params: CreateScheduleParams): Promise<RapatinScheduleResponse | null> {
+  console.log("Creating Rapatin schedule:", {
+    productId: params.productId,
+    topic: params.topic,
+    startDate: params.startDate,
+    startTime: params.startTime,
+  });
+
+  try {
+    const response = await fetch('https://api.rapatin.id/schedules', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${params.token}`,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: JSON.stringify({
+        product_id: params.productId,
+        topic: params.topic,
+        passcode: params.passcode,
+        start_date: params.startDate,
+        start_time: params.startTime,
+        recurring: false,
+        is_meeting_registration: false,
+        is_meeting_qna: false,
+        is_language_interpretation: false,
+        is_mute_participant_upon_entry: false,
+        is_req_permission_to_unmute_participants: false,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Rapatin create schedule failed:", response.status, errorText);
+      return null;
+    }
+
+    const result = await response.json();
+    console.log("Rapatin create schedule response:", JSON.stringify(result));
+
+    if (result.data) {
+      return {
+        id: result.data.id?.toString(),
+        join_url: result.data.join_url,
+        passcode: result.data.passcode,
+        meeting_id: result.data.meeting_id?.toString(),
+      };
+    }
+
+    return null;
+  } catch (error) {
+    console.error("Rapatin create schedule error:", error);
+    return null;
+  }
+}
+
 serve(async (req) => {
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
@@ -36,7 +169,7 @@ serve(async (req) => {
     const payload = await req.json();
     console.log("Received Xendit webhook:", JSON.stringify(payload));
 
-    const { id, external_id, status, paid_at } = payload;
+    const { id, status, paid_at } = payload;
 
     if (!id) {
       console.error("Missing invoice id in webhook payload");
@@ -87,7 +220,7 @@ serve(async (req) => {
 
     console.log("Updating order status:", { orderId: order.id, status: paymentStatus });
 
-    // Update order status
+    // Prepare update data
     const updateData: Record<string, unknown> = {
       payment_status: paymentStatus,
     };
@@ -98,40 +231,50 @@ serve(async (req) => {
 
     // If payment is successful, call Rapatin API to create meeting
     if (paymentStatus === 'paid') {
-      console.log("Payment successful, preparing to call Rapatin API...");
+      console.log("Payment successful, calling Rapatin API to create meeting...");
       
-      // TODO: Integrate with Rapatin API
-      // The Rapatin API integration will be added later
-      // For now, we'll just mark as paid and store placeholder data
+      // Step 1: Login to Rapatin
+      const rapatinToken = await loginToRapatin();
       
-      // Placeholder for Rapatin API integration
-      // const rapatinApiUrl = Deno.env.get('RAPATIN_API_URL');
-      // const rapatinApiKey = Deno.env.get('RAPATIN_API_KEY');
-      // 
-      // const rapatinResponse = await fetch(`${rapatinApiUrl}/create-meeting`, {
-      //   method: 'POST',
-      //   headers: {
-      //     'Authorization': `Bearer ${rapatinApiKey}`,
-      //     'Content-Type': 'application/json',
-      //   },
-      //   body: JSON.stringify({
-      //     name: order.name,
-      //     email: order.email,
-      //     whatsapp: order.whatsapp,
-      //     meeting_date: order.meeting_date,
-      //     participant_count: order.participant_count,
-      //   }),
-      // });
-      // 
-      // if (rapatinResponse.ok) {
-      //   const rapatinData = await rapatinResponse.json();
-      //   updateData.rapatin_order_id = rapatinData.order_id;
-      //   updateData.zoom_link = rapatinData.zoom_link;
-      //   updateData.zoom_passcode = rapatinData.passcode;
-      //   updateData.meeting_id = rapatinData.meeting_id;
-      // }
+      if (rapatinToken) {
+        // Step 2: Map participant count to product ID
+        const productId = PARTICIPANT_TO_PRODUCT_ID[order.participant_count];
+        
+        if (productId) {
+          // Step 3: Generate passcode and create schedule
+          const passcode = generatePasscode();
+          const meetingTime = order.meeting_time || '09:00'; // Default to 09:00 if not set
+          
+          const scheduleResult = await createRapatinSchedule({
+            token: rapatinToken,
+            productId,
+            topic: `Quick Order - ${order.name}`,
+            passcode,
+            startDate: order.meeting_date,
+            startTime: meetingTime,
+          });
 
-      console.log("Rapatin API integration pending - order marked as paid");
+          if (scheduleResult) {
+            // Step 4: Save Rapatin response to database
+            updateData.rapatin_order_id = scheduleResult.id;
+            updateData.zoom_link = scheduleResult.join_url;
+            updateData.zoom_passcode = scheduleResult.passcode || passcode;
+            updateData.meeting_id = scheduleResult.meeting_id;
+            
+            console.log("Rapatin schedule created successfully:", {
+              rapatin_order_id: scheduleResult.id,
+              meeting_id: scheduleResult.meeting_id,
+              has_zoom_link: !!scheduleResult.join_url,
+            });
+          } else {
+            console.error("Failed to create Rapatin schedule - order will be marked as paid but needs manual follow-up");
+          }
+        } else {
+          console.error("Invalid participant count, cannot map to product ID:", order.participant_count);
+        }
+      } else {
+        console.error("Failed to login to Rapatin API - order will be marked as paid but needs manual follow-up");
+      }
     }
 
     const { error: updateError } = await supabase
@@ -147,7 +290,11 @@ serve(async (req) => {
       );
     }
 
-    console.log("Order updated successfully:", order.id);
+    console.log("Order updated successfully:", order.id, {
+      payment_status: paymentStatus,
+      has_zoom_link: !!updateData.zoom_link,
+      has_rapatin_order_id: !!updateData.rapatin_order_id,
+    });
 
     return new Response(
       JSON.stringify({ success: true }),

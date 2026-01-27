@@ -295,6 +295,7 @@ export type Database = {
           id: string
           meeting_date: string
           meeting_id: string | null
+          meeting_time: string | null
           name: string
           paid_at: string | null
           participant_count: number
@@ -316,6 +317,7 @@ export type Database = {
           id?: string
           meeting_date: string
           meeting_id?: string | null
+          meeting_time?: string | null
           name: string
           paid_at?: string | null
           participant_count: number
@@ -337,6 +339,7 @@ export type Database = {
           id?: string
           meeting_date?: string
           meeting_id?: string | null
+          meeting_time?: string | null
           name?: string
           paid_at?: string | null
           participant_count?: number
