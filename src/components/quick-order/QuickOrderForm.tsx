@@ -43,6 +43,18 @@ const timeOptions = Array.from({ length: 24 }, (_, i) => {
   return { value: `${hour}:00`, label: `${hour}:00` };
 });
 
+// Helper function to get next hour
+const getNextHour = (): string => {
+  const now = new Date();
+  let nextHour = now.getHours() + 1;
+  
+  if (nextHour >= 24) {
+    nextHour = 0;
+  }
+  
+  return `${nextHour.toString().padStart(2, '0')}:00`;
+};
+
 const formSchema = z.object({
   name: z.string().min(2, "Nama minimal 2 karakter").max(100, "Nama maksimal 100 karakter"),
   email: z.string().email("Format email tidak valid").max(255, "Email maksimal 255 karakter"),
@@ -87,6 +99,8 @@ export function QuickOrderForm() {
       email: "",
       whatsapp: "",
       participant_count: 100,
+      meeting_date: new Date(),
+      meeting_time: getNextHour(),
       meeting_topic: "",
       custom_passcode: "",
       is_meeting_registration: false,
@@ -308,7 +322,7 @@ export function QuickOrderForm() {
                   render={({ field }) => (
                     <FormItem className="flex flex-col">
                       <FormLabel>Jam Mulai</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
                           <SelectTrigger className="w-full">
                             <SelectValue placeholder="Pilih jam">
