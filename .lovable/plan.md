@@ -1,177 +1,120 @@
 
-# Rencana: Update Webhook Handler untuk Sessions API v3
+# Rencana: Fix Field Mapping untuk Xendit Sessions API Response
 
 ## Masalah yang Ditemukan
 
-Dari log, webhook menerima payload dengan benar tapi gagal memprosesnya:
-```
-ERROR Missing invoice id in webhook payload
-```
-
-### Perbedaan Struktur Payload
-
-| Aspek | Invoice API v2 (Lama) | Sessions API v3 (Baru) |
-|-------|----------------------|------------------------|
-| Event Type | Tidak ada (implicit) | `payload.event` |
-| ID | `payload.id` | `payload.data.payment_session_id` |
-| Status | `payload.status` | `payload.data.status` |
-| Timestamp | `payload.paid_at` | `payload.data.updated` |
-| Reference | Tidak ada | `payload.data.reference_id` |
-
-### Contoh Payload Sessions API v3
-
+Dari response Xendit Sessions API yang Anda berikan:
 ```json
 {
-  "event": "payment_session.completed",
-  "data": {
-    "payment_session_id": "ps-697885f20a1f5b668283874b",
-    "reference_id": "RAPATIN-1769506290119-l1cd5f",
-    "status": "COMPLETED",
-    "updated": "2026-01-27T09:33:13.945Z"
-  }
+  "payment_session_id": "ps-6978810524bd52c791bb51fe",
+  "payment_link_url": "https://xen.to/ER9eZwcQ",
+  "expires_at": "2026-01-27T09:40:29.305Z"
 }
 ```
+
+**Root Cause**: Kode saat ini menggunakan `xenditSession.id` yang **tidak ada** di response. Field yang benar adalah `payment_session_id`.
+
+## Perbandingan Field
+
+| Field yang Digunakan (Salah) | Field yang Benar |
+|------------------------------|------------------|
+| `xenditSession.id` | `xenditSession.payment_session_id` |
+| `xenditSession.expires_at` | `xenditSession.expires_at` ✓ (sudah benar) |
+| `xenditSession.payment_link_url` | `xenditSession.payment_link_url` ✓ (sudah benar) |
 
 ## File yang Diubah
 
-### `supabase/functions/xendit-webhook/index.ts`
+### `supabase/functions/create-guest-order/index.ts`
 
-## Perubahan Utama
+## Perubahan Kode
 
-### 1. Deteksi Format Payload (v2 vs v3)
-
-Menambahkan logika untuk mendeteksi apakah payload dari Invoice API atau Sessions API:
+### 1. Tambah Logging Response Lengkap (Line ~135)
 
 ```typescript
-// Detect if this is Sessions API v3 (has 'event' and 'data' fields)
-const isSessionsApi = payload.event && payload.data;
+const xenditSession = await xenditResponse.json();
+console.log("Xendit full response:", JSON.stringify(xenditSession));
 ```
 
-### 2. Ekstrak Data Berdasarkan Format
+### 2. Fix Session ID Extraction (Line ~136-145)
 
-**Untuk Sessions API v3:**
+**Sebelum:**
 ```typescript
-if (isSessionsApi) {
-  const { event, data } = payload;
-  
-  // Handle different session events
-  if (event === 'payment_session.completed') {
-    sessionId = data.payment_session_id;
-    status = data.status; // COMPLETED
-    paidAt = data.updated;
-  } else if (event === 'payment_session.expired') {
-    sessionId = data.payment_session_id;
-    status = 'EXPIRED';
-  }
+console.log("Xendit session created:", xenditSession.id, "URL:", xenditSession.payment_link_url);
+```
+
+**Sesudah:**
+```typescript
+// Xendit Sessions API returns payment_session_id, not id
+const sessionId = xenditSession.payment_session_id;
+
+if (!sessionId) {
+  console.error("No payment_session_id in Xendit response:", xenditSession);
+  return new Response(JSON.stringify({ error: "Invalid payment session response" }), {
+    status: 500,
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
+  });
 }
+
+console.log("Xendit session created:", sessionId, "URL:", xenditSession.payment_link_url);
 ```
 
-**Fallback untuk Invoice API v2 (backward compatible):**
+### 3. Update Database Insert (Line ~160)
+
+**Sebelum:**
 ```typescript
-else {
-  // Legacy Invoice API format
-  sessionId = payload.id;
-  status = payload.status;
-  paidAt = payload.paid_at;
-}
+xendit_invoice_id: xenditSession.id,
 ```
 
-### 3. Update Mapping Status
-
-Sessions API v3 menggunakan status yang berbeda:
-
-| Sessions API v3 | Mapping ke Database |
-|-----------------|---------------------|
-| `COMPLETED` | `paid` |
-| `EXPIRED` | `expired` |
-| `FAILED` | `failed` |
-| Lainnya | `pending` |
-
+**Sesudah:**
 ```typescript
-let paymentStatus = 'pending';
-if (status === 'COMPLETED') {
-  paymentStatus = 'paid';
-} else if (status === 'EXPIRED') {
-  paymentStatus = 'expired';
-} else if (status === 'FAILED') {
-  paymentStatus = 'failed';
-}
+xendit_invoice_id: sessionId,
 ```
 
-### 4. Update Query Database
+### 4. Update Response (Line ~185)
 
-Karena kita menyimpan `payment_session_id` di kolom `xendit_invoice_id`:
-
+**Sebelum:**
 ```typescript
-const { data: order, error: findError } = await supabase
-  .from('guest_orders')
-  .select('*')
-  .eq('xendit_invoice_id', sessionId)
-  .single();
+session_id: xenditSession.id,
 ```
 
-### 5. Handle paid_at
-
-Sessions API v3 tidak memiliki `paid_at` field, tapi ada `updated`:
-
+**Sesudah:**
 ```typescript
-if (paymentStatus === 'paid') {
-  updateData.paid_at = paidAt || new Date().toISOString();
-}
+session_id: sessionId,
 ```
 
-## Alur Lengkap Setelah Update
+## Ringkasan Perubahan
+
+| Lokasi | Perubahan |
+|--------|-----------|
+| Line ~135 | Tambah full response logging |
+| Line ~136-145 | Extract `payment_session_id` dengan validasi |
+| Line ~160 | Gunakan `sessionId` untuk database insert |
+| Line ~185 | Gunakan `sessionId` untuk response |
+
+## Alur Setelah Fix
 
 ```text
-1. Xendit mengirim webhook dengan event "payment_session.completed"
+1. User submit Quick Order form
    ↓
-2. Webhook handler menerima dan log payload
+2. create-guest-order calls Xendit Sessions API
    ↓
-3. Deteksi: payload.event exists → Sessions API v3
+3. Response: { payment_session_id: "ps-xxx", payment_link_url: "..." }
    ↓
-4. Ekstrak: payment_session_id, status, updated dari payload.data
+4. Extract: sessionId = response.payment_session_id ✓
    ↓
-5. Query database: WHERE xendit_invoice_id = payment_session_id
+5. Save to DB: guest_orders.xendit_invoice_id = "ps-xxx" ✓
    ↓
-6. Update order status: payment_status = 'paid'
+6. Webhook receives: data.payment_session_id = "ps-xxx"
    ↓
-7. Jika paid → Call Rapatin API untuk buat meeting
+7. Query: WHERE xendit_invoice_id = "ps-xxx" → MATCH! ✓
    ↓
-8. Return success response
+8. Update order status to 'paid', create Rapatin meeting
 ```
 
-## Event Types yang Di-handle
+## Testing Setelah Deploy
 
-| Event | Action |
-|-------|--------|
-| `payment_session.completed` | Update status ke `paid`, buat meeting Rapatin |
-| `payment_session.expired` | Update status ke `expired` |
-| `payment_session.failed` | Update status ke `failed` |
-
-## Backward Compatibility
-
-Handler tetap mendukung format Invoice API v2 jika masih ada webhook lama yang terkirim. Ini dilakukan dengan pengecekan keberadaan field `event`:
-
-```typescript
-if (payload.event && payload.data) {
-  // Sessions API v3
-} else {
-  // Invoice API v2 (legacy)
-}
-```
-
-## Urutan Implementasi
-
-1. Update parsing payload untuk detect Sessions API v3
-2. Ekstrak `payment_session_id` dan `status` dari `payload.data`
-3. Update status mapping (COMPLETED → paid)
-4. Keep backward compatibility untuk Invoice API v2
-5. Deploy dan test dengan simulasi webhook
-
-## Testing
-
-Setelah deploy, simulasi pembayaran lagi untuk memastikan:
-- Webhook diterima dan diproses dengan benar
-- Order status terupdate ke `paid`
-- Meeting Rapatin berhasil dibuat
-- Zoom link tersimpan di database
+1. Buat Quick Order baru
+2. Cek log: pastikan `payment_session_id` ter-log dengan benar
+3. Cek database: pastikan `xendit_invoice_id` tidak null
+4. Lakukan pembayaran test
+5. Verifikasi webhook berhasil update status order
