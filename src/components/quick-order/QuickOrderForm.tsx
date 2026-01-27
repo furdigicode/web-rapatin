@@ -35,6 +35,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { PackageSelector, packages } from "./PackageSelector";
 import { PricingSummary } from "./PricingSummary";
 import { PaymentMethods } from "./PaymentMethods";
+import { MeetingSettingsSection } from "./MeetingSettingsSection";
 
 // Generate time options from 00:00 to 23:00
 const timeOptions = Array.from({ length: 24 }, (_, i) => {
@@ -58,6 +59,19 @@ const formSchema = z.object({
   participant_count: z.number({
     required_error: "Pilih jumlah peserta",
   }),
+  meeting_topic: z.string()
+    .min(3, "Topik minimal 3 karakter")
+    .max(200, "Topik maksimal 200 karakter"),
+  custom_passcode: z.string()
+    .max(10, "Passcode maksimal 10 karakter")
+    .regex(/^[a-zA-Z0-9]*$/, "Passcode hanya boleh huruf dan angka")
+    .optional()
+    .or(z.literal('')),
+  is_meeting_registration: z.boolean().default(false),
+  is_meeting_qna: z.boolean().default(false),
+  is_language_interpretation: z.boolean().default(false),
+  is_mute_upon_entry: z.boolean().default(false),
+  is_req_unmute_permission: z.boolean().default(false),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -72,11 +86,27 @@ export function QuickOrderForm() {
       name: "",
       email: "",
       whatsapp: "",
+      meeting_topic: "",
+      custom_passcode: "",
+      is_meeting_registration: false,
+      is_meeting_qna: false,
+      is_language_interpretation: false,
+      is_mute_upon_entry: false,
+      is_req_unmute_permission: false,
     },
   });
 
   const watchedDate = form.watch("meeting_date");
   const watchedTime = form.watch("meeting_time");
+  const watchedTopic = form.watch("meeting_topic");
+  const watchedPasscode = form.watch("custom_passcode");
+  const watchedMeetingSettings = {
+    is_meeting_registration: form.watch("is_meeting_registration"),
+    is_meeting_qna: form.watch("is_meeting_qna"),
+    is_language_interpretation: form.watch("is_language_interpretation"),
+    is_mute_upon_entry: form.watch("is_mute_upon_entry"),
+    is_req_unmute_permission: form.watch("is_req_unmute_permission"),
+  };
   
   const currentPrice = selectedPackage
     ? packages.find(p => p.participants === selectedPackage)?.promoPrice || 0 
@@ -99,6 +129,13 @@ export function QuickOrderForm() {
           meeting_date: format(values.meeting_date, 'yyyy-MM-dd'),
           meeting_time: values.meeting_time,
           participant_count: values.participant_count,
+          meeting_topic: values.meeting_topic,
+          custom_passcode: values.custom_passcode || null,
+          is_meeting_registration: values.is_meeting_registration,
+          is_meeting_qna: values.is_meeting_qna,
+          is_language_interpretation: values.is_language_interpretation,
+          is_mute_upon_entry: values.is_mute_upon_entry,
+          is_req_unmute_permission: values.is_req_unmute_permission,
         },
       });
 
@@ -274,6 +311,8 @@ export function QuickOrderForm() {
                   </FormItem>
                 )}
               />
+
+              <MeetingSettingsSection control={form.control} />
             </div>
           </div>
 
@@ -284,6 +323,9 @@ export function QuickOrderForm() {
               meetingDate={watchedDate}
               meetingTime={watchedTime}
               price={currentPrice}
+              meetingTopic={watchedTopic}
+              customPasscode={watchedPasscode}
+              meetingSettings={watchedMeetingSettings}
             />
 
             <Button
