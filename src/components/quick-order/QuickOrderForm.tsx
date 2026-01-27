@@ -78,7 +78,7 @@ type FormValues = z.infer<typeof formSchema>;
 
 export function QuickOrderForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [selectedPackage, setSelectedPackage] = useState<number | null>(null);
+  const [selectedPackage, setSelectedPackage] = useState<number>(100);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -86,6 +86,7 @@ export function QuickOrderForm() {
       name: "",
       email: "",
       whatsapp: "",
+      participant_count: 100,
       meeting_topic: "",
       custom_passcode: "",
       is_meeting_registration: false,
@@ -222,79 +223,7 @@ export function QuickOrderForm() {
             <div className="space-y-4">
               <h3 className="font-semibold text-lg">Detail Meeting</h3>
               
-              <FormField
-                control={form.control}
-                name="meeting_date"
-                render={({ field }) => (
-                  <FormItem className="flex flex-col">
-                    <FormLabel>Tanggal Meeting</FormLabel>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <FormControl>
-                          <Button
-                            variant="outline"
-                            className={cn(
-                              "w-full pl-3 text-left font-normal",
-                              !field.value && "text-muted-foreground"
-                            )}
-                          >
-                            {field.value ? (
-                              format(field.value, "EEEE, dd MMMM yyyy", { locale: id })
-                            ) : (
-                              <span>Pilih tanggal meeting</span>
-                            )}
-                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                          </Button>
-                        </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={field.value}
-                          onSelect={field.onChange}
-                          disabled={disabledDays}
-                          initialFocus
-                          className="pointer-events-auto"
-                        />
-                      </PopoverContent>
-                    </Popover>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="meeting_time"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Jam Mulai Meeting</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Pilih jam meeting">
-                            {field.value && (
-                              <span className="flex items-center gap-2">
-                                <Clock className="h-4 w-4" />
-                                {field.value}
-                              </span>
-                            )}
-                          </SelectValue>
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent className="max-h-60">
-                        {timeOptions.map((option) => (
-                          <SelectItem key={option.value} value={option.value}>
-                            {option.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
+              {/* 1. Jumlah Peserta */}
               <FormField
                 control={form.control}
                 name="participant_count"
@@ -312,6 +241,123 @@ export function QuickOrderForm() {
                 )}
               />
 
+              {/* 2. Topik Meeting */}
+              <FormField
+                control={form.control}
+                name="meeting_topic"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Topik Meeting</FormLabel>
+                    <FormControl>
+                      <Input 
+                        placeholder="Contoh: Team Meeting Weekly" 
+                        {...field} 
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* 3. Tanggal & Jam (horizontal) */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="meeting_date"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <FormLabel>Tanggal Meeting</FormLabel>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button
+                              variant="outline"
+                              className={cn(
+                                "w-full pl-3 text-left font-normal",
+                                !field.value && "text-muted-foreground"
+                              )}
+                            >
+                              {field.value ? (
+                                format(field.value, "EEEE, dd MMMM yyyy", { locale: id })
+                              ) : (
+                                <span>Pilih tanggal</span>
+                              )}
+                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={field.value}
+                            onSelect={field.onChange}
+                            disabled={disabledDays}
+                            initialFocus
+                            className="pointer-events-auto"
+                          />
+                        </PopoverContent>
+                      </Popover>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="meeting_time"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <FormLabel>Jam Mulai</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Pilih jam">
+                              {field.value && (
+                                <span className="flex items-center gap-2">
+                                  <Clock className="h-4 w-4" />
+                                  {field.value}
+                                </span>
+                              )}
+                            </SelectValue>
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent className="max-h-60">
+                          {timeOptions.map((option) => (
+                            <SelectItem key={option.value} value={option.value}>
+                              {option.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              {/* 4. Passcode */}
+              <FormField
+                control={form.control}
+                name="custom_passcode"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Passcode (Opsional)</FormLabel>
+                    <FormControl>
+                      <Input 
+                        placeholder="Contoh: 123456" 
+                        maxLength={10}
+                        {...field} 
+                      />
+                    </FormControl>
+                    <p className="text-xs text-muted-foreground">
+                      Kosongkan untuk auto-generate passcode
+                    </p>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* 5. Pengaturan Lanjutan */}
               <MeetingSettingsSection control={form.control} />
             </div>
           </div>
