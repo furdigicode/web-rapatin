@@ -1,167 +1,159 @@
 
-# Rencana: Tambah Invitation Text Area pada Detail Order
+# Rencana: Tangkap & Tampilkan Metode Pembayaran dari Webhook
 
-## Ringkasan
-Menambahkan section "Invitation" dengan text area berisi format undangan meeting yang sudah terformat, lengkap dengan tombol copy. Text area akan menggunakan nama pembeli sebagai nama yang mengundang.
+## Analisis Webhook
 
-## Format Undangan
+### Perbandingan 2 Event Webhook
 
-Berdasarkan contoh yang diberikan:
+| Aspek | `payment_session.completed` | `payment.capture` |
+|-------|---------------------------|-------------------|
+| Payment Session ID | `data.payment_session_id` | ❌ Tidak ada |
+| Status | `data.status` (COMPLETED) | `data.status` (SUCCEEDED) |
+| Reference ID | ❌ Tidak ada | `data.reference_id` |
+| **Metode Pembayaran** | ❌ Tidak ada | ✅ `data.channel_code` (QRIS) |
+| **Provider** | ❌ Tidak ada | ✅ `data.payment_details.issuer_name` (DANA) |
 
-```
-[Nama Pembeli] is inviting you to a scheduled Zoom meeting.
+### Kesimpulan
+Event `payment.capture` mengandung informasi metode pembayaran yang lebih detail:
+- `channel_code`: QRIS, BANK_TRANSFER, EWALLET, CARD, dll
+- `payment_details.issuer_name`: DANA, OVO, GOPAY, BCA, BNI, dll
 
-Topic: [Meeting Topic]
-Time: [Tanggal, Waktu] Jakarta
+## File yang Diubah
 
-Join Zoom Meeting
-[Zoom Link]
-
-Meeting ID: [Meeting ID]
-Passcode: [Passcode]
-```
-
-## Perubahan File
-
-### File: `src/pages/QuickOrderDetail.tsx`
+1. `supabase/functions/xendit-webhook/index.ts` - Handle event `payment.capture`
+2. `supabase/functions/check-order-status/index.ts` - Return `payment_method`
+3. `src/pages/QuickOrderDetail.tsx` - Tampilkan metode pembayaran
 
 ## Detail Perubahan
 
-### 1. Import Textarea Component
+### 1. Webhook Handler: Tangani `payment.capture`
 
-Menambahkan import untuk Textarea component:
-
-```typescript
-import { Textarea } from "@/components/ui/textarea";
-```
-
-### 2. Fungsi Format Tanggal untuk Invitation
-
-Menambahkan fungsi baru untuk format tanggal dalam gaya Zoom:
+Menambahkan handler untuk event `payment.capture`:
 
 ```typescript
-const formatDateForInvitation = (dateStr: string, timeStr: string | null) => {
-  const date = new Date(dateStr);
-  const options: Intl.DateTimeFormatOptions = {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  };
-  const formattedDate = date.toLocaleDateString('en-US', options);
-  const time = timeStr || '00:00';
-  return `${formattedDate} ${time} Jakarta`;
-};
-```
-
-### 3. Fungsi Generate Invitation Text
-
-Menambahkan fungsi untuk generate teks undangan:
-
-```typescript
-const generateInvitationText = (order: OrderDetails): string => {
-  const dateTime = formatDateForInvitation(order.meeting_date, order.meeting_time);
-  const topic = order.meeting_topic || 'Zoom Meeting';
+// Detect event type
+if (payload.event === 'payment.capture') {
+  console.log("Processing payment.capture event");
   
-  return `${order.name} is inviting you to a scheduled Zoom meeting.
-
-Topic: ${topic}
-Time: ${dateTime}
-
-Join Zoom Meeting
-${order.zoom_link}
-
-Meeting ID: ${order.meeting_id}
-Passcode: ${order.zoom_passcode}`;
-};
+  const { data } = payload;
+  const referenceId = data.reference_id; // "RAPATIN-1769507023320-nbyrwg"
+  
+  // Build payment method string
+  let paymentMethod = data.channel_code || 'Unknown';
+  if (data.payment_details?.issuer_name) {
+    paymentMethod = `${data.channel_code} (${data.payment_details.issuer_name})`;
+  }
+  
+  // Find order by reference_id pattern in xendit_invoice_id or other identifier
+  // Update payment_method field only (order already processed by payment_session.completed)
+  
+  const { error } = await supabase
+    .from('guest_orders')
+    .update({ payment_method: paymentMethod })
+    .ilike('xendit_invoice_id', `%${referenceId.split('-')[1]}%`);
+  
+  return new Response(JSON.stringify({ success: true }), ...);
+}
 ```
 
-### 4. Tambah Section Invitation di Halaman Detail Zoom
+**Catatan**: Karena `payment.capture` tidak memiliki `payment_session_id`, kita perlu menggunakan `reference_id` yang sebelumnya kita generate saat membuat order (format: `RAPATIN-timestamp-random`).
 
-Menambahkan section "Invitation" setelah bagian Link Meeting dan sebelum tombol "Buka Zoom Meeting":
+#### Update Database Insert (create-guest-order)
+Perlu menyimpan `reference_id` ke database agar bisa di-match saat webhook `payment.capture`:
 
+```typescript
+// Di create-guest-order
+const sessionReferenceId = `RAPATIN-${Date.now()}-${Math.random().toString(36).substring(7)}`;
+
+// Simpan ke database
+xendit_reference_id: sessionReferenceId, // Perlu kolom baru
+```
+
+**Alternatif lebih sederhana**: Parse timestamp dari `reference_id` dan match dengan `created_at`.
+
+### 2. Check Order Status: Return `payment_method`
+
+Update query dan response di `check-order-status`:
+
+```typescript
+// Update select
+.select('..., payment_method, ...')
+
+// Update response
+order: {
+  // ... existing fields
+  payment_method: order.payment_method,
+}
+```
+
+### 3. Detail Order Page: Tampilkan Metode Pembayaran
+
+Update interface `OrderDetails`:
+```typescript
+interface OrderDetails {
+  // ... existing fields
+  payment_method: string | null;
+}
+```
+
+Tambah display di section "Riwayat" atau di bawah "Total Bayar":
 ```tsx
-{/* Invitation Text */}
-<Separator />
-<div>
-  <div className="flex items-center justify-between mb-2">
-    <span className="text-sm text-muted-foreground">Invitation</span>
-    <Button
-      size="sm"
-      variant="outline"
-      onClick={() => copyToClipboard(
-        generateInvitationText(order), 
-        "Invitation"
-      )}
-    >
-      <Copy className="w-3 h-3 mr-1" />
-      Copy
-    </Button>
+{order.payment_method && (
+  <div className="flex justify-between">
+    <span className="text-muted-foreground">Metode Pembayaran</span>
+    <span className="font-medium">{order.payment_method}</span>
   </div>
-  <Textarea
-    readOnly
-    value={generateInvitationText(order)}
-    className="min-h-[180px] font-mono text-xs resize-none bg-muted cursor-default"
-  />
-</div>
+)}
 ```
 
-## Lokasi Perubahan di File
+## Alternatif Strategi Matching Order
 
-| Line | Perubahan |
-|------|-----------|
-| ~28 | Import Textarea component |
-| ~80 | Tambah fungsi `formatDateForInvitation` |
-| ~90 | Tambah fungsi `generateInvitationText` |
-| ~500 (setelah Link Meeting) | Tambah section Invitation dengan Textarea |
+Karena `payment.capture` tidak memiliki `payment_session_id`, ada beberapa opsi:
 
-## Preview UI
+### Opsi A: Tambah kolom `xendit_reference_id`
+- Simpan `reference_id` saat create order
+- Match webhook dengan kolom ini
+- **Pro**: Paling reliable
+- **Con**: Perlu migrasi database
+
+### Opsi B: Match by timestamp (Sederhana)
+- Parse timestamp dari `reference_id` (contoh: `RAPATIN-1769507023320-nbyrwg`)
+- Match dengan `created_at` yang mendekati timestamp tersebut
+- **Pro**: Tidak perlu migrasi
+- **Con**: Kurang presisi jika ada banyak order bersamaan
+
+### Opsi C: Skip payment.capture, gunakan data session
+- Ignore `payment.capture` event
+- Karena info payment method tidak critical untuk fungsionalitas
+- **Pro**: Paling sederhana
+- **Con**: Tidak bisa tampilkan metode pembayaran
+
+### Rekomendasi: Opsi A (Tambah kolom reference_id)
+
+## Urutan Implementasi
+
+1. **Database**: Tambah kolom `xendit_reference_id` ke `guest_orders`
+2. **create-guest-order**: Simpan `reference_id` ke kolom baru
+3. **xendit-webhook**: Handle `payment.capture` event
+4. **check-order-status**: Return `payment_method`
+5. **QuickOrderDetail**: Tampilkan metode pembayaran
+
+## Contoh Tampilan UI
 
 ```text
-┌─────────────────────────────────────┐
-│ Detail Zoom Meeting                 │
-├─────────────────────────────────────┤
-│ Meeting ID                          │
-│ ┌─────────────────────────┐ [Copy]  │
-│ │ 88658043464             │         │
-│ └─────────────────────────┘         │
-│                                     │
-│ Passcode                            │
-│ ┌─────────────────────────┐ [Copy]  │
-│ │ 651470                  │         │
-│ └─────────────────────────┘         │
-│                                     │
-│ Link Meeting                        │
-│ ┌─────────────────────────┐ [Copy]  │
-│ │ https://us06web.zoom... │         │
-│ └─────────────────────────┘         │
-│                                     │
-│ ─────────────────────────────────── │
-│                                     │
-│ Invitation                  [Copy]  │
-│ ┌─────────────────────────────────┐ │
-│ │ FDN is inviting you to a       │ │
-│ │ scheduled Zoom meeting.         │ │
-│ │                                 │ │
-│ │ Topic: tew                      │ │
-│ │ Time: Jan 31, 2026 12:00 PM    │ │
-│ │ Jakarta                         │ │
-│ │                                 │ │
-│ │ Join Zoom Meeting               │ │
-│ │ https://us06web.zoom.us/j/...   │ │
-│ │                                 │ │
-│ │ Meeting ID: 88658043464         │ │
-│ │ Passcode: 651470                │ │
-│ └─────────────────────────────────┘ │
-│                                     │
-│ [      Buka Zoom Meeting      ]     │
-└─────────────────────────────────────┘
+┌─────────────────────────────────────────┐
+│ Riwayat                                 │
+├─────────────────────────────────────────┤
+│ Order dibuat      26 Jan 2026, 16:43    │
+│ Pembayaran        26 Jan 2026, 16:50    │
+│ Metode Pembayaran      QRIS (DANA)      │ ← Baru
+└─────────────────────────────────────────┘
 ```
 
-## Catatan Implementasi
+## Format Payment Method
 
-- Text area akan `readOnly` sehingga user tidak bisa mengedit
-- Background menggunakan `bg-muted` agar terlihat seperti display area, bukan input
-- Font mono untuk tampilan yang rapi
-- Cursor `cursor-default` karena tidak bisa diedit
-- Minimum height `180px` untuk menampilkan seluruh konten
-- Tombol copy kecil (`size="sm"`) di sebelah kanan label "Invitation"
+Kombinasi `channel_code` + `issuer_name`:
+- QRIS → `QRIS (DANA)`, `QRIS (OVO)`, `QRIS (GoPay)`
+- EWALLET → `EWALLET (OVO)`, `EWALLET (DANA)`
+- BANK_TRANSFER → `VA (BCA)`, `VA (BNI)`, `VA (Mandiri)`
+- CARD → `Card (Visa)`, `Card (Mastercard)`
