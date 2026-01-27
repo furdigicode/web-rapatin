@@ -29,6 +29,15 @@ import { GuestOrder } from '@/types/OrderTypes';
 import { formatRupiah } from '@/utils/formatRupiah';
 import { useToast } from '@/hooks/use-toast';
 
+// Format payment method dari SNAKE_CASE ke Title Case
+const formatPaymentMethod = (method: string): string => {
+  return method
+    .toLowerCase()
+    .split('_')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+};
+
 interface OrderDetailDialogProps {
   order: GuestOrder | null;
   open: boolean;
@@ -263,7 +272,7 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
               {order.payment_method && (
                 <div className="flex items-center justify-between">
                   <span className="text-muted-foreground">Metode</span>
-                  <span>{order.payment_method}</span>
+                  <span>{formatPaymentMethod(order.payment_method)}</span>
                 </div>
               )}
               {order.paid_at && (

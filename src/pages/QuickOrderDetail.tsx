@@ -95,6 +95,16 @@ const formatDateForInvitation = (dateStr: string, timeStr: string | null) => {
   return `${formattedDate} ${time} Jakarta`;
 };
 
+// Format payment method dari SNAKE_CASE ke Title Case
+// Contoh: "MANDIRI_VIRTUAL_ACCOUNT" -> "Mandiri Virtual Account"
+const formatPaymentMethod = (method: string): string => {
+  return method
+    .toLowerCase()
+    .split('_')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+};
+
 const generateInvitationText = (order: OrderDetails): string => {
   const dateTime = formatDateForInvitation(order.meeting_date, order.meeting_time);
   const topic = order.meeting_topic || 'Zoom Meeting';
@@ -492,7 +502,7 @@ export default function QuickOrderDetail() {
                       <p className="text-xl font-bold text-primary">{formatRupiah(order.price)}</p>
                       {order.payment_method && (
                         <p className="text-sm text-muted-foreground mt-1">
-                          via <span className="font-medium text-foreground">{order.payment_method}</span>
+                          via <span className="font-medium text-foreground">{formatPaymentMethod(order.payment_method)}</span>
                         </p>
                       )}
                     </div>
