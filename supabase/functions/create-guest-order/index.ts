@@ -36,6 +36,17 @@ interface OrderRequest {
   is_language_interpretation?: boolean;
   is_mute_upon_entry?: boolean;
   is_req_unmute_permission?: boolean;
+  // Recurring fields
+  is_recurring?: boolean;
+  recurrence_type?: number | null; // 1=daily, 2=weekly, 3=monthly
+  repeat_interval?: number | null;
+  weekly_days?: number[] | null;
+  monthly_day?: number | null;
+  monthly_week?: number | null;
+  end_type?: 'end_date' | 'end_after_type' | null;
+  recurrence_end_date?: string | null;
+  recurrence_count?: number | null;
+  total_days?: number;
 }
 
 serve(async (req) => {
@@ -45,6 +56,7 @@ serve(async (req) => {
   }
 
   try {
+    const requestData = (await req.json()) as OrderRequest;
     const {
       name,
       email,
@@ -59,7 +71,18 @@ serve(async (req) => {
       is_language_interpretation,
       is_mute_upon_entry,
       is_req_unmute_permission,
-    } = (await req.json()) as OrderRequest;
+      // Recurring fields
+      is_recurring,
+      recurrence_type,
+      repeat_interval,
+      weekly_days,
+      monthly_day,
+      monthly_week,
+      end_type,
+      recurrence_end_date,
+      recurrence_count,
+      total_days,
+    } = requestData;
 
     // Validation
     if (!name || !email || !whatsapp || !meeting_date || !meeting_time || !participant_count || !meeting_topic) {
@@ -109,11 +132,38 @@ serve(async (req) => {
       });
     }
 
+    // Validate recurring parameters if recurring is enabled
+    const effectiveTotalDays = is_recurring && total_days && total_days > 1 ? total_days : 1;
+    
+    if (is_recurring && effectiveTotalDays > 1) {
+      if (!recurrence_type || ![1, 2, 3].includes(recurrence_type)) {
+        return new Response(JSON.stringify({ error: "Tipe pengulangan tidak valid" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      
+      if (!end_type || !['end_date', 'end_after_type'].includes(end_type)) {
+        return new Response(JSON.stringify({ error: "Tipe akhir pengulangan tidak valid" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      if (effectiveTotalDays < 2 || effectiveTotalDays > 365) {
+        return new Response(JSON.stringify({ error: "Jumlah sesi harus antara 2-365" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+    }
+
     // Clean WhatsApp number (remove non-digits except +)
     const cleanWhatsapp = whatsapp.replace(/[^\d+]/g, "");
 
-    // Get price (using promo price)
-    const price = PRICING[participant_count].promo;
+    // Calculate price: base price × total days
+    const basePrice = PRICING[participant_count].promo;
+    const totalPrice = basePrice * effectiveTotalDays;
 
     // Create Xendit Invoice
     const xenditSecretKey = Deno.env.get("XENDIT_SECRET_KEY");
@@ -132,7 +182,21 @@ serve(async (req) => {
     const sessionReferenceId = `RAPATIN-${Date.now()}-${Math.random().toString(36).substring(7)}`;
     const customerReferenceId = `cust_${Date.now()}_${Math.random().toString(36).substring(7)}`;
     
-    console.log("Creating Xendit session for:", { email, price, participant_count, accessSlug, sessionReferenceId });
+    // Build description with recurring info if applicable
+    let description = `Sewa Zoom Meeting - ${participant_count} Peserta - ${meeting_date}`;
+    if (is_recurring && effectiveTotalDays > 1) {
+      description = `Sewa Zoom Meeting Berulang - ${participant_count} Peserta - ${effectiveTotalDays} sesi`;
+    }
+
+    console.log("Creating Xendit session for:", { 
+      email, 
+      totalPrice, 
+      participant_count, 
+      accessSlug, 
+      sessionReferenceId,
+      is_recurring,
+      effectiveTotalDays,
+    });
 
     const xenditResponse = await fetch("https://api.xendit.co/sessions", {
       method: "POST",
@@ -144,7 +208,7 @@ serve(async (req) => {
         reference_id: sessionReferenceId,
         session_type: "PAY",
         mode: "PAYMENT_LINK",
-        amount: price,
+        amount: totalPrice,
         currency: "IDR",
         country: "ID",
         customer: {
@@ -159,11 +223,13 @@ serve(async (req) => {
         items: [
           {
             reference_id: `item_zoom_${participant_count}_${Date.now()}`,
-            name: `Sewa Zoom ${participant_count} Peserta`,
+            name: is_recurring && effectiveTotalDays > 1 
+              ? `Sewa Zoom ${participant_count} Peserta (${effectiveTotalDays} sesi)` 
+              : `Sewa Zoom ${participant_count} Peserta`,
             description: `Meeting: ${meeting_topic} - ${meeting_date}`,
             type: "DIGITAL_PRODUCT",
             category: "SERVICE",
-            net_unit_amount: price,
+            net_unit_amount: totalPrice,
             quantity: 1,
             currency: "IDR",
             url: "https://rapatin.id/sewa-zoom-harian",
@@ -171,7 +237,7 @@ serve(async (req) => {
         ],
         capture_method: "AUTOMATIC",
         locale: "id",
-        description: `Sewa Zoom Meeting - ${participant_count} Peserta - ${meeting_date}`,
+        description: description,
         success_return_url: `https://rapatin.lovable.app/quick-order/${accessSlug}`,
         cancel_return_url: `https://rapatin.lovable.app/quick-order/${accessSlug}`,
       }),
@@ -207,30 +273,43 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
+    const orderData: Record<string, unknown> = {
+      name,
+      email,
+      whatsapp: cleanWhatsapp,
+      meeting_date,
+      meeting_time,
+      participant_count,
+      price: totalPrice,
+      payment_status: "pending",
+      xendit_invoice_id: sessionId,
+      xendit_invoice_url: xenditSession.payment_link_url,
+      expired_at: xenditSession.expires_at || new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+      meeting_topic,
+      custom_passcode: custom_passcode || null,
+      is_meeting_registration: is_meeting_registration || false,
+      is_meeting_qna: is_meeting_qna || false,
+      is_language_interpretation: is_language_interpretation || false,
+      is_mute_upon_entry: is_mute_upon_entry || false,
+      is_req_unmute_permission: is_req_unmute_permission || false,
+      access_slug: accessSlug,
+      xendit_reference_id: sessionReferenceId,
+      // Recurring fields
+      is_recurring: is_recurring || false,
+      recurrence_type: is_recurring ? recurrence_type : null,
+      repeat_interval: is_recurring ? repeat_interval : null,
+      weekly_days: is_recurring && recurrence_type === 2 ? weekly_days : null,
+      monthly_day: is_recurring && recurrence_type === 3 ? monthly_day : null,
+      monthly_week: is_recurring && recurrence_type === 3 ? monthly_week : null,
+      end_type: is_recurring ? end_type : null,
+      recurrence_end_date: is_recurring && end_type === 'end_date' ? recurrence_end_date : null,
+      recurrence_count: is_recurring && end_type === 'end_after_type' ? recurrence_count : null,
+      total_days: effectiveTotalDays,
+    };
+
     const { data: order, error: dbError } = await supabase
       .from("guest_orders")
-      .insert({
-        name,
-        email,
-        whatsapp: cleanWhatsapp,
-        meeting_date,
-        meeting_time,
-        participant_count,
-        price,
-        payment_status: "pending",
-        xendit_invoice_id: sessionId,
-        xendit_invoice_url: xenditSession.payment_link_url,
-        expired_at: xenditSession.expires_at || new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-        meeting_topic,
-        custom_passcode: custom_passcode || null,
-        is_meeting_registration: is_meeting_registration || false,
-        is_meeting_qna: is_meeting_qna || false,
-        is_language_interpretation: is_language_interpretation || false,
-        is_mute_upon_entry: is_mute_upon_entry || false,
-        is_req_unmute_permission: is_req_unmute_permission || false,
-        access_slug: accessSlug,
-        xendit_reference_id: sessionReferenceId,
-      })
+      .insert(orderData)
       .select()
       .single();
 
@@ -242,7 +321,11 @@ serve(async (req) => {
       });
     }
 
-    console.log("Order created successfully:", order.id);
+    console.log("Order created successfully:", order.id, {
+      is_recurring: order.is_recurring,
+      total_days: order.total_days,
+      price: order.price,
+    });
 
     return new Response(
       JSON.stringify({

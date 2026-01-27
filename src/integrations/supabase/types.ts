@@ -293,17 +293,21 @@ export type Database = {
           created_at: string
           custom_passcode: string | null
           email: string
+          end_type: string | null
           expired_at: string | null
           id: string
           is_language_interpretation: boolean | null
           is_meeting_qna: boolean | null
           is_meeting_registration: boolean | null
           is_mute_upon_entry: boolean | null
+          is_recurring: boolean | null
           is_req_unmute_permission: boolean | null
           meeting_date: string
           meeting_id: string | null
           meeting_time: string | null
           meeting_topic: string | null
+          monthly_day: number | null
+          monthly_week: number | null
           name: string
           paid_at: string | null
           participant_count: number
@@ -311,7 +315,13 @@ export type Database = {
           payment_status: string
           price: number
           rapatin_order_id: string | null
+          recurrence_count: number | null
+          recurrence_end_date: string | null
+          recurrence_type: number | null
+          repeat_interval: number | null
+          total_days: number | null
           updated_at: string
+          weekly_days: number[] | null
           whatsapp: string
           xendit_invoice_id: string | null
           xendit_invoice_url: string | null
@@ -324,17 +334,21 @@ export type Database = {
           created_at?: string
           custom_passcode?: string | null
           email: string
+          end_type?: string | null
           expired_at?: string | null
           id?: string
           is_language_interpretation?: boolean | null
           is_meeting_qna?: boolean | null
           is_meeting_registration?: boolean | null
           is_mute_upon_entry?: boolean | null
+          is_recurring?: boolean | null
           is_req_unmute_permission?: boolean | null
           meeting_date: string
           meeting_id?: string | null
           meeting_time?: string | null
           meeting_topic?: string | null
+          monthly_day?: number | null
+          monthly_week?: number | null
           name: string
           paid_at?: string | null
           participant_count: number
@@ -342,7 +356,13 @@ export type Database = {
           payment_status?: string
           price: number
           rapatin_order_id?: string | null
+          recurrence_count?: number | null
+          recurrence_end_date?: string | null
+          recurrence_type?: number | null
+          repeat_interval?: number | null
+          total_days?: number | null
           updated_at?: string
+          weekly_days?: number[] | null
           whatsapp: string
           xendit_invoice_id?: string | null
           xendit_invoice_url?: string | null
@@ -355,17 +375,21 @@ export type Database = {
           created_at?: string
           custom_passcode?: string | null
           email?: string
+          end_type?: string | null
           expired_at?: string | null
           id?: string
           is_language_interpretation?: boolean | null
           is_meeting_qna?: boolean | null
           is_meeting_registration?: boolean | null
           is_mute_upon_entry?: boolean | null
+          is_recurring?: boolean | null
           is_req_unmute_permission?: boolean | null
           meeting_date?: string
           meeting_id?: string | null
           meeting_time?: string | null
           meeting_topic?: string | null
+          monthly_day?: number | null
+          monthly_week?: number | null
           name?: string
           paid_at?: string | null
           participant_count?: number
@@ -373,7 +397,13 @@ export type Database = {
           payment_status?: string
           price?: number
           rapatin_order_id?: string | null
+          recurrence_count?: number | null
+          recurrence_end_date?: string | null
+          recurrence_type?: number | null
+          repeat_interval?: number | null
+          total_days?: number | null
           updated_at?: string
+          weekly_days?: number[] | null
           whatsapp?: string
           xendit_invoice_id?: string | null
           xendit_invoice_url?: string | null

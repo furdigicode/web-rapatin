@@ -22,6 +22,17 @@ export interface GuestOrder {
   is_language_interpretation: boolean | null;
   is_mute_upon_entry: boolean | null;
   is_req_unmute_permission: boolean | null;
+  // Recurring meeting fields
+  is_recurring: boolean | null;
+  recurrence_type: number | null; // 1=daily, 2=weekly, 3=monthly
+  repeat_interval: number | null;
+  weekly_days: number[] | null;
+  monthly_day: number | null;
+  monthly_week: number | null;
+  end_type: 'end_date' | 'end_after_type' | null;
+  recurrence_end_date: string | null;
+  recurrence_count: number | null;
+  total_days: number | null;
   created_at: string;
   paid_at: string | null;
   expired_at: string | null;

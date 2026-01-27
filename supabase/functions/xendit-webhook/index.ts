@@ -66,6 +66,33 @@ async function loginToRapatin(): Promise<string | null> {
   }
 }
 
+// Order type with recurring fields
+interface GuestOrder {
+  id: string;
+  participant_count: number;
+  custom_passcode: string | null;
+  meeting_date: string;
+  meeting_time: string | null;
+  meeting_topic: string | null;
+  name: string;
+  is_meeting_registration: boolean | null;
+  is_meeting_qna: boolean | null;
+  is_language_interpretation: boolean | null;
+  is_mute_upon_entry: boolean | null;
+  is_req_unmute_permission: boolean | null;
+  // Recurring fields
+  is_recurring: boolean | null;
+  recurrence_type: number | null;
+  repeat_interval: number | null;
+  weekly_days: number[] | null;
+  monthly_day: number | null;
+  monthly_week: number | null;
+  end_type: string | null;
+  recurrence_end_date: string | null;
+  recurrence_count: number | null;
+  total_days: number | null;
+}
+
 // Create schedule in Rapatin API
 interface CreateScheduleParams {
   token: string;
@@ -79,6 +106,16 @@ interface CreateScheduleParams {
   isLanguageInterpretation: boolean;
   isMuteUponEntry: boolean;
   isReqUnmutePermission: boolean;
+  // Recurring params
+  isRecurring: boolean;
+  recurrenceType?: number | null;
+  repeatInterval?: number | null;
+  weeklyDays?: number[] | null;
+  monthlyDay?: number | null;
+  monthlyWeek?: number | null;
+  endType?: string | null;
+  endDate?: string | null;
+  endAfterCount?: number | null;
 }
 
 interface RapatinScheduleResponse {
@@ -94,9 +131,58 @@ async function createRapatinSchedule(params: CreateScheduleParams): Promise<Rapa
     topic: params.topic,
     startDate: params.startDate,
     startTime: params.startTime,
+    isRecurring: params.isRecurring,
+    recurrenceType: params.recurrenceType,
+    repeatInterval: params.repeatInterval,
   });
 
   try {
+    // Build request body
+    const requestBody: Record<string, unknown> = {
+      product_id: params.productId,
+      topic: params.topic,
+      passcode: params.passcode,
+      start_date: params.startDate,
+      start_time: params.startTime,
+      recurring: params.isRecurring,
+      is_meeting_registration: params.isMeetingRegistration,
+      is_meeting_qna: params.isMeetingQna,
+      is_language_interpretation: params.isLanguageInterpretation,
+      is_mute_participant_upon_entry: params.isMuteUponEntry,
+      is_req_permission_to_unmute_participants: params.isReqUnmutePermission,
+    };
+
+    // Add recurring parameters if enabled
+    if (params.isRecurring && params.recurrenceType) {
+      requestBody.recurrence = params.recurrenceType;
+      requestBody.repeat_interval = params.repeatInterval || 1;
+
+      // Weekly days
+      if (params.recurrenceType === 2 && params.weeklyDays && params.weeklyDays.length > 0) {
+        requestBody.weekly_days = params.weeklyDays;
+      }
+
+      // Monthly options
+      if (params.recurrenceType === 3) {
+        if (params.monthlyDay) {
+          requestBody.monthly_day = params.monthlyDay;
+        } else if (params.monthlyWeek) {
+          requestBody.monthly_week = params.monthlyWeek;
+        }
+      }
+
+      // End type
+      if (params.endType === 'end_date' && params.endDate) {
+        requestBody.end_type = 'end_date';
+        requestBody.end_date = params.endDate;
+      } else if (params.endType === 'end_after_type' && params.endAfterCount) {
+        requestBody.end_type = 'end_after_type';
+        requestBody.end_after_type = params.endAfterCount;
+      }
+    }
+
+    console.log("Rapatin API request body:", JSON.stringify(requestBody));
+
     const response = await fetch('https://api.rapatin.id/schedules', {
       method: 'POST',
       headers: {
@@ -104,19 +190,7 @@ async function createRapatinSchedule(params: CreateScheduleParams): Promise<Rapa
         'Content-Type': 'application/json',
         'Accept': 'application/json',
       },
-      body: JSON.stringify({
-        product_id: params.productId,
-        topic: params.topic,
-        passcode: params.passcode,
-        start_date: params.startDate,
-        start_time: params.startTime,
-        recurring: false,
-        is_meeting_registration: params.isMeetingRegistration,
-        is_meeting_qna: params.isMeetingQna,
-        is_language_interpretation: params.isLanguageInterpretation,
-        is_mute_participant_upon_entry: params.isMuteUponEntry,
-        is_req_permission_to_unmute_participants: params.isReqUnmutePermission,
-      }),
+      body: JSON.stringify(requestBody),
     });
 
     if (!response.ok) {
@@ -323,33 +397,49 @@ serve(async (req) => {
 
     // If payment is successful, call Rapatin API to create meeting
     if (paymentStatus === 'paid') {
-      console.log("Payment successful, calling Rapatin API to create meeting...");
+      console.log("Payment successful, calling Rapatin API to create meeting...", {
+        is_recurring: order.is_recurring,
+        total_days: order.total_days,
+      });
+      
+      // Cast order to our type
+      const typedOrder = order as GuestOrder;
       
       // Step 1: Login to Rapatin
       const rapatinToken = await loginToRapatin();
       
       if (rapatinToken) {
         // Step 2: Map participant count to product ID
-        const productId = PARTICIPANT_TO_PRODUCT_ID[order.participant_count];
+        const productId = PARTICIPANT_TO_PRODUCT_ID[typedOrder.participant_count];
         
         if (productId) {
           // Step 3: Use custom passcode or generate one
-          const passcode = order.custom_passcode || generatePasscode();
-          const meetingTime = order.meeting_time || '09:00'; // Default to 09:00 if not set
-          const topic = order.meeting_topic || `Quick Order - ${order.name}`;
+          const passcode = typedOrder.custom_passcode || generatePasscode();
+          const meetingTime = typedOrder.meeting_time || '09:00'; // Default to 09:00 if not set
+          const topic = typedOrder.meeting_topic || `Quick Order - ${typedOrder.name}`;
           
           const scheduleResult = await createRapatinSchedule({
             token: rapatinToken,
             productId,
             topic,
             passcode,
-            startDate: order.meeting_date,
+            startDate: typedOrder.meeting_date,
             startTime: meetingTime,
-            isMeetingRegistration: order.is_meeting_registration || false,
-            isMeetingQna: order.is_meeting_qna || false,
-            isLanguageInterpretation: order.is_language_interpretation || false,
-            isMuteUponEntry: order.is_mute_upon_entry || false,
-            isReqUnmutePermission: order.is_req_unmute_permission || false,
+            isMeetingRegistration: typedOrder.is_meeting_registration || false,
+            isMeetingQna: typedOrder.is_meeting_qna || false,
+            isLanguageInterpretation: typedOrder.is_language_interpretation || false,
+            isMuteUponEntry: typedOrder.is_mute_upon_entry || false,
+            isReqUnmutePermission: typedOrder.is_req_unmute_permission || false,
+            // Recurring params
+            isRecurring: typedOrder.is_recurring || false,
+            recurrenceType: typedOrder.recurrence_type,
+            repeatInterval: typedOrder.repeat_interval,
+            weeklyDays: typedOrder.weekly_days,
+            monthlyDay: typedOrder.monthly_day,
+            monthlyWeek: typedOrder.monthly_week,
+            endType: typedOrder.end_type,
+            endDate: typedOrder.recurrence_end_date,
+            endAfterCount: typedOrder.recurrence_count,
           });
 
           if (scheduleResult) {
@@ -363,12 +453,13 @@ serve(async (req) => {
               rapatin_order_id: scheduleResult.id,
               meeting_id: scheduleResult.meeting_id,
               has_zoom_link: !!scheduleResult.join_url,
+              is_recurring: typedOrder.is_recurring,
             });
           } else {
             console.error("Failed to create Rapatin schedule - order will be marked as paid but needs manual follow-up");
           }
         } else {
-          console.error("Invalid participant count, cannot map to product ID:", order.participant_count);
+          console.error("Invalid participant count, cannot map to product ID:", typedOrder.participant_count);
         }
       } else {
         console.error("Failed to login to Rapatin API - order will be marked as paid but needs manual follow-up");

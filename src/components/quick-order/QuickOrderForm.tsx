@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useState, useCallback } from "react";
+import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { format } from "date-fns";
@@ -11,7 +11,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Calendar } from "@/components/ui/calendar";
 import {
-  Form,
   FormControl,
   FormField,
   FormItem,
@@ -36,6 +35,7 @@ import { PackageSelector, packages } from "./PackageSelector";
 import { PricingSummary } from "./PricingSummary";
 import { PaymentMethods } from "./PaymentMethods";
 import { MeetingSettingsSection } from "./MeetingSettingsSection";
+import { RecurringMeetingSection } from "./RecurringMeetingSection";
 
 // Generate time options from 00:00 to 23:00
 const timeOptions = Array.from({ length: 24 }, (_, i) => {
@@ -84,6 +84,16 @@ const formSchema = z.object({
   is_language_interpretation: z.boolean().default(false),
   is_mute_upon_entry: z.boolean().default(false),
   is_req_unmute_permission: z.boolean().default(false),
+  // Recurring meeting fields
+  is_recurring: z.boolean().default(false),
+  recurrence_type: z.number().nullable().optional(),
+  repeat_interval: z.number().nullable().optional(),
+  weekly_days: z.array(z.number()).nullable().optional(),
+  monthly_day: z.number().nullable().optional(),
+  monthly_week: z.number().nullable().optional(),
+  end_type: z.enum(['end_date', 'end_after_type']).nullable().optional(),
+  recurrence_end_date: z.date().nullable().optional(),
+  recurrence_count: z.number().nullable().optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -91,6 +101,11 @@ type FormValues = z.infer<typeof formSchema>;
 export function QuickOrderForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedPackage, setSelectedPackage] = useState<number>(100);
+  const [recurringData, setRecurringData] = useState<{
+    isRecurring: boolean;
+    totalDays: number;
+    dates: Date[];
+  }>({ isRecurring: false, totalDays: 1, dates: [] });
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -108,6 +123,15 @@ export function QuickOrderForm() {
       is_language_interpretation: false,
       is_mute_upon_entry: false,
       is_req_unmute_permission: false,
+      is_recurring: false,
+      recurrence_type: null,
+      repeat_interval: null,
+      weekly_days: null,
+      monthly_day: null,
+      monthly_week: null,
+      end_type: null,
+      recurrence_end_date: null,
+      recurrence_count: null,
     },
   });
 
@@ -123,14 +147,21 @@ export function QuickOrderForm() {
     is_req_unmute_permission: form.watch("is_req_unmute_permission"),
   };
   
-  const currentPrice = selectedPackage
+  const basePrice = selectedPackage
     ? packages.find(p => p.participants === selectedPackage)?.promoPrice || 0 
     : 0;
+  
+  // Total price = base price × total days
+  const totalPrice = basePrice * recurringData.totalDays;
 
   const handlePackageSelect = (participants: number) => {
     setSelectedPackage(participants);
     form.setValue("participant_count", participants);
   };
+
+  const handleRecurringChange = useCallback((result: { isRecurring: boolean; totalDays: number; dates: Date[] }) => {
+    setRecurringData(result);
+  }, []);
 
   const onSubmit = async (values: FormValues) => {
     setIsSubmitting(true);
@@ -151,6 +182,19 @@ export function QuickOrderForm() {
           is_language_interpretation: values.is_language_interpretation,
           is_mute_upon_entry: values.is_mute_upon_entry,
           is_req_unmute_permission: values.is_req_unmute_permission,
+          // Recurring fields
+          is_recurring: values.is_recurring,
+          recurrence_type: values.recurrence_type,
+          repeat_interval: values.repeat_interval,
+          weekly_days: values.weekly_days,
+          monthly_day: values.monthly_day,
+          monthly_week: values.monthly_week,
+          end_type: values.end_type,
+          recurrence_end_date: values.recurrence_end_date 
+            ? format(values.recurrence_end_date, 'yyyy-MM-dd') 
+            : null,
+          recurrence_count: values.recurrence_count,
+          total_days: recurringData.totalDays,
         },
       });
 
@@ -183,7 +227,7 @@ export function QuickOrderForm() {
   const disabledDays = { before: new Date() };
 
   return (
-    <Form {...form}>
+    <FormProvider {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <div className="grid gap-6 lg:grid-cols-2">
           {/* Left Column - Form */}
@@ -371,7 +415,15 @@ export function QuickOrderForm() {
                 )}
               />
 
-              {/* 5. Pengaturan Lanjutan */}
+              {/* 5. Recurring Meeting Section */}
+              <RecurringMeetingSection
+                control={form.control}
+                startDate={watchedDate}
+                startTime={watchedTime}
+                onRecurringChange={handleRecurringChange}
+              />
+
+              {/* 6. Pengaturan Lanjutan */}
               <MeetingSettingsSection control={form.control} />
             </div>
           </div>
@@ -382,10 +434,14 @@ export function QuickOrderForm() {
               participantCount={selectedPackage}
               meetingDate={watchedDate}
               meetingTime={watchedTime}
-              price={currentPrice}
+              price={basePrice}
+              totalPrice={totalPrice}
               meetingTopic={watchedTopic}
               customPasscode={watchedPasscode}
               meetingSettings={watchedMeetingSettings}
+              isRecurring={recurringData.isRecurring}
+              totalDays={recurringData.totalDays}
+              recurringDates={recurringData.dates}
             />
 
             <Button
@@ -408,6 +464,6 @@ export function QuickOrderForm() {
           </div>
         </div>
       </form>
-    </Form>
+    </FormProvider>
   );
 }
