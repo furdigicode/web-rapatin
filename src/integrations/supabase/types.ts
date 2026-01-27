@@ -315,6 +315,7 @@ export type Database = {
           whatsapp: string
           xendit_invoice_id: string | null
           xendit_invoice_url: string | null
+          xendit_reference_id: string | null
           zoom_link: string | null
           zoom_passcode: string | null
         }
@@ -345,6 +346,7 @@ export type Database = {
           whatsapp: string
           xendit_invoice_id?: string | null
           xendit_invoice_url?: string | null
+          xendit_reference_id?: string | null
           zoom_link?: string | null
           zoom_passcode?: string | null
         }
@@ -375,6 +377,7 @@ export type Database = {
           whatsapp?: string
           xendit_invoice_id?: string | null
           xendit_invoice_url?: string | null
+          xendit_reference_id?: string | null
           zoom_link?: string | null
           zoom_passcode?: string | null
         }

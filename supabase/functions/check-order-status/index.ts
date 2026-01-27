@@ -32,7 +32,7 @@ serve(async (req) => {
 
     let query = supabase
       .from('guest_orders')
-      .select('id, name, email, whatsapp, meeting_date, meeting_time, meeting_topic, custom_passcode, participant_count, price, payment_status, zoom_link, zoom_passcode, meeting_id, xendit_invoice_url, expired_at, paid_at, created_at, access_slug');
+      .select('id, name, email, whatsapp, meeting_date, meeting_time, meeting_topic, custom_passcode, participant_count, price, payment_status, payment_method, zoom_link, zoom_passcode, meeting_id, xendit_invoice_url, expired_at, paid_at, created_at, access_slug');
 
     // Priority: slug > orderId > externalId
     if (slug) {
@@ -71,6 +71,7 @@ serve(async (req) => {
           participant_count: order.participant_count,
           price: order.price,
           payment_status: order.payment_status,
+          payment_method: order.payment_method,
           zoom_link: order.zoom_link,
           zoom_passcode: order.zoom_passcode,
           meeting_id: order.meeting_id,

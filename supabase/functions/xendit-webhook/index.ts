@@ -186,6 +186,53 @@ serve(async (req) => {
       const { event, data } = payload;
       console.log("Detected Sessions API v3 format, event:", event);
       
+      // Handle payment.capture event for payment method info
+      if (event === 'payment.capture') {
+        console.log("Processing payment.capture event for payment method");
+        
+        const referenceId = data.reference_id;
+        if (!referenceId) {
+          console.log("No reference_id in payment.capture, skipping");
+          return new Response(
+            JSON.stringify({ success: true, message: 'Skipped - no reference_id' }),
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+        
+        // Build payment method string
+        let paymentMethod = data.channel_code || 'Unknown';
+        if (data.payment_details?.issuer_name) {
+          paymentMethod = `${data.channel_code} (${data.payment_details.issuer_name})`;
+        }
+        
+        console.log("Updating payment method:", { referenceId, paymentMethod });
+        
+        // Initialize Supabase client
+        const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+        const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+        const supabase = createClient(supabaseUrl, supabaseKey);
+        
+        // Find and update order by xendit_reference_id
+        const { error: updateError, data: updateResult } = await supabase
+          .from('guest_orders')
+          .update({ payment_method: paymentMethod })
+          .eq('xendit_reference_id', referenceId)
+          .select('id');
+        
+        if (updateError) {
+          console.error("Failed to update payment method:", updateError);
+        } else if (updateResult && updateResult.length > 0) {
+          console.log("Payment method updated for order:", updateResult[0].id);
+        } else {
+          console.log("No order found for reference_id:", referenceId);
+        }
+        
+        return new Response(
+          JSON.stringify({ success: true, message: 'Payment method processed' }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+      
       sessionId = data.payment_session_id;
       status = data.status;
       paidAt = data.updated;
