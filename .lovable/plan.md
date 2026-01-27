@@ -1,105 +1,182 @@
 
-# Rencana: Masking Data Email dan WhatsApp
+# Rencana: Migrasi dari Xendit Invoice API v2 ke Sessions API v3
 
 ## Ringkasan
-Menambahkan fungsi masking untuk menyembunyikan sebagian karakter pada data sensitif (email dan nomor WhatsApp) di halaman Quick Order Detail agar lebih aman jika link dibagikan atau dilihat orang lain.
+Mengganti penggunaan Xendit Invoice API (`/v2/invoices`) dengan Sessions API (`/sessions`) untuk membuat payment link sesuai dengan format terbaru yang Anda berikan.
 
-## Contoh Masking
+## Perbandingan API
 
-| Data Asli | Setelah Masking |
-|-----------|-----------------|
-| `rapatinapp@gmail.com` | `rap*****@gmail.com` |
-| `johndoe@company.co.id` | `joh****@company.co.id` |
-| `081234567890` | `0812****7890` |
-| `+6281234567890` | `+6281****7890` |
-
-## Logika Masking
-
-### Email Masking
-- Tampilkan 3 karakter pertama dari username
-- Ganti sisanya dengan asterisk (`*`)
-- Tampilkan domain lengkap (setelah `@`)
-- Contoh: `john.doe@example.com` → `joh*****@example.com`
-
-### WhatsApp Masking
-- Tampilkan 4 digit pertama (termasuk kode negara jika ada)
-- Ganti 4 digit tengah dengan asterisk
-- Tampilkan 4 digit terakhir
-- Contoh: `081234567890` → `0812****7890`
+| Aspek | Invoice API v2 (Lama) | Sessions API v3 (Baru) |
+|-------|----------------------|------------------------|
+| Endpoint | `api.xendit.co/v2/invoices` | `api.xendit.co/sessions` |
+| ID Field | `external_id` | `reference_id` |
+| Redirect Success | `success_redirect_url` | `success_return_url` |
+| Redirect Failure | `failure_redirect_url` | `cancel_return_url` |
+| Response URL | `invoice_url` | `payment_link_url` |
+| Session Type | - | `session_type: "PAY"` |
+| Mode | - | `mode: "PAYMENT_LINK"` |
+| Country | - | `country: "ID"` (wajib) |
 
 ## Perubahan File
 
-### File yang Diubah: `src/pages/QuickOrderDetail.tsx`
+### File yang Diubah: `supabase/functions/create-guest-order/index.ts`
 
-Tambahkan 2 fungsi helper untuk masking:
+### Perubahan Request Body
 
+**Sebelum (Invoice API v2):**
 ```typescript
-// Fungsi masking email
-const maskEmail = (email: string): string => {
-  const [username, domain] = email.split('@');
-  if (!domain) return email;
-  
-  const visibleChars = Math.min(3, username.length);
-  const masked = username.slice(0, visibleChars) + '*'.repeat(Math.max(username.length - visibleChars, 3));
-  
-  return `${masked}@${domain}`;
-};
-
-// Fungsi masking nomor telepon/WhatsApp
-const maskPhone = (phone: string): string => {
-  // Hapus semua karakter non-digit untuk penghitungan
-  const digitsOnly = phone.replace(/\D/g, '');
-  
-  if (digitsOnly.length < 8) return phone;
-  
-  // Tampilkan 4 digit pertama dan 4 digit terakhir
-  const prefix = phone.slice(0, 4);
-  const suffix = phone.slice(-4);
-  const middleLength = phone.length - 8;
-  
-  return `${prefix}${'*'.repeat(Math.max(middleLength, 4))}${suffix}`;
-};
+const xenditResponse = await fetch("https://api.xendit.co/v2/invoices", {
+  method: "POST",
+  headers: {
+    Authorization: `Basic ${btoa(xenditSecretKey + ":")}`,
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    external_id: invoiceExternalId,
+    amount: price,
+    payer_email: email,
+    description: `Sewa Zoom Meeting - ${participant_count} Peserta - ${meeting_date}`,
+    invoice_duration: 86400,
+    customer: {
+      given_names: name,
+      email: email,
+      mobile_number: cleanWhatsapp,
+    },
+    success_redirect_url: `https://rapatin.lovable.app/quick-order/${accessSlug}`,
+    failure_redirect_url: `https://rapatin.lovable.app/quick-order/${accessSlug}`,
+    currency: "IDR",
+    items: [...],
+  }),
+});
 ```
 
-### Lokasi Perubahan di JSX
-
-```tsx
-// Baris 366 - Email (sebelumnya)
-<p className="font-medium">{order.email}</p>
-
-// Menjadi
-<p className="font-medium">{maskEmail(order.email)}</p>
-
-// Baris 374 - WhatsApp (sebelumnya)
-<p className="font-medium">{order.whatsapp}</p>
-
-// Menjadi
-<p className="font-medium">{maskPhone(order.whatsapp)}</p>
+**Sesudah (Sessions API v3):**
+```typescript
+const xenditResponse = await fetch("https://api.xendit.co/sessions", {
+  method: "POST",
+  headers: {
+    Authorization: `Basic ${btoa(xenditSecretKey + ":")}`,
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    reference_id: sessionReferenceId,
+    session_type: "PAY",
+    mode: "PAYMENT_LINK",
+    amount: price,
+    currency: "IDR",
+    country: "ID",
+    customer: {
+      reference_id: `cust_${Date.now()}`,
+      type: "INDIVIDUAL",
+      email: email,
+      mobile_number: cleanWhatsapp,
+      individual_detail: {
+        given_names: name,
+      },
+    },
+    items: [
+      {
+        reference_id: `item_zoom_${participant_count}`,
+        name: `Sewa Zoom ${participant_count} Peserta`,
+        description: `Meeting: ${meeting_topic} - ${meeting_date}`,
+        type: "DIGITAL_PRODUCT",
+        category: "SERVICE",
+        net_unit_amount: price,
+        quantity: 1,
+        currency: "IDR",
+        url: "https://rapatin.id/sewa-zoom-harian",
+      },
+    ],
+    capture_method: "AUTOMATIC",
+    locale: "id",
+    description: `Sewa Zoom Meeting - ${participant_count} Peserta - ${meeting_date}`,
+    success_return_url: `https://rapatin.lovable.app/quick-order/${accessSlug}`,
+    cancel_return_url: `https://rapatin.lovable.app/quick-order/${accessSlug}`,
+  }),
+});
 ```
 
-## Hasil Akhir
+### Perubahan Response Handling
 
-```text
-┌─────────────────────────────────────────────────┐
-│ DETAIL ORDER                                     │
-│ ├─ Nama      : John Doe                         │
-│ ├─ Email     : joh*****@gmail.com      (masked) │
-│ ├─ WhatsApp  : 0812****7890            (masked) │
-│ ├─ Topik     : Team Meeting Weekly              │
-│ └─ ...                                          │
-└─────────────────────────────────────────────────┘
+**Sebelum:**
+```typescript
+const xenditInvoice = await xenditResponse.json();
+// Response: { id: "...", invoice_url: "https://checkout.xendit.co/..." }
+
+xendit_invoice_id: xenditInvoice.id,
+xendit_invoice_url: xenditInvoice.invoice_url,
 ```
 
-## Catatan Keamanan
+**Sesudah:**
+```typescript
+const xenditSession = await xenditResponse.json();
+// Response: { id: "...", payment_link_url: "https://checkout.xendit.co/..." }
 
-- Masking hanya dilakukan di **frontend** untuk display
-- Data asli tetap tersimpan di database (tidak berubah)
-- Data asli tetap dikirim ke email/WhatsApp customer
-- Ini mencegah orang yang tidak berhak melihat data lengkap jika mendapat akses ke link
+xendit_invoice_id: xenditSession.id,
+xendit_invoice_url: xenditSession.payment_link_url,
+```
+
+## Mapping Field Lengkap
+
+| Field Lama | Field Baru | Keterangan |
+|------------|-----------|------------|
+| `external_id` | `reference_id` | ID unik transaksi |
+| - | `session_type` | `"PAY"` untuk pembayaran |
+| - | `mode` | `"PAYMENT_LINK"` untuk hosted checkout |
+| `amount` | `amount` | Sama |
+| `currency` | `currency` | Sama (`"IDR"`) |
+| - | `country` | Wajib: `"ID"` untuk Indonesia |
+| `payer_email` | `customer.email` | Dipindah ke customer object |
+| `customer.given_names` | `customer.individual_detail.given_names` | Nested lebih dalam |
+| `customer.email` | `customer.email` | Sama |
+| `customer.mobile_number` | `customer.mobile_number` | Sama |
+| - | `customer.reference_id` | ID unik customer (baru) |
+| - | `customer.type` | `"INDIVIDUAL"` |
+| `items[].name` | `items[].name` | Sama |
+| `items[].quantity` | `items[].quantity` | Sama |
+| `items[].price` | `items[].net_unit_amount` | Nama field berubah |
+| - | `items[].reference_id` | ID unik item (baru) |
+| - | `items[].type` | `"DIGITAL_PRODUCT"` |
+| - | `items[].category` | `"SERVICE"` |
+| - | `items[].description` | Deskripsi item |
+| - | `items[].url` | URL produk |
+| `invoice_duration` | - | Tidak ada di Sessions (default 24 jam) |
+| `success_redirect_url` | `success_return_url` | Nama berubah |
+| `failure_redirect_url` | `cancel_return_url` | Nama berubah |
+| - | `capture_method` | `"AUTOMATIC"` |
+| - | `locale` | `"id"` untuk bahasa Indonesia |
+
+## Struktur Response Sessions API
+
+```json
+{
+  "id": "ps-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+  "reference_id": "RAPATIN-1234567890-abc123",
+  "session_type": "PAY",
+  "status": "PENDING",
+  "payment_link_url": "https://checkout.xendit.co/sessions/ps-xxx...",
+  "created_at": "2026-01-27T06:00:00.000Z",
+  "expires_at": "2026-01-28T06:00:00.000Z"
+}
+```
+
+## Perubahan Database
+
+Tidak ada perubahan schema database karena field yang disimpan tetap sama:
+- `xendit_invoice_id` menyimpan `session.id`
+- `xendit_invoice_url` menyimpan `session.payment_link_url`
+- `expired_at` bisa diambil dari response `expires_at` atau tetap dihitung manual
 
 ## Urutan Implementasi
 
-1. Tambahkan fungsi `maskEmail()` di `QuickOrderDetail.tsx`
-2. Tambahkan fungsi `maskPhone()` di `QuickOrderDetail.tsx`
-3. Update tampilan email untuk menggunakan masking
-4. Update tampilan WhatsApp untuk menggunakan masking
+1. Update endpoint dari `/v2/invoices` ke `/sessions`
+2. Ubah struktur request body sesuai format Sessions API
+3. Update response handling untuk menggunakan `payment_link_url`
+4. Deploy dan test edge function
+5. Verifikasi webhook masih kompatibel (jika ada perubahan)
+
+## Catatan Penting
+
+- **Webhook**: Perlu dicek apakah webhook handler (`xendit-webhook`) perlu disesuaikan dengan format callback Sessions API
+- **Locale**: Menggunakan `"id"` agar halaman checkout dalam bahasa Indonesia
+- **Type Item**: Menggunakan `"DIGITAL_PRODUCT"` karena produk adalah layanan digital (Zoom meeting)
