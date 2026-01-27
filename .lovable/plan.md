@@ -1,117 +1,123 @@
 
-
-# Rencana: Integrasi API Rapatin + Tambah Input Jam Meeting
+# Rencana: Tambah Field Konfigurasi Meeting di Quick Order Form
 
 ## Ringkasan
-Mengimplementasikan integrasi penuh dengan API Rapatin untuk membuat jadwal Zoom meeting secara otomatis setelah pembayaran sukses. Juga menambahkan input jam meeting di form Quick Order.
+Menambahkan field Topic, Passcode custom, dan 5 opsi fitur meeting ke form Quick Order, lalu meneruskan data ini ke API Rapatin saat pembuatan jadwal.
 
 ## Perubahan yang Diperlukan
 
-### 1. Tambahkan Secrets Rapatin ke Supabase
-
-Perlu menambahkan 2 secrets baru:
-- `RAPATIN_EMAIL` - Email akun internal untuk login ke API Rapatin
-- `RAPATIN_PASSWORD` - Password akun internal untuk login
-
-### 2. Update Database Schema
+### 1. Update Database Schema
 
 Tambahkan kolom baru di tabel `guest_orders`:
 
-| Kolom | Tipe | Deskripsi |
-|-------|------|-----------|
-| meeting_time | text | Jam meeting yang dipilih user (format HH:mm) |
+| Kolom | Tipe | Default | Deskripsi |
+|-------|------|---------|-----------|
+| `meeting_topic` | text | NULL | Judul meeting custom |
+| `custom_passcode` | text | NULL | Passcode custom (jika diisi) |
+| `is_meeting_registration` | boolean | false | Aktifkan registrasi peserta |
+| `is_meeting_qna` | boolean | false | Aktifkan fitur Q&A |
+| `is_language_interpretation` | boolean | false | Aktifkan interpretasi bahasa |
+| `is_mute_upon_entry` | boolean | false | Mute peserta saat masuk |
+| `is_req_unmute_permission` | boolean | false | Request permission untuk unmute |
 
-### 3. Update Frontend - Form Quick Order
+### 2. Update Frontend Form
 
 **File: `src/components/quick-order/QuickOrderForm.tsx`**
 
-Perubahan:
-- Tambahkan field input untuk memilih jam meeting (dropdown/select)
-- Pilihan jam: 00:00 - 23:00 (increment per jam)
-- Update form schema untuk include `meeting_time`
-- Kirim `meeting_time` ke edge function
+Tambahkan field baru di section "Detail Meeting":
 
-**Contoh UI Time Picker:**
+**A. Topic Meeting**
 ```text
-+-------------------------+
-| Jam Meeting             |
-| [ 09:00           ▼ ]   |
-+-------------------------+
++----------------------------------+
+| Topik Meeting                    |
+| [Team Meeting Weekly        ]    |
++----------------------------------+
 ```
 
-### 4. Update Edge Function - create-guest-order
+**B. Passcode Custom (opsional)**
+```text
++----------------------------------+
+| Passcode (Opsional)              |
+| [123456                     ]    |
+| Kosongkan untuk auto-generate    |
++----------------------------------+
+```
+
+**C. Fitur Tambahan (Collapsible/Accordion)**
+```text
++----------------------------------+
+| ▼ Pengaturan Meeting Lanjutan    |
++----------------------------------+
+| [ ] Aktifkan registrasi peserta  |
+| [ ] Aktifkan fitur Q&A           |
+| [ ] Aktifkan interpretasi bahasa |
+| [ ] Mute peserta saat masuk      |
+| [ ] Minta izin untuk unmute      |
++----------------------------------+
+```
+
+### 3. Update Form Schema
+
+```typescript
+const formSchema = z.object({
+  // ... existing fields
+  meeting_topic: z.string()
+    .min(3, "Topik minimal 3 karakter")
+    .max(200, "Topik maksimal 200 karakter"),
+  custom_passcode: z.string()
+    .max(10, "Passcode maksimal 10 karakter")
+    .regex(/^[a-zA-Z0-9]*$/, "Passcode hanya boleh huruf dan angka")
+    .optional()
+    .or(z.literal('')),
+  is_meeting_registration: z.boolean().default(false),
+  is_meeting_qna: z.boolean().default(false),
+  is_language_interpretation: z.boolean().default(false),
+  is_mute_upon_entry: z.boolean().default(false),
+  is_req_unmute_permission: z.boolean().default(false),
+});
+```
+
+### 4. Update PricingSummary Component
+
+**File: `src/components/quick-order/PricingSummary.tsx`**
+
+Tambahkan tampilan:
+- Topik meeting
+- Passcode (jika custom)
+- Daftar fitur yang diaktifkan
+
+### 5. Update Edge Function - create-guest-order
 
 **File: `supabase/functions/create-guest-order/index.ts`**
 
 Perubahan:
-- Terima parameter `meeting_time` dari frontend
-- Simpan `meeting_time` ke database
+- Terima parameter baru dari frontend
+- Simpan semua field baru ke database
 
-### 5. Update Edge Function - xendit-webhook (Integrasi Rapatin)
+### 6. Update Edge Function - xendit-webhook
 
 **File: `supabase/functions/xendit-webhook/index.ts`**
 
-Implementasi lengkap integrasi Rapatin API:
+Perubahan pada `createRapatinSchedule`:
+- Gunakan `meeting_topic` dari order (atau default ke "Quick Order - {nama}")
+- Gunakan `custom_passcode` jika ada, atau auto-generate
+- Teruskan nilai 5 opsi fitur ke API Rapatin
 
-**Alur Proses:**
-```text
-+------------------+     +------------------+     +------------------+
-| 1. Webhook       |---->| 2. Login ke API  |---->| 3. Create        |
-|    Xendit        |     |    Rapatin       |     |    Schedule      |
-+------------------+     +------------------+     +------------------+
-                                                          |
-                                                          v
-+------------------+     +------------------+     +------------------+
-| 6. Update order  |<----| 5. Simpan zoom   |<----| 4. Get join_url  |
-|    status = paid |     |    link & passcode|    |    dari response |
-+------------------+     +------------------+     +------------------+
+```typescript
+body: JSON.stringify({
+  product_id: productId,
+  topic: order.meeting_topic || `Quick Order - ${order.name}`,
+  passcode: order.custom_passcode || generatePasscode(),
+  start_date: order.meeting_date,
+  start_time: order.meeting_time,
+  recurring: false,
+  is_meeting_registration: order.is_meeting_registration || false,
+  is_meeting_qna: order.is_meeting_qna || false,
+  is_language_interpretation: order.is_language_interpretation || false,
+  is_mute_participant_upon_entry: order.is_mute_upon_entry || false,
+  is_req_permission_to_unmute_participants: order.is_req_unmute_permission || false,
+}),
 ```
-
-**Step by Step:**
-
-1. **Login ke Rapatin API**
-   - Endpoint: `POST https://api.rapatin.id/auth/login`
-   - Body: `{ email, password, device: "webhook" }`
-   - Response: `data.token`
-
-2. **Create Schedule**
-   - Endpoint: `POST https://api.rapatin.id/schedules`
-   - Header: `Authorization: Bearer {token}`
-   - Body:
-     ```json
-     {
-       "product_id": 1-4 (berdasarkan participant_count),
-       "topic": "Quick Order - {nama pemesan}",
-       "passcode": "{generated 6 digit}",
-       "start_date": "{meeting_date}",
-       "start_time": "{meeting_time}",
-       "recurring": false,
-       "is_meeting_registration": false,
-       "is_meeting_qna": false,
-       "is_language_interpretation": false,
-       "is_mute_participant_upon_entry": false,
-       "is_req_permission_to_unmute_participants": false
-     }
-     ```
-
-3. **Map participant_count ke product_id:**
-   - 100 peserta → product_id: 1
-   - 300 peserta → product_id: 2
-   - 500 peserta → product_id: 3
-   - 1000 peserta → product_id: 4
-
-4. **Simpan Response ke Database:**
-   - `zoom_link` = `data.join_url`
-   - `zoom_passcode` = `data.passcode`
-   - `meeting_id` = `data.meeting_id`
-   - `rapatin_order_id` = `data.id`
-
-### 6. Update PricingSummary Component
-
-**File: `src/components/quick-order/PricingSummary.tsx`**
-
-Perubahan:
-- Tampilkan jam meeting yang dipilih di ringkasan order
 
 ## Detail Teknis
 
@@ -121,56 +127,54 @@ Perubahan:
 src/
 ├── components/
 │   └── quick-order/
-│       ├── QuickOrderForm.tsx    # Tambah time picker
-│       └── PricingSummary.tsx    # Tampilkan jam meeting
+│       ├── QuickOrderForm.tsx    # Tambah field baru
+│       └── PricingSummary.tsx    # Tampilkan konfigurasi
 
 supabase/
 ├── functions/
 │   ├── create-guest-order/
-│   │   └── index.ts              # Terima meeting_time
+│   │   └── index.ts              # Terima & simpan field baru
 │   └── xendit-webhook/
-│       └── index.ts              # Integrasi Rapatin API
+│       └── index.ts              # Gunakan konfigurasi dari DB
 ```
 
-### Error Handling untuk Rapatin API
+### UI/UX Considerations
 
-Webhook akan handle berbagai skenario error:
-- **Login gagal**: Log error, order tetap marked as paid (perlu manual follow-up)
-- **Create schedule gagal**: Log error, simpan error message ke database
-- **Network timeout**: Retry mechanism dengan 3 attempts
+1. **Topic**: Field wajib diisi, dengan placeholder contoh
+2. **Passcode**: Opsional, dengan hint "Kosongkan untuk auto-generate"
+3. **Fitur Tambahan**: 
+   - Dalam collapsible/accordion agar form tidak terlalu panjang
+   - Default semua false (off)
+   - Menggunakan Switch atau Checkbox component
 
-### Passcode Generation
+### Tentang Token Caching
 
-Generate 6 digit random passcode untuk meeting:
-```typescript
-const passcode = Math.random().toString().slice(2, 8);
-```
+Implementasi saat ini (login setiap request) tetap dipertahankan karena:
 
-## Keamanan
+1. **Stateless Edge Functions**: Edge functions tidak bisa menyimpan state di memory antar request
+2. **Simplicity**: Tidak perlu logic untuk token expiry dan refresh
+3. **Reliability**: Token selalu fresh, tidak ada risiko expired token
+4. **Low Volume**: Webhook payment tidak high-frequency, jadi overhead login minimal
 
-1. **Secrets disimpan di Supabase Edge Function Secrets**
-   - RAPATIN_EMAIL
-   - RAPATIN_PASSWORD
-   
-2. **Token Rapatin hanya digunakan sekali per request**
-   - Tidak perlu caching karena flow adalah per-payment webhook
+Jika volume meningkat signifikan, opsi optimasi:
+- Simpan token di database dengan expiry timestamp
+- Check token validity sebelum create schedule
+- Refresh jika expired
 
 ## Urutan Implementasi
 
-1. Request secrets RAPATIN_EMAIL dan RAPATIN_PASSWORD
-2. Buat database migration untuk kolom `meeting_time`
-3. Update `QuickOrderForm.tsx` - tambah time picker
-4. Update `PricingSummary.tsx` - tampilkan jam meeting
-5. Update `create-guest-order` edge function
-6. Implementasi Rapatin API di `xendit-webhook` edge function
-7. Testing end-to-end
+1. Buat database migration untuk kolom baru
+2. Update `QuickOrderForm.tsx` - tambah field baru
+3. Update `PricingSummary.tsx` - tampilkan konfigurasi
+4. Update `create-guest-order` - terima & simpan field baru
+5. Update `xendit-webhook` - gunakan konfigurasi dari order
+6. Testing end-to-end
 
 ## Testing Checklist
 
-- [ ] Form bisa memilih jam meeting
-- [ ] Jam meeting tersimpan di database
-- [ ] Login ke Rapatin API berhasil
-- [ ] Schedule berhasil dibuat di Rapatin
-- [ ] Zoom link tersimpan di database
-- [ ] Halaman success menampilkan zoom link
-
+- [ ] Form dapat mengisi topic meeting
+- [ ] Form dapat mengisi custom passcode (opsional)
+- [ ] 5 toggle fitur berfungsi dengan benar
+- [ ] Semua data tersimpan di database
+- [ ] Webhook meneruskan konfigurasi ke Rapatin API
+- [ ] Zoom meeting dibuat dengan konfigurasi yang benar
