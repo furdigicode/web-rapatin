@@ -40,6 +40,7 @@ interface OrderDetails {
   participant_count: number;
   price: number;
   payment_status: 'pending' | 'paid' | 'expired';
+  payment_method: string | null;
   zoom_link: string | null;
   zoom_passcode: string | null;
   meeting_id: string | null;
@@ -589,6 +590,12 @@ export default function QuickOrderDetail() {
                       <span className="text-muted-foreground">Pembayaran diterima</span>
                       <span className="text-green-600 font-medium">{formatDateTime(order.paid_at)}</span>
                     </div>
+                    {order.payment_method && (
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Metode Pembayaran</span>
+                        <span className="font-medium">{order.payment_method}</span>
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>

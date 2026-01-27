@@ -128,6 +128,7 @@ serve(async (req) => {
     // Generate secure access slug for the order
     const accessSlug = generateAccessSlug(24);
 
+    // Generate reference ID that will be used to match payment.capture webhook
     const sessionReferenceId = `RAPATIN-${Date.now()}-${Math.random().toString(36).substring(7)}`;
     const customerReferenceId = `cust_${Date.now()}_${Math.random().toString(36).substring(7)}`;
     
@@ -228,6 +229,7 @@ serve(async (req) => {
         is_mute_upon_entry: is_mute_upon_entry || false,
         is_req_unmute_permission: is_req_unmute_permission || false,
         access_slug: accessSlug,
+        xendit_reference_id: sessionReferenceId,
       })
       .select()
       .single();
