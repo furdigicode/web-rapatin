@@ -1,172 +1,174 @@
 
-# Rencana: Gabung Halaman Quick Order Status dengan Slug
+
+# Rencana: Custom Slug untuk Quick Order Detail
 
 ## Ringkasan
-Menggabungkan dua halaman terpisah (`QuickOrderSuccess.tsx` dan `QuickOrderPending.tsx`) menjadi satu halaman dinamis menggunakan route parameter (slug) berdasarkan Order ID dari Supabase.
+Mengganti penggunaan UUID Order ID dengan slug custom yang di-generate sistem menggunakan kombinasi huruf besar, kecil, dan angka sepanjang 24 karakter untuk meningkatkan keamanan akses halaman detail order.
 
-## Perubahan URL
+## Analisis Keamanan
 
-| Sebelum | Sesudah |
-|---------|---------|
-| `/quick-order/success?order_id=abc123` | `/quick-order/abc123` |
-| `/quick-order/pending?order_id=abc123` | `/quick-order/abc123` |
+| Pendekatan | Entropy | Kemungkinan Tebak |
+|------------|---------|-------------------|
+| UUID (hex) | ~122 bit | Sulit, tapi bisa bocor |
+| Custom 24 char (62 alphabet) | ~143 bit | Sangat sulit ditebak |
 
-Halaman baru akan menampilkan konten berbeda berdasarkan `payment_status`:
-- **pending**: Menampilkan countdown timer dan tombol cek status
-- **paid**: Menampilkan detail order lengkap + info Zoom
-- **expired**: Menampilkan pesan kadaluarsa
+Contoh slug: `A7kx9Ym2PqR5wN8vL3jB6tCs`
 
-## File yang Diubah/Dibuat
+## Perubahan Database
 
-### 1. File Baru: `src/pages/QuickOrderDetail.tsx`
-Halaman utama yang menggabungkan logika dari kedua halaman lama.
+### Tambah Kolom Baru: `access_slug`
+```sql
+ALTER TABLE guest_orders 
+ADD COLUMN access_slug TEXT UNIQUE;
 
-### 2. File yang Diubah: `src/App.tsx`
-- Hapus route `/quick-order/success` dan `/quick-order/pending`
-- Tambah route baru `/quick-order/:orderId`
+-- Buat index untuk lookup cepat
+CREATE UNIQUE INDEX idx_guest_orders_access_slug ON guest_orders(access_slug);
+```
 
-### 3. File yang Diubah: `supabase/functions/check-order-status/index.ts`
-- Tambahkan field tambahan: `whatsapp`, `meeting_time`, `meeting_topic`, `custom_passcode`, `xendit_invoice_url`
+## File yang Diubah
 
-### 4. File yang Dihapus (Opsional)
-- `src/pages/QuickOrderSuccess.tsx`
-- `src/pages/QuickOrderPending.tsx`
+### 1. Database Migration
+Tambah kolom `access_slug` ke tabel `guest_orders`
+
+### 2. `supabase/functions/create-guest-order/index.ts`
+- Generate slug 24 karakter saat membuat order
+- Simpan ke kolom `access_slug`
+- Update redirect URL Xendit ke format baru
+- Return `access_slug` di response
+
+### 3. `supabase/functions/check-order-status/index.ts`
+- Ubah query untuk lookup berdasarkan `access_slug` (bukan `id`)
+- Tetap support query by `id` untuk admin
+
+### 4. `src/pages/QuickOrderDetail.tsx`
+- Ubah parameter URL dari `orderId` menjadi `slug`
+- Update fetch untuk menggunakan slug
+
+### 5. `src/components/quick-order/LegacyRedirect.tsx`
+- Update untuk handle format lama
+
+### 6. `src/App.tsx`
+- Update route pattern
 
 ## Detail Implementasi
 
-### Route Baru
-```tsx
-// App.tsx
-<Route path="/quick-order/:orderId" element={<QuickOrderDetail />} />
-```
-
-### Struktur Komponen Baru
-
-```text
-QuickOrderDetail.tsx
-├── useParams() untuk ambil orderId dari URL
-├── State Management
-│   ├── order: GuestOrder | null
-│   ├── loading: boolean
-│   ├── error: string | null
-│   └── timeLeft: string (untuk countdown)
-├── Auto-polling setiap 5-10 detik jika pending
-├── Countdown timer jika pending
-└── Render berdasarkan status:
-    ├── pending → Countdown + Cek Status + Link ke Invoice
-    ├── paid → Detail Order + Zoom Info
-    └── expired → Pesan Kadaluarsa + Buat Order Baru
-```
-
-### Interface Order (Diperluas)
+### Fungsi Generate Slug (Edge Function)
 ```typescript
-interface OrderDetails {
-  id: string;
-  name: string;
-  email: string;
-  whatsapp: string;
-  meeting_date: string;
-  meeting_time: string | null;
-  meeting_topic: string | null;
-  custom_passcode: string | null;
-  participant_count: number;
-  price: number;
-  payment_status: 'pending' | 'paid' | 'expired';
-  zoom_link: string | null;
-  zoom_passcode: string | null;
-  meeting_id: string | null;
-  xendit_invoice_url: string | null;
-  expired_at: string | null;
-  paid_at: string | null;
-  created_at: string;
+function generateAccessSlug(length: number = 24): string {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  const array = new Uint8Array(length);
+  crypto.getRandomValues(array);
+  return Array.from(array, byte => chars[byte % chars.length]).join('');
 }
 ```
 
-### UI Layout
+### Perubahan URL
+
+| Sebelum | Sesudah |
+|---------|---------|
+| `/quick-order/550e8400-e29b-41d4-a716-446655440000` | `/quick-order/A7kx9Ym2PqR5wN8vL3jB6tCs` |
+
+### Update create-guest-order
+```typescript
+// Generate secure access slug
+const accessSlug = generateAccessSlug(24);
+
+// Insert ke database dengan access_slug
+const { data: order, error: dbError } = await supabase
+  .from("guest_orders")
+  .insert({
+    // ... fields lainnya
+    access_slug: accessSlug,
+  })
+  .select()
+  .single();
+
+// Update Xendit redirect URLs
+success_redirect_url: `https://rapatin.lovable.app/quick-order/${accessSlug}`,
+failure_redirect_url: `https://rapatin.lovable.app/quick-order/${accessSlug}`,
+
+// Return access_slug di response
+return new Response(
+  JSON.stringify({
+    success: true,
+    order_id: order.id,
+    access_slug: accessSlug,  // Untuk redirect frontend
+    invoice_url: xenditInvoice.invoice_url,
+  }),
+  // ...
+);
+```
+
+### Update check-order-status
+```typescript
+// Query berdasarkan access_slug
+let query = supabase
+  .from('guest_orders')
+  .select('...');
+
+// Support slug (public) dan id (admin)
+const slug = url.searchParams.get('slug');
+const orderId = url.searchParams.get('order_id');
+
+if (slug) {
+  query = query.eq('access_slug', slug);
+} else if (orderId) {
+  query = query.eq('id', orderId);
+}
+```
+
+### Update QuickOrderDetail.tsx
+```typescript
+export default function QuickOrderDetail() {
+  const { slug } = useParams<{ slug: string }>();
+  
+  const fetchOrder = useCallback(async () => {
+    const response = await fetch(
+      `https://mepznzrijuoyvjcmkspf.supabase.co/functions/v1/check-order-status?slug=${slug}`,
+      // ...
+    );
+  }, [slug]);
+}
+```
+
+### Update App.tsx Route
+```typescript
+// Ganti orderId dengan slug
+<Route path="/quick-order/:slug" element={<QuickOrderDetail />} />
+```
+
+## Alur Lengkap
 
 ```text
-┌─────────────────────────────────────────────────┐
-│               STATUS HEADER                      │
-│  ┌─────────────────────────────────────────┐    │
-│  │ [Icon berdasarkan status]               │    │
-│  │ Judul: Pembayaran Berhasil/Menunggu/... │    │
-│  │ Subtitle                                │    │
-│  └─────────────────────────────────────────┘    │
-├─────────────────────────────────────────────────┤
-│ (Jika PENDING)                                   │
-│ ┌─────────────────────────────────────────┐     │
-│ │ Sisa Waktu: 23:45:12                    │     │
-│ │ [Lanjutkan Pembayaran ↗]                │     │
-│ │ [Cek Status Pembayaran]                 │     │
-│ └─────────────────────────────────────────┘     │
-├─────────────────────────────────────────────────┤
-│ DETAIL ORDER                                     │
-│ ├─ Nama        : John Doe                       │
-│ ├─ Email       : john@example.com               │
-│ ├─ WhatsApp    : 081234567890                   │
-│ ├─ Topik       : Team Meeting Weekly            │
-│ ├─ Tanggal     : Senin, 27 Januari 2026         │
-│ ├─ Jam         : 10:00 WIB                      │
-│ ├─ Peserta     : 100 orang                      │
-│ └─ Total Bayar : Rp 25.000                      │
-├─────────────────────────────────────────────────┤
-│ (Jika PAID + Zoom Ready)                         │
-│ DETAIL ZOOM MEETING                              │
-│ ├─ Meeting ID  : 123 456 7890 [Copy]            │
-│ ├─ Passcode    : abc123 [Copy]                  │
-│ ├─ Link        : zoom.us/j/... [Copy]           │
-│ └─ [Buka Zoom Meeting ↗]                        │
-├─────────────────────────────────────────────────┤
-│ (Jika PAID tapi Zoom belum ready)               │
-│ ┌─────────────────────────────────────────┐     │
-│ │ [Spinner] Link Zoom sedang diproses...  │     │
-│ └─────────────────────────────────────────┘     │
-├─────────────────────────────────────────────────┤
-│ [Buat Order Baru] [Kembali ke Beranda]          │
-└─────────────────────────────────────────────────┘
+1. User submit Quick Order Form
+   ↓
+2. Edge function generate slug: "A7kx9Ym2PqR5wN8vL3jB6tCs"
+   ↓
+3. Simpan ke database dengan kolom access_slug
+   ↓
+4. Set Xendit redirect ke /quick-order/A7kx9Ym2PqR5wN8vL3jB6tCs
+   ↓
+5. Return slug ke frontend
+   ↓
+6. Frontend redirect ke /quick-order/A7kx9Ym2PqR5wN8vL3jB6tCs
+   ↓
+7. Halaman QuickOrderDetail fetch data via slug
 ```
 
-### Update Edge Function
-Tambahkan field yang diperlukan:
-```typescript
-// check-order-status/index.ts
-.select('id, name, email, whatsapp, meeting_date, meeting_time, meeting_topic, custom_passcode, participant_count, price, payment_status, zoom_link, zoom_passcode, meeting_id, xendit_invoice_url, expired_at, paid_at, created_at')
-```
+## Keunggulan Pendekatan Ini
 
-### Fitur Halaman Gabungan
-
-1. **Status Pending**
-   - Countdown timer sampai expired
-   - Tombol "Lanjutkan Pembayaran" (link ke Xendit invoice)
-   - Tombol "Cek Status" manual
-   - Auto-polling setiap 10 detik
-
-2. **Status Paid**
-   - Badge sukses hijau
-   - Detail order lengkap (termasuk topik, jam, dll)
-   - Info Zoom dengan tombol copy
-   - Link buka Zoom meeting
-   - Jika Zoom belum ready: tampilkan loader
-
-3. **Status Expired**
-   - Badge error merah
-   - Pesan pembayaran kadaluarsa
-   - Tombol buat order baru
+1. **URL Lebih Pendek**: 24 karakter vs 36 karakter UUID
+2. **Entropy Tinggi**: ~143 bit, sangat sulit ditebak secara brute-force
+3. **Tidak Bocorkan Struktur**: UUID bisa menunjukkan pola database
+4. **Backward Compatible**: Tetap bisa lookup by ID untuk keperluan admin
+5. **No Extra Auth Required**: Customer cukup punya link untuk akses
 
 ## Urutan Implementasi
 
-1. **Update Edge Function** - Tambahkan field yang diperlukan ke response
-2. **Buat `QuickOrderDetail.tsx`** - Halaman baru yang menggabungkan kedua logika
-3. **Update `App.tsx`** - Ganti routing lama dengan yang baru
-4. **Hapus file lama** - `QuickOrderSuccess.tsx` dan `QuickOrderPending.tsx`
+1. **Database Migration** - Tambah kolom `access_slug`
+2. **Update create-guest-order** - Generate dan simpan slug
+3. **Update check-order-status** - Query by slug
+4. **Update QuickOrderDetail.tsx** - Gunakan slug dari URL
+5. **Update App.tsx** - Ganti route parameter
+6. **Update LegacyRedirect** - Handle format lama
 
-## Backward Compatibility
-
-Untuk menjaga link lama tetap berfungsi (jika ada user yang sudah menyimpan link), bisa ditambahkan redirect:
-```tsx
-// Redirect dari format lama ke format baru
-<Route path="/quick-order/success" element={<Navigate to={`/quick-order/${searchParams.get('order_id')}`} replace />} />
-<Route path="/quick-order/pending" element={<Navigate to={`/quick-order/${searchParams.get('order_id')}`} replace />} />
-```
-
-Atau bisa dibuat komponen redirect sederhana yang membaca query param dan redirect ke slug.
