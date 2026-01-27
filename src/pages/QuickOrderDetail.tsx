@@ -464,6 +464,11 @@ export default function QuickOrderDetail() {
                     <div className="flex-1">
                       <p className="text-sm text-muted-foreground">Total Bayar</p>
                       <p className="text-xl font-bold text-primary">{formatRupiah(order.price)}</p>
+                      {order.payment_method && (
+                        <p className="text-sm text-muted-foreground mt-1">
+                          via <span className="font-medium text-foreground">{order.payment_method}</span>
+                        </p>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -581,21 +586,51 @@ export default function QuickOrderDetail() {
               <Card>
                 <CardContent className="p-6">
                   <h2 className="font-semibold text-lg mb-4">Riwayat</h2>
-                  <div className="space-y-3 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Order dibuat</span>
-                      <span>{formatDateTime(order.created_at)}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Pembayaran diterima</span>
-                      <span className="text-green-600 font-medium">{formatDateTime(order.paid_at)}</span>
-                    </div>
-                    {order.payment_method && (
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Metode Pembayaran</span>
-                        <span className="font-medium">{order.payment_method}</span>
+                  <div className="relative">
+                    {/* Timeline Item 1: Order Dibuat */}
+                    <div className="flex gap-4">
+                      <div className="flex flex-col items-center">
+                        <div className="w-3 h-3 bg-primary rounded-full" />
+                        <div className="w-0.5 h-full bg-border min-h-[40px]" />
                       </div>
-                    )}
+                      <div className="pb-6">
+                        <p className="font-medium text-sm">Order dibuat</p>
+                        <p className="text-sm text-muted-foreground">
+                          {formatDateTime(order.created_at)}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Timeline Item 2: Pembayaran Diterima */}
+                    <div className="flex gap-4">
+                      <div className="flex flex-col items-center">
+                        <div className="w-3 h-3 bg-green-500 rounded-full" />
+                        <div className="w-0.5 h-full bg-border min-h-[40px]" />
+                      </div>
+                      <div className="pb-6">
+                        <p className="font-medium text-sm text-green-600">Pembayaran diterima</p>
+                        <p className="text-sm text-muted-foreground">
+                          {formatDateTime(order.paid_at)}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Timeline Item 3: Zoom Meeting Dibuat */}
+                    <div className="flex gap-4">
+                      <div className="flex flex-col items-center">
+                        <div className={`w-3 h-3 rounded-full ${order.zoom_link ? 'bg-green-500' : 'bg-yellow-500 animate-pulse'}`} />
+                      </div>
+                      <div>
+                        <p className={`font-medium text-sm ${order.zoom_link ? 'text-green-600' : 'text-yellow-600'}`}>
+                          {order.zoom_link ? 'Zoom meeting dibuat' : 'Membuat Zoom meeting...'}
+                        </p>
+                        {order.zoom_link && (
+                          <p className="text-sm text-muted-foreground">
+                            Meeting siap digunakan
+                          </p>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
