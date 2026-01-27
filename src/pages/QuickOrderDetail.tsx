@@ -16,7 +16,9 @@ import {
   Calendar,
   Users,
   MessageSquare,
-  CreditCard
+  CreditCard,
+  AlertTriangle,
+  MessageCircle
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -107,6 +109,30 @@ ${order.zoom_link}
 
 Meeting ID: ${order.meeting_id}
 Passcode: ${order.zoom_passcode}`;
+};
+
+// WhatsApp admin untuk fallback
+const ADMIN_WHATSAPP = "6287788980084";
+
+// Helper untuk cek apakah pembuatan meeting kemungkinan gagal (lebih dari 5 menit)
+const isZoomCreationLikelyFailed = (paidAt: string): boolean => {
+  const paidTime = new Date(paidAt).getTime();
+  const now = Date.now();
+  const fiveMinutes = 5 * 60 * 1000;
+  return (now - paidTime) > fiveMinutes;
+};
+
+// Generate pesan WhatsApp dengan detail order
+const generateWhatsAppMessage = (order: OrderDetails): string => {
+  return encodeURIComponent(
+    `Halo Admin Rapatin, saya sudah melakukan pembayaran untuk order berikut:\n\n` +
+    `Nama: ${order.name}\n` +
+    `Email: ${order.email}\n` +
+    `Tanggal Meeting: ${order.meeting_date}\n` +
+    `Jumlah Peserta: ${order.participant_count}\n` +
+    `Total Bayar: Rp${order.price.toLocaleString('id-ID')}\n\n` +
+    `Namun link Zoom belum saya terima. Mohon bantuannya. Terima kasih.`
+  );
 };
 
 // Masking functions for sensitive data
@@ -566,14 +592,40 @@ export default function QuickOrderDetail() {
                         </a>
                       </Button>
                     </div>
+                  ) : order.paid_at && isZoomCreationLikelyFailed(order.paid_at) ? (
+                    // Fallback: Gagal membuat meeting setelah 5 menit
+                    <div className="bg-orange-50 dark:bg-orange-950/30 rounded-xl p-6 text-center space-y-4">
+                      <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/50 rounded-full flex items-center justify-center mx-auto">
+                        <AlertTriangle className="w-6 h-6 text-orange-600" />
+                      </div>
+                      <div>
+                        <p className="font-medium text-orange-800 dark:text-orange-200">
+                          Terjadi kendala saat membuat Zoom meeting
+                        </p>
+                        <p className="text-sm text-orange-600 dark:text-orange-300 mt-1">
+                          Silakan hubungi admin kami untuk bantuan
+                        </p>
+                      </div>
+                      <Button asChild className="bg-green-600 hover:bg-green-700">
+                        <a 
+                          href={`https://wa.me/${ADMIN_WHATSAPP}?text=${generateWhatsAppMessage(order)}`}
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                        >
+                          <MessageCircle className="w-4 h-4 mr-2" />
+                          Hubungi Admin via WhatsApp
+                        </a>
+                      </Button>
+                    </div>
                   ) : (
+                    // Loading state (masih dalam 5 menit)
                     <div className="bg-blue-50 dark:bg-blue-950/30 rounded-xl p-6 text-center">
                       <Loader2 className="w-10 h-10 text-blue-600 animate-spin mx-auto mb-3" />
                       <p className="font-medium text-blue-800 dark:text-blue-200">
                         Link Zoom sedang diproses...
                       </p>
                       <p className="text-sm text-blue-600 dark:text-blue-300 mt-1">
-                        Link akan dikirim ke email dan WhatsApp Anda
+                        Link akan muncul dalam beberapa saat
                       </p>
                     </div>
                   )}
@@ -618,15 +670,36 @@ export default function QuickOrderDetail() {
                     {/* Timeline Item 3: Zoom Meeting Dibuat */}
                     <div className="flex gap-4">
                       <div className="flex flex-col items-center">
-                        <div className={`w-3 h-3 rounded-full ${order.zoom_link ? 'bg-green-500' : 'bg-yellow-500 animate-pulse'}`} />
+                        <div className={`w-3 h-3 rounded-full ${
+                          order.zoom_link 
+                            ? 'bg-green-500' 
+                            : order.paid_at && isZoomCreationLikelyFailed(order.paid_at)
+                              ? 'bg-orange-500'
+                              : 'bg-yellow-500 animate-pulse'
+                        }`} />
                       </div>
                       <div>
-                        <p className={`font-medium text-sm ${order.zoom_link ? 'text-green-600' : 'text-yellow-600'}`}>
-                          {order.zoom_link ? 'Zoom meeting dibuat' : 'Membuat Zoom meeting...'}
+                        <p className={`font-medium text-sm ${
+                          order.zoom_link 
+                            ? 'text-green-600' 
+                            : order.paid_at && isZoomCreationLikelyFailed(order.paid_at)
+                              ? 'text-orange-600'
+                              : 'text-yellow-600'
+                        }`}>
+                          {order.zoom_link 
+                            ? 'Zoom meeting dibuat' 
+                            : order.paid_at && isZoomCreationLikelyFailed(order.paid_at)
+                              ? 'Gagal membuat meeting'
+                              : 'Membuat Zoom meeting...'}
                         </p>
                         {order.zoom_link && (
                           <p className="text-sm text-muted-foreground">
                             Meeting siap digunakan
+                          </p>
+                        )}
+                        {!order.zoom_link && order.paid_at && isZoomCreationLikelyFailed(order.paid_at) && (
+                          <p className="text-sm text-muted-foreground">
+                            Hubungi admin untuk bantuan
                           </p>
                         )}
                       </div>
