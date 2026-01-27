@@ -1,232 +1,172 @@
 
-# Rencana: Halaman Admin Order Management
+# Rencana: Gabung Halaman Quick Order Status dengan Slug
 
 ## Ringkasan
-Membuat halaman admin baru untuk menampilkan dan mengelola data orderan dari Quick Order (tabel `guest_orders`).
+Menggabungkan dua halaman terpisah (`QuickOrderSuccess.tsx` dan `QuickOrderPending.tsx`) menjadi satu halaman dinamis menggunakan route parameter (slug) berdasarkan Order ID dari Supabase.
 
-## Fitur Halaman
+## Perubahan URL
 
-### 1. Statistik Overview (Cards)
-Menampilkan ringkasan cepat:
-- **Total Order**: Jumlah seluruh order
-- **Pending**: Order menunggu pembayaran
-- **Paid**: Order sudah dibayar
-- **Expired**: Order kadaluarsa
+| Sebelum | Sesudah |
+|---------|---------|
+| `/quick-order/success?order_id=abc123` | `/quick-order/abc123` |
+| `/quick-order/pending?order_id=abc123` | `/quick-order/abc123` |
 
-### 2. Filter & Search
-- **Search**: Cari berdasarkan nama, email, atau WhatsApp
-- **Status Filter**: Semua / Pending / Paid / Expired
-- **Date Filter**: Filter berdasarkan tanggal meeting
+Halaman baru akan menampilkan konten berbeda berdasarkan `payment_status`:
+- **pending**: Menampilkan countdown timer dan tombol cek status
+- **paid**: Menampilkan detail order lengkap + info Zoom
+- **expired**: Menampilkan pesan kadaluarsa
 
-### 3. Tabel Data Order
-Kolom yang ditampilkan:
+## File yang Diubah/Dibuat
 
-| Kolom | Deskripsi |
-|-------|-----------|
-| Tanggal Order | created_at |
-| Nama | name |
-| Email / WhatsApp | email, whatsapp |
-| Meeting | meeting_date, meeting_time, meeting_topic |
-| Peserta | participant_count |
-| Harga | price (format Rupiah) |
-| Status | payment_status (badge berwarna) |
-| Zoom Info | zoom_link, meeting_id (jika sudah paid) |
-| Aksi | Tombol lihat detail |
+### 1. File Baru: `src/pages/QuickOrderDetail.tsx`
+Halaman utama yang menggabungkan logika dari kedua halaman lama.
 
-### 4. Dialog Detail Order
-Menampilkan informasi lengkap:
-- Informasi pelanggan (nama, email, WhatsApp)
-- Detail meeting (topik, tanggal, jam, passcode)
-- Pengaturan meeting (5 toggle options)
-- Info Zoom (jika sudah paid)
-- Timeline (created_at, paid_at, expired_at)
+### 2. File yang Diubah: `src/App.tsx`
+- Hapus route `/quick-order/success` dan `/quick-order/pending`
+- Tambah route baru `/quick-order/:orderId`
 
-### 5. Export CSV
-Tombol untuk mengekspor data order ke file CSV.
+### 3. File yang Diubah: `supabase/functions/check-order-status/index.ts`
+- Tambahkan field tambahan: `whatsapp`, `meeting_time`, `meeting_topic`, `custom_passcode`, `xendit_invoice_url`
 
-## File yang Dibuat/Diubah
-
-### File Baru
-1. **`src/pages/admin/OrderManagement.tsx`**
-   - Halaman utama manajemen order
-   - Mengikuti pola dari `FeedbackManagement.tsx`
-
-2. **`src/components/admin/OrderDetailDialog.tsx`**
-   - Dialog untuk menampilkan detail order lengkap
-
-3. **`src/types/OrderTypes.ts`**
-   - Type definitions untuk order
-
-### File yang Diubah
-4. **`src/App.tsx`**
-   - Tambah route baru `/admin/orders`
-
-5. **`src/components/admin/AdminLayout.tsx`**
-   - Tambah menu "Orders" di sidebar dengan icon ShoppingCart
-
-## Struktur Komponen
-
-```text
-OrderManagement.tsx
-├── Stats Cards (4 cards: Total, Pending, Paid, Expired)
-├── Filter Section
-│   ├── Search Input
-│   ├── Status Select
-│   └── Date Picker (optional)
-├── Actions (Export CSV button)
-├── Orders Table
-│   ├── TableHeader
-│   └── TableBody (map orders)
-└── OrderDetailDialog (modal)
-```
+### 4. File yang Dihapus (Opsional)
+- `src/pages/QuickOrderSuccess.tsx`
+- `src/pages/QuickOrderPending.tsx`
 
 ## Detail Implementasi
 
-### Types (`src/types/OrderTypes.ts`)
+### Route Baru
+```tsx
+// App.tsx
+<Route path="/quick-order/:orderId" element={<QuickOrderDetail />} />
+```
+
+### Struktur Komponen Baru
+
+```text
+QuickOrderDetail.tsx
+├── useParams() untuk ambil orderId dari URL
+├── State Management
+│   ├── order: GuestOrder | null
+│   ├── loading: boolean
+│   ├── error: string | null
+│   └── timeLeft: string (untuk countdown)
+├── Auto-polling setiap 5-10 detik jika pending
+├── Countdown timer jika pending
+└── Render berdasarkan status:
+    ├── pending → Countdown + Cek Status + Link ke Invoice
+    ├── paid → Detail Order + Zoom Info
+    └── expired → Pesan Kadaluarsa + Buat Order Baru
+```
+
+### Interface Order (Diperluas)
 ```typescript
-export interface GuestOrder {
+interface OrderDetails {
   id: string;
   name: string;
   email: string;
   whatsapp: string;
   meeting_date: string;
-  meeting_time: string;
+  meeting_time: string | null;
   meeting_topic: string | null;
   custom_passcode: string | null;
   participant_count: number;
   price: number;
   payment_status: 'pending' | 'paid' | 'expired';
-  payment_method: string | null;
-  xendit_invoice_id: string | null;
-  xendit_invoice_url: string | null;
   zoom_link: string | null;
   zoom_passcode: string | null;
   meeting_id: string | null;
-  is_meeting_registration: boolean;
-  is_meeting_qna: boolean;
-  is_language_interpretation: boolean;
-  is_mute_upon_entry: boolean;
-  is_req_unmute_permission: boolean;
-  created_at: string;
-  paid_at: string | null;
+  xendit_invoice_url: string | null;
   expired_at: string | null;
-  updated_at: string;
-}
-
-export interface OrderStats {
-  total: number;
-  pending: number;
-  paid: number;
-  expired: number;
+  paid_at: string | null;
+  created_at: string;
 }
 ```
 
-### Badge Colors by Status
+### UI Layout
+
+```text
+┌─────────────────────────────────────────────────┐
+│               STATUS HEADER                      │
+│  ┌─────────────────────────────────────────┐    │
+│  │ [Icon berdasarkan status]               │    │
+│  │ Judul: Pembayaran Berhasil/Menunggu/... │    │
+│  │ Subtitle                                │    │
+│  └─────────────────────────────────────────┘    │
+├─────────────────────────────────────────────────┤
+│ (Jika PENDING)                                   │
+│ ┌─────────────────────────────────────────┐     │
+│ │ Sisa Waktu: 23:45:12                    │     │
+│ │ [Lanjutkan Pembayaran ↗]                │     │
+│ │ [Cek Status Pembayaran]                 │     │
+│ └─────────────────────────────────────────┘     │
+├─────────────────────────────────────────────────┤
+│ DETAIL ORDER                                     │
+│ ├─ Nama        : John Doe                       │
+│ ├─ Email       : john@example.com               │
+│ ├─ WhatsApp    : 081234567890                   │
+│ ├─ Topik       : Team Meeting Weekly            │
+│ ├─ Tanggal     : Senin, 27 Januari 2026         │
+│ ├─ Jam         : 10:00 WIB                      │
+│ ├─ Peserta     : 100 orang                      │
+│ └─ Total Bayar : Rp 25.000                      │
+├─────────────────────────────────────────────────┤
+│ (Jika PAID + Zoom Ready)                         │
+│ DETAIL ZOOM MEETING                              │
+│ ├─ Meeting ID  : 123 456 7890 [Copy]            │
+│ ├─ Passcode    : abc123 [Copy]                  │
+│ ├─ Link        : zoom.us/j/... [Copy]           │
+│ └─ [Buka Zoom Meeting ↗]                        │
+├─────────────────────────────────────────────────┤
+│ (Jika PAID tapi Zoom belum ready)               │
+│ ┌─────────────────────────────────────────┐     │
+│ │ [Spinner] Link Zoom sedang diproses...  │     │
+│ └─────────────────────────────────────────┘     │
+├─────────────────────────────────────────────────┤
+│ [Buat Order Baru] [Kembali ke Beranda]          │
+└─────────────────────────────────────────────────┘
+```
+
+### Update Edge Function
+Tambahkan field yang diperlukan:
 ```typescript
-const getStatusBadge = (status: string) => {
-  switch (status) {
-    case 'paid':
-      return { variant: 'default', label: 'Lunas', color: 'bg-green-500' };
-    case 'pending':
-      return { variant: 'secondary', label: 'Menunggu', color: 'bg-yellow-500' };
-    case 'expired':
-      return { variant: 'destructive', label: 'Kadaluarsa', color: 'bg-red-500' };
-    default:
-      return { variant: 'outline', label: status };
-  }
-};
+// check-order-status/index.ts
+.select('id, name, email, whatsapp, meeting_date, meeting_time, meeting_topic, custom_passcode, participant_count, price, payment_status, zoom_link, zoom_passcode, meeting_id, xendit_invoice_url, expired_at, paid_at, created_at')
 ```
 
-### Sidebar Menu Addition
-```tsx
-// Di AdminLayout.tsx, tambahkan sebelum Feedback menu
-<SidebarMenuItem>
-  <SidebarMenuButton 
-    asChild 
-    isActive={location.pathname === '/admin/orders'}
-  >
-    <Link to="/admin/orders">
-      <ShoppingCart />
-      <span>Orders</span>
-    </Link>
-  </SidebarMenuButton>
-</SidebarMenuItem>
-```
+### Fitur Halaman Gabungan
 
-### Route Addition
-```tsx
-// Di App.tsx
-const OrderManagement = lazy(() => import("./pages/admin/OrderManagement"));
+1. **Status Pending**
+   - Countdown timer sampai expired
+   - Tombol "Lanjutkan Pembayaran" (link ke Xendit invoice)
+   - Tombol "Cek Status" manual
+   - Auto-polling setiap 10 detik
 
-// Dalam Routes
-<Route path="/admin/orders" element={<ProtectedRoute><OrderManagement /></ProtectedRoute>} />
-```
+2. **Status Paid**
+   - Badge sukses hijau
+   - Detail order lengkap (termasuk topik, jam, dll)
+   - Info Zoom dengan tombol copy
+   - Link buka Zoom meeting
+   - Jika Zoom belum ready: tampilkan loader
 
-## UI Preview
-
-```text
-┌─────────────────────────────────────────────────────────────────┐
-│ Orders                                                           │
-├─────────────────────────────────────────────────────────────────┤
-│ ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐                │
-│ │ Total   │ │ Pending │ │ Paid    │ │ Expired │                │
-│ │   45    │ │   12    │ │   28    │ │    5    │                │
-│ └─────────┘ └─────────┘ └─────────┘ └─────────┘                │
-├─────────────────────────────────────────────────────────────────┤
-│ [🔍 Search...        ] [Status ▼] [Export CSV]                  │
-├─────────────────────────────────────────────────────────────────┤
-│ Tanggal   │ Customer      │ Meeting       │ Harga  │ Status │ ▶│
-├───────────┼───────────────┼───────────────┼────────┼────────┼──┤
-│ 27 Jan 26 │ John Doe      │ Team Meeting  │ Rp 25k │ ✓ Lunas│ 👁│
-│           │ john@mail.com │ 28 Jan, 10:00 │        │        │   │
-├───────────┼───────────────┼───────────────┼────────┼────────┼──┤
-│ 26 Jan 26 │ Jane Smith    │ Workshop UX   │ Rp 55k │ Pending│ 👁│
-│           │ jane@mail.com │ 30 Jan, 14:00 │        │        │   │
-└───────────┴───────────────┴───────────────┴────────┴────────┴──┘
-```
-
-## Detail Dialog Preview
-
-```text
-┌─────────────────────────────────────────────┐
-│ Detail Order                            [X] │
-├─────────────────────────────────────────────┤
-│ INFORMASI PELANGGAN                         │
-│ Nama     : John Doe                         │
-│ Email    : john@example.com                 │
-│ WhatsApp : +6281234567890                   │
-├─────────────────────────────────────────────┤
-│ DETAIL MEETING                              │
-│ Topik    : Team Meeting Weekly              │
-│ Tanggal  : Senin, 28 Januari 2026           │
-│ Jam      : 10:00 WIB                        │
-│ Peserta  : 300 orang                        │
-│ Passcode : 123456 (custom)                  │
-├─────────────────────────────────────────────┤
-│ PENGATURAN MEETING                          │
-│ ✓ Registrasi Peserta                        │
-│ ✓ Fitur Q&A                                 │
-│ ✗ Interpretasi Bahasa                       │
-│ ✓ Mute Saat Masuk                           │
-│ ✗ Minta Izin Unmute                         │
-├─────────────────────────────────────────────┤
-│ INFO ZOOM (jika paid)                       │
-│ Meeting ID : 123 456 7890                   │
-│ Passcode   : abc123                         │
-│ Link       : [Salin Link]                   │
-├─────────────────────────────────────────────┤
-│ PEMBAYARAN                                  │
-│ Harga    : Rp 25.000                        │
-│ Status   : ✓ Lunas                          │
-│ Dibayar  : 27 Jan 2026, 10:15               │
-│ Invoice  : [Lihat Invoice ↗]                │
-└─────────────────────────────────────────────┘
-```
+3. **Status Expired**
+   - Badge error merah
+   - Pesan pembayaran kadaluarsa
+   - Tombol buat order baru
 
 ## Urutan Implementasi
 
-1. Buat `src/types/OrderTypes.ts` - Type definitions
-2. Buat `src/components/admin/OrderDetailDialog.tsx` - Dialog detail
-3. Buat `src/pages/admin/OrderManagement.tsx` - Halaman utama
-4. Update `src/components/admin/AdminLayout.tsx` - Tambah menu sidebar
-5. Update `src/App.tsx` - Tambah route baru
+1. **Update Edge Function** - Tambahkan field yang diperlukan ke response
+2. **Buat `QuickOrderDetail.tsx`** - Halaman baru yang menggabungkan kedua logika
+3. **Update `App.tsx`** - Ganti routing lama dengan yang baru
+4. **Hapus file lama** - `QuickOrderSuccess.tsx` dan `QuickOrderPending.tsx`
+
+## Backward Compatibility
+
+Untuk menjaga link lama tetap berfungsi (jika ada user yang sudah menyimpan link), bisa ditambahkan redirect:
+```tsx
+// Redirect dari format lama ke format baru
+<Route path="/quick-order/success" element={<Navigate to={`/quick-order/${searchParams.get('order_id')}`} replace />} />
+<Route path="/quick-order/pending" element={<Navigate to={`/quick-order/${searchParams.get('order_id')}`} replace />} />
+```
+
+Atau bisa dibuat komponen redirect sederhana yang membaca query param dan redirect ke slug.
