@@ -186,7 +186,20 @@ serve(async (req) => {
     }
 
     const xenditSession = await xenditResponse.json();
-    console.log("Xendit session created:", xenditSession.id, "URL:", xenditSession.payment_link_url);
+    console.log("Xendit full response:", JSON.stringify(xenditSession));
+
+    // Xendit Sessions API returns payment_session_id, not id
+    const sessionId = xenditSession.payment_session_id;
+
+    if (!sessionId) {
+      console.error("No payment_session_id in Xendit response:", xenditSession);
+      return new Response(JSON.stringify({ error: "Invalid payment session response" }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    console.log("Xendit session created:", sessionId, "URL:", xenditSession.payment_link_url);
 
     // Save order to database
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
@@ -204,7 +217,7 @@ serve(async (req) => {
         participant_count,
         price,
         payment_status: "pending",
-        xendit_invoice_id: xenditSession.id,
+        xendit_invoice_id: sessionId,
         xendit_invoice_url: xenditSession.payment_link_url,
         expired_at: xenditSession.expires_at || new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
         meeting_topic,
@@ -234,7 +247,7 @@ serve(async (req) => {
         success: true,
         order_id: order.id,
         access_slug: accessSlug,
-        session_id: xenditSession.id,
+        session_id: sessionId,
         invoice_url: xenditSession.payment_link_url,
         expired_at: xenditSession.expires_at || new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
       }),
