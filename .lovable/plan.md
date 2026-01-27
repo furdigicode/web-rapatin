@@ -1,159 +1,189 @@
 
-# Rencana: Tangkap & Tampilkan Metode Pembayaran dari Webhook
 
-## Analisis Webhook
+# Rencana: Pindah Payment Method & Buat Timeline Visual
 
-### Perbandingan 2 Event Webhook
+## Ringkasan Perubahan
 
-| Aspek | `payment_session.completed` | `payment.capture` |
-|-------|---------------------------|-------------------|
-| Payment Session ID | `data.payment_session_id` | ❌ Tidak ada |
-| Status | `data.status` (COMPLETED) | `data.status` (SUCCEEDED) |
-| Reference ID | ❌ Tidak ada | `data.reference_id` |
-| **Metode Pembayaran** | ❌ Tidak ada | ✅ `data.channel_code` (QRIS) |
-| **Provider** | ❌ Tidak ada | ✅ `data.payment_details.issuer_name` (DANA) |
-
-### Kesimpulan
-Event `payment.capture` mengandung informasi metode pembayaran yang lebih detail:
-- `channel_code`: QRIS, BANK_TRANSFER, EWALLET, CARD, dll
-- `payment_details.issuer_name`: DANA, OVO, GOPAY, BCA, BNI, dll
+1. Pindahkan informasi "Metode Pembayaran" ke dekat "Total Bayar" di kartu Detail Order
+2. Ubah section "Riwayat" menjadi timeline visual dengan titik-titik (dot) dan garis penghubung seperti stepper/wizard
 
 ## File yang Diubah
 
-1. `supabase/functions/xendit-webhook/index.ts` - Handle event `payment.capture`
-2. `supabase/functions/check-order-status/index.ts` - Return `payment_method`
-3. `src/pages/QuickOrderDetail.tsx` - Tampilkan metode pembayaran
+`src/pages/QuickOrderDetail.tsx`
+
+---
 
 ## Detail Perubahan
 
-### 1. Webhook Handler: Tangani `payment.capture`
+### 1. Pindahkan Payment Method ke Dekat Total Bayar
 
-Menambahkan handler untuk event `payment.capture`:
+**Lokasi**: Lines 460-468
 
-```typescript
-// Detect event type
-if (payload.event === 'payment.capture') {
-  console.log("Processing payment.capture event");
-  
-  const { data } = payload;
-  const referenceId = data.reference_id; // "RAPATIN-1769507023320-nbyrwg"
-  
-  // Build payment method string
-  let paymentMethod = data.channel_code || 'Unknown';
-  if (data.payment_details?.issuer_name) {
-    paymentMethod = `${data.channel_code} (${data.payment_details.issuer_name})`;
-  }
-  
-  // Find order by reference_id pattern in xendit_invoice_id or other identifier
-  // Update payment_method field only (order already processed by payment_session.completed)
-  
-  const { error } = await supabase
-    .from('guest_orders')
-    .update({ payment_method: paymentMethod })
-    .ilike('xendit_invoice_id', `%${referenceId.split('-')[1]}%`);
-  
-  return new Response(JSON.stringify({ success: true }), ...);
-}
-```
-
-**Catatan**: Karena `payment.capture` tidak memiliki `payment_session_id`, kita perlu menggunakan `reference_id` yang sebelumnya kita generate saat membuat order (format: `RAPATIN-timestamp-random`).
-
-#### Update Database Insert (create-guest-order)
-Perlu menyimpan `reference_id` ke database agar bisa di-match saat webhook `payment.capture`:
-
-```typescript
-// Di create-guest-order
-const sessionReferenceId = `RAPATIN-${Date.now()}-${Math.random().toString(36).substring(7)}`;
-
-// Simpan ke database
-xendit_reference_id: sessionReferenceId, // Perlu kolom baru
-```
-
-**Alternatif lebih sederhana**: Parse timestamp dari `reference_id` dan match dengan `created_at`.
-
-### 2. Check Order Status: Return `payment_method`
-
-Update query dan response di `check-order-status`:
-
-```typescript
-// Update select
-.select('..., payment_method, ...')
-
-// Update response
-order: {
-  // ... existing fields
-  payment_method: order.payment_method,
-}
-```
-
-### 3. Detail Order Page: Tampilkan Metode Pembayaran
-
-Update interface `OrderDetails`:
-```typescript
-interface OrderDetails {
-  // ... existing fields
-  payment_method: string | null;
-}
-```
-
-Tambah display di section "Riwayat" atau di bawah "Total Bayar":
+**Sebelum:**
 ```tsx
-{order.payment_method && (
-  <div className="flex justify-between">
-    <span className="text-muted-foreground">Metode Pembayaran</span>
-    <span className="font-medium">{order.payment_method}</span>
+<Separator />
+
+<div className="flex items-start gap-3">
+  <CreditCard className="w-5 h-5 text-muted-foreground mt-0.5" />
+  <div className="flex-1">
+    <p className="text-sm text-muted-foreground">Total Bayar</p>
+    <p className="text-xl font-bold text-primary">{formatRupiah(order.price)}</p>
   </div>
+</div>
+```
+
+**Sesudah:**
+```tsx
+<Separator />
+
+<div className="flex items-start gap-3">
+  <CreditCard className="w-5 h-5 text-muted-foreground mt-0.5" />
+  <div className="flex-1">
+    <p className="text-sm text-muted-foreground">Total Bayar</p>
+    <p className="text-xl font-bold text-primary">{formatRupiah(order.price)}</p>
+    {order.payment_method && (
+      <p className="text-sm text-muted-foreground mt-1">
+        via <span className="font-medium text-foreground">{order.payment_method}</span>
+      </p>
+    )}
+  </div>
+</div>
+```
+
+### 2. Ubah Section Riwayat Menjadi Timeline Visual
+
+**Lokasi**: Lines 579-601
+
+**Sebelum:**
+```tsx
+{isPaid && order.paid_at && (
+  <Card>
+    <CardContent className="p-6">
+      <h2 className="font-semibold text-lg mb-4">Riwayat</h2>
+      <div className="space-y-3 text-sm">
+        <div className="flex justify-between">
+          <span className="text-muted-foreground">Order dibuat</span>
+          <span>{formatDateTime(order.created_at)}</span>
+        </div>
+        <div className="flex justify-between">
+          <span className="text-muted-foreground">Pembayaran diterima</span>
+          <span className="text-green-600 font-medium">{formatDateTime(order.paid_at)}</span>
+        </div>
+        {order.payment_method && (
+          <div className="flex justify-between">
+            <span className="text-muted-foreground">Metode Pembayaran</span>
+            <span className="font-medium">{order.payment_method}</span>
+          </div>
+        )}
+      </div>
+    </CardContent>
+  </Card>
 )}
 ```
 
-## Alternatif Strategi Matching Order
+**Sesudah:**
+```tsx
+{isPaid && order.paid_at && (
+  <Card>
+    <CardContent className="p-6">
+      <h2 className="font-semibold text-lg mb-4">Riwayat</h2>
+      <div className="relative">
+        {/* Timeline Item 1: Order Dibuat */}
+        <div className="flex gap-4">
+          <div className="flex flex-col items-center">
+            <div className="w-3 h-3 bg-primary rounded-full" />
+            <div className="w-0.5 h-full bg-border min-h-[40px]" />
+          </div>
+          <div className="pb-6">
+            <p className="font-medium text-sm">Order dibuat</p>
+            <p className="text-sm text-muted-foreground">
+              {formatDateTime(order.created_at)}
+            </p>
+          </div>
+        </div>
 
-Karena `payment.capture` tidak memiliki `payment_session_id`, ada beberapa opsi:
+        {/* Timeline Item 2: Pembayaran Diterima */}
+        <div className="flex gap-4">
+          <div className="flex flex-col items-center">
+            <div className="w-3 h-3 bg-green-500 rounded-full" />
+            <div className="w-0.5 h-full bg-border min-h-[40px]" />
+          </div>
+          <div className="pb-6">
+            <p className="font-medium text-sm text-green-600">Pembayaran diterima</p>
+            <p className="text-sm text-muted-foreground">
+              {formatDateTime(order.paid_at)}
+            </p>
+          </div>
+        </div>
 
-### Opsi A: Tambah kolom `xendit_reference_id`
-- Simpan `reference_id` saat create order
-- Match webhook dengan kolom ini
-- **Pro**: Paling reliable
-- **Con**: Perlu migrasi database
+        {/* Timeline Item 3: Zoom Meeting Dibuat */}
+        <div className="flex gap-4">
+          <div className="flex flex-col items-center">
+            <div className={`w-3 h-3 rounded-full ${order.zoom_link ? 'bg-green-500' : 'bg-yellow-500 animate-pulse'}`} />
+          </div>
+          <div>
+            <p className={`font-medium text-sm ${order.zoom_link ? 'text-green-600' : 'text-yellow-600'}`}>
+              {order.zoom_link ? 'Zoom meeting dibuat' : 'Membuat Zoom meeting...'}
+            </p>
+            {order.zoom_link && (
+              <p className="text-sm text-muted-foreground">
+                Meeting siap digunakan
+              </p>
+            )}
+          </div>
+        </div>
+      </div>
+    </CardContent>
+  </Card>
+)}
+```
 
-### Opsi B: Match by timestamp (Sederhana)
-- Parse timestamp dari `reference_id` (contoh: `RAPATIN-1769507023320-nbyrwg`)
-- Match dengan `created_at` yang mendekati timestamp tersebut
-- **Pro**: Tidak perlu migrasi
-- **Con**: Kurang presisi jika ada banyak order bersamaan
+---
 
-### Opsi C: Skip payment.capture, gunakan data session
-- Ignore `payment.capture` event
-- Karena info payment method tidak critical untuk fungsionalitas
-- **Pro**: Paling sederhana
-- **Con**: Tidak bisa tampilkan metode pembayaran
+## Preview Tampilan
 
-### Rekomendasi: Opsi A (Tambah kolom reference_id)
+### Payment Method (di Detail Order)
 
-## Urutan Implementasi
+```text
+┌─────────────────────────────────────────┐
+│ Detail Order                            │
+├─────────────────────────────────────────┤
+│ 💳 Total Bayar                          │
+│    Rp100.000                            │
+│    via QRIS (DANA)              ← Baru  │
+└─────────────────────────────────────────┘
+```
 
-1. **Database**: Tambah kolom `xendit_reference_id` ke `guest_orders`
-2. **create-guest-order**: Simpan `reference_id` ke kolom baru
-3. **xendit-webhook**: Handle `payment.capture` event
-4. **check-order-status**: Return `payment_method`
-5. **QuickOrderDetail**: Tampilkan metode pembayaran
-
-## Contoh Tampilan UI
+### Timeline Riwayat (Visual)
 
 ```text
 ┌─────────────────────────────────────────┐
 │ Riwayat                                 │
 ├─────────────────────────────────────────┤
-│ Order dibuat      26 Jan 2026, 16:43    │
-│ Pembayaran        26 Jan 2026, 16:50    │
-│ Metode Pembayaran      QRIS (DANA)      │ ← Baru
+│  ●  Order dibuat                        │
+│  │  Senin, 27 Januari 2026, 16:43       │
+│  │                                      │
+│  ●  Pembayaran diterima                 │
+│  │  Senin, 27 Januari 2026, 16:50       │
+│  │                                      │
+│  ●  Zoom meeting dibuat                 │
+│     Meeting siap digunakan              │
 └─────────────────────────────────────────┘
 ```
 
-## Format Payment Method
+**Keterangan Visual:**
+- `●` = Titik/dot timeline (w-3 h-3 rounded-full)
+- `│` = Garis penghubung vertikal (w-0.5 bg-border)
+- Warna dot: primary untuk awal, green untuk sukses, yellow+pulse untuk proses
 
-Kombinasi `channel_code` + `issuer_name`:
-- QRIS → `QRIS (DANA)`, `QRIS (OVO)`, `QRIS (GoPay)`
-- EWALLET → `EWALLET (OVO)`, `EWALLET (DANA)`
-- BANK_TRANSFER → `VA (BCA)`, `VA (BNI)`, `VA (Mandiri)`
-- CARD → `Card (Visa)`, `Card (Mastercard)`
+---
+
+## Ringkasan Perubahan
+
+| Aspek | Sebelum | Sesudah |
+|-------|---------|---------|
+| Payment Method | Di section Riwayat | Di bawah Total Bayar dengan format "via QRIS (DANA)" |
+| Riwayat | List biasa dengan flex justify-between | Timeline visual dengan dots dan garis penghubung |
+| Timeline Items | 2 items (order, bayar) + payment method | 3 items (order, bayar, zoom dibuat) |
+| Status Zoom | Tidak ada di riwayat | Ditampilkan dengan status dinamis |
+
