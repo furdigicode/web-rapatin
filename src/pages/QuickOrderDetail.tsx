@@ -79,6 +79,29 @@ const formatDateTime = (dateStr: string) => {
   }).format(date);
 };
 
+// Masking functions for sensitive data
+const maskEmail = (email: string): string => {
+  const [username, domain] = email.split('@');
+  if (!domain) return email;
+  
+  const visibleChars = Math.min(3, username.length);
+  const masked = username.slice(0, visibleChars) + '*'.repeat(Math.max(username.length - visibleChars, 3));
+  
+  return `${masked}@${domain}`;
+};
+
+const maskPhone = (phone: string): string => {
+  const digitsOnly = phone.replace(/\D/g, '');
+  
+  if (digitsOnly.length < 8) return phone;
+  
+  const prefix = phone.slice(0, 4);
+  const suffix = phone.slice(-4);
+  const middleLength = phone.length - 8;
+  
+  return `${prefix}${'*'.repeat(Math.max(middleLength, 4))}${suffix}`;
+};
+
 export default function QuickOrderDetail() {
   const { slug } = useParams<{ slug: string }>();
   
@@ -363,7 +386,7 @@ export default function QuickOrderDetail() {
                     <Mail className="w-5 h-5 text-muted-foreground mt-0.5" />
                     <div>
                       <p className="text-sm text-muted-foreground">Email</p>
-                      <p className="font-medium">{order.email}</p>
+                      <p className="font-medium">{maskEmail(order.email)}</p>
                     </div>
                   </div>
 
@@ -371,7 +394,7 @@ export default function QuickOrderDetail() {
                     <Phone className="w-5 h-5 text-muted-foreground mt-0.5" />
                     <div>
                       <p className="text-sm text-muted-foreground">WhatsApp</p>
-                      <p className="font-medium">{order.whatsapp}</p>
+                      <p className="font-medium">{maskPhone(order.whatsapp)}</p>
                     </div>
                   </div>
 
