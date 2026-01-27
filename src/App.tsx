@@ -20,6 +20,9 @@ const Kontak = lazy(() => import("./pages/Kontak"));
 const Appointment = lazy(() => import("./pages/Appointment"));
 const SewaZoomHarian = lazy(() => import("./pages/SewaZoomHarian"));
 const EventManagement = lazy(() => import("./pages/EventManagement"));
+const QuickOrder = lazy(() => import("./pages/QuickOrder"));
+const QuickOrderSuccess = lazy(() => import("./pages/QuickOrderSuccess"));
+const QuickOrderPending = lazy(() => import("./pages/QuickOrderPending"));
 
 // Feature Pages - Lazy loaded
 const BayarSesuaiPakai = lazy(() => import("./pages/fitur/BayarSesuaiPakai"));
@@ -86,6 +89,9 @@ const AppRoutes = () => {
         <Route path="/faq" element={<FAQ />} />
         <Route path="/appointment" element={<Appointment />} />
         <Route path="/event-management" element={<EventManagement />} />
+        <Route path="/quick-order" element={<QuickOrder />} />
+        <Route path="/quick-order/success" element={<QuickOrderSuccess />} />
+        <Route path="/quick-order/pending" element={<QuickOrderPending />} />
         
         {/* Feature Pages */}
         <Route path="/fitur/bayar-sesuai-pakai" element={<BayarSesuaiPakai />} />
