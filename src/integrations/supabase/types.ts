@@ -287,6 +287,72 @@ export type Database = {
           },
         ]
       }
+      guest_orders: {
+        Row: {
+          created_at: string
+          email: string
+          expired_at: string | null
+          id: string
+          meeting_date: string
+          meeting_id: string | null
+          name: string
+          paid_at: string | null
+          participant_count: number
+          payment_method: string | null
+          payment_status: string
+          price: number
+          rapatin_order_id: string | null
+          updated_at: string
+          whatsapp: string
+          xendit_invoice_id: string | null
+          xendit_invoice_url: string | null
+          zoom_link: string | null
+          zoom_passcode: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          expired_at?: string | null
+          id?: string
+          meeting_date: string
+          meeting_id?: string | null
+          name: string
+          paid_at?: string | null
+          participant_count: number
+          payment_method?: string | null
+          payment_status?: string
+          price: number
+          rapatin_order_id?: string | null
+          updated_at?: string
+          whatsapp: string
+          xendit_invoice_id?: string | null
+          xendit_invoice_url?: string | null
+          zoom_link?: string | null
+          zoom_passcode?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          expired_at?: string | null
+          id?: string
+          meeting_date?: string
+          meeting_id?: string | null
+          name?: string
+          paid_at?: string | null
+          participant_count?: number
+          payment_method?: string | null
+          payment_status?: string
+          price?: number
+          rapatin_order_id?: string | null
+          updated_at?: string
+          whatsapp?: string
+          xendit_invoice_id?: string | null
+          xendit_invoice_url?: string | null
+          zoom_link?: string | null
+          zoom_passcode?: string | null
+        }
+        Relationships: []
+      }
       legal_documents: {
         Row: {
           content: string
