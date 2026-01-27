@@ -26,6 +26,7 @@ export interface GuestOrder {
   paid_at: string | null;
   expired_at: string | null;
   updated_at: string;
+  access_slug: string | null;
 }
 
 export interface OrderStats {

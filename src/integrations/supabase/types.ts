@@ -289,6 +289,7 @@ export type Database = {
       }
       guest_orders: {
         Row: {
+          access_slug: string | null
           created_at: string
           custom_passcode: string | null
           email: string
@@ -318,6 +319,7 @@ export type Database = {
           zoom_passcode: string | null
         }
         Insert: {
+          access_slug?: string | null
           created_at?: string
           custom_passcode?: string | null
           email: string
@@ -347,6 +349,7 @@ export type Database = {
           zoom_passcode?: string | null
         }
         Update: {
+          access_slug?: string | null
           created_at?: string
           custom_passcode?: string | null
           email?: string

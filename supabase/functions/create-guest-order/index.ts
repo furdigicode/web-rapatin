@@ -6,6 +6,14 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// Generate secure access slug (24 chars alphanumeric)
+function generateAccessSlug(length: number = 24): string {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  const array = new Uint8Array(length);
+  crypto.getRandomValues(array);
+  return Array.from(array, byte => chars[byte % chars.length]).join('');
+}
+
 // Pricing configuration (in Rupiah)
 const PRICING: Record<number, { promo: number; normal: number }> = {
   100: { promo: 10000, normal: 20000 },
@@ -121,7 +129,10 @@ serve(async (req) => {
     const invoiceExpiry = new Date();
     invoiceExpiry.setHours(invoiceExpiry.getHours() + 24); // 24 hours expiry
 
-    console.log("Creating Xendit invoice for:", { email, price, participant_count });
+    // Generate secure access slug for the order
+    const accessSlug = generateAccessSlug(24);
+
+    console.log("Creating Xendit invoice for:", { email, price, participant_count, accessSlug });
 
     const xenditResponse = await fetch("https://api.xendit.co/v2/invoices", {
       method: "POST",
@@ -140,8 +151,8 @@ serve(async (req) => {
           email: email,
           mobile_number: cleanWhatsapp,
         },
-        success_redirect_url: `https://rapatin.lovable.app/quick-order/success?order_id=${invoiceExternalId}`,
-        failure_redirect_url: `https://rapatin.lovable.app/quick-order/pending?order_id=${invoiceExternalId}`,
+        success_redirect_url: `https://rapatin.lovable.app/quick-order/${accessSlug}`,
+        failure_redirect_url: `https://rapatin.lovable.app/quick-order/${accessSlug}`,
         currency: "IDR",
         items: [
           {
@@ -191,6 +202,7 @@ serve(async (req) => {
         is_language_interpretation: is_language_interpretation || false,
         is_mute_upon_entry: is_mute_upon_entry || false,
         is_req_unmute_permission: is_req_unmute_permission || false,
+        access_slug: accessSlug,
       })
       .select()
       .single();
@@ -209,6 +221,7 @@ serve(async (req) => {
       JSON.stringify({
         success: true,
         order_id: order.id,
+        access_slug: accessSlug,
         external_id: invoiceExternalId,
         invoice_url: xenditInvoice.invoice_url,
         expired_at: invoiceExpiry.toISOString(),
