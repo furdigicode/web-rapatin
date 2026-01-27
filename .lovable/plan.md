@@ -1,46 +1,116 @@
 
+# Rencana: Format Payment Method ke Title Case
 
-# Rencana: Simulasi Gagal Membuat Zoom Meeting
+## Ringkasan
 
-## Tujuan
+Membuat helper function untuk mengubah format payment method dari `SNAKE_CASE_UPPERCASE` (contoh: `MANDIRI_VIRTUAL_ACCOUNT`) menjadi `Title Case` yang rapi (contoh: `Mandiri Virtual Account`).
 
-Menghapus data Zoom dari order ID `95cb2a0a-71de-4b45-b16a-f5289cc0c09d` untuk mensimulasikan kondisi dimana pembuatan Zoom meeting gagal, sehingga bisa menguji fallback UI yang baru dibuat.
+## File yang Diubah
 
-## Data Order Saat Ini
+1. `src/pages/QuickOrderDetail.tsx`
+2. `src/components/admin/OrderDetailDialog.tsx`
 
-| Field | Value |
-|-------|-------|
-| Order ID | 95cb2a0a-71de-4b45-b16a-f5289cc0c09d |
-| Nama | Anif |
-| Email | anifbagas.ads@gmail.com |
-| Status | paid |
-| Paid At | 27 Jan 2026, 13:13:34 |
-| Zoom Link | https://us06web.zoom.us/j/83845357130?pwd=... |
-| Meeting ID | 83845357130 |
-| Passcode | 745887 |
+---
 
-## Query SQL yang Akan Dijalankan
+## Detail Perubahan
 
-```sql
-UPDATE guest_orders 
-SET 
-  zoom_link = NULL,
-  zoom_passcode = NULL,
-  meeting_id = NULL
-WHERE id = '95cb2a0a-71de-4b45-b16a-f5289cc0c09d';
+### 1. Tambah Helper Function
+
+Lokasi: `src/pages/QuickOrderDetail.tsx` (di area helper functions, sekitar line 55-96)
+
+```typescript
+// Format payment method dari SNAKE_CASE ke Title Case
+// Contoh: "MANDIRI_VIRTUAL_ACCOUNT" -> "Mandiri Virtual Account"
+const formatPaymentMethod = (method: string): string => {
+  return method
+    .toLowerCase()
+    .split('_')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+};
 ```
 
-## Hasil yang Diharapkan
+### 2. Update Tampilan di QuickOrderDetail.tsx
 
-Setelah update:
-1. Order tetap berstatus `paid` dengan `paid_at` yang ada
-2. Data Zoom (`zoom_link`, `zoom_passcode`, `meeting_id`) menjadi NULL
-3. Ketika membuka halaman `/quick-order/{access_slug}`:
-   - Karena `paid_at` sudah lebih dari 5 menit yang lalu, sistem akan mendeteksi sebagai "gagal"
-   - Akan menampilkan fallback UI dengan tombol "Hubungi Admin via WhatsApp"
-   - Timeline akan menunjukkan status "Gagal membuat meeting" dengan dot berwarna orange
+**Lokasi**: Line 493-497
 
-## Cara Test
+**Sebelum:**
+```tsx
+{order.payment_method && (
+  <p className="text-sm text-muted-foreground mt-1">
+    via <span className="font-medium text-foreground">{order.payment_method}</span>
+  </p>
+)}
+```
 
-Setelah data di-update, buka halaman detail order untuk melihat fallback UI.
+**Sesudah:**
+```tsx
+{order.payment_method && (
+  <p className="text-sm text-muted-foreground mt-1">
+    via <span className="font-medium text-foreground">{formatPaymentMethod(order.payment_method)}</span>
+  </p>
+)}
+```
 
+### 3. Update Tampilan di OrderDetailDialog.tsx (Admin)
+
+**Lokasi**: Line 263-268
+
+Tambah helper function yang sama di file admin dialog:
+
+```typescript
+// Format payment method dari SNAKE_CASE ke Title Case
+const formatPaymentMethod = (method: string): string => {
+  return method
+    .toLowerCase()
+    .split('_')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+};
+```
+
+**Sebelum:**
+```tsx
+{order.payment_method && (
+  <div className="flex items-center justify-between">
+    <span className="text-muted-foreground">Metode</span>
+    <span>{order.payment_method}</span>
+  </div>
+)}
+```
+
+**Sesudah:**
+```tsx
+{order.payment_method && (
+  <div className="flex items-center justify-between">
+    <span className="text-muted-foreground">Metode</span>
+    <span>{formatPaymentMethod(order.payment_method)}</span>
+  </div>
+)}
+```
+
+---
+
+## Contoh Transformasi
+
+| Sebelum (Raw) | Sesudah (Formatted) |
+|---------------|---------------------|
+| `MANDIRI_VIRTUAL_ACCOUNT` | `Mandiri Virtual Account` |
+| `BCA_VIRTUAL_ACCOUNT` | `Bca Virtual Account` |
+| `QRIS` | `Qris` |
+| `EWALLET_DANA` | `Ewallet Dana` |
+| `CREDIT_CARD` | `Credit Card` |
+
+---
+
+## Catatan Teknis
+
+- Helper function `formatPaymentMethod` akan:
+  1. Mengubah ke lowercase
+  2. Split berdasarkan underscore (`_`)
+  3. Capitalize huruf pertama setiap kata
+  4. Join kembali dengan spasi
+
+- Function ini diterapkan di 2 lokasi:
+  - Halaman detail order untuk customer (`QuickOrderDetail.tsx`)
+  - Dialog detail order untuk admin (`OrderDetailDialog.tsx`)
