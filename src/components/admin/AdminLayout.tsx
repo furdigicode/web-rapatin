@@ -11,7 +11,8 @@ import {
   Bell,
   Settings,
   Vote,
-  MessageSquare
+  MessageSquare,
+  ShoppingCart
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -180,7 +181,18 @@ const AppSidebar = () => {
                       </Link>
                     </SidebarMenuSubButton>
                   </SidebarMenuSubItem>
-                </SidebarMenuSub>
+              </SidebarMenuSub>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton 
+                  asChild 
+                  isActive={location.pathname === '/admin/orders'}
+                >
+                  <Link to="/admin/orders">
+                    <ShoppingCart />
+                    <span>Orders</span>
+                  </Link>
+                </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton 
