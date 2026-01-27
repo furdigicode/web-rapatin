@@ -600,10 +600,10 @@ export default function QuickOrderDetail() {
                       </div>
                       <div>
                         <p className="font-medium text-orange-800 dark:text-orange-200">
-                          Terjadi kendala saat membuat Zoom meeting
+                          Maaf, sistem gagal membuat link Zoom meeting.
                         </p>
                         <p className="text-sm text-orange-600 dark:text-orange-300 mt-1">
-                          Silakan hubungi admin kami untuk bantuan
+                          Silakan hubungi admin kami untuk minta bantuan
                         </p>
                       </div>
                       <Button asChild className="bg-green-600 hover:bg-green-700">
