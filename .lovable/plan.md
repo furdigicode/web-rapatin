@@ -1,234 +1,92 @@
 
 
-# Rencana: Tampilkan Semua Tanggal Sesi Recurring Meeting
+## Tujuan
+Di halaman detail order `/quick-order/:slug`, untuk order recurring seperti `070a00d5-3f4f-41a5-ac88-515db6c78e82`, tampilkan:
+1) Semua tanggal + waktu sesi pada bagian “Jadwal Meeting”
+2) Semua tanggal sesi pada bagian “Invitation” (format seperti contoh)
 
-## Ringkasan
-
-Memperbarui halaman detail order (`QuickOrderDetail.tsx`) untuk menampilkan semua tanggal sesi meeting recurring, baik di bagian "Detail Order" maupun di teks "Invitation".
-
----
-
-## Data Order yang Ditemukan
-
-| Field | Value |
-|-------|-------|
-| Order ID | `070a00d5-3f4f-41a5-ac88-515db6c78e82` |
-| Nama | Anif |
-| is_recurring | true |
-| recurrence_type | 1 (Harian) |
-| repeat_interval | 7 (setiap 7 hari) |
-| recurrence_count | 3 |
-| total_days | 3 |
-| meeting_date | 2026-02-05 |
-| meeting_time | 08:00 |
-
-**Tanggal sesi yang diharapkan:**
-- 5 Februari 2026, 08:00
-- 12 Februari 2026, 08:00
-- 19 Februari 2026, 08:00
+Saat ini belum tampil karena data recurring tidak ikut terkirim dari Edge Function `check-order-status`, sehingga `order.is_recurring` dan `order.total_days` di frontend bernilai `undefined/null` dan UI jatuh ke mode single-date.
 
 ---
 
-## Perubahan yang Diperlukan
-
-### 1. Tambah Function untuk Generate Tanggal Sesi dari Order
-
-Lokasi: Bagian atas file (helper functions)
-
-```typescript
-// Generate semua tanggal sesi untuk recurring meeting
-const generateRecurringDates = (order: OrderDetails): Date[] => {
-  if (!order.is_recurring || !order.total_days || order.total_days <= 1) {
-    return [new Date(order.meeting_date)];
-  }
-
-  const dates: Date[] = [];
-  const startDate = new Date(order.meeting_date);
-  const totalDays = order.total_days;
-  const recurrenceType = order.recurrence_type || 1;
-  const repeatInterval = order.repeat_interval || 1;
-
-  if (recurrenceType === 1) {
-    // Daily: tambah hari sesuai interval
-    for (let i = 0; i < totalDays; i++) {
-      const date = addDays(startDate, i * repeatInterval);
-      dates.push(date);
-    }
-  } else if (recurrenceType === 2) {
-    // Weekly: gunakan weekly_days jika ada
-    // (logika lebih kompleks, simplifikasi untuk MVP)
-    for (let i = 0; i < totalDays; i++) {
-      const date = addWeeks(startDate, i * repeatInterval);
-      dates.push(date);
-    }
-  } else if (recurrenceType === 3) {
-    // Monthly
-    for (let i = 0; i < totalDays; i++) {
-      const date = addMonths(startDate, i * repeatInterval);
-      dates.push(date);
-    }
-  }
-
-  return dates;
-};
-```
-
-### 2. Update Bagian "Tanggal Meeting" di Detail Order
-
-Lokasi: Line 491-502 
-
-**Sebelum:**
-```tsx
-<div className="flex items-start gap-3">
-  <Calendar className="w-5 h-5 text-muted-foreground mt-0.5" />
-  <div>
-    <p className="text-sm text-muted-foreground">
-      {order.is_recurring ? 'Tanggal Mulai' : 'Tanggal Meeting'}
-    </p>
-    <p className="font-medium">
-      {formatDate(order.meeting_date)}
-      {order.meeting_time && ` • ${order.meeting_time} WIB`}
-    </p>
-  </div>
-</div>
-```
-
-**Sesudah:**
-```tsx
-<div className="flex items-start gap-3">
-  <Calendar className="w-5 h-5 text-muted-foreground mt-0.5" />
-  <div>
-    <p className="text-sm text-muted-foreground">
-      {order.is_recurring && order.total_days && order.total_days > 1 
-        ? 'Jadwal Meeting' 
-        : 'Tanggal Meeting'}
-    </p>
-    {order.is_recurring && order.total_days && order.total_days > 1 ? (
-      <div className="space-y-1">
-        {generateRecurringDates(order).map((date, idx) => (
-          <p key={idx} className="font-medium">
-            {format(date, 'EEEE, d MMMM yyyy', { locale: id })}
-            {order.meeting_time && ` • ${order.meeting_time} WIB`}
-          </p>
-        ))}
-      </div>
-    ) : (
-      <p className="font-medium">
-        {formatDate(order.meeting_date)}
-        {order.meeting_time && ` • ${order.meeting_time} WIB`}
-      </p>
-    )}
-  </div>
-</div>
-```
-
-### 3. Update Function `generateInvitationText`
-
-Lokasi: Line 122-136
-
-**Sebelum:**
-```typescript
-const generateInvitationText = (order: OrderDetails): string => {
-  const dateTime = formatDateForInvitation(order.meeting_date, order.meeting_time);
-  const topic = order.meeting_topic || 'Zoom Meeting';
-  
-  return `${order.name} is inviting you to a scheduled Zoom meeting.
-
-Topic: ${topic}
-Time: ${dateTime}
-
-Join Zoom Meeting
-${order.zoom_link}
-
-Meeting ID: ${order.meeting_id}
-Passcode: ${order.zoom_passcode}`;
-};
-```
-
-**Sesudah:**
-```typescript
-const generateInvitationText = (order: OrderDetails): string => {
-  const topic = order.meeting_topic || 'Zoom Meeting';
-  
-  // Generate time section - multiple dates for recurring
-  let timeSection: string;
-  if (order.is_recurring && order.total_days && order.total_days > 1) {
-    const dates = generateRecurringDates(order);
-    const formattedDates = dates.map((date, idx) => {
-      const formattedDate = format(date, 'MMM dd, yyyy', { locale: undefined }); // English format
-      const time = order.meeting_time || '00:00';
-      const timeFormatted = `${time.split(':')[0]}:${time.split(':')[1]} AM`;
-      return idx === 0 
-        ? `Time: ${formattedDate} ${timeFormatted} Jakarta`
-        : `${formattedDate} ${timeFormatted} Jakarta`;
-    });
-    timeSection = formattedDates.join('\n');
-  } else {
-    timeSection = `Time: ${formatDateForInvitation(order.meeting_date, order.meeting_time)}`;
-  }
-  
-  return `${order.name} is inviting you to a scheduled Zoom meeting.
-
-Topic: ${topic}
-${timeSection}
-
-Join Zoom Meeting
-${order.zoom_link}
-
-Meeting ID: ${order.meeting_id}
-Passcode: ${order.zoom_passcode}`;
-};
-```
-
-### 4. Hapus Section "Recurring Info" yang Redundan
-
-Lokasi: Line 512-528
-
-Karena sekarang semua tanggal sudah ditampilkan di bagian "Jadwal Meeting", section "Meeting Berulang" menjadi redundan dan bisa dihapus untuk menghindari duplikasi informasi.
+## Temuan (akar masalah)
+- Di database, order tersebut **memiliki recurring fields**:
+  - `is_recurring=true`, `recurrence_type=1`, `repeat_interval=7`, `total_days=3`, `meeting_date=2026-02-05`, `meeting_time=08:00`
+- Tetapi Edge Function `supabase/functions/check-order-status/index.ts` hanya `.select(...)` field lama dan response juga hanya mengembalikan field lama, **tanpa**:
+  - `is_recurring, recurrence_type, repeat_interval, weekly_days, monthly_day, monthly_week, end_type, recurrence_end_date, recurrence_count, total_days`
+- Akibatnya, halaman detail order tetap menampilkan 1 tanggal (seperti screenshot).
 
 ---
 
-## Tampilan yang Diharapkan
+## Perubahan yang akan dilakukan
 
-### Detail Order (Recurring)
-```text
-Jadwal Meeting
-Kamis, 5 Februari 2026 • 08:00 WIB
-Kamis, 12 Februari 2026 • 08:00 WIB
-Kamis, 19 Februari 2026 • 08:00 WIB
-```
+### 1) Update Edge Function `check-order-status` agar mengirim field recurring
+**File:** `supabase/functions/check-order-status/index.ts`
 
-### Invitation Text
-```text
-Anif is inviting you to a scheduled Zoom meeting.
+**A. Update query select**
+Tambahkan kolom recurring ke `.select(...)`, contoh:
+- `is_recurring`
+- `recurrence_type`
+- `repeat_interval`
+- `weekly_days`
+- `monthly_day`
+- `monthly_week`
+- `end_type`
+- `recurrence_end_date`
+- `recurrence_count`
+- `total_days`
 
-Topic: Recurring Quick Order
-Time: Feb 05, 2026 08:00 AM Jakarta
-Feb 12, 2026 08:00 AM Jakarta
-Feb 19, 2026 08:00 AM Jakarta
+**B. Update response JSON**
+Pastikan `order: { ... }` yang dikembalikan ke frontend juga mencantumkan semua field di atas.
 
-Join Zoom Meeting
-https://us06web.zoom.us/j/81397276352?pwd=...
-
-Meeting ID: 81397276352
-Passcode: 920649
-```
-
----
-
-## Import yang Diperlukan
-
-Tambahkan import `addDays`, `addWeeks`, `addMonths`, dan `format` dari `date-fns`:
-
-```typescript
-import { format, addDays, addWeeks, addMonths } from "date-fns";
-```
+**Hasil yang diharapkan**
+Frontend akan menerima data recurring lengkap, sehingga:
+- kondisi `order.is_recurring && order.total_days > 1` menjadi true
+- UI otomatis merender list semua sesi
+- `generateInvitationText(order)` otomatis memuat semua tanggal sesi
 
 ---
 
-## File yang Diubah
+### 2) (Opsional tapi direkomendasikan) Hardening di `QuickOrderDetail.tsx`
+**File:** `src/pages/QuickOrderDetail.tsx`
 
-| File | Perubahan |
-|------|-----------|
-| `src/pages/QuickOrderDetail.tsx` | Tambah helper `generateRecurringDates`, update tampilan tanggal, update invitation text |
+Agar lebih robust jika suatu hari ada order lama atau response belum lengkap:
+- Jika `order.is_recurring === true` tetapi `total_days` kosong, tampilkan fallback:
+  - label “Tanggal Meeting (Recurring)” + tanggal mulai
+  - dan (opsional) small warning: “Detail jadwal lengkap belum tersedia, silakan refresh”
+- Jika `total_days` ada tetapi `is_recurring` null (edge-case), treat as recurring jika `total_days > 1`.
+
+Catatan: ini bukan wajib untuk memperbaiki kasus Anda sekarang, tapi mengurangi kejadian “belum ada” jika ada data yang parsial.
+
+---
+
+## Cara verifikasi (testing)
+1. Deploy Edge Function `check-order-status` setelah perubahan.
+2. Buka halaman: `/quick-order/VFBi6YtFq8qQvp4j9yIVrFMA`
+3. Pastikan:
+   - Bagian yang sebelumnya “Tanggal Meeting” berubah menjadi “Jadwal Meeting”
+   - Menampilkan 3 baris:
+     - Kamis, 5 Februari 2026 • 08:00 WIB
+     - Kamis, 12 Februari 2026 • 08:00 WIB
+     - Kamis, 19 Februari 2026 • 08:00 WIB
+4. Scroll ke “Invitation”:
+   - Baris `Time:` mencantumkan semua tanggal sesi (format sesuai implementasi sekarang: `Time: ...` lalu baris-baris berikutnya).
+
+---
+
+## Dampak & risiko
+- Dampak positif: semua client (customer) yang membuka order recurring akan langsung melihat jadwal lengkap dan invitation lengkap.
+- Risiko rendah: hanya menambah field di response; tidak mengubah logic pembayaran/meeting creation.
+
+---
+
+## File yang akan diubah
+1. `supabase/functions/check-order-status/index.ts` (wajib)
+2. `src/pages/QuickOrderDetail.tsx` (opsional hardening; jika Anda setuju)
+
+---
+
+## Catatan teknis tambahan (untuk developer)
+- Screenshot “belum ada” konsisten dengan response missing recurring fields, bukan masalah UI rendering.
+- Untuk order contoh ini, `recurrence_type=1` dan `repeat_interval=7` akan menghasilkan sesi mingguan, dan helper di `QuickOrderDetail.tsx` sudah menghitungnya (as daily + 7 days). Jadi setelah data terkirim, hasil tanggal akan sesuai ekspektasi.
 
