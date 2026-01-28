@@ -32,9 +32,9 @@ export default function QuickOrder() {
     <>
       <Helmet>
         <title>Quick Order - Sewa Zoom Meeting Sekali Pakai | Rapatin</title>
-        <meta 
-          name="description" 
-          content="Sewa Zoom meeting sekali pakai tanpa perlu daftar. Bayar langsung, terima link Zoom instan. Mulai dari Rp 10.000 untuk 100 peserta." 
+        <meta
+          name="description"
+          content="Sewa Zoom meeting sekali pakai tanpa perlu daftar. Bayar langsung, terima link Zoom instan. Mulai dari Rp 10.000 untuk 100 peserta."
         />
         <meta name="robots" content="index, follow" />
         <link rel="canonical" href="https://rapatin.id/quick-order" />
@@ -49,15 +49,14 @@ export default function QuickOrder() {
             <div className="text-center max-w-3xl mx-auto mb-8">
               <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-medium mb-4">
                 <Zap className="w-4 h-4" />
-                Quick Order - Tanpa Daftar
+                Quick Order
               </div>
               <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
-                Sewa Zoom Meeting{" "}
-                <span className="text-primary">Sekali Pakai</span>
+                Zoom Meeting <span className="text-primary">Sekali Pakai</span>
               </h1>
               <p className="text-lg text-muted-foreground">
-                Butuh meeting cepat? Langsung order tanpa perlu daftar akun. 
-                Bayar, dan terima link Zoom dalam hitungan menit.
+                Butuh meeting cepat? Langsung order tanpa perlu daftar akun. Bayar, dan terima link Zoom dalam hitungan
+                menit.
               </p>
             </div>
 
