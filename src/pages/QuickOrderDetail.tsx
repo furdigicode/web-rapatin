@@ -21,7 +21,8 @@ import {
   CreditCard,
   AlertTriangle,
   MessageCircle,
-  Repeat
+  Repeat,
+  BookOpen
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -32,6 +33,13 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 interface OrderDetails {
   id: string;
@@ -679,12 +687,82 @@ export default function QuickOrderDetail() {
                         />
                       </div>
 
-                      <Button asChild className="w-full mt-4">
-                        <a href={order.zoom_link} target="_blank" rel="noopener noreferrer">
-                          <ExternalLink className="w-4 h-4 mr-2" />
-                          Buka Zoom Meeting
-                        </a>
-                      </Button>
+                      {/* Panduan Buttons */}
+                      <div className="flex flex-col sm:flex-row gap-3 mt-4">
+                        <Button asChild variant="outline" className="flex-1">
+                          <a 
+                            href="https://example.com/panduan-host" 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                          >
+                            <BookOpen className="w-4 h-4 mr-2" />
+                            Panduan Menjadi Host
+                          </a>
+                        </Button>
+                        
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button variant="outline" className="flex-1">
+                              <BookOpen className="w-4 h-4 mr-2" />
+                              Panduan Lainnya
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent className="max-w-md">
+                            <DialogHeader>
+                              <DialogTitle>Panduan Lainnya</DialogTitle>
+                            </DialogHeader>
+                            <div className="space-y-3">
+                              <a 
+                                href="https://example.com/panduan-1"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-3 p-3 rounded-lg border hover:bg-muted transition-colors"
+                              >
+                                <BookOpen className="w-5 h-5 text-primary" />
+                                <div>
+                                  <p className="font-medium">Panduan Mengundang Peserta</p>
+                                  <p className="text-sm text-muted-foreground">
+                                    Cara mengundang peserta ke meeting
+                                  </p>
+                                </div>
+                                <ExternalLink className="w-4 h-4 ml-auto text-muted-foreground" />
+                              </a>
+                              
+                              <a 
+                                href="https://example.com/panduan-2"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-3 p-3 rounded-lg border hover:bg-muted transition-colors"
+                              >
+                                <BookOpen className="w-5 h-5 text-primary" />
+                                <div>
+                                  <p className="font-medium">Panduan Recording</p>
+                                  <p className="text-sm text-muted-foreground">
+                                    Cara merekam meeting Zoom
+                                  </p>
+                                </div>
+                                <ExternalLink className="w-4 h-4 ml-auto text-muted-foreground" />
+                              </a>
+                              
+                              <a 
+                                href="https://example.com/panduan-3"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-3 p-3 rounded-lg border hover:bg-muted transition-colors"
+                              >
+                                <BookOpen className="w-5 h-5 text-primary" />
+                                <div>
+                                  <p className="font-medium">Panduan Fitur Lainnya</p>
+                                  <p className="text-sm text-muted-foreground">
+                                    Breakout room, polling, dan lainnya
+                                  </p>
+                                </div>
+                                <ExternalLink className="w-4 h-4 ml-auto text-muted-foreground" />
+                              </a>
+                            </div>
+                          </DialogContent>
+                        </Dialog>
+                      </div>
                     </div>
                   ) : order.paid_at && isZoomCreationLikelyFailed(order.paid_at) ? (
                     // Fallback: Gagal membuat meeting setelah 5 menit
