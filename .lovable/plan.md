@@ -1,92 +1,188 @@
 
 
-## Tujuan
-Di halaman detail order `/quick-order/:slug`, untuk order recurring seperti `070a00d5-3f4f-41a5-ac88-515db6c78e82`, tampilkan:
-1) Semua tanggal + waktu sesi pada bagian “Jadwal Meeting”
-2) Semua tanggal sesi pada bagian “Invitation” (format seperti contoh)
+# Rencana: Ganti Tombol "Buka Zoom Meeting" dengan Panduan
 
-Saat ini belum tampil karena data recurring tidak ikut terkirim dari Edge Function `check-order-status`, sehingga `order.is_recurring` dan `order.total_days` di frontend bernilai `undefined/null` dan UI jatuh ke mode single-date.
+## Ringkasan
 
----
+Mengganti tombol "Buka Zoom Meeting" di bawah invitation dengan dua tombol panduan:
+1. **Panduan Menjadi Host** - link langsung
+2. **Panduan Lainnya** - membuka dialog dengan daftar panduan
 
-## Temuan (akar masalah)
-- Di database, order tersebut **memiliki recurring fields**:
-  - `is_recurring=true`, `recurrence_type=1`, `repeat_interval=7`, `total_days=3`, `meeting_date=2026-02-05`, `meeting_time=08:00`
-- Tetapi Edge Function `supabase/functions/check-order-status/index.ts` hanya `.select(...)` field lama dan response juga hanya mengembalikan field lama, **tanpa**:
-  - `is_recurring, recurrence_type, repeat_interval, weekly_days, monthly_day, monthly_week, end_type, recurrence_end_date, recurrence_count, total_days`
-- Akibatnya, halaman detail order tetap menampilkan 1 tanggal (seperti screenshot).
+Layout:
+- Desktop: dua tombol dalam satu baris (side by side)
+- Mobile: dua tombol bertumpuk (stacked)
 
 ---
 
-## Perubahan yang akan dilakukan
+## Perubahan yang Diperlukan
 
-### 1) Update Edge Function `check-order-status` agar mengirim field recurring
-**File:** `supabase/functions/check-order-status/index.ts`
+### 1. Tambah Import Dialog Components
 
-**A. Update query select**
-Tambahkan kolom recurring ke `.select(...)`, contoh:
-- `is_recurring`
-- `recurrence_type`
-- `repeat_interval`
-- `weekly_days`
-- `monthly_day`
-- `monthly_week`
-- `end_type`
-- `recurrence_end_date`
-- `recurrence_count`
-- `total_days`
+File: `src/pages/QuickOrderDetail.tsx`
 
-**B. Update response JSON**
-Pastikan `order: { ... }` yang dikembalikan ke frontend juga mencantumkan semua field di atas.
+```typescript
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+```
 
-**Hasil yang diharapkan**
-Frontend akan menerima data recurring lengkap, sehingga:
-- kondisi `order.is_recurring && order.total_days > 1` menjadi true
-- UI otomatis merender list semua sesi
-- `generateInvitationText(order)` otomatis memuat semua tanggal sesi
+Tambah icon baru:
+```typescript
+import { BookOpen } from "lucide-react";
+```
+
+### 2. Ganti Tombol "Buka Zoom Meeting"
+
+**Lokasi:** Line 682-687
+
+**Sebelum:**
+```tsx
+<Button asChild className="w-full mt-4">
+  <a href={order.zoom_link} target="_blank" rel="noopener noreferrer">
+    <ExternalLink className="w-4 h-4 mr-2" />
+    Buka Zoom Meeting
+  </a>
+</Button>
+```
+
+**Sesudah:**
+```tsx
+{/* Panduan Buttons */}
+<div className="flex flex-col sm:flex-row gap-3 mt-4">
+  <Button asChild variant="outline" className="flex-1">
+    <a 
+      href="https://example.com/panduan-host" 
+      target="_blank" 
+      rel="noopener noreferrer"
+    >
+      <BookOpen className="w-4 h-4 mr-2" />
+      Panduan Menjadi Host
+    </a>
+  </Button>
+  
+  <Dialog>
+    <DialogTrigger asChild>
+      <Button variant="outline" className="flex-1">
+        <BookOpen className="w-4 h-4 mr-2" />
+        Panduan Lainnya
+      </Button>
+    </DialogTrigger>
+    <DialogContent className="max-w-md">
+      <DialogHeader>
+        <DialogTitle>Panduan Lainnya</DialogTitle>
+      </DialogHeader>
+      <div className="space-y-3">
+        <a 
+          href="https://example.com/panduan-1"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-3 p-3 rounded-lg border hover:bg-muted transition-colors"
+        >
+          <BookOpen className="w-5 h-5 text-primary" />
+          <div>
+            <p className="font-medium">Panduan Mengundang Peserta</p>
+            <p className="text-sm text-muted-foreground">
+              Cara mengundang peserta ke meeting
+            </p>
+          </div>
+          <ExternalLink className="w-4 h-4 ml-auto text-muted-foreground" />
+        </a>
+        
+        <a 
+          href="https://example.com/panduan-2"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-3 p-3 rounded-lg border hover:bg-muted transition-colors"
+        >
+          <BookOpen className="w-5 h-5 text-primary" />
+          <div>
+            <p className="font-medium">Panduan Recording</p>
+            <p className="text-sm text-muted-foreground">
+              Cara merekam meeting Zoom
+            </p>
+          </div>
+          <ExternalLink className="w-4 h-4 ml-auto text-muted-foreground" />
+        </a>
+        
+        <a 
+          href="https://example.com/panduan-3"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-3 p-3 rounded-lg border hover:bg-muted transition-colors"
+        >
+          <BookOpen className="w-5 h-5 text-primary" />
+          <div>
+            <p className="font-medium">Panduan Fitur Lainnya</p>
+            <p className="text-sm text-muted-foreground">
+              Breakout room, polling, dan lainnya
+            </p>
+          </div>
+          <ExternalLink className="w-4 h-4 ml-auto text-muted-foreground" />
+        </a>
+      </div>
+    </DialogContent>
+  </Dialog>
+</div>
+```
 
 ---
 
-### 2) (Opsional tapi direkomendasikan) Hardening di `QuickOrderDetail.tsx`
-**File:** `src/pages/QuickOrderDetail.tsx`
+## Tampilan yang Diharapkan
 
-Agar lebih robust jika suatu hari ada order lama atau response belum lengkap:
-- Jika `order.is_recurring === true` tetapi `total_days` kosong, tampilkan fallback:
-  - label “Tanggal Meeting (Recurring)” + tanggal mulai
-  - dan (opsional) small warning: “Detail jadwal lengkap belum tersedia, silakan refresh”
-- Jika `total_days` ada tetapi `is_recurring` null (edge-case), treat as recurring jika `total_days > 1`.
+### Desktop (side by side)
+```text
+┌──────────────────────────┐  ┌──────────────────────────┐
+│  📖 Panduan Menjadi Host │  │  📖 Panduan Lainnya      │
+└──────────────────────────┘  └──────────────────────────┘
+```
 
-Catatan: ini bukan wajib untuk memperbaiki kasus Anda sekarang, tapi mengurangi kejadian “belum ada” jika ada data yang parsial.
+### Mobile (stacked)
+```text
+┌──────────────────────────────────┐
+│  📖 Panduan Menjadi Host         │
+└──────────────────────────────────┘
+┌──────────────────────────────────┐
+│  📖 Panduan Lainnya              │
+└──────────────────────────────────┘
+```
+
+### Dialog "Panduan Lainnya"
+```text
+┌─────────────────────────────────────────┐
+│  Panduan Lainnya                    [X] │
+├─────────────────────────────────────────┤
+│  ┌───────────────────────────────────┐  │
+│  │ 📖 Panduan Mengundang Peserta   ↗ │  │
+│  │     Cara mengundang peserta...    │  │
+│  └───────────────────────────────────┘  │
+│  ┌───────────────────────────────────┐  │
+│  │ 📖 Panduan Recording            ↗ │  │
+│  │     Cara merekam meeting Zoom     │  │
+│  └───────────────────────────────────┘  │
+│  ┌───────────────────────────────────┐  │
+│  │ 📖 Panduan Fitur Lainnya        ↗ │  │
+│  │     Breakout room, polling...     │  │
+│  └───────────────────────────────────┘  │
+└─────────────────────────────────────────┘
+```
 
 ---
 
-## Cara verifikasi (testing)
-1. Deploy Edge Function `check-order-status` setelah perubahan.
-2. Buka halaman: `/quick-order/VFBi6YtFq8qQvp4j9yIVrFMA`
-3. Pastikan:
-   - Bagian yang sebelumnya “Tanggal Meeting” berubah menjadi “Jadwal Meeting”
-   - Menampilkan 3 baris:
-     - Kamis, 5 Februari 2026 • 08:00 WIB
-     - Kamis, 12 Februari 2026 • 08:00 WIB
-     - Kamis, 19 Februari 2026 • 08:00 WIB
-4. Scroll ke “Invitation”:
-   - Baris `Time:` mencantumkan semua tanggal sesi (format sesuai implementasi sekarang: `Time: ...` lalu baris-baris berikutnya).
+## Catatan
+
+- Semua link saat ini menggunakan placeholder `https://example.com/...`
+- User akan mengirimkan link panduan yang sebenarnya untuk menggantikan placeholder
+- Styling menggunakan Tailwind CSS yang sudah ada di project
 
 ---
 
-## Dampak & risiko
-- Dampak positif: semua client (customer) yang membuka order recurring akan langsung melihat jadwal lengkap dan invitation lengkap.
-- Risiko rendah: hanya menambah field di response; tidak mengubah logic pembayaran/meeting creation.
+## File yang Diubah
 
----
-
-## File yang akan diubah
-1. `supabase/functions/check-order-status/index.ts` (wajib)
-2. `src/pages/QuickOrderDetail.tsx` (opsional hardening; jika Anda setuju)
-
----
-
-## Catatan teknis tambahan (untuk developer)
-- Screenshot “belum ada” konsisten dengan response missing recurring fields, bukan masalah UI rendering.
-- Untuk order contoh ini, `recurrence_type=1` dan `repeat_interval=7` akan menghasilkan sesi mingguan, dan helper di `QuickOrderDetail.tsx` sudah menghitungnya (as daily + 7 days). Jadi setelah data terkirim, hasil tanggal akan sesuai ekspektasi.
+| File | Perubahan |
+|------|-----------|
+| `src/pages/QuickOrderDetail.tsx` | Tambah import Dialog, ganti tombol Zoom dengan dua tombol panduan |
 
