@@ -12,7 +12,7 @@ const features = [
   },
   {
     icon: Clock,
-    title: "24 Jam Full",
+    title: "1 Hari Full",
     description: "Durasi meeting seharian penuh",
   },
   {
