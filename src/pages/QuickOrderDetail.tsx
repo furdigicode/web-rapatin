@@ -1,13 +1,13 @@
 import { useEffect, useState, useCallback } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { format } from "date-fns";
+import { format, addDays, addWeeks, addMonths } from "date-fns";
 import { id } from "date-fns/locale";
 import { 
   CheckCircle2, 
   Copy, 
   ExternalLink, 
-  Loader2, 
+  Loader2,
   AlertCircle, 
   Clock, 
   RefreshCw, 
@@ -119,14 +119,69 @@ const formatPaymentMethod = (method: string): string => {
     .join(' ');
 };
 
+// Generate semua tanggal sesi untuk recurring meeting
+const generateRecurringDates = (order: OrderDetails): Date[] => {
+  if (!order.is_recurring || !order.total_days || order.total_days <= 1) {
+    return [new Date(order.meeting_date)];
+  }
+
+  const dates: Date[] = [];
+  const startDate = new Date(order.meeting_date);
+  const totalDays = order.total_days;
+  const recurrenceType = order.recurrence_type || 1;
+  const repeatInterval = order.repeat_interval || 1;
+
+  if (recurrenceType === 1) {
+    // Daily: tambah hari sesuai interval
+    for (let i = 0; i < totalDays; i++) {
+      const date = addDays(startDate, i * repeatInterval);
+      dates.push(date);
+    }
+  } else if (recurrenceType === 2) {
+    // Weekly
+    for (let i = 0; i < totalDays; i++) {
+      const date = addWeeks(startDate, i * repeatInterval);
+      dates.push(date);
+    }
+  } else if (recurrenceType === 3) {
+    // Monthly
+    for (let i = 0; i < totalDays; i++) {
+      const date = addMonths(startDate, i * repeatInterval);
+      dates.push(date);
+    }
+  }
+
+  return dates;
+};
+
 const generateInvitationText = (order: OrderDetails): string => {
-  const dateTime = formatDateForInvitation(order.meeting_date, order.meeting_time);
   const topic = order.meeting_topic || 'Zoom Meeting';
+  
+  // Generate time section - multiple dates for recurring
+  let timeSection: string;
+  if (order.is_recurring && order.total_days && order.total_days > 1) {
+    const dates = generateRecurringDates(order);
+    const formattedDates = dates.map((date, idx) => {
+      const formattedDate = format(date, 'MMM dd, yyyy');
+      const time = order.meeting_time || '00:00';
+      const [hours] = time.split(':');
+      const hour = parseInt(hours, 10);
+      const ampm = hour >= 12 ? 'PM' : 'AM';
+      const hour12 = hour % 12 || 12;
+      const timeFormatted = `${hour12.toString().padStart(2, '0')}:${time.split(':')[1]} ${ampm}`;
+      return idx === 0 
+        ? `Time: ${formattedDate} ${timeFormatted} Jakarta`
+        : `      ${formattedDate} ${timeFormatted} Jakarta`;
+    });
+    timeSection = formattedDates.join('\n');
+  } else {
+    timeSection = `Time: ${formatDateForInvitation(order.meeting_date, order.meeting_time)}`;
+  }
   
   return `${order.name} is inviting you to a scheduled Zoom meeting.
 
 Topic: ${topic}
-Time: ${dateTime}
+${timeSection}
 
 Join Zoom Meeting
 ${order.zoom_link}
@@ -492,12 +547,25 @@ export default function QuickOrderDetail() {
                     <Calendar className="w-5 h-5 text-muted-foreground mt-0.5" />
                     <div>
                       <p className="text-sm text-muted-foreground">
-                        {order.is_recurring ? 'Tanggal Mulai' : 'Tanggal Meeting'}
+                        {order.is_recurring && order.total_days && order.total_days > 1 
+                          ? 'Jadwal Meeting' 
+                          : 'Tanggal Meeting'}
                       </p>
-                      <p className="font-medium">
-                        {formatDate(order.meeting_date)}
-                        {order.meeting_time && ` • ${order.meeting_time} WIB`}
-                      </p>
+                      {order.is_recurring && order.total_days && order.total_days > 1 ? (
+                        <div className="space-y-1">
+                          {generateRecurringDates(order).map((date, idx) => (
+                            <p key={idx} className="font-medium">
+                              {format(date, 'EEEE, d MMMM yyyy', { locale: id })}
+                              {order.meeting_time && ` • ${order.meeting_time} WIB`}
+                            </p>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="font-medium">
+                          {formatDate(order.meeting_date)}
+                          {order.meeting_time && ` • ${order.meeting_time} WIB`}
+                        </p>
+                      )}
                     </div>
                   </div>
 
@@ -508,24 +576,6 @@ export default function QuickOrderDetail() {
                       <p className="font-medium">{order.participant_count} Peserta</p>
                     </div>
                   </div>
-
-                  {/* Recurring Info */}
-                  {order.is_recurring && order.total_days && order.total_days > 1 && (
-                    <div className="flex items-start gap-3">
-                      <Repeat className="w-5 h-5 text-muted-foreground mt-0.5" />
-                      <div>
-                        <p className="text-sm text-muted-foreground">Meeting Berulang</p>
-                        <p className="font-medium">{order.total_days} sesi meeting</p>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          {order.recurrence_type === 1 && `Setiap ${order.repeat_interval || 1} hari`}
-                          {order.recurrence_type === 2 && `Setiap ${order.repeat_interval || 1} minggu`}
-                          {order.recurrence_type === 3 && `Setiap ${order.repeat_interval || 1} bulan`}
-                          {order.end_type === 'end_date' && order.recurrence_end_date && 
-                            ` sampai ${format(new Date(order.recurrence_end_date), 'd MMM yyyy', { locale: id })}`}
-                        </p>
-                      </div>
-                    </div>
-                  )}
 
                   <Separator />
 
