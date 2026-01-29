@@ -786,6 +786,20 @@ export default function QuickOrderDetail() {
                               </a>
 
                               <a
+                                href="https://support.zoom.com/hc/id/article?id=zm_kb&sysparm_article=KB0066642#h_9c3ee7f2-b70c-4061-8dcf-00dd836b2075"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-3 p-3 rounded-lg border hover:bg-muted transition-colors"
+                              >
+                                <Users className="w-5 h-5 text-primary" />
+                                <div>
+                                  <p className="font-medium">Menetapkan Peserta Sebagai Co-Host</p>
+                                  <p className="text-sm text-muted-foreground">Berbagi hak pengelolaan meeting dengan peserta lain</p>
+                                </div>
+                                <ExternalLink className="w-4 h-4 ml-auto text-muted-foreground" />
+                              </a>
+
+                              <a
                                 href="https://example.com/panduan-3"
                                 target="_blank"
                                 rel="noopener noreferrer"
