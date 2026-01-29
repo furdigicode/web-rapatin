@@ -22,7 +22,9 @@ import {
   AlertTriangle,
   MessageCircle,
   Repeat,
-  BookOpen
+  BookOpen,
+  Eye,
+  EyeOff
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -253,6 +255,7 @@ export default function QuickOrderDetail() {
   const [checking, setChecking] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [timeLeft, setTimeLeft] = useState<string>("");
+  const [showHostKey, setShowHostKey] = useState(false);
 
   const fetchOrder = useCallback(async (showLoadingState = false) => {
     if (!slug) {
@@ -657,6 +660,31 @@ export default function QuickOrderDetail() {
                             size="icon"
                             variant="outline"
                             onClick={() => copyToClipboard(order.zoom_link!, "Link meeting")}
+                          >
+                            <Copy className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </div>
+
+                      {/* Host Key */}
+                      <div>
+                        <span className="text-sm text-muted-foreground block mb-1">Host Key</span>
+                        <div className="flex items-center gap-2">
+                          <code className="flex-1 bg-muted p-3 rounded-lg text-sm font-mono">
+                            {showHostKey ? "070707" : "••••••"}
+                          </code>
+                          <Button
+                            size="icon"
+                            variant="outline"
+                            onClick={() => setShowHostKey(!showHostKey)}
+                            title={showHostKey ? "Sembunyikan" : "Tampilkan"}
+                          >
+                            {showHostKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                          </Button>
+                          <Button
+                            size="icon"
+                            variant="outline"
+                            onClick={() => copyToClipboard("070707", "Host Key")}
                           >
                             <Copy className="w-4 h-4" />
                           </Button>
