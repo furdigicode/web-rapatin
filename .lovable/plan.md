@@ -1,153 +1,205 @@
 
-# Rencana: Tambah Indikator Status Zoom di Tabel Order
+
+# Rencana: Tambah Info Xendit di Detail Order & Handle Webhook Expiry
 
 ## Ringkasan
 
-Menambahkan indikator visual di kolom "Meeting" pada tabel order untuk menunjukkan apakah data Zoom Meeting sudah ready atau belum. Ini membantu admin dengan cepat mengidentifikasi order mana yang perlu perhatian (Zoom gagal dibuat).
+1. Menambahkan informasi Reference ID dan Payment Session ID di dialog detail order admin
+2. Memperbaiki webhook handler untuk menangani event `payment_request.expiry` dari Xendit
 
 ---
 
-## Opsi Desain
+## Analisis Masalah Webhook
 
-### Opsi A: Icon Kecil di Samping Topik Meeting (Rekomendasi)
-Menambahkan icon kecil di samping judul topik meeting:
-- ✅ Icon hijau jika `zoom_link` ada
-- ⚠️ Icon kuning/oranye jika `payment_status = 'paid'` tapi `zoom_link` kosong
-- Tidak tampilkan icon jika masih pending/expired
-
-### Opsi B: Badge Terpisah di Baris Bawah
-Menampilkan badge kecil di bawah tanggal/waktu:
-- Badge "Zoom Ready" hijau
-- Badge "Perlu Tindakan" oranye
-
-### Opsi C: Kolom Baru "Zoom Status"
-Menambah kolom terpisah khusus untuk status Zoom.
-
----
-
-## Rekomendasi: Opsi A
-
-Opsi A paling efisien karena:
-- Tidak menambah lebar tabel
-- Informasi terintegrasi dengan kolom Meeting yang sudah ada
-- Mudah dipindai secara visual
-
----
-
-## Implementasi (Opsi A)
-
-### Tampilan di Tabel
-
-```
-┌────────────────────────────────────────────────────────────────────────────────────┐
-│ Tanggal Order │ Customer       │ Meeting                    │ Peserta │ Harga     │...
-├────────────────────────────────────────────────────────────────────────────────────┤
-│ 29 Jan 2026   │ Ahmad Rapi     │ ✅ Webinar Marketing       │   300   │ Rp125.000 │...
-│ 10:30         │ ahmad@mail.com │ 30 Jan, 14:00              │         │           │...
-├────────────────────────────────────────────────────────────────────────────────────┤
-│ 28 Jan 2026   │ Budi Santoso   │ ⚠️ Training Internal       │   100   │ Rp 65.000 │...
-│ 15:45         │ budi@mail.com  │ 29 Jan, 09:00              │         │           │...
-├────────────────────────────────────────────────────────────────────────────────────┤
-│ 27 Jan 2026   │ Citra Dewi     │ Rapat Bulanan              │   500   │ Rp250.000 │...
-│ 08:20         │ citra@mail.com │ 28 Jan, 10:00              │         │           │... (pending/expired, no icon)
-└────────────────────────────────────────────────────────────────────────────────────┘
-```
-
-Legenda:
-- ✅ = Zoom Ready (ada `zoom_link`)
-- ⚠️ = Perlu Tindakan (paid tapi `zoom_link` kosong)
-- Tanpa icon = Pending/Expired
-
----
-
-## Perubahan Kode
-
-### File: `src/pages/admin/OrderManagement.tsx`
-
-#### 1. Import Icon Baru
-
-```tsx
-import { 
-  Search, 
-  Download, 
-  Eye, 
-  ShoppingCart,
-  Clock,
-  CheckCircle,
-  XCircle,
-  Package,
-  Video,           // NEW - untuk Zoom ready
-  AlertTriangle    // NEW - untuk perlu tindakan
-} from 'lucide-react';
-```
-
-#### 2. Tambah Helper Function
-
-```tsx
-const getZoomStatusIcon = (order: GuestOrder) => {
-  // Hanya tampilkan untuk order yang sudah lunas
-  if (order.payment_status !== 'paid') {
-    return null;
+Dari log webhook yang diterima:
+```json
+{
+  "event": "payment_request.expiry",
+  "data": {
+    "reference_id": "test-1769502616",
+    "payment_request_id": "pr-3165c617-70c2-41de-87c5-3433277604b5",
+    "status": "EXPIRED"
+    // TIDAK ADA: payment_session_id
   }
+}
+```
+
+Handler saat ini mencari `data.payment_session_id` yang tidak ada di event `payment_request.expiry`. Harus diubah untuk menggunakan `xendit_reference_id` sebagai fallback matching.
+
+---
+
+## Perubahan yang Diperlukan
+
+### 1. File: `src/types/OrderTypes.ts`
+
+Tambahkan field `xendit_reference_id`:
+
+```typescript
+export interface GuestOrder {
+  // ... existing fields
+  xendit_reference_id: string | null; // NEW
+}
+```
+
+### 2. File: `src/components/admin/OrderDetailDialog.tsx`
+
+Tambah section "Informasi Xendit" di bagian Pembayaran:
+
+```
+┌─────────────────────────────────────────┐
+│ Pembayaran                              │
+├─────────────────────────────────────────┤
+│ Harga                    Rp 65.000      │
+│ Status                   [Lunas]        │
+│ Metode                   QRIS (DANA)    │
+│ Dibayar        Senin, 29 Jan 2026 10:30 │
+├─────────────────────────────────────────┤
+│ Integrasi Xendit                        │
+├─────────────────────────────────────────┤
+│ Reference ID   RAPATIN-1769502616-xxx   │
+│ Session ID     ps-xxx-xxx-xxx        [📋] │
+│ Invoice        [Lihat Invoice]          │
+└─────────────────────────────────────────┘
+```
+
+Informasi ini hanya ditampilkan jika ada `xendit_invoice_id` atau `xendit_reference_id`.
+
+### 3. File: `supabase/functions/xendit-webhook/index.ts`
+
+Update handler untuk menangani `payment_request.expiry`:
+
+```typescript
+// Handle payment_request.expiry event
+if (event === 'payment_request.expiry') {
+  console.log("Processing payment_request.expiry event");
   
-  // Zoom sudah ready
-  if (order.zoom_link) {
-    return (
-      <Video className="h-4 w-4 text-green-500 inline-block mr-1" />
+  const referenceId = data.reference_id;
+  if (!referenceId) {
+    console.error("No reference_id in payment_request.expiry");
+    return new Response(
+      JSON.stringify({ error: 'Missing reference_id' }),
+      { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
   
-  // Paid tapi Zoom belum ada - perlu tindakan
-  return (
-    <AlertTriangle className="h-4 w-4 text-orange-500 inline-block mr-1" />
+  // Find order by xendit_reference_id instead of payment_session_id
+  const { data: order, error: findError } = await supabase
+    .from('guest_orders')
+    .select('id, payment_status')
+    .eq('xendit_reference_id', referenceId)
+    .single();
+  
+  if (findError || !order) {
+    console.log("Order not found for reference_id:", referenceId);
+    return new Response(
+      JSON.stringify({ success: true, message: 'Order not found - might be test' }),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
+  }
+  
+  // Don't update if already paid
+  if (order.payment_status === 'paid') {
+    return new Response(
+      JSON.stringify({ success: true, message: 'Already paid' }),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
+  }
+  
+  // Update to expired
+  const { error: updateError } = await supabase
+    .from('guest_orders')
+    .update({ 
+      payment_status: 'expired',
+      expired_at: data.updated || new Date().toISOString()
+    })
+    .eq('id', order.id);
+  
+  if (updateError) {
+    console.error("Failed to update order:", updateError);
+    return new Response(
+      JSON.stringify({ error: 'Update failed' }),
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
+  }
+  
+  console.log("Order marked as expired:", order.id);
+  return new Response(
+    JSON.stringify({ success: true }),
+    { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
   );
-};
-```
-
-#### 3. Update Tampilan Kolom Meeting (Line 290-297)
-
-```tsx
-<TableCell>
-  <div className="font-medium truncate max-w-[200px] flex items-center">
-    {getZoomStatusIcon(order)}
-    <span>{order.meeting_topic || '-'}</span>
-  </div>
-  <div className="text-sm text-muted-foreground">
-    {format(new Date(order.meeting_date), 'd MMM', { locale: id })}
-    {order.meeting_time && `, ${order.meeting_time}`}
-  </div>
-</TableCell>
+}
 ```
 
 ---
 
-## Tooltip (Opsional, untuk Clarity)
+## Alur Kerja Webhook
 
-Untuk memberikan penjelasan lebih lanjut saat hover, bisa ditambahkan Tooltip:
+```text
+┌─────────────────────────────────────┐
+│         Xendit Webhook              │
+│   event: payment_request.expiry     │
+└───────────────┬─────────────────────┘
+                │
+                ▼
+┌─────────────────────────────────────┐
+│  Extract reference_id dari payload  │
+│  (bukan payment_session_id)         │
+└───────────────┬─────────────────────┘
+                │
+                ▼
+┌─────────────────────────────────────┐
+│  Cari order berdasarkan             │
+│  xendit_reference_id                │
+└───────────────┬─────────────────────┘
+                │
+                ▼
+┌─────────────────────────────────────┐
+│  Cek apakah sudah paid?             │
+│  Ya → Skip (sudah bayar)            │
+│  Tidak → Update ke expired          │
+└─────────────────────────────────────┘
+```
+
+---
+
+## Tampilan UI Detail Order (Section Xendit)
 
 ```tsx
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-
-// Dalam getZoomStatusIcon:
-if (order.zoom_link) {
-  return (
-    <Tooltip>
-      <TooltipTrigger>
-        <Video className="h-4 w-4 text-green-500 inline-block mr-1" />
-      </TooltipTrigger>
-      <TooltipContent>Zoom Meeting Ready</TooltipContent>
-    </Tooltip>
-  );
-}
-
-return (
-  <Tooltip>
-    <TooltipTrigger>
-      <AlertTriangle className="h-4 w-4 text-orange-500 inline-block mr-1" />
-    </TooltipTrigger>
-    <TooltipContent>Zoom belum tersedia - perlu input manual</TooltipContent>
-  </Tooltip>
-);
+{/* Integrasi Xendit */}
+{(order.xendit_reference_id || order.xendit_invoice_id) && (
+  <>
+    <Separator className="my-2" />
+    <div className="text-xs text-muted-foreground mt-2 mb-1">Integrasi Xendit</div>
+    
+    {order.xendit_reference_id && (
+      <div className="flex items-center justify-between text-sm">
+        <span className="text-muted-foreground">Reference ID</span>
+        <div className="flex items-center gap-2">
+          <code className="text-xs bg-muted px-2 py-1 rounded">
+            {order.xendit_reference_id}
+          </code>
+          <Button variant="ghost" size="icon" className="h-6 w-6">
+            <Copy className="h-3 w-3" />
+          </Button>
+        </div>
+      </div>
+    )}
+    
+    {order.xendit_invoice_id && (
+      <div className="flex items-center justify-between text-sm">
+        <span className="text-muted-foreground">Session ID</span>
+        <div className="flex items-center gap-2">
+          <code className="text-xs bg-muted px-2 py-1 rounded truncate max-w-[150px]">
+            {order.xendit_invoice_id}
+          </code>
+          <Button variant="ghost" size="icon" className="h-6 w-6">
+            <Copy className="h-3 w-3" />
+          </Button>
+        </div>
+      </div>
+    )}
+  </>
+)}
 ```
 
 ---
@@ -156,12 +208,27 @@ return (
 
 | File | Perubahan |
 |------|-----------|
-| `src/pages/admin/OrderManagement.tsx` | Tambah icon status Zoom di kolom Meeting |
+| `src/types/OrderTypes.ts` | Tambah field `xendit_reference_id` |
+| `src/components/admin/OrderDetailDialog.tsx` | Tambah section Integrasi Xendit |
+| `supabase/functions/xendit-webhook/index.ts` | Handle event `payment_request.expiry` |
 
 ---
 
-## Catatan
+## Event Xendit yang Didukung
 
-- Icon hanya muncul untuk order dengan `payment_status = 'paid'`
-- Order pending/expired tidak perlu indicator karena memang belum waktunya punya Zoom
-- Icon orange (⚠️) membantu admin cepat identifikasi order yang butuh tindakan manual
+| Event | Status Update | Matching Field |
+|-------|---------------|----------------|
+| `payment_session.completed` | paid | xendit_invoice_id |
+| `payment_session.expired` | expired | xendit_invoice_id |
+| `payment_session.failed` | failed | xendit_invoice_id |
+| `payment.capture` | (payment method) | xendit_reference_id |
+| `payment_request.expiry` | expired | xendit_reference_id |
+
+---
+
+## Catatan Keamanan
+
+- Webhook tetap diverifikasi dengan `x-callback-token`
+- Idempotency check: order yang sudah `paid` tidak akan di-update ke `expired`
+- Logging lengkap untuk debugging
+
