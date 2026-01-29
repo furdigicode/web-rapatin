@@ -1,12 +1,9 @@
 
-
-# Rencana: Tambah Konten Panduan Menjadi Host
+# Rencana: Tambah Card Panduan Menetapkan Co-Host
 
 ## Ringkasan
 
-Mengupdate dialog "Panduan Menjadi Host" dengan:
-1. Informasi penting yang di-highlight di atas video
-2. Embed video YouTube tutorial
+Menambahkan card baru di dialog "Panduan Lainnya" untuk panduan menetapkan peserta lain sebagai Co-Host, dengan link ke dokumentasi resmi Zoom.
 
 ---
 
@@ -14,46 +11,24 @@ Mengupdate dialog "Panduan Menjadi Host" dengan:
 
 ### File: `src/pages/QuickOrderDetail.tsx`
 
-**Lokasi:** Line 740-744 (konten dialog Panduan Menjadi Host)
+**Lokasi:** Line 786 (setelah card "Panduan Recording")
 
-**Sebelum:**
-```tsx
-<div className="prose prose-sm dark:prose-invert">
-  <p className="text-muted-foreground">
-    Panduan menjadi host akan ditambahkan di sini.
-  </p>
-</div>
-```
+**Tambahkan card baru:**
 
-**Sesudah:**
 ```tsx
-<div className="space-y-4">
-  {/* Highlighted Important Notice */}
-  <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
-    <div className="flex items-start gap-3">
-      <AlertCircle className="w-5 h-5 text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0" />
-      <div>
-        <p className="font-semibold text-amber-800 dark:text-amber-200 mb-1">
-          Penting!
-        </p>
-        <p className="text-sm text-amber-700 dark:text-amber-300">
-          Untuk mengaktivasi semua fitur premium di Zoom, Anda harus menjadi host terlebih dahulu. Ikuti panduan video di bawah ini.
-        </p>
-      </div>
-    </div>
+<a
+  href="https://support.zoom.com/hc/id/article?id=zm_kb&sysparm_article=KB0066642#h_9c3ee7f2-b70c-4061-8dcf-00dd836b2075"
+  target="_blank"
+  rel="noopener noreferrer"
+  className="flex items-center gap-3 p-3 rounded-lg border hover:bg-muted transition-colors"
+>
+  <Users className="w-5 h-5 text-primary" />
+  <div>
+    <p className="font-medium">Menetapkan Peserta Sebagai Co-Host</p>
+    <p className="text-sm text-muted-foreground">Berbagi hak pengelolaan meeting dengan peserta lain</p>
   </div>
-  
-  {/* YouTube Embed */}
-  <div className="aspect-video rounded-lg overflow-hidden">
-    <iframe
-      src="https://www.youtube.com/embed/8QX8u43_JE?si=mR9aX2BiDqohjuqW"
-      title="Panduan Menjadi Host Zoom"
-      className="w-full h-full"
-      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-      allowFullScreen
-    />
-  </div>
-</div>
+  <ExternalLink className="w-4 h-4 ml-auto text-muted-foreground" />
+</a>
 ```
 
 ---
@@ -62,47 +37,52 @@ Mengupdate dialog "Panduan Menjadi Host" dengan:
 
 ```text
 ┌─────────────────────────────────────────┐
-│  Panduan Menjadi Host               [X] │
+│  Panduan Lainnya                    [X] │
 ├─────────────────────────────────────────┤
 │  ┌─────────────────────────────────────┐│
-│  │ ⚠️ Penting!                         ││
-│  │                                     ││
-│  │ Untuk mengaktivasi semua fitur      ││
-│  │ premium di Zoom, Anda harus menjadi ││
-│  │ host terlebih dahulu. Ikuti panduan ││
-│  │ video di bawah ini.                 ││
+│  │ 📖 Panduan Mengundang Peserta    ↗  ││
+│  │    Cara mengundang peserta ke...    ││
 │  └─────────────────────────────────────┘│
-│                                         │
 │  ┌─────────────────────────────────────┐│
-│  │                                     ││
-│  │         [YouTube Video]             ││
-│  │                                     ││
+│  │ 📖 Panduan Recording             ↗  ││
+│  │    Cara merekam meeting Zoom        ││
 │  └─────────────────────────────────────┘│
-│                                         │
+│  ┌─────────────────────────────────────┐│
+│  │ 👥 Menetapkan Co-Host            ↗  ││  ← BARU
+│  │    Berbagi hak pengelolaan...       ││
+│  └─────────────────────────────────────┘│
+│  ┌─────────────────────────────────────┐│
+│  │ 📖 Panduan Fitur Lainnya         ↗  ││
+│  └─────────────────────────────────────┘│
 └─────────────────────────────────────────┘
 ```
 
 ---
 
-## Import Tambahan
+## Informasi dari Zoom Support
 
-Perlu menambahkan icon `AlertCircle` dari lucide-react:
+Berdasarkan dokumentasi resmi Zoom, cara menetapkan Co-Host:
 
-```typescript
-import { 
-  // ... existing imports
-  AlertCircle
-} from "lucide-react";
-```
+**Desktop (Windows/macOS/Linux):**
+1. Mulai meeting sebagai host
+2. Klik icon **Participants** di toolbar
+3. Arahkan kursor ke nama peserta yang akan dijadikan co-host
+4. Klik **More** → **Make co-host**
+5. Klik **Confirm**
+
+**Mobile (Android/iOS):**
+1. Mulai meeting sebagai host
+2. Tap icon **Participants**
+3. Tap nama peserta → **Make co-host**
+4. Tap **Yes** untuk konfirmasi
 
 ---
 
 ## Catatan Teknis
 
-- YouTube embed menggunakan format URL `youtube.com/embed/VIDEO_ID`
-- Menggunakan `aspect-video` dari Tailwind untuk rasio 16:9
-- Highlighted box menggunakan warna amber untuk menarik perhatian
-- Responsive dan mendukung dark mode
+- Menggunakan icon `Users` untuk membedakan dari card lain yang menggunakan `BookOpen`
+- Icon `Users` sudah di-import di file ini
+- Link mengarah langsung ke section yang relevan (#h_9c3ee7f2-b70c-4061-8dcf-00dd836b2075)
 
 ---
 
@@ -110,5 +90,4 @@ import {
 
 | File | Perubahan |
 |------|-----------|
-| `src/pages/QuickOrderDetail.tsx` | Tambah import AlertCircle, update konten dialog dengan notice dan YouTube embed |
-
+| `src/pages/QuickOrderDetail.tsx` | Tambah card baru untuk panduan Co-Host di dialog Panduan Lainnya |
