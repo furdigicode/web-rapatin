@@ -172,186 +172,6 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
     </div>
   );
 
-  // Zoom Info Section Component
-  const ZoomInfoSection = () => {
-    if (order.payment_status !== 'paid') return null;
-
-    // Edit mode
-    if (isEditing) {
-      return (
-        <>
-          <Separator />
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">
-                Info Zoom
-              </h3>
-            </div>
-            <div className="grid gap-4 p-4 bg-muted/50 rounded-lg">
-              <div className="space-y-2">
-                <Label htmlFor="meeting_id">Meeting ID</Label>
-                <Input
-                  id="meeting_id"
-                  placeholder="Contoh: 123 456 7890"
-                  value={zoomData.meeting_id}
-                  onChange={(e) => setZoomData({ ...zoomData, meeting_id: e.target.value })}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="zoom_passcode">Passcode</Label>
-                <Input
-                  id="zoom_passcode"
-                  placeholder="Contoh: abc123"
-                  value={zoomData.zoom_passcode}
-                  onChange={(e) => setZoomData({ ...zoomData, zoom_passcode: e.target.value })}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="zoom_link">Link Zoom</Label>
-                <Input
-                  id="zoom_link"
-                  placeholder="https://zoom.us/j/..."
-                  value={zoomData.zoom_link}
-                  onChange={(e) => setZoomData({ ...zoomData, zoom_link: e.target.value })}
-                />
-              </div>
-              <div className="flex gap-2 justify-end pt-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleCancelEdit}
-                  disabled={saving}
-                >
-                  <X className="h-4 w-4 mr-2" />
-                  Batal
-                </Button>
-                <Button
-                  size="sm"
-                  onClick={handleSaveZoomDetails}
-                  disabled={saving}
-                >
-                  {saving ? (
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  ) : (
-                    <Save className="h-4 w-4 mr-2" />
-                  )}
-                  Simpan
-                </Button>
-              </div>
-            </div>
-          </div>
-        </>
-      );
-    }
-
-    // Empty state - Zoom data not available
-    if (!hasZoomData) {
-      return (
-        <>
-          <Separator />
-          <div className="space-y-3">
-            <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">
-              Info Zoom
-            </h3>
-            <div className="flex flex-col items-center justify-center gap-3 p-6 bg-muted/50 rounded-lg text-center">
-              <AlertTriangle className="h-8 w-8 text-orange-500" />
-              <div>
-                <p className="font-medium">Zoom meeting belum tersedia</p>
-                <p className="text-sm text-muted-foreground">
-                  Klik tombol di bawah untuk menambahkan detail secara manual
-                </p>
-              </div>
-              <Button onClick={() => setIsEditing(true)}>
-                <Plus className="h-4 w-4 mr-2" />
-                Tambah Detail Zoom
-              </Button>
-            </div>
-          </div>
-        </>
-      );
-    }
-
-    // Read-only display
-    return (
-      <>
-        <Separator />
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">
-              Info Zoom
-            </h3>
-            <Button variant="ghost" size="sm" onClick={() => setIsEditing(true)}>
-              <Pencil className="h-4 w-4 mr-2" />
-              Edit
-            </Button>
-          </div>
-          <div className="grid gap-3 p-4 bg-muted/50 rounded-lg">
-            {order.meeting_id && (
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Meeting ID</span>
-                <div className="flex items-center gap-2">
-                  <code className="bg-background px-2 py-1 rounded text-sm">
-                    {order.meeting_id}
-                  </code>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8"
-                    onClick={() => copyToClipboard(order.meeting_id!, 'Meeting ID')}
-                  >
-                    <Copy className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            )}
-            {order.zoom_passcode && (
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Passcode</span>
-                <div className="flex items-center gap-2">
-                  <code className="bg-background px-2 py-1 rounded text-sm">
-                    {order.zoom_passcode}
-                  </code>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8"
-                    onClick={() => copyToClipboard(order.zoom_passcode!, 'Passcode')}
-                  >
-                    <Copy className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            )}
-            {order.zoom_link && (
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Link</span>
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => copyToClipboard(order.zoom_link!, 'Link Zoom')}
-                  >
-                    <Copy className="h-4 w-4 mr-2" />
-                    Salin Link
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    asChild
-                  >
-                    <a href={order.zoom_link} target="_blank" rel="noopener noreferrer">
-                      <ExternalLink className="h-4 w-4 mr-2" />
-                      Buka
-                    </a>
-                  </Button>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      </>
-    );
-  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -438,8 +258,169 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
             </div>
           </div>
 
-          {/* Info Zoom Section */}
-          <ZoomInfoSection />
+          {/* Info Zoom Section - inline to prevent focus loss */}
+          {order.payment_status === 'paid' && (
+            <>
+              <Separator />
+              <div className="space-y-3">
+                {isEditing ? (
+                  <>
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">
+                        Info Zoom
+                      </h3>
+                    </div>
+                    <div className="grid gap-4 p-4 bg-muted/50 rounded-lg">
+                      <div className="space-y-2">
+                        <Label htmlFor="meeting_id">Meeting ID</Label>
+                        <Input
+                          id="meeting_id"
+                          placeholder="Contoh: 123 456 7890"
+                          value={zoomData.meeting_id}
+                          onChange={(e) => setZoomData({ ...zoomData, meeting_id: e.target.value })}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="zoom_passcode">Passcode</Label>
+                        <Input
+                          id="zoom_passcode"
+                          placeholder="Contoh: abc123"
+                          value={zoomData.zoom_passcode}
+                          onChange={(e) => setZoomData({ ...zoomData, zoom_passcode: e.target.value })}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="zoom_link">Link Zoom</Label>
+                        <Input
+                          id="zoom_link"
+                          placeholder="https://zoom.us/j/..."
+                          value={zoomData.zoom_link}
+                          onChange={(e) => setZoomData({ ...zoomData, zoom_link: e.target.value })}
+                        />
+                      </div>
+                      <div className="flex gap-2 justify-end pt-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={handleCancelEdit}
+                          disabled={saving}
+                        >
+                          <X className="h-4 w-4 mr-2" />
+                          Batal
+                        </Button>
+                        <Button
+                          size="sm"
+                          onClick={handleSaveZoomDetails}
+                          disabled={saving}
+                        >
+                          {saving ? (
+                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          ) : (
+                            <Save className="h-4 w-4 mr-2" />
+                          )}
+                          Simpan
+                        </Button>
+                      </div>
+                    </div>
+                  </>
+                ) : !hasZoomData ? (
+                  <>
+                    <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">
+                      Info Zoom
+                    </h3>
+                    <div className="flex flex-col items-center justify-center gap-3 p-6 bg-muted/50 rounded-lg text-center">
+                      <AlertTriangle className="h-8 w-8 text-orange-500" />
+                      <div>
+                        <p className="font-medium">Zoom meeting belum tersedia</p>
+                        <p className="text-sm text-muted-foreground">
+                          Klik tombol di bawah untuk menambahkan detail secara manual
+                        </p>
+                      </div>
+                      <Button onClick={() => setIsEditing(true)}>
+                        <Plus className="h-4 w-4 mr-2" />
+                        Tambah Detail Zoom
+                      </Button>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">
+                        Info Zoom
+                      </h3>
+                      <Button variant="ghost" size="sm" onClick={() => setIsEditing(true)}>
+                        <Pencil className="h-4 w-4 mr-2" />
+                        Edit
+                      </Button>
+                    </div>
+                    <div className="grid gap-3 p-4 bg-muted/50 rounded-lg">
+                      {order.meeting_id && (
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-muted-foreground">Meeting ID</span>
+                          <div className="flex items-center gap-2">
+                            <code className="bg-background px-2 py-1 rounded text-sm">
+                              {order.meeting_id}
+                            </code>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                              onClick={() => copyToClipboard(order.meeting_id!, 'Meeting ID')}
+                            >
+                              <Copy className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+                      {order.zoom_passcode && (
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-muted-foreground">Passcode</span>
+                          <div className="flex items-center gap-2">
+                            <code className="bg-background px-2 py-1 rounded text-sm">
+                              {order.zoom_passcode}
+                            </code>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                              onClick={() => copyToClipboard(order.zoom_passcode!, 'Passcode')}
+                            >
+                              <Copy className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+                      {order.zoom_link && (
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-muted-foreground">Link</span>
+                          <div className="flex items-center gap-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => copyToClipboard(order.zoom_link!, 'Link Zoom')}
+                            >
+                              <Copy className="h-4 w-4 mr-2" />
+                              Salin Link
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              asChild
+                            >
+                              <a href={order.zoom_link} target="_blank" rel="noopener noreferrer">
+                                <ExternalLink className="h-4 w-4 mr-2" />
+                                Buka
+                              </a>
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </>
+                )}
+              </div>
+            </>
+          )}
 
           <Separator />
 
