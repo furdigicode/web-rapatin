@@ -659,7 +659,16 @@ export default function QuickOrderDetail() {
                           <Button
                             size="icon"
                             variant="outline"
+                            onClick={() => window.open(order.zoom_link!, "_blank")}
+                            title="Buka link"
+                          >
+                            <ExternalLink className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            size="icon"
+                            variant="outline"
                             onClick={() => copyToClipboard(order.zoom_link!, "Link meeting")}
+                            title="Salin link"
                           >
                             <Copy className="w-4 h-4" />
                           </Button>
