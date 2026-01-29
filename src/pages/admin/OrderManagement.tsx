@@ -47,7 +47,7 @@ const OrderManagement = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
 
   // Fetch orders
-  const { data: orders = [], isLoading } = useQuery({
+  const { data: orders = [], isLoading, refetch } = useQuery({
     queryKey: ['guest-orders'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -59,6 +59,10 @@ const OrderManagement = () => {
       return data as GuestOrder[];
     },
   });
+
+  const handleOrderUpdate = () => {
+    refetch();
+  };
 
   // Calculate stats
   const stats: OrderStats = useMemo(() => {
@@ -324,6 +328,7 @@ const OrderManagement = () => {
         order={selectedOrder}
         open={dialogOpen}
         onOpenChange={setDialogOpen}
+        onUpdate={handleOrderUpdate}
       />
     </AdminLayout>
   );
