@@ -480,6 +480,52 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
                   </Button>
                 </div>
               )}
+              
+              {/* Integrasi Xendit */}
+              {(order.xendit_reference_id || order.xendit_invoice_id) && (
+                <>
+                  <Separator className="my-2" />
+                  <div className="text-xs text-muted-foreground mt-2 mb-1">Integrasi Xendit</div>
+                  
+                  {order.xendit_reference_id && (
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">Reference ID</span>
+                      <div className="flex items-center gap-2">
+                        <code className="text-xs bg-muted px-2 py-1 rounded">
+                          {order.xendit_reference_id}
+                        </code>
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="h-6 w-6"
+                          onClick={() => copyToClipboard(order.xendit_reference_id!, 'Reference ID')}
+                        >
+                          <Copy className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {order.xendit_invoice_id && (
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">Session ID</span>
+                      <div className="flex items-center gap-2">
+                        <code className="text-xs bg-muted px-2 py-1 rounded truncate max-w-[150px]" title={order.xendit_invoice_id}>
+                          {order.xendit_invoice_id}
+                        </code>
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="h-6 w-6"
+                          onClick={() => copyToClipboard(order.xendit_invoice_id!, 'Session ID')}
+                        >
+                          <Copy className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
             </div>
           </div>
 
