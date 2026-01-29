@@ -758,59 +758,33 @@ export default function QuickOrderDetail() {
                             </DialogHeader>
                             <div className="space-y-3">
                               <a
-                                href="https://example.com/panduan-1"
+                                href="https://support.zoom.com/hc/id/article?id=zm_kb&sysparm_article=KB0062631#h_7420acb5-1897-4061-87b4-5b76e99c03b4"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="flex items-center gap-3 p-3 rounded-lg border hover:bg-muted transition-colors"
+                                className="flex flex-col gap-1 p-3 rounded-lg border hover:bg-muted transition-colors"
                               >
-                                <BookOpen className="w-5 h-5 text-primary" />
-                                <div>
-                                  <p className="font-medium">Panduan Mengundang Peserta</p>
-                                  <p className="text-sm text-muted-foreground">Cara mengundang peserta ke meeting</p>
-                                </div>
-                                <ExternalLink className="w-4 h-4 ml-auto text-muted-foreground" />
-                              </a>
-
-                              <a
-                                href="https://example.com/panduan-2"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="flex items-center gap-3 p-3 rounded-lg border hover:bg-muted transition-colors"
-                              >
-                                <BookOpen className="w-5 h-5 text-primary" />
-                                <div>
-                                  <p className="font-medium">Panduan Recording</p>
-                                  <p className="text-sm text-muted-foreground">Cara merekam meeting Zoom</p>
-                                </div>
-                                <ExternalLink className="w-4 h-4 ml-auto text-muted-foreground" />
+                                <p className="font-medium">Panduan Recording</p>
+                                <p className="text-sm text-muted-foreground">Cara merekam meeting Zoom</p>
                               </a>
 
                               <a
                                 href="https://support.zoom.com/hc/id/article?id=zm_kb&sysparm_article=KB0066642#h_9c3ee7f2-b70c-4061-8dcf-00dd836b2075"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="flex items-center gap-3 p-3 rounded-lg border hover:bg-muted transition-colors"
+                                className="flex flex-col gap-1 p-3 rounded-lg border hover:bg-muted transition-colors"
                               >
-                                <Users className="w-5 h-5 text-primary" />
-                                <div>
-                                  <p className="font-medium">Menetapkan Peserta Sebagai Co-Host</p>
-                                  <p className="text-sm text-muted-foreground">Berbagi hak pengelolaan meeting dengan peserta lain</p>
-                                </div>
-                                <ExternalLink className="w-4 h-4 ml-auto text-muted-foreground" />
+                                <p className="font-medium">Menetapkan Peserta Sebagai Co-Host</p>
+                                <p className="text-sm text-muted-foreground">Berbagi hak pengelolaan meeting dengan peserta lain</p>
                               </a>
 
                               <a
-                                href="https://example.com/panduan-3"
+                                href="https://support.zoom.com/hc/id/article?id=zm_kb&sysparm_article=KB0062544#mcetoc_1icojfikb22"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="flex items-center gap-3 p-3 rounded-lg border hover:bg-muted transition-colors"
+                                className="flex flex-col gap-1 p-3 rounded-lg border hover:bg-muted transition-colors"
                               >
-                                <BookOpen className="w-5 h-5 text-primary" />
-                                <div>
-                                  <p className="font-medium">Panduan Fitur Lainnya</p>
-                                  <p className="text-sm text-muted-foreground">Breakout room, polling, dan lainnya</p>
-                                </div>
-                                <ExternalLink className="w-4 h-4 ml-auto text-muted-foreground" />
+                                <p className="font-medium">Panduan Breakout Room</p>
+                                <p className="text-sm text-muted-foreground">Membagi peserta ke dalam ruang diskusi terpisah</p>
                               </a>
                             </div>
                           </DialogContent>
