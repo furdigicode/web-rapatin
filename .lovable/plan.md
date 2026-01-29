@@ -1,98 +1,68 @@
 
-
-# Rencana: Tambah Host Key dengan Tampilan Tersembunyi
+# Rencana: Tambah Tombol Open Link di Sebelah Kiri Tombol Copy
 
 ## Ringkasan
 
-Menambahkan informasi "Host Key" dengan nilai `070707` di kartu Detail Zoom, tepat di bawah "Link Meeting" dan sebelum "Invitation". Nilai akan tersembunyi secara default (ditampilkan sebagai `******`) dan bisa ditampilkan dengan tombol toggle.
+Menambahkan tombol untuk membuka link meeting di tab baru, diposisikan di sebelah kiri tombol copy yang sudah ada.
 
 ---
 
 ## Perubahan yang Diperlukan
 
-### 1. Tambah Import Icon
+### File: `src/pages/QuickOrderDetail.tsx`
 
-**File:** `src/pages/QuickOrderDetail.tsx`
+**Lokasi:** Line 659-665 (bagian Link Meeting)
 
-Tambah icon `Eye` dan `EyeOff` dari lucide-react untuk toggle visibility:
-
-```typescript
-import { 
-  // ... existing imports
-  Eye,
-  EyeOff
-} from "lucide-react";
-```
-
-### 2. Tambah State untuk Toggle Visibility
-
-Di dalam komponen, tambahkan state:
-
-```typescript
-const [showHostKey, setShowHostKey] = useState(false);
-```
-
-### 3. Tambah UI Host Key
-
-**Lokasi:** Setelah "Link Meeting" (line 664), sebelum "Invitation" (line 666)
-
+**Sebelum:**
 ```tsx
-{/* Host Key */}
-<div>
-  <span className="text-sm text-muted-foreground block mb-1">Host Key</span>
-  <div className="flex items-center gap-2">
-    <code className="flex-1 bg-muted p-3 rounded-lg text-sm font-mono">
-      {showHostKey ? "070707" : "••••••"}
-    </code>
-    <Button
-      size="icon"
-      variant="outline"
-      onClick={() => setShowHostKey(!showHostKey)}
-      title={showHostKey ? "Sembunyikan" : "Tampilkan"}
-    >
-      {showHostKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-    </Button>
-    <Button
-      size="icon"
-      variant="outline"
-      onClick={() => copyToClipboard("070707", "Host Key")}
-    >
-      <Copy className="w-4 h-4" />
-    </Button>
-  </div>
-</div>
+<Button
+  size="icon"
+  variant="outline"
+  onClick={() => copyToClipboard(order.zoom_link!, "Link meeting")}
+>
+  <Copy className="w-4 h-4" />
+</Button>
+```
+
+**Sesudah:**
+```tsx
+<Button
+  size="icon"
+  variant="outline"
+  onClick={() => window.open(order.zoom_link!, "_blank")}
+  title="Buka link"
+>
+  <ExternalLink className="w-4 h-4" />
+</Button>
+<Button
+  size="icon"
+  variant="outline"
+  onClick={() => copyToClipboard(order.zoom_link!, "Link meeting")}
+  title="Salin link"
+>
+  <Copy className="w-4 h-4" />
+</Button>
 ```
 
 ---
 
 ## Tampilan yang Diharapkan
 
-### State Default (tersembunyi)
 ```text
-Host Key
-┌────────────────────────────────┐  ┌───┐  ┌───┐
-│  ••••••                        │  │ 👁 │  │📋│
-└────────────────────────────────┘  └───┘  └───┘
-```
-
-### Setelah Klik Toggle (terlihat)
-```text
-Host Key
-┌────────────────────────────────┐  ┌────┐  ┌───┐
-│  070707                        │  │ 👁‍🗨 │  │📋│
-└────────────────────────────────┘  └────┘  └───┘
+Link Meeting
+┌────────────────────────────────────┐  ┌───┐  ┌───┐
+│  https://zoom.us/j/123456789       │  │ ↗ │  │📋│
+└────────────────────────────────────┘  └───┘  └───┘
+                                        Open   Copy
 ```
 
 ---
 
-## Urutan Field di Detail Zoom
+## Catatan
 
-1. Meeting ID
-2. Passcode
-3. Link Meeting
-4. **Host Key** ← Baru
-5. Invitation
-6. Tombol Panduan
+- Icon `ExternalLink` sudah di-import di file ini
+- Tombol open menggunakan `window.open()` dengan target `_blank` untuk membuka di tab baru
+- Menambahkan `title` attribute untuk tooltip pada kedua tombol
 
 ---
 
@@ -100,5 +70,4 @@ Host Key
 
 | File | Perubahan |
 |------|-----------|
-| `src/pages/QuickOrderDetail.tsx` | Tambah import Eye/EyeOff, state showHostKey, dan UI Host Key |
-
+| `src/pages/QuickOrderDetail.tsx` | Tambah tombol ExternalLink di sebelah kiri tombol Copy |
