@@ -1,105 +1,141 @@
 
-# Rencana: Perbaiki Bug Input Zoom Kehilangan Fokus
+# Rencana: Perbaiki Data Zoom Tidak Muncul Setelah Disimpan
 
 ## Masalah
 
-Ketika mengetik di input field Info Zoom (Meeting ID, Passcode, atau Link), setiap karakter yang diketik menyebabkan input kehilangan fokus. User harus klik ulang input setiap kali ingin mengetik.
+Setelah admin mengisi dan menyimpan detail Zoom di order yang belum ada Zoom-nya, data tidak muncul. UI tetap menampilkan "Zoom meeting belum tersedia" meskipun data sudah tersimpan di database.
 
 ## Penyebab
 
-Komponen `ZoomInfoSection` didefinisikan sebagai fungsi di dalam komponen `OrderDetailDialog` (baris 176-354). Setiap kali state berubah (termasuk `zoomData` saat mengetik):
+Ada 2 masalah:
 
-1. `OrderDetailDialog` di-render ulang
-2. `ZoomInfoSection` dibuat ulang sebagai fungsi baru
-3. React menganggap ini komponen berbeda
-4. React unmount komponen lama dan mount komponen baru
-5. Input field kehilangan fokus
+### Masalah 1: hasZoomData mengecek dari prop yang stale
+```tsx
+// Line 162 - Mengecek dari prop order yang BELUM terupdate
+const hasZoomData = order.zoom_link || order.meeting_id || order.zoom_passcode;
+```
+
+Setelah save berhasil:
+1. `onUpdate()` memanggil `refetch()` di parent
+2. Data `orders` array di-refresh
+3. **TAPI** `selectedOrder` di parent masih menyimpan data lama
+4. Prop `order` di dialog tidak berubah
+5. `hasZoomData` tetap `false`
+
+### Masalah 2: Parent tidak update selectedOrder
+Di `OrderManagement.tsx`:
+```tsx
+const handleOrderUpdate = () => {
+  refetch(); // Hanya refresh orders array
+  // selectedOrder TIDAK diupdate!
+};
+```
 
 ## Solusi
 
-Menghapus `ZoomInfoSection` sebagai nested component dan memindahkan JSX-nya langsung ke dalam return statement. Dengan cara ini, tidak ada komponen baru yang dibuat ulang setiap render.
+### Opsi A: Gunakan zoomData untuk menentukan hasZoomData (Dialog-side fix)
+
+Setelah save berhasil, gunakan state `zoomData` yang sudah terisi (bukan prop `order`) untuk menentukan apakah sudah ada Zoom data:
+
+```tsx
+// Sebelum
+const hasZoomData = order.zoom_link || order.meeting_id || order.zoom_passcode;
+
+// Sesudah - cek dari zoomData state juga
+const hasZoomData = 
+  order.zoom_link || order.meeting_id || order.zoom_passcode ||
+  zoomData.zoom_link || zoomData.meeting_id || zoomData.zoom_passcode;
+```
+
+### Opsi B: Parent update selectedOrder setelah refetch (Parent-side fix) - REKOMENDASI
+
+Ubah handler di parent untuk mengupdate `selectedOrder` dengan data terbaru setelah refetch:
+
+```tsx
+const handleOrderUpdate = async () => {
+  const { data } = await refetch();
+  // Update selectedOrder dengan data terbaru
+  if (selectedOrder && data) {
+    const updatedOrder = data.find(o => o.id === selectedOrder.id);
+    if (updatedOrder) {
+      setSelectedOrder(updatedOrder);
+    }
+  }
+};
+```
+
+### Rekomendasi: Gabungan Opsi A + B
+
+Untuk user experience terbaik, gabungkan kedua fix:
+- **Opsi A (immediate)**: Data langsung muncul setelah save tanpa menunggu refetch
+- **Opsi B (sync)**: selectedOrder tetap sinkron dengan data database
+
+---
 
 ## Perubahan Kode
 
-### File: `src/components/admin/OrderDetailDialog.tsx`
+### File 1: `src/components/admin/OrderDetailDialog.tsx`
 
-**Sebelum:**
+**Ubah baris 162:**
+
+Dari:
 ```tsx
-// Zoom Info Section Component (Line 175-354)
-const ZoomInfoSection = () => {
-  if (order.payment_status !== 'paid') return null;
-  // ... semua logika rendering
+const hasZoomData = order.zoom_link || order.meeting_id || order.zoom_passcode;
+```
+
+Ke:
+```tsx
+// Cek dari order prop ATAU zoomData state (untuk immediate feedback setelah save)
+const hasZoomData = 
+  order.zoom_link || order.meeting_id || order.zoom_passcode ||
+  zoomData.zoom_link || zoomData.meeting_id || zoomData.zoom_passcode;
+```
+
+**Untuk read-only display, gunakan zoomData sebagai sumber data (bukan order):**
+
+Pada section read-only (baris 357-417), ganti referensi dari `order.meeting_id`, `order.zoom_passcode`, `order.zoom_link` ke `zoomData.meeting_id`, `zoomData.zoom_passcode`, `zoomData.zoom_link`.
+
+---
+
+### File 2: `src/pages/admin/OrderManagement.tsx`
+
+**Ubah handleOrderUpdate (baris 66-68):**
+
+Dari:
+```tsx
+const handleOrderUpdate = () => {
+  refetch();
 };
-
-return (
-  <Dialog>
-    {/* ... */}
-    <ZoomInfoSection />  {/* ← Ini menyebabkan masalah */}
-    {/* ... */}
-  </Dialog>
-);
 ```
 
-**Sesudah:**
+Ke:
 ```tsx
-// Hapus definisi ZoomInfoSection sebagai fungsi
-// Langsung render JSX di dalam return statement
-
-return (
-  <Dialog>
-    {/* ... */}
-    
-    {/* Info Zoom Section - langsung inline */}
-    {order.payment_status === 'paid' && (
-      <>
-        <Separator />
-        <div className="space-y-3">
-          {isEditing ? (
-            // Edit mode JSX langsung di sini
-            <div className="grid gap-4 p-4 bg-muted/50 rounded-lg">
-              <div className="space-y-2">
-                <Label htmlFor="meeting_id">Meeting ID</Label>
-                <Input
-                  id="meeting_id"
-                  placeholder="Contoh: 123 456 7890"
-                  value={zoomData.meeting_id}
-                  onChange={(e) => setZoomData({ ...zoomData, meeting_id: e.target.value })}
-                />
-              </div>
-              {/* ... input lainnya */}
-            </div>
-          ) : hasZoomData ? (
-            // Read-only display
-          ) : (
-            // Empty state
-          )}
-        </div>
-      </>
-    )}
-    
-    {/* ... */}
-  </Dialog>
-);
+const handleOrderUpdate = async () => {
+  const { data } = await refetch();
+  // Update selectedOrder dengan data terbaru dari database
+  if (selectedOrder && data) {
+    const updatedOrder = data.find(o => o.id === selectedOrder.id);
+    if (updatedOrder) {
+      setSelectedOrder(updatedOrder);
+    }
+  }
+};
 ```
 
-## Detail Teknis
+---
 
-| Aspek | Sebelum | Sesudah |
-|-------|---------|---------|
-| Definisi | Nested function component | Inline JSX |
-| Re-render | Komponen baru setiap render | Tetap sama |
-| Fokus input | Hilang | Tetap |
+## Rangkuman File yang Diubah
 
-## Langkah Implementasi
+| File | Perubahan |
+|------|-----------|
+| `src/components/admin/OrderDetailDialog.tsx` | Ubah `hasZoomData` untuk cek dari `zoomData` state juga, dan gunakan `zoomData` untuk display read-only |
+| `src/pages/admin/OrderManagement.tsx` | Update `selectedOrder` setelah refetch |
 
-1. Hapus definisi fungsi `ZoomInfoSection` (baris 175-354)
-2. Di baris 442 (tempat `<ZoomInfoSection />` dipanggil), ganti dengan JSX langsung yang mencakup:
-   - Kondisi `order.payment_status === 'paid'`
-   - Logika `isEditing` untuk mode edit
-   - Logika `hasZoomData` untuk empty state vs read-only
+---
 
-## Dampak
+## Hasil Akhir
 
-- ✅ Input tidak akan kehilangan fokus saat mengetik
-- ✅ Tidak ada perubahan visual/fungsional lainnya
-- ✅ Performa tetap sama
+Setelah admin simpan detail Zoom:
+1. UI langsung menampilkan data yang baru dimasukkan (dari `zoomData` state)
+2. `selectedOrder` di parent juga terupdate dengan data terbaru dari database
+3. Icon status Zoom di tabel utama juga ikut terupdate (dari refetch)
