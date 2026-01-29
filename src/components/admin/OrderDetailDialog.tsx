@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
 import { 
@@ -9,6 +9,8 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { 
   User, 
@@ -23,11 +25,18 @@ import {
   ExternalLink,
   CheckCircle2,
   XCircle,
-  CreditCard
+  CreditCard,
+  Pencil,
+  Save,
+  Plus,
+  Loader2,
+  AlertTriangle,
+  X
 } from 'lucide-react';
 import { GuestOrder } from '@/types/OrderTypes';
 import { formatRupiah } from '@/utils/formatRupiah';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 // Format payment method dari SNAKE_CASE ke Title Case
 const formatPaymentMethod = (method: string): string => {
@@ -42,14 +51,35 @@ interface OrderDetailDialogProps {
   order: GuestOrder | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onUpdate?: () => void;
 }
 
 const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({ 
   order, 
   open, 
-  onOpenChange 
+  onOpenChange,
+  onUpdate
 }) => {
   const { toast } = useToast();
+  const [isEditing, setIsEditing] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [zoomData, setZoomData] = useState({
+    meeting_id: '',
+    zoom_passcode: '',
+    zoom_link: ''
+  });
+
+  // Reset state when order changes or dialog opens
+  useEffect(() => {
+    if (order) {
+      setZoomData({
+        meeting_id: order.meeting_id || '',
+        zoom_passcode: order.zoom_passcode || '',
+        zoom_link: order.zoom_link || ''
+      });
+      setIsEditing(false);
+    }
+  }, [order, open]);
 
   if (!order) return null;
 
@@ -82,6 +112,55 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
     return format(new Date(dateStr), "EEEE, d MMMM yyyy", { locale: id });
   };
 
+  const handleSaveZoomDetails = async () => {
+    // Basic URL validation if zoom_link is provided
+    if (zoomData.zoom_link && !zoomData.zoom_link.startsWith('http')) {
+      toast({
+        title: "Link tidak valid",
+        description: "Link Zoom harus dimulai dengan http:// atau https://",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setSaving(true);
+    const { error } = await supabase
+      .from('guest_orders')
+      .update({
+        meeting_id: zoomData.meeting_id || null,
+        zoom_passcode: zoomData.zoom_passcode || null,
+        zoom_link: zoomData.zoom_link || null
+      })
+      .eq('id', order.id);
+
+    if (error) {
+      toast({
+        title: "Gagal menyimpan",
+        description: error.message,
+        variant: "destructive"
+      });
+    } else {
+      toast({
+        title: "Berhasil disimpan",
+        description: "Detail Zoom meeting telah diperbarui"
+      });
+      setIsEditing(false);
+      onUpdate?.();
+    }
+    setSaving(false);
+  };
+
+  const handleCancelEdit = () => {
+    setZoomData({
+      meeting_id: order.meeting_id || '',
+      zoom_passcode: order.zoom_passcode || '',
+      zoom_link: order.zoom_link || ''
+    });
+    setIsEditing(false);
+  };
+
+  const hasZoomData = order.zoom_link || order.meeting_id || order.zoom_passcode;
+
   const MeetingToggle = ({ enabled, label }: { enabled: boolean | null; label: string }) => (
     <div className="flex items-center gap-2">
       {enabled ? (
@@ -92,6 +171,187 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
       <span className={enabled ? "text-foreground" : "text-muted-foreground"}>{label}</span>
     </div>
   );
+
+  // Zoom Info Section Component
+  const ZoomInfoSection = () => {
+    if (order.payment_status !== 'paid') return null;
+
+    // Edit mode
+    if (isEditing) {
+      return (
+        <>
+          <Separator />
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">
+                Info Zoom
+              </h3>
+            </div>
+            <div className="grid gap-4 p-4 bg-muted/50 rounded-lg">
+              <div className="space-y-2">
+                <Label htmlFor="meeting_id">Meeting ID</Label>
+                <Input
+                  id="meeting_id"
+                  placeholder="Contoh: 123 456 7890"
+                  value={zoomData.meeting_id}
+                  onChange={(e) => setZoomData({ ...zoomData, meeting_id: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="zoom_passcode">Passcode</Label>
+                <Input
+                  id="zoom_passcode"
+                  placeholder="Contoh: abc123"
+                  value={zoomData.zoom_passcode}
+                  onChange={(e) => setZoomData({ ...zoomData, zoom_passcode: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="zoom_link">Link Zoom</Label>
+                <Input
+                  id="zoom_link"
+                  placeholder="https://zoom.us/j/..."
+                  value={zoomData.zoom_link}
+                  onChange={(e) => setZoomData({ ...zoomData, zoom_link: e.target.value })}
+                />
+              </div>
+              <div className="flex gap-2 justify-end pt-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleCancelEdit}
+                  disabled={saving}
+                >
+                  <X className="h-4 w-4 mr-2" />
+                  Batal
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={handleSaveZoomDetails}
+                  disabled={saving}
+                >
+                  {saving ? (
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  ) : (
+                    <Save className="h-4 w-4 mr-2" />
+                  )}
+                  Simpan
+                </Button>
+              </div>
+            </div>
+          </div>
+        </>
+      );
+    }
+
+    // Empty state - Zoom data not available
+    if (!hasZoomData) {
+      return (
+        <>
+          <Separator />
+          <div className="space-y-3">
+            <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">
+              Info Zoom
+            </h3>
+            <div className="flex flex-col items-center justify-center gap-3 p-6 bg-muted/50 rounded-lg text-center">
+              <AlertTriangle className="h-8 w-8 text-orange-500" />
+              <div>
+                <p className="font-medium">Zoom meeting belum tersedia</p>
+                <p className="text-sm text-muted-foreground">
+                  Klik tombol di bawah untuk menambahkan detail secara manual
+                </p>
+              </div>
+              <Button onClick={() => setIsEditing(true)}>
+                <Plus className="h-4 w-4 mr-2" />
+                Tambah Detail Zoom
+              </Button>
+            </div>
+          </div>
+        </>
+      );
+    }
+
+    // Read-only display
+    return (
+      <>
+        <Separator />
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">
+              Info Zoom
+            </h3>
+            <Button variant="ghost" size="sm" onClick={() => setIsEditing(true)}>
+              <Pencil className="h-4 w-4 mr-2" />
+              Edit
+            </Button>
+          </div>
+          <div className="grid gap-3 p-4 bg-muted/50 rounded-lg">
+            {order.meeting_id && (
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">Meeting ID</span>
+                <div className="flex items-center gap-2">
+                  <code className="bg-background px-2 py-1 rounded text-sm">
+                    {order.meeting_id}
+                  </code>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={() => copyToClipboard(order.meeting_id!, 'Meeting ID')}
+                  >
+                    <Copy className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            )}
+            {order.zoom_passcode && (
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">Passcode</span>
+                <div className="flex items-center gap-2">
+                  <code className="bg-background px-2 py-1 rounded text-sm">
+                    {order.zoom_passcode}
+                  </code>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={() => copyToClipboard(order.zoom_passcode!, 'Passcode')}
+                  >
+                    <Copy className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            )}
+            {order.zoom_link && (
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">Link</span>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => copyToClipboard(order.zoom_link!, 'Link Zoom')}
+                  >
+                    <Copy className="h-4 w-4 mr-2" />
+                    Salin Link
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    asChild
+                  >
+                    <a href={order.zoom_link} target="_blank" rel="noopener noreferrer">
+                      <ExternalLink className="h-4 w-4 mr-2" />
+                      Buka
+                    </a>
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </>
+    );
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -178,80 +438,8 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
             </div>
           </div>
 
-          {/* Info Zoom (jika paid) */}
-          {order.payment_status === 'paid' && (order.zoom_link || order.meeting_id) && (
-            <>
-              <Separator />
-              <div className="space-y-3">
-                <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">
-                  Info Zoom
-                </h3>
-                <div className="grid gap-3 p-4 bg-muted/50 rounded-lg">
-                  {order.meeting_id && (
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-muted-foreground">Meeting ID</span>
-                      <div className="flex items-center gap-2">
-                        <code className="bg-background px-2 py-1 rounded text-sm">
-                          {order.meeting_id}
-                        </code>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8"
-                          onClick={() => copyToClipboard(order.meeting_id!, 'Meeting ID')}
-                        >
-                          <Copy className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  )}
-                  {order.zoom_passcode && (
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-muted-foreground">Passcode</span>
-                      <div className="flex items-center gap-2">
-                        <code className="bg-background px-2 py-1 rounded text-sm">
-                          {order.zoom_passcode}
-                        </code>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8"
-                          onClick={() => copyToClipboard(order.zoom_passcode!, 'Passcode')}
-                        >
-                          <Copy className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  )}
-                  {order.zoom_link && (
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-muted-foreground">Link</span>
-                      <div className="flex items-center gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => copyToClipboard(order.zoom_link!, 'Link Zoom')}
-                        >
-                          <Copy className="h-4 w-4 mr-2" />
-                          Salin Link
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          asChild
-                        >
-                          <a href={order.zoom_link} target="_blank" rel="noopener noreferrer">
-                            <ExternalLink className="h-4 w-4 mr-2" />
-                            Buka
-                          </a>
-                        </Button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </>
-          )}
+          {/* Info Zoom Section */}
+          <ZoomInfoSection />
 
           <Separator />
 
