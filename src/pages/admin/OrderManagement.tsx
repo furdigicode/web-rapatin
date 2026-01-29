@@ -63,8 +63,15 @@ const OrderManagement = () => {
     },
   });
 
-  const handleOrderUpdate = () => {
-    refetch();
+  const handleOrderUpdate = async () => {
+    const { data } = await refetch();
+    // Update selectedOrder dengan data terbaru dari database
+    if (selectedOrder && data) {
+      const updatedOrder = data.find(o => o.id === selectedOrder.id);
+      if (updatedOrder) {
+        setSelectedOrder(updatedOrder);
+      }
+    }
   };
 
   // Calculate stats
