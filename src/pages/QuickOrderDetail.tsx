@@ -689,16 +689,24 @@ export default function QuickOrderDetail() {
 
                       {/* Panduan Buttons */}
                       <div className="flex flex-col sm:flex-row gap-3 mt-4">
-                        <Button asChild variant="outline" className="flex-1">
-                          <a 
-                            href="https://example.com/panduan-host" 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                          >
-                            <BookOpen className="w-4 h-4 mr-2" />
-                            Panduan Menjadi Host
-                          </a>
-                        </Button>
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button variant="outline" className="flex-1">
+                              <BookOpen className="w-4 h-4 mr-2" />
+                              Panduan Menjadi Host
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
+                            <DialogHeader>
+                              <DialogTitle>Panduan Menjadi Host</DialogTitle>
+                            </DialogHeader>
+                            <div className="prose prose-sm dark:prose-invert">
+                              <p className="text-muted-foreground">
+                                Panduan menjadi host akan ditambahkan di sini.
+                              </p>
+                            </div>
+                          </DialogContent>
+                        </Dialog>
                         
                         <Dialog>
                           <DialogTrigger asChild>
