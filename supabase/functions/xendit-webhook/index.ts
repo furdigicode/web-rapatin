@@ -260,52 +260,126 @@ serve(async (req) => {
       const { event, data } = payload;
       console.log("Detected Sessions API v3 format, event:", event);
       
-      // Handle payment.capture event for payment method info
-      if (event === 'payment.capture') {
-        console.log("Processing payment.capture event for payment method");
-        
-        const referenceId = data.reference_id;
-        if (!referenceId) {
-          console.log("No reference_id in payment.capture, skipping");
-          return new Response(
-            JSON.stringify({ success: true, message: 'Skipped - no reference_id' }),
-            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-          );
-        }
-        
-        // Build payment method string
-        let paymentMethod = data.channel_code || 'Unknown';
-        if (data.payment_details?.issuer_name) {
-          paymentMethod = `${data.channel_code} (${data.payment_details.issuer_name})`;
-        }
-        
-        console.log("Updating payment method:", { referenceId, paymentMethod });
-        
-        // Initialize Supabase client
-        const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-        const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-        const supabase = createClient(supabaseUrl, supabaseKey);
-        
-        // Find and update order by xendit_reference_id
-        const { error: updateError, data: updateResult } = await supabase
-          .from('guest_orders')
-          .update({ payment_method: paymentMethod })
-          .eq('xendit_reference_id', referenceId)
-          .select('id');
-        
-        if (updateError) {
-          console.error("Failed to update payment method:", updateError);
-        } else if (updateResult && updateResult.length > 0) {
-          console.log("Payment method updated for order:", updateResult[0].id);
-        } else {
-          console.log("No order found for reference_id:", referenceId);
-        }
-        
+    // Handle payment.capture event for payment method info
+    if (event === 'payment.capture') {
+      console.log("Processing payment.capture event for payment method");
+      
+      const referenceId = data.reference_id;
+      if (!referenceId) {
+        console.log("No reference_id in payment.capture, skipping");
         return new Response(
-          JSON.stringify({ success: true, message: 'Payment method processed' }),
+          JSON.stringify({ success: true, message: 'Skipped - no reference_id' }),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
+      
+      // Build payment method string
+      let paymentMethod = data.channel_code || 'Unknown';
+      if (data.payment_details?.issuer_name) {
+        paymentMethod = `${data.channel_code} (${data.payment_details.issuer_name})`;
+      }
+      
+      console.log("Updating payment method:", { referenceId, paymentMethod });
+      
+      // Initialize Supabase client
+      const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+      const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+      const supabase = createClient(supabaseUrl, supabaseKey);
+      
+      // Find and update order by xendit_reference_id
+      const { error: updateError, data: updateResult } = await supabase
+        .from('guest_orders')
+        .update({ payment_method: paymentMethod })
+        .eq('xendit_reference_id', referenceId)
+        .select('id');
+      
+      if (updateError) {
+        console.error("Failed to update payment method:", updateError);
+      } else if (updateResult && updateResult.length > 0) {
+        console.log("Payment method updated for order:", updateResult[0].id);
+      } else {
+        console.log("No order found for reference_id:", referenceId);
+      }
+      
+      return new Response(
+        JSON.stringify({ success: true, message: 'Payment method processed' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
+    // Handle payment_request.expiry event (Session expiry via reference_id)
+    if (event === 'payment_request.expiry') {
+      console.log("Processing payment_request.expiry event");
+      
+      const referenceId = data.reference_id;
+      if (!referenceId) {
+        console.error("No reference_id in payment_request.expiry");
+        return new Response(
+          JSON.stringify({ error: 'Missing reference_id' }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+      
+      // Initialize Supabase client
+      const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+      const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+      const supabase = createClient(supabaseUrl, supabaseKey);
+      
+      // Find order by xendit_reference_id
+      const { data: order, error: findError } = await supabase
+        .from('guest_orders')
+        .select('id, payment_status')
+        .eq('xendit_reference_id', referenceId)
+        .maybeSingle();
+      
+      if (findError) {
+        console.error("Error finding order:", findError);
+        return new Response(
+          JSON.stringify({ error: 'Database error' }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+      
+      if (!order) {
+        console.log("Order not found for reference_id:", referenceId);
+        return new Response(
+          JSON.stringify({ success: true, message: 'Order not found - might be test' }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+      
+      // Don't update if already paid (idempotency)
+      if (order.payment_status === 'paid') {
+        console.log("Order already paid, skipping expiry update:", order.id);
+        return new Response(
+          JSON.stringify({ success: true, message: 'Already paid' }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+      
+      // Update to expired
+      const { error: updateError } = await supabase
+        .from('guest_orders')
+        .update({ 
+          payment_status: 'expired',
+          expired_at: data.updated || new Date().toISOString()
+        })
+        .eq('id', order.id);
+      
+      if (updateError) {
+        console.error("Failed to update order to expired:", updateError);
+        return new Response(
+          JSON.stringify({ error: 'Update failed' }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+      
+      console.log("Order marked as expired:", order.id);
+      return new Response(
+        JSON.stringify({ success: true }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
       
       sessionId = data.payment_session_id;
       status = data.status;
