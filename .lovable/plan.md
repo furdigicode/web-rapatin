@@ -1,88 +1,98 @@
 
 
-# Rencana: Ubah "Panduan Menjadi Host" Menjadi Dialog
+# Rencana: Tambah Host Key dengan Tampilan Tersembunyi
 
 ## Ringkasan
 
-Mengubah tombol "Panduan Menjadi Host" yang saat ini berupa link eksternal menjadi tombol yang membuka dialog. Konten panduan akan ditambahkan kemudian oleh user.
+Menambahkan informasi "Host Key" dengan nilai `070707` di kartu Detail Zoom, tepat di bawah "Link Meeting" dan sebelum "Invitation". Nilai akan tersembunyi secara default (ditampilkan sebagai `******`) dan bisa ditampilkan dengan tombol toggle.
 
 ---
 
 ## Perubahan yang Diperlukan
 
-### File: `src/pages/QuickOrderDetail.tsx`
+### 1. Tambah Import Icon
 
-**Lokasi:** Line 692-701
+**File:** `src/pages/QuickOrderDetail.tsx`
 
-**Sebelum:**
-```tsx
-<Button asChild variant="outline" className="flex-1">
-  <a 
-    href="https://example.com/panduan-host" 
-    target="_blank" 
-    rel="noopener noreferrer"
-  >
-    <BookOpen className="w-4 h-4 mr-2" />
-    Panduan Menjadi Host
-  </a>
-</Button>
+Tambah icon `Eye` dan `EyeOff` dari lucide-react untuk toggle visibility:
+
+```typescript
+import { 
+  // ... existing imports
+  Eye,
+  EyeOff
+} from "lucide-react";
 ```
 
-**Sesudah:**
+### 2. Tambah State untuk Toggle Visibility
+
+Di dalam komponen, tambahkan state:
+
+```typescript
+const [showHostKey, setShowHostKey] = useState(false);
+```
+
+### 3. Tambah UI Host Key
+
+**Lokasi:** Setelah "Link Meeting" (line 664), sebelum "Invitation" (line 666)
+
 ```tsx
-<Dialog>
-  <DialogTrigger asChild>
-    <Button variant="outline" className="flex-1">
-      <BookOpen className="w-4 h-4 mr-2" />
-      Panduan Menjadi Host
+{/* Host Key */}
+<div>
+  <span className="text-sm text-muted-foreground block mb-1">Host Key</span>
+  <div className="flex items-center gap-2">
+    <code className="flex-1 bg-muted p-3 rounded-lg text-sm font-mono">
+      {showHostKey ? "070707" : "••••••"}
+    </code>
+    <Button
+      size="icon"
+      variant="outline"
+      onClick={() => setShowHostKey(!showHostKey)}
+      title={showHostKey ? "Sembunyikan" : "Tampilkan"}
+    >
+      {showHostKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
     </Button>
-  </DialogTrigger>
-  <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
-    <DialogHeader>
-      <DialogTitle>Panduan Menjadi Host</DialogTitle>
-    </DialogHeader>
-    <div className="prose prose-sm dark:prose-invert">
-      {/* Placeholder - konten akan ditambahkan oleh user */}
-      <p className="text-muted-foreground">
-        Panduan menjadi host akan ditambahkan di sini.
-      </p>
-    </div>
-  </DialogContent>
-</Dialog>
+    <Button
+      size="icon"
+      variant="outline"
+      onClick={() => copyToClipboard("070707", "Host Key")}
+    >
+      <Copy className="w-4 h-4" />
+    </Button>
+  </div>
+</div>
 ```
 
 ---
 
 ## Tampilan yang Diharapkan
 
-### Tombol (tetap sama)
+### State Default (tersembunyi)
 ```text
-┌──────────────────────────┐  ┌──────────────────────────┐
-│  📖 Panduan Menjadi Host │  │  📖 Panduan Lainnya      │
-└──────────────────────────┘  └──────────────────────────┘
+Host Key
+┌────────────────────────────────┐  ┌───┐  ┌───┐
+│  ••••••                        │  │ 👁 │  │📋│
+└────────────────────────────────┘  └───┘  └───┘
 ```
 
-### Dialog "Panduan Menjadi Host" (saat diklik)
+### Setelah Klik Toggle (terlihat)
 ```text
-┌─────────────────────────────────────────┐
-│  Panduan Menjadi Host               [X] │
-├─────────────────────────────────────────┤
-│                                         │
-│  Panduan menjadi host akan ditambahkan  │
-│  di sini.                               │
-│                                         │
-│  (scrollable jika konten panjang)       │
-│                                         │
-└─────────────────────────────────────────┘
+Host Key
+┌────────────────────────────────┐  ┌────┐  ┌───┐
+│  070707                        │  │ 👁‍🗨 │  │📋│
+└────────────────────────────────┘  └────┘  └───┘
 ```
 
 ---
 
-## Catatan
+## Urutan Field di Detail Zoom
 
-- Dialog menggunakan `max-h-[80vh] overflow-y-auto` agar bisa scroll jika konten panjang
-- Placeholder text sementara akan diganti dengan panduan lengkap dari user
-- Layout dan styling konsisten dengan dialog "Panduan Lainnya"
+1. Meeting ID
+2. Passcode
+3. Link Meeting
+4. **Host Key** ← Baru
+5. Invitation
+6. Tombol Panduan
 
 ---
 
@@ -90,5 +100,5 @@ Mengubah tombol "Panduan Menjadi Host" yang saat ini berupa link eksternal menja
 
 | File | Perubahan |
 |------|-----------|
-| `src/pages/QuickOrderDetail.tsx` | Ubah tombol link menjadi Dialog dengan placeholder content |
+| `src/pages/QuickOrderDetail.tsx` | Tambah import Eye/EyeOff, state showHostKey, dan UI Host Key |
 
