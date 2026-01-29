@@ -10,7 +10,9 @@ import {
   Clock,
   CheckCircle,
   XCircle,
-  Package
+  Package,
+  Video,
+  AlertTriangle
 } from 'lucide-react';
 import AdminLayout from '@/components/admin/AdminLayout';
 import AdminPageHeader from '@/components/admin/AdminPageHeader';
@@ -38,6 +40,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { GuestOrder, OrderStats, PaymentStatus } from '@/types/OrderTypes';
 import { formatRupiah } from '@/utils/formatRupiah';
 import { useToast } from '@/hooks/use-toast';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const OrderManagement = () => {
   const { toast } = useToast();
@@ -108,6 +111,32 @@ const OrderManagement = () => {
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
+  };
+
+  const getZoomStatusIcon = (order: GuestOrder) => {
+    if (order.payment_status !== 'paid') {
+      return null;
+    }
+    
+    if (order.zoom_link) {
+      return (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Video className="h-4 w-4 text-green-500 flex-shrink-0" />
+          </TooltipTrigger>
+          <TooltipContent>Zoom Meeting Ready</TooltipContent>
+        </Tooltip>
+      );
+    }
+    
+    return (
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <AlertTriangle className="h-4 w-4 text-orange-500 flex-shrink-0" />
+        </TooltipTrigger>
+        <TooltipContent>Zoom belum tersedia - perlu input manual</TooltipContent>
+      </Tooltip>
+    );
   };
 
   const handleViewOrder = (order: GuestOrder) => {
@@ -198,6 +227,7 @@ const OrderManagement = () => {
   );
 
   return (
+    <TooltipProvider>
     <AdminLayout title="Orders">
       <AdminPageHeader
         title="Orders"
@@ -288,8 +318,9 @@ const OrderManagement = () => {
                         <div className="text-sm text-muted-foreground">{order.email}</div>
                       </TableCell>
                       <TableCell>
-                        <div className="font-medium truncate max-w-[200px]">
-                          {order.meeting_topic || '-'}
+                        <div className="font-medium truncate max-w-[200px] flex items-center gap-1.5">
+                          {getZoomStatusIcon(order)}
+                          <span className="truncate">{order.meeting_topic || '-'}</span>
                         </div>
                         <div className="text-sm text-muted-foreground">
                           {format(new Date(order.meeting_date), 'd MMM', { locale: id })}
@@ -331,6 +362,7 @@ const OrderManagement = () => {
         onUpdate={handleOrderUpdate}
       />
     </AdminLayout>
+    </TooltipProvider>
   );
 };
 
