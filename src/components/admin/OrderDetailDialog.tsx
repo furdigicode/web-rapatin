@@ -159,7 +159,10 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
     setIsEditing(false);
   };
 
-  const hasZoomData = order.zoom_link || order.meeting_id || order.zoom_passcode;
+  // Cek dari order prop ATAU zoomData state (untuk immediate feedback setelah save)
+  const hasZoomData = 
+    order.zoom_link || order.meeting_id || order.zoom_passcode ||
+    zoomData.zoom_link || zoomData.meeting_id || zoomData.zoom_passcode;
 
   const MeetingToggle = ({ enabled, label }: { enabled: boolean | null; label: string }) => (
     <div className="flex items-center gap-2">
@@ -354,50 +357,50 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
                       </Button>
                     </div>
                     <div className="grid gap-3 p-4 bg-muted/50 rounded-lg">
-                      {order.meeting_id && (
+                      {zoomData.meeting_id && (
                         <div className="flex items-center justify-between">
                           <span className="text-sm text-muted-foreground">Meeting ID</span>
                           <div className="flex items-center gap-2">
                             <code className="bg-background px-2 py-1 rounded text-sm">
-                              {order.meeting_id}
+                              {zoomData.meeting_id}
                             </code>
                             <Button
                               variant="ghost"
                               size="icon"
                               className="h-8 w-8"
-                              onClick={() => copyToClipboard(order.meeting_id!, 'Meeting ID')}
+                              onClick={() => copyToClipboard(zoomData.meeting_id, 'Meeting ID')}
                             >
                               <Copy className="h-4 w-4" />
                             </Button>
                           </div>
                         </div>
                       )}
-                      {order.zoom_passcode && (
+                      {zoomData.zoom_passcode && (
                         <div className="flex items-center justify-between">
                           <span className="text-sm text-muted-foreground">Passcode</span>
                           <div className="flex items-center gap-2">
                             <code className="bg-background px-2 py-1 rounded text-sm">
-                              {order.zoom_passcode}
+                              {zoomData.zoom_passcode}
                             </code>
                             <Button
                               variant="ghost"
                               size="icon"
                               className="h-8 w-8"
-                              onClick={() => copyToClipboard(order.zoom_passcode!, 'Passcode')}
+                              onClick={() => copyToClipboard(zoomData.zoom_passcode, 'Passcode')}
                             >
                               <Copy className="h-4 w-4" />
                             </Button>
                           </div>
                         </div>
                       )}
-                      {order.zoom_link && (
+                      {zoomData.zoom_link && (
                         <div className="flex items-center justify-between">
                           <span className="text-sm text-muted-foreground">Link</span>
                           <div className="flex items-center gap-2">
                             <Button
                               variant="outline"
                               size="sm"
-                              onClick={() => copyToClipboard(order.zoom_link!, 'Link Zoom')}
+                              onClick={() => copyToClipboard(zoomData.zoom_link, 'Link Zoom')}
                             >
                               <Copy className="h-4 w-4 mr-2" />
                               Salin Link
@@ -407,7 +410,7 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
                               size="sm"
                               asChild
                             >
-                              <a href={order.zoom_link} target="_blank" rel="noopener noreferrer">
+                              <a href={zoomData.zoom_link} target="_blank" rel="noopener noreferrer">
                                 <ExternalLink className="h-4 w-4 mr-2" />
                                 Buka
                               </a>
