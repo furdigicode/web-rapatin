@@ -1,173 +1,153 @@
 
-# Rencana: Admin Edit Detail Zoom Meeting
+# Rencana: Tambah Indikator Status Zoom di Tabel Order
 
 ## Ringkasan
 
-Menambahkan antarmuka di panel admin (OrderDetailDialog) agar admin dapat secara manual menambahkan atau mengedit detail Zoom Meeting (Meeting ID, Passcode, dan Link) ketika pembuatan otomatis gagal.
+Menambahkan indikator visual di kolom "Meeting" pada tabel order untuk menunjukkan apakah data Zoom Meeting sudah ready atau belum. Ini membantu admin dengan cepat mengidentifikasi order mana yang perlu perhatian (Zoom gagal dibuat).
 
 ---
 
-## Analisis Kondisi Saat Ini
+## Opsi Desain
 
-### Halaman QuickOrderDetail (User-Facing)
-Sudah memiliki mekanisme fallback yang baik:
-- Jika `payment_status = 'paid'` dan `zoom_link` kosong setelah 5 menit → Menampilkan kartu error dengan tombol "Hubungi Admin via WhatsApp"
-- Dalam 5 menit pertama → Menampilkan loading state
-- Tidak ada perubahan yang diperlukan di sini
+### Opsi A: Icon Kecil di Samping Topik Meeting (Rekomendasi)
+Menambahkan icon kecil di samping judul topik meeting:
+- ✅ Icon hijau jika `zoom_link` ada
+- ⚠️ Icon kuning/oranye jika `payment_status = 'paid'` tapi `zoom_link` kosong
+- Tidak tampilkan icon jika masih pending/expired
 
-### OrderDetailDialog (Admin Panel)
-Saat ini hanya menampilkan info Zoom secara read-only. Perlu ditambahkan kemampuan edit untuk:
-- `meeting_id`
-- `zoom_passcode`
-- `zoom_link`
+### Opsi B: Badge Terpisah di Baris Bawah
+Menampilkan badge kecil di bawah tanggal/waktu:
+- Badge "Zoom Ready" hijau
+- Badge "Perlu Tindakan" oranye
+
+### Opsi C: Kolom Baru "Zoom Status"
+Menambah kolom terpisah khusus untuk status Zoom.
 
 ---
 
-## Perubahan yang Diperlukan
+## Rekomendasi: Opsi A
 
-### File: `src/components/admin/OrderDetailDialog.tsx`
+Opsi A paling efisien karena:
+- Tidak menambah lebar tabel
+- Informasi terintegrasi dengan kolom Meeting yang sudah ada
+- Mudah dipindai secara visual
 
-#### 1. Tambah State untuk Mode Edit
+---
 
-```tsx
-const [isEditing, setIsEditing] = useState(false);
-const [zoomData, setZoomData] = useState({
-  meeting_id: order?.meeting_id || '',
-  zoom_passcode: order?.zoom_passcode || '',
-  zoom_link: order?.zoom_link || ''
-});
-const [saving, setSaving] = useState(false);
+## Implementasi (Opsi A)
+
+### Tampilan di Tabel
+
+```
+┌────────────────────────────────────────────────────────────────────────────────────┐
+│ Tanggal Order │ Customer       │ Meeting                    │ Peserta │ Harga     │...
+├────────────────────────────────────────────────────────────────────────────────────┤
+│ 29 Jan 2026   │ Ahmad Rapi     │ ✅ Webinar Marketing       │   300   │ Rp125.000 │...
+│ 10:30         │ ahmad@mail.com │ 30 Jan, 14:00              │         │           │...
+├────────────────────────────────────────────────────────────────────────────────────┤
+│ 28 Jan 2026   │ Budi Santoso   │ ⚠️ Training Internal       │   100   │ Rp 65.000 │...
+│ 15:45         │ budi@mail.com  │ 29 Jan, 09:00              │         │           │...
+├────────────────────────────────────────────────────────────────────────────────────┤
+│ 27 Jan 2026   │ Citra Dewi     │ Rapat Bulanan              │   500   │ Rp250.000 │...
+│ 08:20         │ citra@mail.com │ 28 Jan, 10:00              │         │           │... (pending/expired, no icon)
+└────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
-#### 2. Tambah Fungsi Save
+Legenda:
+- ✅ = Zoom Ready (ada `zoom_link`)
+- ⚠️ = Perlu Tindakan (paid tapi `zoom_link` kosong)
+- Tanpa icon = Pending/Expired
+
+---
+
+## Perubahan Kode
+
+### File: `src/pages/admin/OrderManagement.tsx`
+
+#### 1. Import Icon Baru
 
 ```tsx
-const handleSaveZoomDetails = async () => {
-  setSaving(true);
-  const { error } = await supabase
-    .from('guest_orders')
-    .update({
-      meeting_id: zoomData.meeting_id || null,
-      zoom_passcode: zoomData.zoom_passcode || null,
-      zoom_link: zoomData.zoom_link || null
-    })
-    .eq('id', order.id);
-  
-  if (error) {
-    toast({ title: "Gagal menyimpan", variant: "destructive" });
-  } else {
-    toast({ title: "Berhasil disimpan" });
-    setIsEditing(false);
-    // Trigger refresh
+import { 
+  Search, 
+  Download, 
+  Eye, 
+  ShoppingCart,
+  Clock,
+  CheckCircle,
+  XCircle,
+  Package,
+  Video,           // NEW - untuk Zoom ready
+  AlertTriangle    // NEW - untuk perlu tindakan
+} from 'lucide-react';
+```
+
+#### 2. Tambah Helper Function
+
+```tsx
+const getZoomStatusIcon = (order: GuestOrder) => {
+  // Hanya tampilkan untuk order yang sudah lunas
+  if (order.payment_status !== 'paid') {
+    return null;
   }
-  setSaving(false);
+  
+  // Zoom sudah ready
+  if (order.zoom_link) {
+    return (
+      <Video className="h-4 w-4 text-green-500 inline-block mr-1" />
+    );
+  }
+  
+  // Paid tapi Zoom belum ada - perlu tindakan
+  return (
+    <AlertTriangle className="h-4 w-4 text-orange-500 inline-block mr-1" />
+  );
 };
 ```
 
-#### 3. Update UI Section "Info Zoom"
-
-**Tampilan Baru:**
-
-```
-┌─────────────────────────────────────────┐
-│ Info Zoom                    [✏️ Edit]  │
-├─────────────────────────────────────────┤
-│                                         │
-│ Meeting ID                              │
-│ ┌─────────────────────────────────────┐ │
-│ │ [Input field or display code]    [📋]│ │
-│ └─────────────────────────────────────┘ │
-│                                         │
-│ Passcode                                │
-│ ┌─────────────────────────────────────┐ │
-│ │ [Input field or display code]    [📋]│ │
-│ └─────────────────────────────────────┘ │
-│                                         │
-│ Link                                    │
-│ ┌─────────────────────────────────────┐ │
-│ │ [Input field or display code]    [📋]│ │
-│ └─────────────────────────────────────┘ │
-│                                         │
-│ (Mode Edit: [Batal] [💾 Simpan])        │
-└─────────────────────────────────────────┘
-```
-
----
-
-## Logika Tampilan
-
-| Kondisi | UI yang Ditampilkan |
-|---------|---------------------|
-| `payment_status != 'paid'` | Tidak tampilkan section Info Zoom |
-| `paid` + data ada + tidak edit | Read-only display + tombol Edit |
-| `paid` + data kosong + tidak edit | Empty state + tombol "Tambah Detail Zoom" |
-| `paid` + mode edit | Form input + tombol Simpan/Batal |
-
----
-
-## Tampilan Empty State (Zoom Gagal Dibuat)
-
-```
-┌─────────────────────────────────────────┐
-│ Info Zoom                               │
-├─────────────────────────────────────────┤
-│                                         │
-│    ⚠️  Zoom meeting belum tersedia      │
-│                                         │
-│    Klik tombol di bawah untuk           │
-│    menambahkan detail secara manual     │
-│                                         │
-│         [➕ Tambah Detail Zoom]          │
-│                                         │
-└─────────────────────────────────────────┘
-```
-
----
-
-## Alur Kerja Admin
-
-1. Admin menerima pesan WhatsApp dari customer yang Zoom-nya gagal dibuat
-2. Admin membuka Order Management → klik View pada order tersebut
-3. Di dialog detail, section "Info Zoom" menampilkan empty state
-4. Admin klik "Tambah Detail Zoom" → form input muncul
-5. Admin mengisi Meeting ID, Passcode, dan Link dari Zoom yang dibuat manual
-6. Admin klik "Simpan"
-7. Customer me-refresh halaman Quick Order Detail → data Zoom muncul
-
----
-
-## Komponen yang Diperlukan
-
-| Komponen | Sumber | Status |
-|----------|--------|--------|
-| Input | `@/components/ui/input` | Perlu import |
-| Loader2 | `lucide-react` | Sudah ada di project |
-| Pencil | `lucide-react` | Perlu import |
-| Save | `lucide-react` | Perlu import |
-| Plus | `lucide-react` | Perlu import |
-| supabase | `@/integrations/supabase/client` | Perlu import |
-
----
-
-## Keamanan
-
-- RLS policy `is_admin_user()` sudah ada untuk UPDATE pada tabel `guest_orders`
-- Admin harus login via admin panel sebelum bisa edit
-- Tidak ada data sensitif yang di-expose
-
----
-
-## Perubahan Props
-
-Menambahkan prop `onUpdate` untuk trigger refresh setelah save:
+#### 3. Update Tampilan Kolom Meeting (Line 290-297)
 
 ```tsx
-interface OrderDetailDialogProps {
-  order: GuestOrder | null;
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onUpdate?: () => void; // NEW
+<TableCell>
+  <div className="font-medium truncate max-w-[200px] flex items-center">
+    {getZoomStatusIcon(order)}
+    <span>{order.meeting_topic || '-'}</span>
+  </div>
+  <div className="text-sm text-muted-foreground">
+    {format(new Date(order.meeting_date), 'd MMM', { locale: id })}
+    {order.meeting_time && `, ${order.meeting_time}`}
+  </div>
+</TableCell>
+```
+
+---
+
+## Tooltip (Opsional, untuk Clarity)
+
+Untuk memberikan penjelasan lebih lanjut saat hover, bisa ditambahkan Tooltip:
+
+```tsx
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+
+// Dalam getZoomStatusIcon:
+if (order.zoom_link) {
+  return (
+    <Tooltip>
+      <TooltipTrigger>
+        <Video className="h-4 w-4 text-green-500 inline-block mr-1" />
+      </TooltipTrigger>
+      <TooltipContent>Zoom Meeting Ready</TooltipContent>
+    </Tooltip>
+  );
 }
+
+return (
+  <Tooltip>
+    <TooltipTrigger>
+      <AlertTriangle className="h-4 w-4 text-orange-500 inline-block mr-1" />
+    </TooltipTrigger>
+    <TooltipContent>Zoom belum tersedia - perlu input manual</TooltipContent>
+  </Tooltip>
+);
 ```
 
 ---
@@ -176,13 +156,12 @@ interface OrderDetailDialogProps {
 
 | File | Perubahan |
 |------|-----------|
-| `src/components/admin/OrderDetailDialog.tsx` | Tambah mode edit untuk detail Zoom |
-| `src/pages/admin/OrderManagement.tsx` | Passing `onUpdate` prop untuk refetch data |
+| `src/pages/admin/OrderManagement.tsx` | Tambah icon status Zoom di kolom Meeting |
 
 ---
 
-## Catatan Teknis
+## Catatan
 
-- Menggunakan `useQueryClient().invalidateQueries(['guest-orders'])` untuk refetch setelah update
-- Form edit hanya muncul jika `payment_status === 'paid'`
-- Validasi minimal: zoom_link harus URL valid jika diisi
+- Icon hanya muncul untuk order dengan `payment_status = 'paid'`
+- Order pending/expired tidak perlu indicator karena memang belum waktunya punya Zoom
+- Icon orange (⚠️) membantu admin cepat identifikasi order yang butuh tindakan manual
