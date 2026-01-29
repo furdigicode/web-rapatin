@@ -1,97 +1,173 @@
 
-# Rencana: Update Dialog Panduan Lainnya
+# Rencana: Admin Edit Detail Zoom Meeting
 
 ## Ringkasan
 
-Mengupdate dialog "Panduan Lainnya" dengan link dokumentasi resmi Zoom, menambah panduan Breakout Room, menghapus card placeholder, dan menghilangkan icon di sebelah kiri setiap card.
+Menambahkan antarmuka di panel admin (OrderDetailDialog) agar admin dapat secara manual menambahkan atau mengedit detail Zoom Meeting (Meeting ID, Passcode, dan Link) ketika pembuatan otomatis gagal.
+
+---
+
+## Analisis Kondisi Saat Ini
+
+### Halaman QuickOrderDetail (User-Facing)
+Sudah memiliki mekanisme fallback yang baik:
+- Jika `payment_status = 'paid'` dan `zoom_link` kosong setelah 5 menit → Menampilkan kartu error dengan tombol "Hubungi Admin via WhatsApp"
+- Dalam 5 menit pertama → Menampilkan loading state
+- Tidak ada perubahan yang diperlukan di sini
+
+### OrderDetailDialog (Admin Panel)
+Saat ini hanya menampilkan info Zoom secara read-only. Perlu ditambahkan kemampuan edit untuk:
+- `meeting_id`
+- `zoom_passcode`
+- `zoom_link`
 
 ---
 
 ## Perubahan yang Diperlukan
 
-### File: `src/pages/QuickOrderDetail.tsx`
+### File: `src/components/admin/OrderDetailDialog.tsx`
 
-#### 1. Hapus Card "Panduan Mengundang Peserta" (Line 762-775)
-Card ini dihapus karena masih menggunakan placeholder link.
-
-#### 2. Update Link Panduan Recording
-**Sebelum:** `https://example.com/panduan-2`
-**Sesudah:** `https://support.zoom.com/hc/id/article?id=zm_kb&sysparm_article=KB0062631#h_7420acb5-1897-4061-87b4-5b76e99c03b4`
-
-#### 3. Tambah Card Panduan Breakout Room
-Link: `https://support.zoom.com/hc/id/article?id=zm_kb&sysparm_article=KB0062544#mcetoc_1icojfikb22`
-
-#### 4. Hapus Card "Panduan Fitur Lainnya" (Line 802-814)
-Card ini dihapus karena masih menggunakan placeholder link.
-
-#### 5. Hapus Icon di Semua Card
-Menghilangkan elemen `<BookOpen>`, `<Users>`, dan `<ExternalLink>` dari setiap card panduan.
-
----
-
-## Tampilan Sebelum & Sesudah
-
-### Sebelum:
-```
-┌─────────────────────────────────────────┐
-│ 📖 Panduan Mengundang Peserta        ↗  │  ← Dihapus
-│ 📖 Panduan Recording                 ↗  │
-│ 👥 Menetapkan Peserta Sebagai Co-Host↗  │
-│ 📖 Panduan Fitur Lainnya             ↗  │  ← Dihapus
-└─────────────────────────────────────────┘
-```
-
-### Sesudah:
-```
-┌─────────────────────────────────────────┐
-│ Panduan Recording                       │
-│ Cara merekam meeting Zoom               │
-├─────────────────────────────────────────┤
-│ Menetapkan Peserta Sebagai Co-Host      │
-│ Berbagi hak pengelolaan meeting...      │
-├─────────────────────────────────────────┤
-│ Panduan Breakout Room                   │
-│ Membagi peserta ke dalam ruang diskusi  │
-└─────────────────────────────────────────┘
-```
-
----
-
-## Kode Card Baru (Tanpa Icon)
+#### 1. Tambah State untuk Mode Edit
 
 ```tsx
-{/* Panduan Recording */}
-<a
-  href="https://support.zoom.com/hc/id/article?id=zm_kb&sysparm_article=KB0062631#h_7420acb5-1897-4061-87b4-5b76e99c03b4"
-  target="_blank"
-  rel="noopener noreferrer"
-  className="flex flex-col gap-1 p-3 rounded-lg border hover:bg-muted transition-colors"
->
-  <p className="font-medium">Panduan Recording</p>
-  <p className="text-sm text-muted-foreground">Cara merekam meeting Zoom</p>
-</a>
+const [isEditing, setIsEditing] = useState(false);
+const [zoomData, setZoomData] = useState({
+  meeting_id: order?.meeting_id || '',
+  zoom_passcode: order?.zoom_passcode || '',
+  zoom_link: order?.zoom_link || ''
+});
+const [saving, setSaving] = useState(false);
+```
 
-{/* Menetapkan Co-Host */}
-<a
-  href="https://support.zoom.com/hc/id/article?id=zm_kb&sysparm_article=KB0066642#h_9c3ee7f2-b70c-4061-8dcf-00dd836b2075"
-  target="_blank"
-  rel="noopener noreferrer"
-  className="flex flex-col gap-1 p-3 rounded-lg border hover:bg-muted transition-colors"
->
-  <p className="font-medium">Menetapkan Peserta Sebagai Co-Host</p>
-  <p className="text-sm text-muted-foreground">Berbagi hak pengelolaan meeting dengan peserta lain</p>
-</a>
+#### 2. Tambah Fungsi Save
 
-{/* Panduan Breakout Room */}
-<a
-  href="https://support.zoom.com/hc/id/article?id=zm_kb&sysparm_article=KB0062544#mcetoc_1icojfikb22"
-  target="_blank"
-  rel="noopener noreferrer"
-  className="flex flex-col gap-1 p-3 rounded-lg border hover:bg-muted transition-colors"
->
-  <p className="font-medium">Panduan Breakout Room</p>
-  <p className="text-sm text-muted-foreground">Membagi peserta ke dalam ruang diskusi terpisah</p>
-</a>
+```tsx
+const handleSaveZoomDetails = async () => {
+  setSaving(true);
+  const { error } = await supabase
+    .from('guest_orders')
+    .update({
+      meeting_id: zoomData.meeting_id || null,
+      zoom_passcode: zoomData.zoom_passcode || null,
+      zoom_link: zoomData.zoom_link || null
+    })
+    .eq('id', order.id);
+  
+  if (error) {
+    toast({ title: "Gagal menyimpan", variant: "destructive" });
+  } else {
+    toast({ title: "Berhasil disimpan" });
+    setIsEditing(false);
+    // Trigger refresh
+  }
+  setSaving(false);
+};
+```
+
+#### 3. Update UI Section "Info Zoom"
+
+**Tampilan Baru:**
+
+```
+┌─────────────────────────────────────────┐
+│ Info Zoom                    [✏️ Edit]  │
+├─────────────────────────────────────────┤
+│                                         │
+│ Meeting ID                              │
+│ ┌─────────────────────────────────────┐ │
+│ │ [Input field or display code]    [📋]│ │
+│ └─────────────────────────────────────┘ │
+│                                         │
+│ Passcode                                │
+│ ┌─────────────────────────────────────┐ │
+│ │ [Input field or display code]    [📋]│ │
+│ └─────────────────────────────────────┘ │
+│                                         │
+│ Link                                    │
+│ ┌─────────────────────────────────────┐ │
+│ │ [Input field or display code]    [📋]│ │
+│ └─────────────────────────────────────┘ │
+│                                         │
+│ (Mode Edit: [Batal] [💾 Simpan])        │
+└─────────────────────────────────────────┘
+```
+
+---
+
+## Logika Tampilan
+
+| Kondisi | UI yang Ditampilkan |
+|---------|---------------------|
+| `payment_status != 'paid'` | Tidak tampilkan section Info Zoom |
+| `paid` + data ada + tidak edit | Read-only display + tombol Edit |
+| `paid` + data kosong + tidak edit | Empty state + tombol "Tambah Detail Zoom" |
+| `paid` + mode edit | Form input + tombol Simpan/Batal |
+
+---
+
+## Tampilan Empty State (Zoom Gagal Dibuat)
+
+```
+┌─────────────────────────────────────────┐
+│ Info Zoom                               │
+├─────────────────────────────────────────┤
+│                                         │
+│    ⚠️  Zoom meeting belum tersedia      │
+│                                         │
+│    Klik tombol di bawah untuk           │
+│    menambahkan detail secara manual     │
+│                                         │
+│         [➕ Tambah Detail Zoom]          │
+│                                         │
+└─────────────────────────────────────────┘
+```
+
+---
+
+## Alur Kerja Admin
+
+1. Admin menerima pesan WhatsApp dari customer yang Zoom-nya gagal dibuat
+2. Admin membuka Order Management → klik View pada order tersebut
+3. Di dialog detail, section "Info Zoom" menampilkan empty state
+4. Admin klik "Tambah Detail Zoom" → form input muncul
+5. Admin mengisi Meeting ID, Passcode, dan Link dari Zoom yang dibuat manual
+6. Admin klik "Simpan"
+7. Customer me-refresh halaman Quick Order Detail → data Zoom muncul
+
+---
+
+## Komponen yang Diperlukan
+
+| Komponen | Sumber | Status |
+|----------|--------|--------|
+| Input | `@/components/ui/input` | Perlu import |
+| Loader2 | `lucide-react` | Sudah ada di project |
+| Pencil | `lucide-react` | Perlu import |
+| Save | `lucide-react` | Perlu import |
+| Plus | `lucide-react` | Perlu import |
+| supabase | `@/integrations/supabase/client` | Perlu import |
+
+---
+
+## Keamanan
+
+- RLS policy `is_admin_user()` sudah ada untuk UPDATE pada tabel `guest_orders`
+- Admin harus login via admin panel sebelum bisa edit
+- Tidak ada data sensitif yang di-expose
+
+---
+
+## Perubahan Props
+
+Menambahkan prop `onUpdate` untuk trigger refresh setelah save:
+
+```tsx
+interface OrderDetailDialogProps {
+  order: GuestOrder | null;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onUpdate?: () => void; // NEW
+}
 ```
 
 ---
@@ -100,4 +176,13 @@ Menghilangkan elemen `<BookOpen>`, `<Users>`, dan `<ExternalLink>` dari setiap c
 
 | File | Perubahan |
 |------|-----------|
-| `src/pages/QuickOrderDetail.tsx` | Hapus 2 card placeholder, update link Recording, tambah Breakout Room, hapus semua icon |
+| `src/components/admin/OrderDetailDialog.tsx` | Tambah mode edit untuk detail Zoom |
+| `src/pages/admin/OrderManagement.tsx` | Passing `onUpdate` prop untuk refetch data |
+
+---
+
+## Catatan Teknis
+
+- Menggunakan `useQueryClient().invalidateQueries(['guest-orders'])` untuk refetch setelah update
+- Form edit hanya muncul jika `payment_status === 'paid'`
+- Validasi minimal: zoom_link harus URL valid jika diisi
