@@ -1,172 +1,78 @@
 
 
-# Rencana: Ganti Tombol "Buka Zoom Meeting" dengan Panduan
+# Rencana: Ubah "Panduan Menjadi Host" Menjadi Dialog
 
 ## Ringkasan
 
-Mengganti tombol "Buka Zoom Meeting" di bawah invitation dengan dua tombol panduan:
-1. **Panduan Menjadi Host** - link langsung
-2. **Panduan Lainnya** - membuka dialog dengan daftar panduan
-
-Layout:
-- Desktop: dua tombol dalam satu baris (side by side)
-- Mobile: dua tombol bertumpuk (stacked)
+Mengubah tombol "Panduan Menjadi Host" yang saat ini berupa link eksternal menjadi tombol yang membuka dialog. Konten panduan akan ditambahkan kemudian oleh user.
 
 ---
 
 ## Perubahan yang Diperlukan
 
-### 1. Tambah Import Dialog Components
+### File: `src/pages/QuickOrderDetail.tsx`
 
-File: `src/pages/QuickOrderDetail.tsx`
-
-```typescript
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-```
-
-Tambah icon baru:
-```typescript
-import { BookOpen } from "lucide-react";
-```
-
-### 2. Ganti Tombol "Buka Zoom Meeting"
-
-**Lokasi:** Line 682-687
+**Lokasi:** Line 692-701
 
 **Sebelum:**
 ```tsx
-<Button asChild className="w-full mt-4">
-  <a href={order.zoom_link} target="_blank" rel="noopener noreferrer">
-    <ExternalLink className="w-4 h-4 mr-2" />
-    Buka Zoom Meeting
+<Button asChild variant="outline" className="flex-1">
+  <a 
+    href="https://example.com/panduan-host" 
+    target="_blank" 
+    rel="noopener noreferrer"
+  >
+    <BookOpen className="w-4 h-4 mr-2" />
+    Panduan Menjadi Host
   </a>
 </Button>
 ```
 
 **Sesudah:**
 ```tsx
-{/* Panduan Buttons */}
-<div className="flex flex-col sm:flex-row gap-3 mt-4">
-  <Button asChild variant="outline" className="flex-1">
-    <a 
-      href="https://example.com/panduan-host" 
-      target="_blank" 
-      rel="noopener noreferrer"
-    >
+<Dialog>
+  <DialogTrigger asChild>
+    <Button variant="outline" className="flex-1">
       <BookOpen className="w-4 h-4 mr-2" />
       Panduan Menjadi Host
-    </a>
-  </Button>
-  
-  <Dialog>
-    <DialogTrigger asChild>
-      <Button variant="outline" className="flex-1">
-        <BookOpen className="w-4 h-4 mr-2" />
-        Panduan Lainnya
-      </Button>
-    </DialogTrigger>
-    <DialogContent className="max-w-md">
-      <DialogHeader>
-        <DialogTitle>Panduan Lainnya</DialogTitle>
-      </DialogHeader>
-      <div className="space-y-3">
-        <a 
-          href="https://example.com/panduan-1"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-3 p-3 rounded-lg border hover:bg-muted transition-colors"
-        >
-          <BookOpen className="w-5 h-5 text-primary" />
-          <div>
-            <p className="font-medium">Panduan Mengundang Peserta</p>
-            <p className="text-sm text-muted-foreground">
-              Cara mengundang peserta ke meeting
-            </p>
-          </div>
-          <ExternalLink className="w-4 h-4 ml-auto text-muted-foreground" />
-        </a>
-        
-        <a 
-          href="https://example.com/panduan-2"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-3 p-3 rounded-lg border hover:bg-muted transition-colors"
-        >
-          <BookOpen className="w-5 h-5 text-primary" />
-          <div>
-            <p className="font-medium">Panduan Recording</p>
-            <p className="text-sm text-muted-foreground">
-              Cara merekam meeting Zoom
-            </p>
-          </div>
-          <ExternalLink className="w-4 h-4 ml-auto text-muted-foreground" />
-        </a>
-        
-        <a 
-          href="https://example.com/panduan-3"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-3 p-3 rounded-lg border hover:bg-muted transition-colors"
-        >
-          <BookOpen className="w-5 h-5 text-primary" />
-          <div>
-            <p className="font-medium">Panduan Fitur Lainnya</p>
-            <p className="text-sm text-muted-foreground">
-              Breakout room, polling, dan lainnya
-            </p>
-          </div>
-          <ExternalLink className="w-4 h-4 ml-auto text-muted-foreground" />
-        </a>
-      </div>
-    </DialogContent>
-  </Dialog>
-</div>
+    </Button>
+  </DialogTrigger>
+  <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
+    <DialogHeader>
+      <DialogTitle>Panduan Menjadi Host</DialogTitle>
+    </DialogHeader>
+    <div className="prose prose-sm dark:prose-invert">
+      {/* Placeholder - konten akan ditambahkan oleh user */}
+      <p className="text-muted-foreground">
+        Panduan menjadi host akan ditambahkan di sini.
+      </p>
+    </div>
+  </DialogContent>
+</Dialog>
 ```
 
 ---
 
 ## Tampilan yang Diharapkan
 
-### Desktop (side by side)
+### Tombol (tetap sama)
 ```text
 ┌──────────────────────────┐  ┌──────────────────────────┐
 │  📖 Panduan Menjadi Host │  │  📖 Panduan Lainnya      │
 └──────────────────────────┘  └──────────────────────────┘
 ```
 
-### Mobile (stacked)
-```text
-┌──────────────────────────────────┐
-│  📖 Panduan Menjadi Host         │
-└──────────────────────────────────┘
-┌──────────────────────────────────┐
-│  📖 Panduan Lainnya              │
-└──────────────────────────────────┘
-```
-
-### Dialog "Panduan Lainnya"
+### Dialog "Panduan Menjadi Host" (saat diklik)
 ```text
 ┌─────────────────────────────────────────┐
-│  Panduan Lainnya                    [X] │
+│  Panduan Menjadi Host               [X] │
 ├─────────────────────────────────────────┤
-│  ┌───────────────────────────────────┐  │
-│  │ 📖 Panduan Mengundang Peserta   ↗ │  │
-│  │     Cara mengundang peserta...    │  │
-│  └───────────────────────────────────┘  │
-│  ┌───────────────────────────────────┐  │
-│  │ 📖 Panduan Recording            ↗ │  │
-│  │     Cara merekam meeting Zoom     │  │
-│  └───────────────────────────────────┘  │
-│  ┌───────────────────────────────────┐  │
-│  │ 📖 Panduan Fitur Lainnya        ↗ │  │
-│  │     Breakout room, polling...     │  │
-│  └───────────────────────────────────┘  │
+│                                         │
+│  Panduan menjadi host akan ditambahkan  │
+│  di sini.                               │
+│                                         │
+│  (scrollable jika konten panjang)       │
+│                                         │
 └─────────────────────────────────────────┘
 ```
 
@@ -174,9 +80,9 @@ import { BookOpen } from "lucide-react";
 
 ## Catatan
 
-- Semua link saat ini menggunakan placeholder `https://example.com/...`
-- User akan mengirimkan link panduan yang sebenarnya untuk menggantikan placeholder
-- Styling menggunakan Tailwind CSS yang sudah ada di project
+- Dialog menggunakan `max-h-[80vh] overflow-y-auto` agar bisa scroll jika konten panjang
+- Placeholder text sementara akan diganti dengan panduan lengkap dari user
+- Layout dan styling konsisten dengan dialog "Panduan Lainnya"
 
 ---
 
@@ -184,5 +90,5 @@ import { BookOpen } from "lucide-react";
 
 | File | Perubahan |
 |------|-----------|
-| `src/pages/QuickOrderDetail.tsx` | Tambah import Dialog, ganti tombol Zoom dengan dua tombol panduan |
+| `src/pages/QuickOrderDetail.tsx` | Ubah tombol link menjadi Dialog dengan placeholder content |
 
