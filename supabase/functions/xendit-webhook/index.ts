@@ -1,5 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -13,6 +13,9 @@ const PARTICIPANT_TO_PRODUCT_ID: Record<number, number> = {
   500: 3,
   1000: 4,
 };
+
+// Token expiry duration in days (7 days as safe default)
+const RAPATIN_TOKEN_EXPIRY_DAYS = 7;
 
 // Generate 6 digit random passcode
 function generatePasscode(): string {
@@ -64,6 +67,68 @@ async function loginToRapatin(): Promise<string | null> {
     console.error("Rapatin login error:", error);
     return null;
   }
+}
+
+// Get Rapatin token with caching
+async function getRapatinToken(supabase: SupabaseClient): Promise<string | null> {
+  // 1. Check for valid cached token
+  const { data: existingToken, error: fetchError } = await supabase
+    .from('rapatin_auth_tokens')
+    .select('access_token, expires_at')
+    .gt('expires_at', new Date().toISOString())
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (fetchError) {
+    console.error("Error fetching cached Rapatin token:", fetchError);
+  }
+
+  if (existingToken?.access_token) {
+    console.log("Using cached Rapatin token (expires:", existingToken.expires_at, ")");
+    return existingToken.access_token;
+  }
+
+  // 2. No valid token, perform fresh login
+  console.log("No valid cached token, logging in to Rapatin...");
+  const token = await loginToRapatin();
+
+  if (!token) {
+    return null;
+  }
+
+  // 3. Save new token with expiry
+  const expiresAt = new Date();
+  expiresAt.setDate(expiresAt.getDate() + RAPATIN_TOKEN_EXPIRY_DAYS);
+
+  const { error: insertError } = await supabase
+    .from('rapatin_auth_tokens')
+    .insert({
+      access_token: token,
+      expires_at: expiresAt.toISOString()
+    });
+
+  if (insertError) {
+    console.error("Failed to cache Rapatin token:", insertError);
+    // Continue anyway - token is still valid for this request
+  } else {
+    console.log("Rapatin token cached, expires:", expiresAt.toISOString());
+  }
+
+  // 4. Cleanup old expired tokens (non-blocking)
+  supabase
+    .from('rapatin_auth_tokens')
+    .delete()
+    .lt('expires_at', new Date().toISOString())
+    .then(({ error }) => {
+      if (error) {
+        console.error("Failed to cleanup old Rapatin tokens:", error);
+      } else {
+        console.log("Old Rapatin tokens cleaned up");
+      }
+    });
+
+  return token;
 }
 
 // Order type with recurring fields
@@ -479,8 +544,8 @@ serve(async (req) => {
       // Cast order to our type
       const typedOrder = order as GuestOrder;
       
-      // Step 1: Login to Rapatin
-      const rapatinToken = await loginToRapatin();
+      // Step 1: Get Rapatin token (with caching)
+      const rapatinToken = await getRapatinToken(supabase);
       
       if (rapatinToken) {
         // Step 2: Map participant count to product ID
