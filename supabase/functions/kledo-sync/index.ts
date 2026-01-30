@@ -199,7 +199,7 @@ async function createBankTransaction(
   transDate: string,
   memo: string,
   amount: number
-): Promise<{ success: boolean; id?: string; error?: string }> {
+): Promise<{ success: boolean; refNumber?: string; error?: string }> {
   console.log("Creating Kledo bank transaction:", { transDate, memo, amount });
 
   try {
@@ -232,11 +232,17 @@ async function createBankTransaction(
       return { success: false, error: result.message || `HTTP ${response.status}` };
     }
 
-    if (result.data?.id) {
-      return { success: true, id: result.data.id.toString() };
+    // Simpan ref_number dari response Kledo
+    if (result.data?.ref_number) {
+      return { success: true, refNumber: result.data.ref_number };
     }
 
-    return { success: false, error: 'No transaction ID in response' };
+    // Fallback ke id jika ref_number tidak ada
+    if (result.data?.id) {
+      return { success: true, refNumber: `BANK/${result.data.id}` };
+    }
+
+    return { success: false, error: 'No ref_number in response' };
   } catch (error) {
     console.error("Kledo bank transaction error:", error);
     return { success: false, error: error.message };
@@ -371,9 +377,9 @@ serve(async (req) => {
       );
     }
 
-    // Prepare data
+    // Prepare data - gunakan order_number untuk memo
     const transDate = formatDateForKledo(order.paid_at || order.created_at);
-    const memo = order.access_slug || orderId;
+    const memo = order.order_number || order.access_slug || orderId;
     const amount = order.price;
     const paymentMethod = order.payment_method || 'Unknown';
 
@@ -401,12 +407,12 @@ serve(async (req) => {
     const expenseResult = await createExpense(token, transDate, memo, fee, methodName);
     
     if (!expenseResult.success) {
-      // Bank transaction succeeded but expense failed - still save the bank trans ID
+      // Bank transaction succeeded but expense failed - still save the ref_number
       const errorMsg = `Expense failed: ${expenseResult.error}`;
       await supabase
         .from('guest_orders')
         .update({ 
-          kledo_invoice_id: bankTransResult.id,
+          kledo_invoice_id: bankTransResult.refNumber,
           kledo_sync_error: errorMsg,
           kledo_synced_at: new Date().toISOString()
         })
@@ -416,17 +422,17 @@ serve(async (req) => {
         JSON.stringify({ 
           success: true, 
           warning: errorMsg,
-          kledo_invoice_id: bankTransResult.id 
+          kledo_invoice_id: bankTransResult.refNumber 
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // Update order with success
+    // Update order with success - simpan ref_number ke kledo_invoice_id
     await supabase
       .from('guest_orders')
       .update({ 
-        kledo_invoice_id: bankTransResult.id,
+        kledo_invoice_id: bankTransResult.refNumber,
         kledo_synced_at: new Date().toISOString(),
         kledo_sync_error: null
       })
@@ -434,14 +440,15 @@ serve(async (req) => {
 
     console.log("Kledo sync completed successfully:", {
       orderId,
-      bankTransId: bankTransResult.id,
+      memo,
+      bankTransRefNumber: bankTransResult.refNumber,
       expenseId: expenseResult.id,
     });
 
     return new Response(
       JSON.stringify({ 
         success: true,
-        kledo_invoice_id: bankTransResult.id,
+        kledo_invoice_id: bankTransResult.refNumber,
         kledo_expense_id: expenseResult.id
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
