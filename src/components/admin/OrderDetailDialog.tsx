@@ -40,8 +40,41 @@ import { formatRupiah } from '@/utils/formatRupiah';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
-// Format payment method dari SNAKE_CASE ke Title Case
+// Format payment method - simplified display without channel details
 const formatPaymentMethod = (method: string): string => {
+  if (!method) return 'Unknown';
+  
+  const upperMethod = method.toUpperCase();
+  
+  // Remove parenthetical content (e.g., "QRIS (DANA)" -> "QRIS")
+  const cleanMethod = upperMethod.split('(')[0].trim();
+  
+  // QRIS - display as QRIS only
+  if (cleanMethod.includes('QRIS')) {
+    return 'QRIS';
+  }
+  
+  // ShopeePay
+  if (cleanMethod.includes('SHOPEEPAY')) {
+    return 'ShopeePay';
+  }
+  
+  // E-Wallets
+  if (cleanMethod.includes('DANA')) return 'DANA';
+  if (cleanMethod.includes('OVO')) return 'OVO';
+  
+  // Virtual Account - format: "BankName Virtual Account"
+  if (cleanMethod.includes('VA') || cleanMethod.includes('VIRTUAL_ACCOUNT')) {
+    const banks = ['MANDIRI', 'BCA', 'BNI', 'BRI', 'PERMATA', 'CIMB', 'BSI', 'BJB'];
+    for (const bank of banks) {
+      if (cleanMethod.includes(bank)) {
+        return `${bank} Virtual Account`;
+      }
+    }
+    return 'Virtual Account';
+  }
+  
+  // Default: title case
   return method
     .toLowerCase()
     .split('_')

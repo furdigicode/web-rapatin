@@ -113,14 +113,46 @@ const formatDateForInvitation = (dateStr: string, timeStr: string | null) => {
   return `${formattedDate} ${time} Jakarta`;
 };
 
-// Format payment method dari SNAKE_CASE ke Title Case
-// Contoh: "MANDIRI_VIRTUAL_ACCOUNT" -> "Mandiri Virtual Account"
+// Format payment method - simplified display without channel details
 const formatPaymentMethod = (method: string): string => {
+  if (!method) return 'Unknown';
+  
+  const upperMethod = method.toUpperCase();
+  
+  // Remove parenthetical content (e.g., "QRIS (DANA)" -> "QRIS")
+  const cleanMethod = upperMethod.split('(')[0].trim();
+  
+  // QRIS - display as QRIS only
+  if (cleanMethod.includes('QRIS')) {
+    return 'QRIS';
+  }
+  
+  // ShopeePay
+  if (cleanMethod.includes('SHOPEEPAY')) {
+    return 'ShopeePay';
+  }
+  
+  // E-Wallets
+  if (cleanMethod.includes('DANA')) return 'DANA';
+  if (cleanMethod.includes('OVO')) return 'OVO';
+  
+  // Virtual Account - format: "BankName Virtual Account"
+  if (cleanMethod.includes('VA') || cleanMethod.includes('VIRTUAL_ACCOUNT')) {
+    const banks = ['MANDIRI', 'BCA', 'BNI', 'BRI', 'PERMATA', 'CIMB', 'BSI', 'BJB'];
+    for (const bank of banks) {
+      if (cleanMethod.includes(bank)) {
+        return `${bank} Virtual Account`;
+      }
+    }
+    return 'Virtual Account';
+  }
+  
+  // Default: title case
   return method
     .toLowerCase()
-    .split("_")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ");
+    .split('_')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
 };
 
 // Generate semua tanggal sesi untuk recurring meeting
