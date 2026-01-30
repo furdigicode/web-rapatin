@@ -25,6 +25,7 @@ import {
   BookOpen,
   Eye,
   EyeOff,
+  HelpCircle,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -36,6 +37,7 @@ import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
 interface OrderDetails {
   id: string;
@@ -876,6 +878,103 @@ export default function QuickOrderDetail() {
                       </p>
                     </div>
                   )}
+                </CardContent>
+              </Card>
+            )}
+
+            {/* FAQ Section (only for paid orders) */}
+            {isPaid && (
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-2 mb-4">
+                    <HelpCircle className="w-5 h-5 text-primary" />
+                    <h2 className="font-semibold text-lg">Pertanyaan Umum (FAQ)</h2>
+                  </div>
+                  
+                  <Accordion type="single" collapsible className="w-full">
+                    <AccordionItem value="item-1">
+                      <AccordionTrigger className="text-left">
+                        Kapan saya bisa menggunakan ruang Zoom yang sudah dijadwalkan?
+                      </AccordionTrigger>
+                      <AccordionContent>
+                        <p className="text-muted-foreground">
+                          Pada tanggal yang Anda pilih, sejak pukul 00:01 hingga 23:59 
+                          pada tanggal tersebut.
+                        </p>
+                      </AccordionContent>
+                    </AccordionItem>
+
+                    <AccordionItem value="item-2">
+                      <AccordionTrigger className="text-left">
+                        Apakah saya bisa menggunakan ruang Zoom berkali-kali dalam satu tanggal?
+                      </AccordionTrigger>
+                      <AccordionContent>
+                        <p className="text-muted-foreground">
+                          Bisa. Anda bisa menggunakan ruang Zoom berkali-kali 
+                          (pagi, siang, sore, malam) dengan link, Meeting ID, dan Passcode 
+                          yang sama. Pastikan setiap kali menggunakan, Anda telah 
+                          mengklaim diri sebagai Host.
+                        </p>
+                      </AccordionContent>
+                    </AccordionItem>
+
+                    <AccordionItem value="item-3">
+                      <AccordionTrigger className="text-left">
+                        Bagaimana mendapatkan hasil cloud recording?
+                      </AccordionTrigger>
+                      <AccordionContent>
+                        <p className="text-muted-foreground">
+                          Untuk mendapatkan hasil cloud recording, hubungi admin 
+                          1-3 jam setelah meeting selesai dan recording di-stop, 
+                          untuk proses penyimpanan ke cloud.
+                        </p>
+                      </AccordionContent>
+                    </AccordionItem>
+
+                    <AccordionItem value="item-4">
+                      <AccordionTrigger className="text-left">
+                        Apakah bisa mengganti judul, tanggal, atau passcode?
+                      </AccordionTrigger>
+                      <AccordionContent>
+                        <p className="text-muted-foreground mb-3">
+                          Tidak bisa. Apa yang sudah Anda beli, itulah yang Anda dapatkan. 
+                          Jika ingin menikmati fasilitas edit tanpa batas, silakan 
+                          mendaftar menjadi member.
+                        </p>
+                        <Button asChild size="sm" variant="outline">
+                          <a 
+                            href="https://app.rapatin.id/dashboard/register" 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                          >
+                            Daftar Menjadi Member
+                            <ExternalLink className="w-3 h-3 ml-2" />
+                          </a>
+                        </Button>
+                      </AccordionContent>
+                    </AccordionItem>
+
+                    <AccordionItem value="item-5" className="border-b-0">
+                      <AccordionTrigger className="text-left">
+                        Jika ada kendala, saya menghubungi kepada siapa?
+                      </AccordionTrigger>
+                      <AccordionContent>
+                        <p className="text-muted-foreground mb-3">
+                          Silakan hubungi admin kami via WhatsApp.
+                        </p>
+                        <Button asChild size="sm" className="bg-green-600 hover:bg-green-700">
+                          <a 
+                            href="https://wa.me/6287788980084" 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                          >
+                            <MessageCircle className="w-4 h-4 mr-2" />
+                            Hubungi Admin
+                          </a>
+                        </Button>
+                      </AccordionContent>
+                    </AccordionItem>
+                  </Accordion>
                 </CardContent>
               </Card>
             )}
