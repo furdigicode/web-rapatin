@@ -39,6 +39,10 @@ export interface GuestOrder {
   expired_at: string | null;
   updated_at: string;
   access_slug: string | null;
+  // Kledo integration fields
+  kledo_invoice_id: string | null;
+  kledo_synced_at: string | null;
+  kledo_sync_error: string | null;
 }
 
 export interface OrderStats {
