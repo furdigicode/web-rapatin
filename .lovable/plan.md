@@ -1,199 +1,391 @@
 
 
-# Rencana: Menambahkan Kartu FAQ di Halaman Detail Order
+# Rencana: Tombol Download Tanda Terima dengan Generate PDF
 
 ## Ringkasan
 
-Menambahkan kartu FAQ (Frequently Asked Questions) di halaman **Quick Order Detail** (`QuickOrderDetail.tsx`), ditempatkan **di atas** kartu Riwayat (Timeline), hanya ditampilkan untuk order yang sudah dibayar.
+Menambahkan tombol **"Download Tanda Terima"** di halaman Quick Order Detail dengan fitur generate PDF menggunakan library **jsPDF**. PDF akan berisi informasi lengkap order sebagai bukti pembayaran resmi.
 
 ---
 
-## Konten FAQ
+## Konten PDF Tanda Terima
 
-| No | Pertanyaan | Jawaban |
-|----|-----------|---------|
-| 1 | Kapan saya bisa menggunakan ruang Zoom yang sudah dijadwalkan? | Pada tanggal yang Anda pilih, sejak pukul 00:01 hingga 23:59 pada tanggal tersebut. |
-| 2 | Apakah saya bisa menggunakan ruang Zoom berkali-kali dalam satu tanggal? | Bisa. Anda bisa menggunakan ruang Zoom berkali-kali (pagi, siang, sore, malam) dengan link, Meeting ID, dan Passcode yang sama. Pastikan setiap kali menggunakan, Anda telah mengklaim diri sebagai Host. |
-| 3 | Apakah tersedia fitur recording dan bagaimana mendapatkan hasil cloud recording? | Untuk mendapatkan hasil cloud recording, hubungi admin 1-3 jam setelah meeting selesai dan recording di-stop, untuk proses penyimpanan ke cloud. |
-| 4 | Apakah bisa mengganti judul, tanggal, atau passcode? | Tidak bisa. Apa yang sudah Anda beli, itulah yang Anda dapatkan. Jika ingin menikmati fasilitas edit tanpa batas, silakan mendaftar menjadi member. [Link: app.rapatin.id/dashboard/register] |
-| 5 | Jika ada kendala, saya menghubungi kepada siapa? | Hubungi admin via WhatsApp. [Link ke WhatsApp admin] |
+| Section | Konten |
+|---------|--------|
+| Header | Logo Rapatin + "TANDA TERIMA" |
+| Nomor Order | INV-260130-0001 |
+| Tanggal Bayar | Kamis, 30 Januari 2026 pukul 15:30 |
+| Nama Pemesan | John Doe |
+| Email | john@example.com |
+| WhatsApp | 087788980084 |
+| Detail Meeting | Tanggal, Kapasitas Peserta |
+| Detail Pembayaran | Total Bayar, Metode Pembayaran |
+| Footer | Terima kasih telah menggunakan Rapatin |
 
 ---
 
-## Desain UI
+## Desain UI Tombol
 
 ```text
 ┌─────────────────────────────────────────────┐
-│  📋  Pertanyaan Umum (FAQ)                  │
+│  Detail Order                               │
 ├─────────────────────────────────────────────┤
-│  ▼ Kapan saya bisa menggunakan ruang Zoom?  │
-│    ─────────────────────────────────────    │
-│  ▼ Apakah saya bisa menggunakan berkali...  │
-│    ─────────────────────────────────────    │
-│  ▼ Bagaimana mendapatkan hasil recording?   │
-│    ─────────────────────────────────────    │
-│  ▼ Apakah bisa mengganti judul/tanggal?     │
-│    ─────────────────────────────────────    │
-│  ▼ Jika ada kendala, hubungi siapa?         │
-└─────────────────────────────────────────────┘
-
-┌─────────────────────────────────────────────┐
-│  📜 Riwayat                                 │
 │  ...                                        │
+│  ─────────────────────────────────────────  │
+│  💳 Total Bayar                             │
+│      Rp150.000                              │
+│      via QRIS                               │
+│                                             │
+│  [📥 Download Tanda Terima] ← TOMBOL BARU   │
 └─────────────────────────────────────────────┘
+```
+
+---
+
+## Layout PDF
+
+```text
+┌─────────────────────────────────────────────────────────┐
+│                                                         │
+│  [LOGO]  RAPATIN                                        │
+│          Sewa Ruang Zoom Meeting                        │
+│                                                         │
+│  ═══════════════════════════════════════════════════    │
+│                                                         │
+│              TANDA TERIMA PEMBAYARAN                    │
+│                                                         │
+│  ───────────────────────────────────────────────────    │
+│                                                         │
+│  Nomor Order     : INV-260130-0001                      │
+│  Tanggal Bayar   : Kamis, 30 Januari 2026, 15:30 WIB    │
+│                                                         │
+│  ───────────────────────────────────────────────────    │
+│                                                         │
+│  DATA PEMESAN                                           │
+│  Nama            : John Doe                             │
+│  Email           : john@example.com                     │
+│  WhatsApp        : 087788980084                         │
+│                                                         │
+│  ───────────────────────────────────────────────────    │
+│                                                         │
+│  DETAIL MEETING                                         │
+│  Tanggal Meeting : Kamis, 30 Januari 2026               │
+│  Kapasitas       : 100 Peserta                          │
+│  Topik           : Weekly Team Sync                     │
+│                                                         │
+│  ───────────────────────────────────────────────────    │
+│                                                         │
+│  PEMBAYARAN                                             │
+│  Total Bayar     : Rp150.000                            │
+│  Metode          : QRIS                                 │
+│  Status          : LUNAS                                │
+│                                                         │
+│  ═══════════════════════════════════════════════════    │
+│                                                         │
+│  Terima kasih telah menggunakan Rapatin.                │
+│  www.rapatin.id                                         │
+│                                                         │
+└─────────────────────────────────────────────────────────┘
 ```
 
 ---
 
 ## Implementasi Teknis
 
-### Komponen yang Digunakan
+### 1. Install Dependency
 
-- **Card**: Container untuk FAQ
-- **Accordion**: Untuk collapsible FAQ items
-- **Button**: Untuk link WhatsApp dan daftar member
-
-### Posisi dalam Kode
-
-```text
-{/* Detail Zoom Meeting */}
-{isPaid && ( <Card>...</Card> )}
-
-{/* FAQ Card - BARU! */}
-{isPaid && ( <Card>...FAQ Accordion...</Card> )}
-
-{/* Timeline Info */}
-{isPaid && order.paid_at && ( <Card>...Riwayat...</Card> )}
+```bash
+npm install jspdf
 ```
 
----
-
-## Perubahan File
+### 2. File yang Diubah/Dibuat
 
 | File | Aksi | Deskripsi |
 |------|------|-----------|
-| `src/pages/QuickOrderDetail.tsx` | Ubah | Tambahkan import Accordion + kartu FAQ |
+| `package.json` | Ubah | Tambahkan dependency jspdf |
+| `src/utils/generateReceipt.ts` | Buat | Fungsi generate PDF receipt |
+| `src/pages/QuickOrderDetail.tsx` | Ubah | Tambahkan tombol + import fungsi |
 
 ---
 
-## Detail Kode
+## Kode Implementasi
 
-### Import Baru
+### `src/utils/generateReceipt.ts`
 
-```tsx
-import { 
-  Accordion, 
-  AccordionContent, 
-  AccordionItem, 
-  AccordionTrigger 
-} from "@/components/ui/accordion";
-import { HelpCircle } from "lucide-react"; // Ikon untuk header FAQ
+```typescript
+import { jsPDF } from "jspdf";
+
+interface ReceiptData {
+  orderNumber: string | null;
+  name: string;
+  email: string;
+  whatsapp: string;
+  meetingDate: string;
+  meetingTime: string | null;
+  meetingTopic: string | null;
+  participantCount: number;
+  price: number;
+  paymentMethod: string | null;
+  paidAt: string | null;
+}
+
+const formatRupiah = (amount: number): string => {
+  return new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
+    minimumFractionDigits: 0,
+  }).format(amount);
+};
+
+const formatDate = (dateStr: string): string => {
+  const date = new Date(dateStr);
+  return new Intl.DateTimeFormat("id-ID", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  }).format(date);
+};
+
+const formatDateTime = (dateStr: string): string => {
+  const date = new Date(dateStr);
+  return new Intl.DateTimeFormat("id-ID", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(date);
+};
+
+export const generateReceipt = (data: ReceiptData): void => {
+  const doc = new jsPDF();
+  const pageWidth = doc.internal.pageSize.getWidth();
+  
+  let y = 20;
+  
+  // Header - Company Name
+  doc.setFontSize(24);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(37, 99, 235); // Blue color
+  doc.text("RAPATIN", pageWidth / 2, y, { align: "center" });
+  
+  y += 8;
+  doc.setFontSize(10);
+  doc.setFont("helvetica", "normal");
+  doc.setTextColor(100, 100, 100);
+  doc.text("Sewa Ruang Zoom Meeting", pageWidth / 2, y, { align: "center" });
+  
+  // Line separator
+  y += 10;
+  doc.setDrawColor(200, 200, 200);
+  doc.setLineWidth(0.5);
+  doc.line(20, y, pageWidth - 20, y);
+  
+  // Title
+  y += 15;
+  doc.setFontSize(18);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(0, 0, 0);
+  doc.text("TANDA TERIMA PEMBAYARAN", pageWidth / 2, y, { align: "center" });
+  
+  // Order info
+  y += 15;
+  doc.setFontSize(11);
+  doc.setFont("helvetica", "normal");
+  
+  const labelX = 25;
+  const valueX = 80;
+  
+  doc.setFont("helvetica", "bold");
+  doc.text("Nomor Order", labelX, y);
+  doc.setFont("helvetica", "normal");
+  doc.text(`: ${data.orderNumber || "-"}`, valueX, y);
+  
+  y += 7;
+  doc.setFont("helvetica", "bold");
+  doc.text("Tanggal Bayar", labelX, y);
+  doc.setFont("helvetica", "normal");
+  doc.text(`: ${data.paidAt ? formatDateTime(data.paidAt) : "-"}`, valueX, y);
+  
+  // Section: Data Pemesan
+  y += 15;
+  doc.setDrawColor(200, 200, 200);
+  doc.line(20, y, pageWidth - 20, y);
+  
+  y += 10;
+  doc.setFontSize(12);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(37, 99, 235);
+  doc.text("DATA PEMESAN", labelX, y);
+  
+  y += 10;
+  doc.setFontSize(11);
+  doc.setTextColor(0, 0, 0);
+  doc.setFont("helvetica", "bold");
+  doc.text("Nama", labelX, y);
+  doc.setFont("helvetica", "normal");
+  doc.text(`: ${data.name}`, valueX, y);
+  
+  y += 7;
+  doc.setFont("helvetica", "bold");
+  doc.text("Email", labelX, y);
+  doc.setFont("helvetica", "normal");
+  doc.text(`: ${data.email}`, valueX, y);
+  
+  y += 7;
+  doc.setFont("helvetica", "bold");
+  doc.text("WhatsApp", labelX, y);
+  doc.setFont("helvetica", "normal");
+  doc.text(`: ${data.whatsapp}`, valueX, y);
+  
+  // Section: Detail Meeting
+  y += 15;
+  doc.setDrawColor(200, 200, 200);
+  doc.line(20, y, pageWidth - 20, y);
+  
+  y += 10;
+  doc.setFontSize(12);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(37, 99, 235);
+  doc.text("DETAIL MEETING", labelX, y);
+  
+  y += 10;
+  doc.setFontSize(11);
+  doc.setTextColor(0, 0, 0);
+  doc.setFont("helvetica", "bold");
+  doc.text("Tanggal Meeting", labelX, y);
+  doc.setFont("helvetica", "normal");
+  const meetingDateText = formatDate(data.meetingDate) + 
+    (data.meetingTime ? ` • ${data.meetingTime} WIB` : "");
+  doc.text(`: ${meetingDateText}`, valueX, y);
+  
+  y += 7;
+  doc.setFont("helvetica", "bold");
+  doc.text("Kapasitas", labelX, y);
+  doc.setFont("helvetica", "normal");
+  doc.text(`: ${data.participantCount} Peserta`, valueX, y);
+  
+  if (data.meetingTopic) {
+    y += 7;
+    doc.setFont("helvetica", "bold");
+    doc.text("Topik", labelX, y);
+    doc.setFont("helvetica", "normal");
+    doc.text(`: ${data.meetingTopic}`, valueX, y);
+  }
+  
+  // Section: Pembayaran
+  y += 15;
+  doc.setDrawColor(200, 200, 200);
+  doc.line(20, y, pageWidth - 20, y);
+  
+  y += 10;
+  doc.setFontSize(12);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(37, 99, 235);
+  doc.text("PEMBAYARAN", labelX, y);
+  
+  y += 10;
+  doc.setFontSize(11);
+  doc.setTextColor(0, 0, 0);
+  doc.setFont("helvetica", "bold");
+  doc.text("Total Bayar", labelX, y);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(37, 99, 235);
+  doc.text(`: ${formatRupiah(data.price)}`, valueX, y);
+  
+  y += 7;
+  doc.setTextColor(0, 0, 0);
+  doc.setFont("helvetica", "bold");
+  doc.text("Metode", labelX, y);
+  doc.setFont("helvetica", "normal");
+  doc.text(`: ${data.paymentMethod || "-"}`, valueX, y);
+  
+  y += 7;
+  doc.setFont("helvetica", "bold");
+  doc.text("Status", labelX, y);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(34, 197, 94); // Green
+  doc.text(": LUNAS", valueX, y);
+  
+  // Footer
+  y += 20;
+  doc.setDrawColor(200, 200, 200);
+  doc.setLineWidth(0.5);
+  doc.line(20, y, pageWidth - 20, y);
+  
+  y += 15;
+  doc.setFontSize(10);
+  doc.setFont("helvetica", "normal");
+  doc.setTextColor(100, 100, 100);
+  doc.text("Terima kasih telah menggunakan Rapatin.", pageWidth / 2, y, { 
+    align: "center" 
+  });
+  
+  y += 6;
+  doc.text("www.rapatin.id", pageWidth / 2, y, { align: "center" });
+  
+  // Generate filename
+  const filename = `Tanda-Terima-${data.orderNumber || "Order"}.pdf`;
+  doc.save(filename);
+};
 ```
 
-### FAQ Card Component
+### `QuickOrderDetail.tsx` - Perubahan
 
 ```tsx
-{/* FAQ Section (only for paid orders) */}
+// Import baru
+import { Download } from "lucide-react";
+import { generateReceipt } from "@/utils/generateReceipt";
+
+// Handler function
+const handleDownloadReceipt = () => {
+  if (!order) return;
+  
+  generateReceipt({
+    orderNumber: order.order_number,
+    name: order.name,
+    email: order.email,
+    whatsapp: order.whatsapp,
+    meetingDate: order.meeting_date,
+    meetingTime: order.meeting_time,
+    meetingTopic: order.meeting_topic,
+    participantCount: order.participant_count,
+    price: order.price,
+    paymentMethod: order.payment_method 
+      ? formatPaymentMethod(order.payment_method) 
+      : null,
+    paidAt: order.paid_at,
+  });
+  
+  toast.success("Tanda terima berhasil diunduh");
+};
+
+// Tombol di bawah metode pembayaran (setelah baris 646)
 {isPaid && (
-  <Card>
-    <CardContent className="p-6">
-      <div className="flex items-center gap-2 mb-4">
-        <HelpCircle className="w-5 h-5 text-primary" />
-        <h2 className="font-semibold text-lg">Pertanyaan Umum (FAQ)</h2>
-      </div>
-      
-      <Accordion type="single" collapsible className="w-full">
-        <AccordionItem value="item-1">
-          <AccordionTrigger className="text-left">
-            Kapan saya bisa menggunakan ruang Zoom yang sudah dijadwalkan?
-          </AccordionTrigger>
-          <AccordionContent>
-            <p className="text-muted-foreground">
-              Pada tanggal yang Anda pilih, sejak pukul 00:01 hingga 23:59 
-              pada tanggal tersebut.
-            </p>
-          </AccordionContent>
-        </AccordionItem>
-
-        <AccordionItem value="item-2">
-          <AccordionTrigger className="text-left">
-            Apakah saya bisa menggunakan ruang Zoom berkali-kali dalam satu tanggal?
-          </AccordionTrigger>
-          <AccordionContent>
-            <p className="text-muted-foreground">
-              Bisa. Anda bisa menggunakan ruang Zoom berkali-kali 
-              (pagi, siang, sore, malam) dengan link, Meeting ID, dan Passcode 
-              yang sama. Pastikan setiap kali menggunakan, Anda telah 
-              mengklaim diri sebagai Host.
-            </p>
-          </AccordionContent>
-        </AccordionItem>
-
-        <AccordionItem value="item-3">
-          <AccordionTrigger className="text-left">
-            Bagaimana mendapatkan hasil cloud recording?
-          </AccordionTrigger>
-          <AccordionContent>
-            <p className="text-muted-foreground">
-              Untuk mendapatkan hasil cloud recording, hubungi admin 
-              1-3 jam setelah meeting selesai dan recording di-stop, 
-              untuk proses penyimpanan ke cloud.
-            </p>
-          </AccordionContent>
-        </AccordionItem>
-
-        <AccordionItem value="item-4">
-          <AccordionTrigger className="text-left">
-            Apakah bisa mengganti judul, tanggal, atau passcode?
-          </AccordionTrigger>
-          <AccordionContent>
-            <p className="text-muted-foreground mb-3">
-              Tidak bisa. Apa yang sudah Anda beli, itulah yang Anda dapatkan. 
-              Jika ingin menikmati fasilitas edit tanpa batas, silakan 
-              mendaftar menjadi member.
-            </p>
-            <Button asChild size="sm" variant="outline">
-              <a 
-                href="https://app.rapatin.id/dashboard/register" 
-                target="_blank" 
-                rel="noopener noreferrer"
-              >
-                Daftar Menjadi Member
-                <ExternalLink className="w-3 h-3 ml-2" />
-              </a>
-            </Button>
-          </AccordionContent>
-        </AccordionItem>
-
-        <AccordionItem value="item-5" className="border-b-0">
-          <AccordionTrigger className="text-left">
-            Jika ada kendala, saya menghubungi kepada siapa?
-          </AccordionTrigger>
-          <AccordionContent>
-            <p className="text-muted-foreground mb-3">
-              Silakan hubungi admin kami via WhatsApp.
-            </p>
-            <Button asChild size="sm" className="bg-green-600 hover:bg-green-700">
-              <a 
-                href="https://wa.me/6287788980084" 
-                target="_blank" 
-                rel="noopener noreferrer"
-              >
-                <MessageCircle className="w-4 h-4 mr-2" />
-                Hubungi Admin
-              </a>
-            </Button>
-          </AccordionContent>
-        </AccordionItem>
-      </Accordion>
-    </CardContent>
-  </Card>
+  <Button 
+    variant="outline" 
+    className="w-full mt-4"
+    onClick={handleDownloadReceipt}
+  >
+    <Download className="w-4 h-4 mr-2" />
+    Download Tanda Terima
+  </Button>
 )}
 ```
 
 ---
 
+## Nama File PDF
+
+Format: `Tanda-Terima-{order_number}.pdf`
+
+Contoh: `Tanda-Terima-INV-260130-0001.pdf`
+
+---
+
 ## Kondisi Tampil
 
-FAQ hanya ditampilkan untuk order yang sudah **dibayar** (`isPaid`), sama seperti kartu Riwayat. Ini karena FAQ ini relevan untuk penggunaan Zoom setelah pembayaran berhasil.
+Tombol hanya muncul untuk order yang sudah **dibayar** (`isPaid`), karena tanda terima hanya relevan setelah pembayaran berhasil.
 
