@@ -1,141 +1,311 @@
 
-# Rencana: Perbaiki Data Zoom Tidak Muncul Setelah Disimpan
+# Rencana: Integrasi Kledo - Penerimaan Bank & Pencatatan Biaya
 
-## Masalah
+## Ringkasan
 
-Setelah admin mengisi dan menyimpan detail Zoom di order yang belum ada Zoom-nya, data tidak muncul. UI tetap menampilkan "Zoom meeting belum tersedia" meskipun data sudah tersimpan di database.
+Mengintegrasikan sistem dengan Kledo untuk mencatat:
+1. **Penerimaan Bank** (`/finance/bankTrans`) - Pencatatan dana masuk dari pembayaran
+2. **Biaya/Expense** (`/finance/expenses`) - Pencatatan MDR payment gateway
 
-## Penyebab
+Integrasi berjalan:
+- **Otomatis**: Saat webhook Xendit menerima pembayaran sukses
+- **Manual**: Admin dapat memicu sinkronisasi untuk order yang terlewat
 
-Ada 2 masalah:
+---
 
-### Masalah 1: hasZoomData mengecek dari prop yang stale
-```tsx
-// Line 162 - Mengecek dari prop order yang BELUM terupdate
-const hasZoomData = order.zoom_link || order.meeting_id || order.zoom_passcode;
+## Perhitungan Biaya Payment Gateway
+
+Semua perhitungan menggunakan **floor (truncate)**, bukan pembulatan:
+
+| Metode | Fee | VAT | Rumus |
+|--------|-----|-----|-------|
+| QRIS | 0.63% | 11% dari fee | `floor(price * 0.0063) + floor(fee * 0.11)` |
+| ShopeePay | 0.63% | 11% dari fee | Sama dengan QRIS |
+| DANA | 1.5% | 11% dari fee | `floor(price * 0.015) + floor(fee * 0.11)` |
+| OVO | 1.5% | 11% dari fee | Sama dengan DANA |
+| Virtual Account | Flat | - | `4440` (semua bank) |
+
+**Contoh Perhitungan:**
+- QRIS Rp 25.000: fee = floor(25000 × 0.0063) = 157, VAT = floor(157 × 0.11) = 17 → **Total: 174**
+- DANA Rp 50.000: fee = floor(50000 × 0.015) = 750, VAT = floor(750 × 0.11) = 82 → **Total: 832**
+- VA Rp 50.000: **Total: 4.440** (flat)
+
+---
+
+## API Kledo
+
+### 1. Autentikasi
+```
+POST https://rapatin.api.kledo.com/api/v1/authentication/singleLogin
+
+Headers:
+  Content-Type: application/json
+  app-client: web
+  X-App: finance
+
+Body:
+{
+  "email": "{KLEDO_EMAIL}",
+  "password": "{KLEDO_PASSWORD}",
+  "remember_me": 1,
+  "is_otp": 0,
+  "apple_identity_token": null
+}
 ```
 
-Setelah save berhasil:
-1. `onUpdate()` memanggil `refetch()` di parent
-2. Data `orders` array di-refresh
-3. **TAPI** `selectedOrder` di parent masih menyimpan data lama
-4. Prop `order` di dialog tidak berubah
-5. `hasZoomData` tetap `false`
-
-### Masalah 2: Parent tidak update selectedOrder
-Di `OrderManagement.tsx`:
-```tsx
-const handleOrderUpdate = () => {
-  refetch(); // Hanya refresh orders array
-  // selectedOrder TIDAK diupdate!
-};
+### 2. Penerimaan Bank (Bank Transaction)
 ```
+POST https://rapatin.api.kledo.com/api/v1/finance/bankTrans
 
-## Solusi
+Headers:
+  Authorization: Bearer {token}
+  Content-Type: application/json
+  app-client: web
+  X-App: finance
 
-### Opsi A: Gunakan zoomData untuk menentukan hasZoomData (Dialog-side fix)
-
-Setelah save berhasil, gunakan state `zoomData` yang sudah terisi (bukan prop `order`) untuk menentukan apakah sudah ada Zoom data:
-
-```tsx
-// Sebelum
-const hasZoomData = order.zoom_link || order.meeting_id || order.zoom_passcode;
-
-// Sesudah - cek dari zoomData state juga
-const hasZoomData = 
-  order.zoom_link || order.meeting_id || order.zoom_passcode ||
-  zoomData.zoom_link || zoomData.meeting_id || zoomData.zoom_passcode;
-```
-
-### Opsi B: Parent update selectedOrder setelah refetch (Parent-side fix) - REKOMENDASI
-
-Ubah handler di parent untuk mengupdate `selectedOrder` dengan data terbaru setelah refetch:
-
-```tsx
-const handleOrderUpdate = async () => {
-  const { data } = await refetch();
-  // Update selectedOrder dengan data terbaru
-  if (selectedOrder && data) {
-    const updatedOrder = data.find(o => o.id === selectedOrder.id);
-    if (updatedOrder) {
-      setSelectedOrder(updatedOrder);
+Body:
+{
+  "trans_date": "2026-01-29",        // Dinamis: tanggal paid_at
+  "trans_type_id": 12,                // Statis
+  "bank_account_id": 1,               // Statis
+  "contact_id": 36,                   // Statis
+  "memo": "REpQTFH8lqzBZGykwZ4svJdL", // Dinamis: access_slug
+  "items": [
+    {
+      "finance_account_id": 121,      // Statis: akun pendapatan
+      "desc": "Quick Order",
+      "amount": 50000                 // Dinamis: price order
     }
-  }
-};
+  ]
+}
 ```
 
-### Rekomendasi: Gabungan Opsi A + B
-
-Untuk user experience terbaik, gabungkan kedua fix:
-- **Opsi A (immediate)**: Data langsung muncul setelah save tanpa menunggu refetch
-- **Opsi B (sync)**: selectedOrder tetap sinkron dengan data database
-
----
-
-## Perubahan Kode
-
-### File 1: `src/components/admin/OrderDetailDialog.tsx`
-
-**Ubah baris 162:**
-
-Dari:
-```tsx
-const hasZoomData = order.zoom_link || order.meeting_id || order.zoom_passcode;
+### 3. Pencatatan Biaya (Expense)
 ```
+POST https://rapatin.api.kledo.com/api/v1/finance/expenses
 
-Ke:
-```tsx
-// Cek dari order prop ATAU zoomData state (untuk immediate feedback setelah save)
-const hasZoomData = 
-  order.zoom_link || order.meeting_id || order.zoom_passcode ||
-  zoomData.zoom_link || zoomData.meeting_id || zoomData.zoom_passcode;
-```
+Headers:
+  Authorization: Bearer {token}
+  Content-Type: application/json
+  app-client: web
+  X-App: finance
 
-**Untuk read-only display, gunakan zoomData sebagai sumber data (bukan order):**
-
-Pada section read-only (baris 357-417), ganti referensi dari `order.meeting_id`, `order.zoom_passcode`, `order.zoom_link` ke `zoomData.meeting_id`, `zoomData.zoom_passcode`, `zoomData.zoom_link`.
-
----
-
-### File 2: `src/pages/admin/OrderManagement.tsx`
-
-**Ubah handleOrderUpdate (baris 66-68):**
-
-Dari:
-```tsx
-const handleOrderUpdate = () => {
-  refetch();
-};
-```
-
-Ke:
-```tsx
-const handleOrderUpdate = async () => {
-  const { data } = await refetch();
-  // Update selectedOrder dengan data terbaru dari database
-  if (selectedOrder && data) {
-    const updatedOrder = data.find(o => o.id === selectedOrder.id);
-    if (updatedOrder) {
-      setSelectedOrder(updatedOrder);
+Body:
+{
+  "trans_date": "2026-01-29",          // Dinamis: tanggal paid_at
+  "pay_from_finance_account_id": 1,    // Statis
+  "contact_id": 3,                     // Statis
+  "status_id": 3,                      // Statis
+  "memo": "REpQTFH8lqzBZGykwZ4svJdL",  // Dinamis: access_slug
+  "items": [
+    {
+      "finance_account_id": 1459,      // Statis: akun beban MDR
+      "desc": "Biaya QRIS",            // Dinamis: nama payment method
+      "amount": 174                    // Dinamis: fee + VAT (truncated)
     }
-  }
+  ]
+}
+```
+
+---
+
+## Konstanta Statis
+
+```typescript
+// Bank Transaction
+const KLEDO_BANK_TRANS = {
+  trans_type_id: 12,
+  bank_account_id: 1,
+  contact_id: 36,
+  finance_account_id: 121,  // Akun pendapatan
+};
+
+// Expense
+const KLEDO_EXPENSE = {
+  pay_from_finance_account_id: 1,
+  contact_id: 3,
+  status_id: 3,
+  finance_account_id: 1459,  // Akun beban MDR
+};
+
+// Fee Rates
+const PAYMENT_FEES = {
+  QRIS: { rate: 0.0063, vatRate: 0.11, type: 'percentage' },
+  SHOPEEPAY: { rate: 0.0063, vatRate: 0.11, type: 'percentage' },
+  DANA: { rate: 0.015, vatRate: 0.11, type: 'percentage' },
+  OVO: { rate: 0.015, vatRate: 0.11, type: 'percentage' },
+  VIRTUAL_ACCOUNT: { amount: 4440, type: 'flat' },
 };
 ```
 
 ---
 
-## Rangkuman File yang Diubah
+## Database Changes
 
-| File | Perubahan |
-|------|-----------|
-| `src/components/admin/OrderDetailDialog.tsx` | Ubah `hasZoomData` untuk cek dari `zoomData` state juga, dan gunakan `zoomData` untuk display read-only |
-| `src/pages/admin/OrderManagement.tsx` | Update `selectedOrder` setelah refetch |
+Menambahkan kolom tracking di tabel `guest_orders`:
+
+| Kolom | Tipe | Deskripsi |
+|-------|------|-----------|
+| `kledo_invoice_id` | text | ID transaksi bank di Kledo |
+| `kledo_synced_at` | timestamptz | Waktu sinkronisasi berhasil |
+| `kledo_sync_error` | text | Pesan error jika gagal |
 
 ---
 
-## Hasil Akhir
+## Arsitektur
 
-Setelah admin simpan detail Zoom:
-1. UI langsung menampilkan data yang baru dimasukkan (dari `zoomData` state)
-2. `selectedOrder` di parent juga terupdate dengan data terbaru dari database
-3. Icon status Zoom di tabel utama juga ikut terupdate (dari refetch)
+```text
+┌─────────────────┐
+│ Xendit Webhook  │
+│ (payment.capture│
+│  + completed)   │
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐      ┌─────────────────┐
+│ xendit-webhook  │─────►│   kledo-sync    │
+│ (existing)      │      │ (new function)  │
+└────────┬────────┘      └────────┬────────┘
+         │                        │
+         │                        ▼
+         │               ┌─────────────────┐
+         │               │   Kledo API     │
+         │               │ 1. Login        │
+         │               │ 2. Bank Trans   │
+         │               │ 3. Expense      │
+         │               └────────┬────────┘
+         │                        │
+         ▼                        ▼
+┌─────────────────────────────────────────┐
+│              guest_orders               │
+│  kledo_invoice_id | kledo_synced_at     │
+└─────────────────────────────────────────┘
+```
+
+---
+
+## Alur Sinkronisasi
+
+### Otomatis (Webhook)
+```text
+1. Xendit → payment_session.completed (status: paid)
+2. Update order + Create Rapatin meeting (existing)
+3. Panggil kledo-sync edge function
+4. Login ke Kledo API
+5. POST /finance/bankTrans (penerimaan)
+6. POST /finance/expenses (biaya MDR)
+7. Update guest_orders dengan kledo_invoice_id
+```
+
+### Manual (Admin)
+```text
+1. Admin buka detail order yang belum sync
+2. Klik tombol "Sync ke Kledo"
+3. Panggil kledo-sync edge function
+4. Proses sama seperti otomatis
+```
+
+---
+
+## Logika Perhitungan Fee
+
+```typescript
+function calculatePaymentFee(price: number, paymentMethod: string): number {
+  // Normalize payment method
+  const method = paymentMethod.toUpperCase();
+  
+  // Virtual Account - semua flat 4440
+  if (method.includes('VA') || method.includes('VIRTUAL_ACCOUNT') || 
+      method.includes('MANDIRI') || method.includes('BCA') || 
+      method.includes('BNI') || method.includes('BRI') ||
+      method.includes('PERMATA') || method.includes('CIMB')) {
+    return 4440;
+  }
+  
+  // QRIS atau ShopeePay - 0.63% + VAT 11%
+  if (method.includes('QRIS') || method.includes('SHOPEEPAY')) {
+    const fee = Math.floor(price * 0.0063);
+    const vat = Math.floor(fee * 0.11);
+    return fee + vat;
+  }
+  
+  // DANA atau OVO - 1.5% + VAT 11%
+  if (method.includes('DANA') || method.includes('OVO')) {
+    const fee = Math.floor(price * 0.015);
+    const vat = Math.floor(fee * 0.11);
+    return fee + vat;
+  }
+  
+  // Default: treat as QRIS rate
+  const fee = Math.floor(price * 0.0063);
+  const vat = Math.floor(fee * 0.11);
+  return fee + vat;
+}
+```
+
+---
+
+## File yang Akan Dibuat/Diubah
+
+| File | Aksi | Deskripsi |
+|------|------|-----------|
+| `supabase/functions/kledo-sync/index.ts` | **Baru** | Edge function untuk integrasi Kledo |
+| `supabase/functions/xendit-webhook/index.ts` | Ubah | Panggil kledo-sync setelah payment sukses |
+| `supabase/config.toml` | Ubah | Tambah konfigurasi kledo-sync |
+| `src/components/admin/OrderDetailDialog.tsx` | Ubah | Tambah section status Kledo + tombol sync |
+| `src/types/OrderTypes.ts` | Ubah | Tambah field kledo_* |
+| Database migration | **Baru** | Tambah kolom kledo_invoice_id, kledo_synced_at, kledo_sync_error |
+
+---
+
+## Secrets yang Dibutuhkan
+
+| Secret | Deskripsi |
+|--------|-----------|
+| `KLEDO_EMAIL` | Email login Kledo (rapatinapp@gmail.com) |
+| `KLEDO_PASSWORD` | Password login Kledo |
+
+---
+
+## UI Admin - Section Kledo
+
+**Jika sudah sync:**
+```
+┌─────────────────────────────────────────┐
+│ 📊 Sinkronisasi Kledo                   │
+├─────────────────────────────────────────┤
+│ Status      ✓ Tersinkronisasi           │
+│ ID Transaksi  12345                  📋 │
+│ Waktu Sync    29 Jan 2026, 10:30        │
+└─────────────────────────────────────────┘
+```
+
+**Jika belum sync atau error:**
+```
+┌─────────────────────────────────────────┐
+│ 📊 Sinkronisasi Kledo                   │
+├─────────────────────────────────────────┤
+│ Status      ⚠ Belum Tersinkronisasi     │
+│ Error       Connection timeout          │
+│                                         │
+│ [🔄 Sync ke Kledo]                      │
+└─────────────────────────────────────────┘
+```
+
+---
+
+## Handling Error & Idempotency
+
+1. **Idempotency**: Cek `kledo_invoice_id` sebelum sync - jika sudah ada, skip
+2. **Error Handling**: Simpan error message ke `kledo_sync_error` untuk debugging
+3. **Retry**: Admin dapat retry manual via tombol di UI
+4. **Logging**: Detailed logs di edge function untuk debugging
+
+---
+
+## Catatan Teknis
+
+1. **Format Tanggal**: Kledo menggunakan format `YYYY-MM-DD`
+2. **Tidak Ada Desimal**: Semua amount harus integer (gunakan Math.floor)
+3. **Payment Method Detection**: Menggunakan pattern matching dari field `payment_method`
+4. **Token Caching**: Token Kledo valid ~30 hari, bisa di-cache jika perlu optimasi
