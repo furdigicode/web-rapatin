@@ -624,7 +624,7 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
                   
                   {order.kledo_invoice_id && (
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">ID Transaksi</span>
+                      <span className="text-muted-foreground">Nomor Transaksi</span>
                       <div className="flex items-center gap-2">
                         <code className="text-xs bg-background px-2 py-1 rounded">
                           {order.kledo_invoice_id}
