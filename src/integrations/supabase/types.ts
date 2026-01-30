@@ -500,6 +500,27 @@ export type Database = {
         }
         Relationships: []
       }
+      rapatin_auth_tokens: {
+        Row: {
+          access_token: string
+          created_at: string
+          expires_at: string
+          id: string
+        }
+        Insert: {
+          access_token: string
+          created_at?: string
+          expires_at: string
+          id?: string
+        }
+        Update: {
+          access_token?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+        }
+        Relationships: []
+      }
       user_feedbacks: {
         Row: {
           admin_notes: string | null
