@@ -253,7 +253,14 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center justify-between">
-            <span>Detail Order</span>
+            <div className="flex items-center gap-3">
+              <span>Detail Order</span>
+              {order.order_number && (
+                <code className="text-sm font-mono bg-muted px-2 py-0.5 rounded">
+                  {order.order_number}
+                </code>
+              )}
+            </div>
             {getStatusBadge(order.payment_status)}
           </DialogTitle>
         </DialogHeader>

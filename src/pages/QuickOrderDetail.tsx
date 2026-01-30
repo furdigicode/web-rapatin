@@ -39,6 +39,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 
 interface OrderDetails {
   id: string;
+  order_number: string | null;
   name: string;
   email: string;
   whatsapp: string;
@@ -539,6 +540,23 @@ export default function QuickOrderDetail() {
                 <h2 className="font-semibold text-lg">Detail Order</h2>
 
                 <div className="space-y-4">
+                  {/* Order Number - tampilkan jika ada */}
+                  {order.order_number && (
+                    <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                      <div>
+                        <p className="text-sm text-muted-foreground">No. Order</p>
+                        <p className="font-mono font-medium">{order.order_number}</p>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => copyToClipboard(order.order_number!, 'No. Order')}
+                      >
+                        <Copy className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  )}
+
                   <div className="flex items-start gap-3">
                     <User className="w-5 h-5 text-muted-foreground mt-0.5" />
                     <div>

@@ -312,6 +312,7 @@ export type Database = {
           monthly_day: number | null
           monthly_week: number | null
           name: string
+          order_number: string | null
           paid_at: string | null
           participant_count: number
           payment_method: string | null
@@ -356,6 +357,7 @@ export type Database = {
           monthly_day?: number | null
           monthly_week?: number | null
           name: string
+          order_number?: string | null
           paid_at?: string | null
           participant_count: number
           payment_method?: string | null
@@ -400,6 +402,7 @@ export type Database = {
           monthly_day?: number | null
           monthly_week?: number | null
           name?: string
+          order_number?: string | null
           paid_at?: string | null
           participant_count?: number
           payment_method?: string | null
@@ -806,6 +809,7 @@ export type Database = {
         Args: { voting_id_param: string }
         Returns: boolean
       }
+      generate_order_number: { Args: never; Returns: string }
       get_voting_results: {
         Args: { voting_id_param: string }
         Returns: {
