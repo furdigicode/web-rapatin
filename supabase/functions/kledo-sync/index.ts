@@ -128,6 +128,70 @@ async function loginToKledo(): Promise<string | null> {
 }
 
 /**
+ * Get Kledo token with caching - reuse existing token if not expired
+ * Token is valid for 30 days, we use 29 days as safety margin
+ */
+async function getKledoToken(supabase: ReturnType<typeof createClient>): Promise<string | null> {
+  try {
+    // 1. Check for existing valid token in database
+    const { data: existingToken, error: fetchError } = await supabase
+      .from('kledo_auth_tokens')
+      .select('access_token, expires_at')
+      .gt('expires_at', new Date().toISOString())
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single();
+
+    if (!fetchError && existingToken?.access_token) {
+      console.log("Using cached Kledo token (expires:", existingToken.expires_at, ")");
+      return existingToken.access_token;
+    }
+
+    // 2. No valid token found, login to get new one
+    console.log("No valid cached token, performing fresh login...");
+    const newToken = await loginToKledo();
+    
+    if (!newToken) {
+      return null;
+    }
+
+    // 3. Save new token with 29-day expiry (safety margin from 30 days)
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + 29);
+    
+    const { error: insertError } = await supabase
+      .from('kledo_auth_tokens')
+      .insert({
+        access_token: newToken,
+        expires_at: expiresAt.toISOString()
+      });
+
+    if (insertError) {
+      console.error("Failed to cache token:", insertError);
+      // Still return the token even if caching failed
+    } else {
+      console.log("New token cached, expires:", expiresAt.toISOString());
+    }
+
+    // 4. Cleanup old expired tokens
+    const { error: cleanupError } = await supabase
+      .from('kledo_auth_tokens')
+      .delete()
+      .lt('expires_at', new Date().toISOString());
+
+    if (cleanupError) {
+      console.log("Token cleanup warning:", cleanupError.message);
+    }
+
+    return newToken;
+  } catch (error) {
+    console.error("getKledoToken error:", error);
+    // Fallback to direct login if caching mechanism fails
+    return await loginToKledo();
+  }
+}
+
+/**
  * Create bank transaction in Kledo (penerimaan)
  */
 async function createBankTransaction(
@@ -292,8 +356,8 @@ serve(async (req) => {
       );
     }
 
-    // Login to Kledo
-    const token = await loginToKledo();
+    // Get Kledo token (with caching)
+    const token = await getKledoToken(supabase);
     if (!token) {
       const errorMsg = 'Failed to login to Kledo';
       await supabase
