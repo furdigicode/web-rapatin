@@ -302,6 +302,9 @@ export type Database = {
           is_mute_upon_entry: boolean | null
           is_recurring: boolean | null
           is_req_unmute_permission: boolean | null
+          kledo_invoice_id: string | null
+          kledo_sync_error: string | null
+          kledo_synced_at: string | null
           meeting_date: string
           meeting_id: string | null
           meeting_time: string | null
@@ -343,6 +346,9 @@ export type Database = {
           is_mute_upon_entry?: boolean | null
           is_recurring?: boolean | null
           is_req_unmute_permission?: boolean | null
+          kledo_invoice_id?: string | null
+          kledo_sync_error?: string | null
+          kledo_synced_at?: string | null
           meeting_date: string
           meeting_id?: string | null
           meeting_time?: string | null
@@ -384,6 +390,9 @@ export type Database = {
           is_mute_upon_entry?: boolean | null
           is_recurring?: boolean | null
           is_req_unmute_permission?: boolean | null
+          kledo_invoice_id?: string | null
+          kledo_sync_error?: string | null
+          kledo_synced_at?: string | null
           meeting_date?: string
           meeting_id?: string | null
           meeting_time?: string | null

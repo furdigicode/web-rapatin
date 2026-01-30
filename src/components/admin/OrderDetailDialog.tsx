@@ -31,7 +31,9 @@ import {
   Plus,
   Loader2,
   AlertTriangle,
-  X
+  X,
+  RefreshCw,
+  BarChart3
 } from 'lucide-react';
 import { GuestOrder } from '@/types/OrderTypes';
 import { formatRupiah } from '@/utils/formatRupiah';
@@ -63,6 +65,7 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
   const { toast } = useToast();
   const [isEditing, setIsEditing] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [syncingKledo, setSyncingKledo] = useState(false);
   const [zoomData, setZoomData] = useState({
     meeting_id: '',
     zoom_passcode: '',
@@ -157,6 +160,42 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
       zoom_link: order.zoom_link || ''
     });
     setIsEditing(false);
+  };
+
+  const handleSyncKledo = async () => {
+    setSyncingKledo(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('kledo-sync', {
+        body: { orderId: order.id }
+      });
+
+      if (error) {
+        toast({
+          title: "Gagal sinkronisasi",
+          description: error.message,
+          variant: "destructive"
+        });
+      } else if (data?.error) {
+        toast({
+          title: "Gagal sinkronisasi",
+          description: data.error,
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "Berhasil",
+          description: data?.warning || "Order berhasil disinkronisasi ke Kledo"
+        });
+        onUpdate?.();
+      }
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: "Terjadi kesalahan saat sinkronisasi",
+        variant: "destructive"
+      });
+    }
+    setSyncingKledo(false);
   };
 
   // Cek dari order prop ATAU zoomData state (untuk immediate feedback setelah save)
@@ -513,6 +552,93 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
             </div>
           </div>
 
+          {/* Kledo Integration Section - only for paid orders */}
+          {order.payment_status === 'paid' && (
+            <>
+              <Separator />
+              <div className="space-y-3">
+                <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide flex items-center gap-2">
+                  <BarChart3 className="h-4 w-4" />
+                  Sinkronisasi Kledo
+                </h3>
+                <div className="grid gap-3 p-4 bg-muted/50 rounded-lg">
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground">Status</span>
+                    {order.kledo_invoice_id ? (
+                      <Badge className="bg-green-500 hover:bg-green-600">
+                        <CheckCircle2 className="h-3 w-3 mr-1" />
+                        Tersinkronisasi
+                      </Badge>
+                    ) : order.kledo_sync_error ? (
+                      <Badge variant="destructive">
+                        <XCircle className="h-3 w-3 mr-1" />
+                        Gagal
+                      </Badge>
+                    ) : (
+                      <Badge variant="outline">
+                        <Clock className="h-3 w-3 mr-1" />
+                        Belum Sync
+                      </Badge>
+                    )}
+                  </div>
+                  
+                  {order.kledo_invoice_id && (
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">ID Transaksi</span>
+                      <div className="flex items-center gap-2">
+                        <code className="text-xs bg-background px-2 py-1 rounded">
+                          {order.kledo_invoice_id}
+                        </code>
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="h-6 w-6"
+                          onClick={() => copyToClipboard(order.kledo_invoice_id!, 'Kledo ID')}
+                        >
+                          <Copy className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {order.kledo_synced_at && (
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">Waktu Sync</span>
+                      <span>{formatDateTime(order.kledo_synced_at)}</span>
+                    </div>
+                  )}
+                  
+                  {order.kledo_sync_error && (
+                    <div className="text-sm">
+                      <span className="text-muted-foreground">Error:</span>
+                      <p className="text-destructive text-xs mt-1 bg-destructive/10 p-2 rounded">
+                        {order.kledo_sync_error}
+                      </p>
+                    </div>
+                  )}
+                  
+                  {/* Show sync button if not synced or has error */}
+                  {(!order.kledo_invoice_id || order.kledo_sync_error) && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleSyncKledo}
+                      disabled={syncingKledo}
+                      className="w-full mt-2"
+                    >
+                      {syncingKledo ? (
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      ) : (
+                        <RefreshCw className="h-4 w-4 mr-2" />
+                      )}
+                      {order.kledo_sync_error ? 'Coba Lagi' : 'Sync ke Kledo'}
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </>
+          )}
+
           <Separator />
 
           {/* Timeline */}
@@ -535,6 +661,12 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Kadaluarsa</span>
                   <span>{formatDateTime(order.expired_at)}</span>
+                </div>
+              )}
+              {order.kledo_synced_at && (
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Sync Kledo</span>
+                  <span>{formatDateTime(order.kledo_synced_at)}</span>
                 </div>
               )}
             </div>

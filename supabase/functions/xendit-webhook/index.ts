@@ -559,6 +559,32 @@ serve(async (req) => {
       has_rapatin_order_id: !!updateData.rapatin_order_id,
     });
 
+    // Trigger Kledo sync for paid orders (non-blocking)
+    if (paymentStatus === 'paid') {
+      console.log("Triggering Kledo sync for order:", order.id);
+      try {
+        const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+        const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+        
+        // Fire and forget - don't await
+        fetch(`${supabaseUrl}/functions/v1/kledo-sync`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${supabaseAnonKey}`,
+          },
+          body: JSON.stringify({ orderId: order.id }),
+        }).then(res => {
+          console.log("Kledo sync triggered, response status:", res.status);
+        }).catch(err => {
+          console.error("Failed to trigger Kledo sync:", err);
+        });
+      } catch (kledoError) {
+        console.error("Error triggering Kledo sync:", kledoError);
+        // Don't fail the webhook - Kledo sync can be retried manually
+      }
+    }
+
     return new Response(
       JSON.stringify({ success: true }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
