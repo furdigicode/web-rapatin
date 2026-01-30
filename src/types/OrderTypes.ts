@@ -1,5 +1,6 @@
 export interface GuestOrder {
   id: string;
+  order_number: string | null;
   name: string;
   email: string;
   whatsapp: string;

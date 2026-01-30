@@ -273,7 +273,24 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
+    // Generate order number with format INV-YYMMDD-XXXX
+    let orderNumber: string;
+    const { data: orderNumberData, error: seqError } = await supabase.rpc('generate_order_number');
+    
+    if (seqError || !orderNumberData) {
+      console.error("Failed to generate order number:", seqError);
+      // Fallback: use timestamp-based
+      const now = new Date();
+      const datePart = now.toISOString().slice(2, 10).replace(/-/g, '');
+      orderNumber = `INV-${datePart}-${Date.now().toString().slice(-4)}`;
+    } else {
+      orderNumber = orderNumberData;
+    }
+
+    console.log("Generated order number:", orderNumber);
+
     const orderData: Record<string, unknown> = {
+      order_number: orderNumber,
       name,
       email,
       whatsapp: cleanWhatsapp,

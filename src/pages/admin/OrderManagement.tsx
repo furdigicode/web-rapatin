@@ -99,7 +99,8 @@ const OrderManagement = () => {
           order.name.toLowerCase().includes(query) ||
           order.email.toLowerCase().includes(query) ||
           order.whatsapp.includes(query) ||
-          (order.meeting_topic?.toLowerCase().includes(query) ?? false)
+          (order.meeting_topic?.toLowerCase().includes(query) ?? false) ||
+          (order.order_number?.toLowerCase().includes(query) ?? false)
         );
       }
 
@@ -259,7 +260,7 @@ const OrderManagement = () => {
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Cari nama, email, atau WhatsApp..."
+            placeholder="Cari nama, email, WhatsApp, atau no. order..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-10"
@@ -300,6 +301,7 @@ const OrderManagement = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
+                    <TableHead>No. Order</TableHead>
                     <TableHead>Tanggal Order</TableHead>
                     <TableHead>Customer</TableHead>
                     <TableHead>Meeting</TableHead>
@@ -312,6 +314,11 @@ const OrderManagement = () => {
                 <TableBody>
                   {filteredOrders.map((order) => (
                     <TableRow key={order.id}>
+                      <TableCell className="whitespace-nowrap">
+                        <code className="text-xs font-mono bg-muted px-1.5 py-0.5 rounded">
+                          {order.order_number || '-'}
+                        </code>
+                      </TableCell>
                       <TableCell className="whitespace-nowrap">
                         <div className="text-sm">
                           {format(new Date(order.created_at), 'd MMM yyyy', { locale: id })}
