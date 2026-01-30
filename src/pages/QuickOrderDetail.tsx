@@ -26,6 +26,7 @@ import {
   Eye,
   EyeOff,
   HelpCircle,
+  Download,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -38,6 +39,7 @@ import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { generateReceipt } from "@/utils/generateReceipt";
 
 interface OrderDetails {
   id: string;
@@ -644,6 +646,35 @@ export default function QuickOrderDetail() {
                       )}
                     </div>
                   </div>
+
+                  {/* Download Receipt Button - only for paid orders */}
+                  {isPaid && (
+                    <Button
+                      variant="outline"
+                      className="w-full mt-4"
+                      onClick={() => {
+                        generateReceipt({
+                          orderNumber: order.order_number,
+                          name: order.name,
+                          email: order.email,
+                          whatsapp: order.whatsapp,
+                          meetingDate: order.meeting_date,
+                          meetingTime: order.meeting_time,
+                          meetingTopic: order.meeting_topic,
+                          participantCount: order.participant_count,
+                          price: order.price,
+                          paymentMethod: order.payment_method
+                            ? formatPaymentMethod(order.payment_method)
+                            : null,
+                          paidAt: order.paid_at,
+                        });
+                        toast.success("Tanda terima berhasil diunduh");
+                      }}
+                    >
+                      <Download className="w-4 h-4 mr-2" />
+                      Download Tanda Terima
+                    </Button>
+                  )}
                 </div>
               </CardContent>
             </Card>
