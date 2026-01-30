@@ -1,14 +1,29 @@
 
 
-# Rencana: Token Caching untuk Kledo Sync
+# Rencana: Token Caching untuk Rapatin API
 
 ## Masalah Saat Ini
 
-Setiap kali edge function `kledo-sync` dipanggil, selalu melakukan login ke Kledo API untuk mendapatkan token baru, padahal token tersebut valid selama **30 hari**.
+Setiap kali webhook pembayaran sukses (`payment_session.completed`), fungsi `xendit-webhook` melakukan login baru ke Rapatin API untuk mendapatkan token. Ini tidak efisien karena token bisa digunakan kembali.
 
 ## Solusi
 
-Menyimpan token Kledo di tabel database dan menggunakannya kembali jika belum kadaluarsa.
+Menggunakan pendekatan yang sama dengan Kledo - menyimpan token di database dan menggunakannya kembali jika belum kadaluarsa.
+
+---
+
+## Database Changes
+
+### Tabel Baru: `rapatin_auth_tokens`
+
+| Kolom | Tipe | Deskripsi |
+|-------|------|-----------|
+| `id` | uuid | Primary key |
+| `access_token` | text | Token dari Rapatin API |
+| `expires_at` | timestamptz | Waktu kadaluarsa |
+| `created_at` | timestamptz | Waktu token dibuat |
+
+**Catatan**: Perlu dicek berapa lama token Rapatin valid. Jika tidak ada informasi, akan menggunakan 7 hari sebagai default yang aman.
 
 ---
 
@@ -16,42 +31,27 @@ Menyimpan token Kledo di tabel database dan menggunakannya kembali jika belum ka
 
 ```text
 ┌─────────────────────────────────────────────────────────────────┐
-│                     kledo-sync Edge Function                    │
+│                     xendit-webhook Edge Function                │
 ├─────────────────────────────────────────────────────────────────┤
-│  1. Cek token di tabel kledo_auth_tokens                        │
+│  1. Cek token di tabel rapatin_auth_tokens                      │
 │     ↓                                                           │
 │  2. Token ada & belum expired?                                  │
 │     ├── YA  → Gunakan token tersebut                            │
-│     └── TIDAK → Login ke Kledo, simpan token baru               │
+│     └── TIDAK → Login ke Rapatin, simpan token baru             │
 │     ↓                                                           │
-│  3. Lanjut proses sync (bankTrans + expense)                    │
+│  3. Lanjut proses create schedule                               │
 └─────────────────────────────────────────────────────────────────┘
 ```
-
----
-
-## Database Changes
-
-### Tabel Baru: `kledo_auth_tokens`
-
-| Kolom | Tipe | Deskripsi |
-|-------|------|-----------|
-| `id` | uuid | Primary key |
-| `access_token` | text | Token dari Kledo API |
-| `expires_at` | timestamptz | Waktu kadaluarsa (created_at + 29 hari) |
-| `created_at` | timestamptz | Waktu token dibuat |
-
-**Catatan**: Menggunakan 29 hari (bukan 30) sebagai margin keamanan untuk menghindari edge case token expired saat digunakan.
 
 ---
 
 ## Logika Baru
 
 ```typescript
-async function getKledoToken(supabase): Promise<string | null> {
+async function getRapatinToken(supabase): Promise<string | null> {
   // 1. Cek token yang masih valid di database
   const { data: existingToken } = await supabase
-    .from('kledo_auth_tokens')
+    .from('rapatin_auth_tokens')
     .select('access_token, expires_at')
     .gt('expires_at', new Date().toISOString())
     .order('created_at', { ascending: false })
@@ -59,28 +59,28 @@ async function getKledoToken(supabase): Promise<string | null> {
     .single();
 
   if (existingToken?.access_token) {
-    console.log("Using cached Kledo token");
+    console.log("Using cached Rapatin token");
     return existingToken.access_token;
   }
 
   // 2. Token tidak ada atau expired, login baru
-  console.log("No valid token, logging in to Kledo...");
-  const token = await loginToKledo();
+  console.log("No valid token, logging in to Rapatin...");
+  const token = await loginToRapatin();
   
   if (!token) return null;
 
-  // 3. Simpan token baru dengan expiry 29 hari
+  // 3. Simpan token baru dengan expiry (default 7 hari jika tidak diketahui)
   const expiresAt = new Date();
-  expiresAt.setDate(expiresAt.getDate() + 29);
+  expiresAt.setDate(expiresAt.getDate() + 7);
   
-  await supabase.from('kledo_auth_tokens').insert({
+  await supabase.from('rapatin_auth_tokens').insert({
     access_token: token,
     expires_at: expiresAt.toISOString()
   });
 
   // 4. Hapus token lama (cleanup)
   await supabase
-    .from('kledo_auth_tokens')
+    .from('rapatin_auth_tokens')
     .delete()
     .lt('expires_at', new Date().toISOString());
 
@@ -94,23 +94,30 @@ async function getKledoToken(supabase): Promise<string | null> {
 
 | File | Aksi | Deskripsi |
 |------|------|-----------|
-| `supabase/functions/kledo-sync/index.ts` | Ubah | Implementasi token caching |
-| Database migration | Baru | Buat tabel `kledo_auth_tokens` |
+| `supabase/functions/xendit-webhook/index.ts` | Ubah | Tambah fungsi `getRapatinToken` dengan caching |
+| Database migration | Baru | Buat tabel `rapatin_auth_tokens` |
+
+---
+
+## Perubahan di xendit-webhook
+
+**Sebelum:**
+```typescript
+// Step 1: Login to Rapatin
+const rapatinToken = await loginToRapatin();
+```
+
+**Sesudah:**
+```typescript
+// Step 1: Get Rapatin token (with caching)
+const rapatinToken = await getRapatinToken(supabase);
+```
 
 ---
 
 ## RLS Policy
 
-Tabel `kledo_auth_tokens` hanya diakses oleh service role (edge function), jadi tidak perlu policy untuk public access. Cukup enable RLS tanpa policy agar tidak bisa diakses dari client.
-
----
-
-## Keuntungan
-
-1. **Efisiensi**: Tidak perlu login setiap kali sync
-2. **Kecepatan**: Mengurangi 1 API call ke Kledo
-3. **Reliability**: Mengurangi kemungkinan rate limiting
-4. **Cost**: Mengurangi beban di Kledo API
+Sama seperti `kledo_auth_tokens`, tabel ini hanya diakses oleh service role (edge function), jadi RLS diaktifkan tanpa policy untuk mencegah akses dari client.
 
 ---
 
@@ -118,11 +125,11 @@ Tabel `kledo_auth_tokens` hanya diakses oleh service role (edge function), jadi 
 
 ```text
 ┌────────────────────────────────────────────────────────────────┐
-│                       kledo-sync dipanggil                     │
+│           Xendit webhook: payment_session.completed            │
 └──────────────────────────┬─────────────────────────────────────┘
                            ▼
             ┌──────────────────────────────┐
-            │ Query kledo_auth_tokens      │
+            │ Query rapatin_auth_tokens    │
             │ WHERE expires_at > now()     │
             └──────────────────┬───────────┘
                                ▼
@@ -133,15 +140,30 @@ Tabel `kledo_auth_tokens` hanya diakses oleh service role (edge function), jadi 
                    YA                  TIDAK
                     ▼                    ▼
          ┌──────────────────┐  ┌────────────────────┐
-         │ Gunakan token    │  │ Login ke Kledo API │
+         │ Gunakan token    │  │ Login ke Rapatin   │
          │ dari database    │  │ Simpan token baru  │
          └────────┬─────────┘  └──────────┬─────────┘
                   │                       │
                   └───────────┬───────────┘
                               ▼
               ┌───────────────────────────────┐
-              │ Proses sync (bankTrans +      │
-              │ expense) dengan token         │
+              │ POST /schedules               │
+              │ (Create Zoom meeting)         │
               └───────────────────────────────┘
 ```
+
+---
+
+## Keuntungan
+
+1. **Efisiensi**: Tidak perlu login setiap kali ada pembayaran sukses
+2. **Kecepatan**: Mengurangi 1 API call ke Rapatin
+3. **Reliability**: Proses webhook lebih cepat selesai
+4. **Konsistensi**: Pendekatan yang sama dengan Kledo caching
+
+---
+
+## Catatan
+
+Karena tidak ada dokumentasi resmi tentang durasi token Rapatin, akan digunakan **7 hari** sebagai expiry default yang aman. Jika di kemudian hari diketahui durasi sebenarnya, bisa disesuaikan.
 
