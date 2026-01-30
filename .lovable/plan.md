@@ -1,15 +1,51 @@
 
 
-# Rencana: Nomor Order dengan Format INV-YYMMDD-XXXX
+# Rencana: Update Identifikasi Kledo dengan ref_number dan order_number
 
-## Ringkasan
+## Ringkasan Perubahan
 
-Menambahkan kolom `order_number` pada tabel `guest_orders` dengan format **INV-[YYMMDD]-[4 digit sequence]**.
+1. **Menyimpan `ref_number`** dari response Kledo bank transaction (format: `BANK/00XXX`) sebagai ID transaksi di database
+2. **Menggunakan `order_number`** (INV-YYMMDD-XXXX) sebagai memo, bukan `access_slug`
 
-**Contoh**: 
-- `INV-260130-0001` (Order pertama tanggal 30 Jan 2026)
-- `INV-260130-0002` (Order kedua tanggal yang sama)
-- `INV-260131-0001` (Order pertama tanggal 31 Jan 2026)
+---
+
+## Perubahan Detail
+
+### 1. Kolom Database
+
+**Perubahan nama kolom** untuk clarity:
+
+| Sebelum | Sesudah | Deskripsi |
+|---------|---------|-----------|
+| `kledo_invoice_id` | `kledo_ref_number` | Menyimpan ref_number dari Kledo (BANK/00XXX) |
+
+Atau bisa tetap menggunakan `kledo_invoice_id` tapi isinya diganti ke `ref_number` dari response Kledo.
+
+### 2. Edge Function `kledo-sync/index.ts`
+
+**Perubahan pada memo:**
+
+```typescript
+// SEBELUM
+const memo = order.access_slug || orderId;
+
+// SESUDAH
+const memo = order.order_number || order.access_slug || orderId;
+```
+
+**Perubahan pada penyimpanan ID:**
+
+```typescript
+// SEBELUM - menyimpan result.data.id
+if (result.data?.id) {
+  return { success: true, id: result.data.id.toString() };
+}
+
+// SESUDAH - menyimpan result.data.ref_number
+if (result.data?.ref_number) {
+  return { success: true, refNumber: result.data.ref_number };
+}
+```
 
 ---
 
@@ -17,124 +53,26 @@ Menambahkan kolom `order_number` pada tabel `guest_orders` dengan format **INV-[
 
 ```text
 ┌─────────────────────────────────────────────────────────────────┐
-│                    create-guest-order                           │
+│                       kledo-sync                                │
 ├─────────────────────────────────────────────────────────────────┤
-│  1. Terima data order                                           │
-│     ↓                                                           │
-│  2. Generate order_number:                                      │
-│     - Query max sequence untuk tanggal ini                      │
-│     - Format: INV-YYMMDD-XXXX                                   │
-│     ↓                                                           │
-│  3. Simpan order dengan order_number                            │
+│  Order Data:                                                    │
+│  - order_number: INV-260130-0001                                │
+│  - price: 150000                                                │
+│  - payment_method: QRIS                                         │
+│                                                                 │
+│  Kledo Bank Transaction:                                        │
+│  - memo: "INV-260130-0001" ← dari order_number                  │
+│  - amount: 150000                                               │
+│  - Response → ref_number: "BANK/00902"                          │
+│                                                                 │
+│  Kledo Expense:                                                 │
+│  - memo: "INV-260130-0001" ← dari order_number                  │
+│  - amount: 1049 (MDR fee)                                       │
+│                                                                 │
+│  Simpan ke DB:                                                  │
+│  - kledo_invoice_id: "BANK/00902" ← dari ref_number             │
 └─────────────────────────────────────────────────────────────────┘
 ```
-
----
-
-## Database Changes
-
-### Kolom Baru: `order_number`
-
-| Kolom | Tipe | Deskripsi |
-|-------|------|-----------|
-| `order_number` | text | Nomor order dengan format INV-YYMMDD-XXXX |
-
-### Constraint
-
-- **UNIQUE**: Mencegah duplikasi nomor order
-- **NOT NULL** (untuk order baru)
-
-### Migration SQL
-
-```sql
--- Tambah kolom order_number
-ALTER TABLE public.guest_orders 
-ADD COLUMN order_number TEXT UNIQUE;
-
--- Create function untuk generate order number
-CREATE OR REPLACE FUNCTION generate_order_number()
-RETURNS TEXT AS $$
-DECLARE
-  date_part TEXT;
-  max_seq INTEGER;
-  new_seq INTEGER;
-BEGIN
-  -- Format: YYMMDD
-  date_part := TO_CHAR(NOW(), 'YYMMDD');
-  
-  -- Cari sequence tertinggi untuk tanggal ini
-  SELECT COALESCE(MAX(
-    CAST(RIGHT(order_number, 4) AS INTEGER)
-  ), 0) INTO max_seq
-  FROM public.guest_orders
-  WHERE order_number LIKE 'INV-' || date_part || '-%';
-  
-  new_seq := max_seq + 1;
-  
-  RETURN 'INV-' || date_part || '-' || LPAD(new_seq::TEXT, 4, '0');
-END;
-$$ LANGUAGE plpgsql;
-
--- Index untuk performa query
-CREATE INDEX idx_guest_orders_order_number 
-ON public.guest_orders(order_number);
-```
-
----
-
-## Perubahan Edge Function
-
-### `create-guest-order/index.ts`
-
-```typescript
-// Generate order number
-const { data: orderNumberData, error: seqError } = await supabase
-  .rpc('generate_order_number');
-
-if (seqError) {
-  console.error("Failed to generate order number:", seqError);
-  // Fallback: gunakan timestamp-based
-  const fallbackNumber = `INV-${new Date().toISOString().slice(2,10).replace(/-/g, '')}-${Date.now().toString().slice(-4)}`;
-}
-
-const orderData = {
-  // ...existing fields
-  order_number: orderNumberData || fallbackNumber,
-};
-```
-
----
-
-## Perubahan UI
-
-### 1. Admin Order Table (`OrderManagement.tsx`)
-
-Menambahkan kolom "No. Order" di tabel:
-
-| No. Order | Tanggal Order | Customer | ... |
-|-----------|---------------|----------|-----|
-| INV-260130-0001 | 30 Jan 2026 | John Doe | ... |
-
-### 2. Order Detail Dialog (`OrderDetailDialog.tsx`)
-
-Menampilkan nomor order di header:
-
-```
-Detail Order: INV-260130-0001
-```
-
-### 3. Customer Order Page (`QuickOrderDetail.tsx`)
-
-Menampilkan nomor order setelah pembayaran sukses:
-
-```
-No. Order: INV-260130-0001
-(dengan tombol copy)
-```
-
-### 4. Search
-
-Menambahkan kemampuan search berdasarkan order number.
 
 ---
 
@@ -142,62 +80,79 @@ Menambahkan kemampuan search berdasarkan order number.
 
 | File | Aksi | Deskripsi |
 |------|------|-----------|
-| Database migration | Baru | Tambah kolom + function + index |
-| `create-guest-order/index.ts` | Ubah | Generate order_number saat create |
-| `check-order-status/index.ts` | Ubah | Return order_number di response |
-| `src/types/OrderTypes.ts` | Ubah | Tambah field order_number |
-| `src/pages/admin/OrderManagement.tsx` | Ubah | Tambah kolom + search |
-| `src/components/admin/OrderDetailDialog.tsx` | Ubah | Tampilkan nomor order |
-| `src/pages/QuickOrderDetail.tsx` | Ubah | Tampilkan nomor order |
+| `supabase/functions/kledo-sync/index.ts` | Ubah | Gunakan order_number untuk memo, simpan ref_number |
 
 ---
 
-## Handling Order Lama
+## Kode Perubahan
 
-Order yang sudah ada sebelum implementasi tidak akan memiliki `order_number`. UI akan menampilkan fallback:
-- Admin: Tampilkan "-" atau ID singkat
-- Customer: Tidak menampilkan jika null
+### `createBankTransaction` function
 
----
+```typescript
+async function createBankTransaction(
+  token: string,
+  transDate: string,
+  memo: string,
+  amount: number
+): Promise<{ success: boolean; refNumber?: string; error?: string }> {
+  // ... existing code ...
+  
+  const result = await response.json();
+  
+  if (!response.ok) {
+    return { success: false, error: result.message || `HTTP ${response.status}` };
+  }
 
-## Flow Lengkap
+  // Simpan ref_number bukan id
+  if (result.data?.ref_number) {
+    return { success: true, refNumber: result.data.ref_number };
+  }
 
-```text
-┌──────────────────────────────────────────────────────────────────┐
-│                        Customer Order                             │
-└─────────────────────────────┬────────────────────────────────────┘
-                              ▼
-              ┌──────────────────────────────┐
-              │ create-guest-order dipanggil │
-              └──────────────────┬───────────┘
-                                 ▼
-            ┌────────────────────────────────────┐
-            │ SELECT MAX(sequence) WHERE         │
-            │ order_number LIKE 'INV-260130-%'   │
-            └────────────────────┬───────────────┘
-                                 ▼
-              ┌──────────────────────────────────┐
-              │ max_seq = 0003                   │
-              │ new_seq = 0004                   │
-              │ order_number = INV-260130-0004   │
-              └────────────────────┬─────────────┘
-                                   ▼
-              ┌──────────────────────────────────┐
-              │ INSERT INTO guest_orders         │
-              │ WITH order_number                │
-              └────────────────────┬─────────────┘
-                                   ▼
-              ┌──────────────────────────────────┐
-              │ Return order_number ke frontend  │
-              └──────────────────────────────────┘
+  // Fallback ke id jika ref_number tidak ada
+  if (result.data?.id) {
+    return { success: true, refNumber: `BANK/${result.data.id}` };
+  }
+
+  return { success: false, error: 'No ref_number in response' };
+}
+```
+
+### Main flow
+
+```typescript
+// Prepare data - gunakan order_number untuk memo
+const transDate = formatDateForKledo(order.paid_at || order.created_at);
+const memo = order.order_number || order.access_slug || orderId;
+const amount = order.price;
+
+// ... create transactions ...
+
+// Update order dengan ref_number
+await supabase
+  .from('guest_orders')
+  .update({ 
+    kledo_invoice_id: bankTransResult.refNumber, // BANK/00XXX
+    kledo_synced_at: new Date().toISOString(),
+    kledo_sync_error: null
+  })
+  .eq('id', orderId);
 ```
 
 ---
 
-## Keuntungan Format INV-YYMMDD-XXXX
+## Contoh Data
 
-1. **Mudah dibaca**: Customer dan CS langsung tahu tanggal order
-2. **Unik per hari**: 4 digit = max 9999 order/hari (sangat cukup)
-3. **Sortable**: Bisa diurutkan berdasarkan tanggal
-4. **Compact**: Hanya 15 karakter
+| Field | Sebelum | Sesudah |
+|-------|---------|---------|
+| Memo (Bank Trans) | `abc123xyz456...` (slug) | `INV-260130-0001` |
+| Memo (Expense) | `abc123xyz456...` (slug) | `INV-260130-0001` |
+| kledo_invoice_id | `12345` (ID) | `BANK/00902` (ref_number) |
+
+---
+
+## Keuntungan
+
+1. **Konsistensi**: Memo menggunakan nomor order yang sama dengan sistem internal
+2. **Mudah tracking**: CS bisa langsung cari di Kledo dengan nomor order
+3. **Format standar**: ref_number (BANK/00XXX) adalah format standar Kledo untuk bank transaction
 
