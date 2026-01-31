@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { HelpCircle, MessageCircle, ChevronDown } from "lucide-react";
+import { HelpCircle, MessageCircle } from "lucide-react";
 import {
   Accordion,
   AccordionContent,
@@ -7,12 +6,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
-import { cn } from "@/lib/utils";
+import { Card, CardContent } from "@/components/ui/card";
 
 const faqItems = [
   {
@@ -38,27 +32,21 @@ const faqItems = [
 ];
 
 export function QuickOrderFAQ() {
-  const [isOpen, setIsOpen] = useState(false);
   const whatsappNumber = "6281318887658";
   const whatsappMessage = encodeURIComponent("Halo, saya ada pertanyaan tentang Quick Order Rapatin");
 
   return (
-    <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-      <CollapsibleTrigger asChild>
-        <Button variant="ghost" className="w-full justify-between h-auto py-3">
-          <span className="flex items-center gap-2 font-semibold">
-            <HelpCircle className="w-5 h-5 text-primary" />
-            Pertanyaan Umum
-          </span>
-          <ChevronDown className={cn("h-4 w-4 transition-transform duration-200", isOpen && "rotate-180")} />
-        </Button>
-      </CollapsibleTrigger>
+    <Card>
+      <CardContent className="p-6">
+        <div className="flex items-center gap-2 mb-4">
+          <HelpCircle className="w-5 h-5 text-primary" />
+          <h3 className="font-semibold text-lg">Pertanyaan Umum</h3>
+        </div>
 
-      <CollapsibleContent>
         <Accordion type="single" collapsible className="w-full">
           {faqItems.map((item, index) => (
             <AccordionItem key={index} value={`item-${index}`}>
-              <AccordionTrigger className="text-left text-sm py-3">
+              <AccordionTrigger className="text-left text-sm">
                 {item.question}
               </AccordionTrigger>
               <AccordionContent className="text-sm text-muted-foreground">
@@ -68,13 +56,8 @@ export function QuickOrderFAQ() {
           ))}
         </Accordion>
 
-        <div className="pt-2">
-          <Button
-            variant="outline"
-            size="sm"
-            className="w-full"
-            asChild
-          >
+        <div className="pt-4">
+          <Button variant="outline" size="sm" className="w-full" asChild>
             <a
               href={`https://wa.me/${whatsappNumber}?text=${whatsappMessage}`}
               target="_blank"
@@ -85,7 +68,7 @@ export function QuickOrderFAQ() {
             </a>
           </Button>
         </div>
-      </CollapsibleContent>
-    </Collapsible>
+      </CardContent>
+    </Card>
   );
 }

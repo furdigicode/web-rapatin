@@ -3,6 +3,7 @@ import { Video, Clock, Shield, Zap } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { QuickOrderForm } from "@/components/quick-order/QuickOrderForm";
+import { QuickOrderFAQ } from "@/components/quick-order/QuickOrderFAQ";
 
 const features = [
   {
@@ -81,10 +82,13 @@ export default function QuickOrder() {
         {/* Form Section */}
         <section className="pb-16 md:pb-24">
           <div className="container mx-auto px-4">
-            <div className="max-w-4xl mx-auto">
+            <div className="max-w-4xl mx-auto space-y-6">
               <div className="bg-card border rounded-2xl p-6 md:p-8 shadow-lg">
                 <QuickOrderForm />
               </div>
+
+              {/* FAQ Section - Card terpisah */}
+              <QuickOrderFAQ />
             </div>
           </div>
         </section>
