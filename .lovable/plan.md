@@ -1,114 +1,76 @@
 
 
-# Rencana: Perbaikan Tampilan Email Mobile
+# Rencana: Update Warna & Tambah Tombol Panduan Host di Email
 
 ## Ringkasan
 
-Memperbaiki tampilan email konfirmasi di Gmail mobile agar cards full-width, menambah spacing sebelum footer, dan mengubah link WhatsApp menjadi tombol.
+Mengubah warna email template sesuai brand aplikasi (cyan/teal) dan menambahkan tombol "Panduan Menjadi Host" setelah credentials card.
 
 ---
 
-## Masalah & Solusi
+## Warna Brand Aplikasi
 
-| Masalah | Lokasi | Solusi |
-|---------|--------|--------|
-| Cards tidak full width di mobile | Order Info, Detail Meeting, Zoom Credentials | Hapus padding dari inner `<td>`, pindahkan ke cell styling |
-| Garis footer nempel ke Tips | Footer section | Tambah `margin-top` atau wrapper `<tr>` dengan padding |
-| WhatsApp hanya link teks | Footer section | Ubah jadi tombol hijau dengan style seperti "Gabung Meeting" |
+| Elemen | Warna Lama | Warna Baru |
+|--------|------------|------------|
+| Primary | `#2563eb` (blue-600) | `#0891b2` (cyan-600) |
+| Primary Dark | `#1d4ed8` (blue-700) | `#0e7490` (cyan-700) |
+| Primary Light | `#bfdbfe` (blue-200) | `#a5f3fc` (cyan-200) |
+| Shadow | `rgba(37, 99, 235, 0.4)` | `rgba(8, 145, 178, 0.4)` |
 
 ---
 
 ## Perubahan Detail
 
-### 1. Order Info Card (Baris 101-118)
+### File: `supabase/functions/send-order-email/index.ts`
 
-**Sebelum:**
-```html
-<table width="100%" ... style="background-color: #f0fdf4; border-radius: 12px; padding: 20px; ...">
-  <tr>
-    <td>
-      <table width="100%">
+### 1. Header Background (Baris 83)
+
+```typescript
+// Sebelum
+background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)
+color subtitle: #bfdbfe
+
+// Sesudah  
+background: linear-gradient(135deg, #0891b2 0%, #0e7490 100%)
+color subtitle: #a5f3fc
 ```
 
-**Sesudah:**
-```html
-<table width="100%" ... style="background-color: #f0fdf4; border-radius: 12px; ...">
-  <tr>
-    <td style="padding: 20px;">
-      <table width="100%">
+### 2. Total Bayar Price (Baris 147)
+
+```typescript
+// Sebelum
+color: #2563eb
+
+// Sesudah
+color: #0891b2
 ```
 
-### 2. Zoom Credentials Card (Baris 171-185)
+### 3. Gabung Meeting Button (Baris 164)
 
-**Sebelum:**
-```html
-<table width="100%" ... style="background-color: #f9fafb; border-radius: 12px; padding: 16px; ...">
+```typescript
+// Sebelum
+background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)
+box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4)
+
+// Sesudah
+background: linear-gradient(135deg, #0891b2 0%, #0e7490 100%)
+box-shadow: 0 4px 14px rgba(8, 145, 178, 0.4)
 ```
 
-**Sesudah:**
+### 4. Tambah Tombol Panduan Menjadi Host (Setelah Baris 191)
+
+Menambahkan tombol baru setelah credentials table dengan link ke video YouTube:
+
 ```html
-<table width="100%" ... style="background-color: #f9fafb; border-radius: 12px; ...">
-  <tr>
-    <td style="padding: 16px;">
-      <!-- inner table wrapped -->
-```
-
-### 3. Tips Penting Card (Baris 192-203)
-
-**Sebelum:**
-```html
-<table width="100%" ... style="background-color: #fffbeb; border-radius: 12px; padding: 16px; ...">
-```
-
-**Sesudah:**
-```html
-<table width="100%" ... style="background-color: #fffbeb; border-radius: 12px; ...">
-  <tr>
-    <td style="padding: 16px;">
-```
-
-### 4. Footer - Tambah Spacing (Baris 208-220)
-
-**Sebelum:**
-```html
-<td style="padding: 32px; text-align: center; border-top: 1px solid #e5e7eb; margin-top: 24px;">
-```
-
-**Sesudah:**
-```html
-<!-- Spacer row before footer -->
-<tr>
-  <td style="height: 24px;"></td>
-</tr>
-<tr>
-  <td style="padding: 32px; text-align: center; border-top: 1px solid #e5e7eb;">
-```
-
-### 5. WhatsApp - Ubah Link ke Tombol (Baris 210-215)
-
-**Sebelum:**
-```html
-<p style="margin: 0; color: #6b7280; font-size: 13px;">
-  Ada pertanyaan? Hubungi kami via WhatsApp
-</p>
-<a href="https://wa.me/6287788980084" style="display: inline-block; margin-top: 12px; color: #2563eb; text-decoration: none; font-size: 14px; font-weight: 600;">
-  📱 0877-8898-0084
-</a>
-```
-
-**Sesudah:**
-```html
-<p style="margin: 0 0 16px 0; color: #6b7280; font-size: 13px;">
-  Ada pertanyaan? Hubungi kami via WhatsApp
-</p>
-<table cellpadding="0" cellspacing="0" style="margin: 0 auto;">
+<!-- Panduan Button -->
+<table width="100%" cellpadding="0" cellspacing="0" style="margin-top: 16px;">
   <tr>
     <td align="center">
-      <a href="https://wa.me/6287788980084" target="_blank" 
-         style="display: inline-block; background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); 
-                color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 12px; 
-                font-size: 14px; font-weight: 600; box-shadow: 0 4px 14px rgba(34, 197, 94, 0.4);">
-        💬 Hubungi via WhatsApp
+      <a href="https://www.youtube.com/watch?v=8QX78u43_JE" target="_blank" 
+         style="display: inline-block; background: #f3f4f6; color: #374151; 
+                text-decoration: none; padding: 12px 24px; border-radius: 8px; 
+                font-size: 14px; font-weight: 500; border: 1px solid #d1d5db;">
+        📖 Panduan Cara Menjadi Host
       </a>
     </td>
   </tr>
@@ -121,66 +83,49 @@ Memperbaiki tampilan email konfirmasi di Gmail mobile agar cards full-width, men
 
 ```text
 ┌─────────────────────────────────────────────────────┐
-│                    🎉 Rapatin                        │
-│              Pembayaran Berhasil!                    │
+│           HEADER (Cyan Gradient)                    │
+│                    🎉 Rapatin                       │
+│              Pembayaran Berhasil!                   │
 ├─────────────────────────────────────────────────────┤
-│  Halo Eky,                                          │
-│  Terima kasih telah...                              │
+│  ...                                                │
 │                                                     │
-│  ┌─────────────────────────────────────────────┐   │
-│  │ Order          INV-260130-0001              │   │ ← Full width
-│  │ Status                    ✓ Lunas           │   │
-│  └─────────────────────────────────────────────┘   │
-│                                                     │
-│  📋 Detail Meeting                                  │
-│  ───────────────────────────────────────           │
-│  Topik                    Coba Quick Order         │
-│  Tanggal              Sabtu, 7 Februari 2026       │
-│  ...                                               │
+│  Total Bayar              Rp150.000  (cyan color)  │
 │                                                     │
 │  🔐 Kredensial Zoom                                │
 │  ───────────────────────────────────────           │
-│              [ 🔵 Gabung Meeting ]                  │
+│                                                     │
+│         ┌──────────────────────────┐               │
+│         │ 🔵 Gabung Meeting        │ (cyan button) │
+│         └──────────────────────────┘               │
 │                                                     │
 │  ┌─────────────────────────────────────────────┐   │
-│  │ Meeting ID            123 4567 8901         │   │ ← Full width
+│  │ Meeting ID            123 4567 8901         │   │
 │  │ Passcode                          abc123    │   │
 │  │ Host Key                          070707    │   │
 │  └─────────────────────────────────────────────┘   │
 │                                                     │
+│         ┌──────────────────────────┐               │
+│         │ 📖 Panduan Cara Menjadi  │  ← NEW       │
+│         │         Host             │  (gray btn)  │
+│         └──────────────────────────┘               │
+│                                                     │
 │  ┌─────────────────────────────────────────────┐   │
-│  │ 💡 Tips Penting                             │   │ ← Full width
-│  │ • Buka link meeting 5 menit...              │   │
-│  │ • Gunakan Host Key...                       │   │
-│  │ • Pastikan koneksi internet...              │   │
+│  │ 💡 Tips Penting                             │   │
+│  │ ...                                         │   │
 │  └─────────────────────────────────────────────┘   │
 │                                                     │
-│                   ← 24px spacing →                  │
-│  ───────────────────────────────────────────────   │
-│         Ada pertanyaan? Hubungi kami via WA        │
-│                                                     │
-│         ┌──────────────────────────────┐           │
-│         │ 💬 Hubungi via WhatsApp      │           │ ← Tombol hijau
-│         └──────────────────────────────┘           │
-│                                                     │
-│          © 2026 Rapatin - Sewa Zoom...             │
 └─────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## Ringkasan File
+## Ringkasan Perubahan
 
-| File | Aksi | Deskripsi |
-|------|------|-----------|
-| `supabase/functions/send-order-email/index.ts` | Ubah | Perbaiki struktur HTML email untuk mobile |
-
----
-
-## Catatan Teknis
-
-Email HTML memerlukan teknik khusus untuk mobile:
-- `padding` pada `<table>` tidak selalu di-support, harus dipindahkan ke `<td>`
-- `margin-top` juga sering diabaikan di email clients, gunakan spacer `<tr>` sebagai gantinya
-- Tombol dibuat dengan nested `<table>` untuk kompatibilitas maksimal
+| Lokasi | Baris | Perubahan |
+|--------|-------|-----------|
+| Header gradient | 83 | `#2563eb → #0891b2`, `#1d4ed8 → #0e7490` |
+| Subtitle color | 85 | `#bfdbfe → #a5f3fc` |
+| Total Bayar | 147 | `#2563eb → #0891b2` |
+| Gabung Meeting button | 164 | Gradient & shadow → cyan colors |
+| Panduan button | setelah 191 | Tambah tombol baru |
 
