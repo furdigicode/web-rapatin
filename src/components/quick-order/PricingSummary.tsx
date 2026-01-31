@@ -1,4 +1,4 @@
-import { CalendarDays, Users, Receipt, Shield, Clock, MessageSquare, CheckCircle2, Repeat } from "lucide-react";
+import { CalendarDays, Users, Receipt, Shield, Clock, MessageSquare, CheckCircle2, Repeat, Zap, BadgeCheck } from "lucide-react";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
 import { Card, CardContent } from "@/components/ui/card";
@@ -223,12 +223,24 @@ export function PricingSummary({
           </div>
         </div>
 
-        <div className="mt-4 flex items-start gap-2 p-3 bg-background/50 rounded-lg">
-          <Shield className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
-          <p className="text-xs text-muted-foreground">
-            Pembayaran aman dan terenkripsi. Link Zoom juga akan dikirim ke email dan WhatsApp (opsional) setelah
-            pembayaran berhasil.
-          </p>
+        {/* Trust Signals */}
+        <div className="mt-4 grid grid-cols-2 gap-2">
+          <div className="flex items-center gap-2 p-2 bg-background/50 rounded-lg">
+            <Shield className="w-4 h-4 text-green-600 flex-shrink-0" />
+            <span className="text-xs text-muted-foreground">Pembayaran 100% Aman</span>
+          </div>
+          <div className="flex items-center gap-2 p-2 bg-background/50 rounded-lg">
+            <Zap className="w-4 h-4 text-amber-500 flex-shrink-0" />
+            <span className="text-xs text-muted-foreground">Proses Instan</span>
+          </div>
+          <div className="flex items-center gap-2 p-2 bg-background/50 rounded-lg">
+            <BadgeCheck className="w-4 h-4 text-blue-500 flex-shrink-0" />
+            <span className="text-xs text-muted-foreground">Tanpa Biaya Tersembunyi</span>
+          </div>
+          <div className="flex items-center gap-2 p-2 bg-background/50 rounded-lg">
+            <Users className="w-4 h-4 text-primary flex-shrink-0" />
+            <span className="text-xs text-muted-foreground">7.000+ Meeting</span>
+          </div>
         </div>
       </CardContent>
     </Card>
