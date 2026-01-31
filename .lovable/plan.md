@@ -1,174 +1,75 @@
 
-# Rencana: Fitur Resend Email dari Admin Panel
+
+# Rencana: Perbaikan Email Sender Mailjet
+
+## Masalah
+
+Berdasarkan logs:
+```
+Email sent successfully: {"Messages":[{"Status":"success",...}]}
+```
+
+Mailjet menerima request dengan sukses, tapi email tidak sampai ke inbox. Kemungkinan besar karena **domain sender belum terverifikasi** di Mailjet.
+
+---
+
+## Perubahan Kode
+
+### File: `supabase/functions/send-order-email/index.ts`
+
+Ubah email pengirim dari `noreply@rapatin.id` ke `admin@rapatin.id`:
+
+**Baris 358-361 (sebelum):**
+```typescript
+From: {
+  Email: "noreply@rapatin.id",
+  Name: "Rapatin"
+},
+```
+
+**Baris 358-361 (sesudah):**
+```typescript
+From: {
+  Email: "admin@rapatin.id",
+  Name: "Rapatin"
+},
+```
+
+---
+
+## Checklist di Mailjet Dashboard
+
+Untuk memastikan email terkirim, pastikan:
+
+1. **Verifikasi Domain** di [Mailjet Sender Domains](https://app.mailjet.com/account/sender):
+   - Tambahkan domain `rapatin.id`
+   - Set DNS records (SPF, DKIM, DMARC)
+
+2. **Atau Verifikasi Email Sender**:
+   - Tambahkan `admin@rapatin.id` sebagai verified sender
+   - Klik link verifikasi yang dikirim ke email tersebut
+
+3. **Cek Spam Folder** - Email mungkin masuk ke folder spam jika domain belum fully verified
+
+---
 
 ## Ringkasan
 
-Menambahkan tombol "Kirim Ulang Email" di dialog detail order pada admin panel. Tombol ini memungkinkan admin untuk mengirim ulang email konfirmasi jika email gagal terkirim atau perlu dikirim ulang.
+| Item | Perubahan |
+|------|-----------|
+| File | `supabase/functions/send-order-email/index.ts` |
+| Baris | 359 |
+| Perubahan | `noreply@rapatin.id` → `admin@rapatin.id` |
 
 ---
 
-## Tampilan
+## Catatan Penting
 
-```text
-┌─────────────────────────────────────────────────────┐
-│  Detail Order                      INV-260131-0001  │
-├─────────────────────────────────────────────────────┤
-│                                                     │
-│  [Bagian yang sudah ada...]                         │
-│                                                     │
-├─────────────────────────────────────────────────────┤
-│  📧 EMAIL KONFIRMASI                                │
-│  ─────────────────────                              │
-│                                                     │
-│  Kirim email konfirmasi order & detail Zoom ke      │
-│  pelanggan.                                         │
-│                                                     │
-│  ┌─────────────────────────────────────────────┐    │
-│  │  📧  Kirim Email Konfirmasi                 │    │
-│  └─────────────────────────────────────────────┘    │
-│                                                     │
-│  ⚠ Pastikan Zoom meeting sudah tersedia sebelum    │
-│    mengirim email.                                  │
-│                                                     │
-└─────────────────────────────────────────────────────┘
-```
-
----
-
-## Logika Tombol
-
-| Kondisi | Tampilan Tombol | Aksi |
-|---------|-----------------|------|
-| Status bukan `paid` | Hidden | - |
-| Status `paid` tapi belum ada `zoom_link` | Disabled + warning | Tidak bisa kirim |
-| Status `paid` dan ada `zoom_link` | Enabled | Kirim email |
-| Sedang mengirim | Loading spinner | - |
-
----
-
-## Perubahan File
-
-### 1. `src/components/admin/OrderDetailDialog.tsx`
-
-**Tambah state dan handler:**
+API endpoint sudah benar menggunakan **v3.1**:
 ```typescript
-const [sendingEmail, setSendingEmail] = useState(false);
-
-const handleResendEmail = async () => {
-  setSendingEmail(true);
-  try {
-    const { data, error } = await supabase.functions.invoke('send-order-email', {
-      body: { orderId: order.id }
-    });
-    
-    if (error || data?.error) {
-      toast({
-        title: "Gagal mengirim email",
-        description: error?.message || data?.error,
-        variant: "destructive"
-      });
-    } else {
-      toast({
-        title: "Email terkirim",
-        description: `Email konfirmasi berhasil dikirim ke ${order.email}`
-      });
-    }
-  } catch (err) {
-    toast({
-      title: "Error",
-      description: "Terjadi kesalahan saat mengirim email",
-      variant: "destructive"
-    });
-  }
-  setSendingEmail(false);
-};
+// Baris 374
+const mailjetResponse = await fetch('https://api.mailjet.com/v3.1/send', {...});
 ```
 
-**Tambah section Email setelah Kledo Integration (sebelum Timeline):**
-```typescript
-{/* Email Konfirmasi Section - only for paid orders */}
-{order.payment_status === 'paid' && (
-  <>
-    <Separator />
-    <div className="space-y-3">
-      <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide flex items-center gap-2">
-        <Mail className="h-4 w-4" />
-        Email Konfirmasi
-      </h3>
-      <div className="grid gap-3 p-4 bg-muted/50 rounded-lg">
-        <p className="text-sm text-muted-foreground">
-          Kirim email konfirmasi order & detail Zoom ke pelanggan.
-        </p>
-        
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleResendEmail}
-          disabled={sendingEmail || !hasZoomData}
-          className="w-full"
-        >
-          {sendingEmail ? (
-            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-          ) : (
-            <Mail className="h-4 w-4 mr-2" />
-          )}
-          Kirim Email Konfirmasi
-        </Button>
-        
-        {!hasZoomData && (
-          <p className="text-xs text-orange-600 flex items-center gap-1">
-            <AlertTriangle className="h-3 w-3" />
-            Zoom meeting harus tersedia sebelum mengirim email
-          </p>
-        )}
-      </div>
-    </div>
-  </>
-)}
-```
+Format payload juga sudah sesuai dengan dokumentasi Mailjet Send API v3.1 yang Anda tunjukkan.
 
----
-
-## Detail Perubahan
-
-| Baris | Perubahan |
-|-------|-----------|
-| ~100 | Tambah state `sendingEmail` |
-| ~233 (setelah handleSyncKledo) | Tambah function `handleResendEmail` |
-| ~680 (setelah Kledo section) | Tambah section Email Konfirmasi |
-
----
-
-## Alur Kerja
-
-```text
-┌────────────────┐     ┌────────────────────┐     ┌────────────────────┐
-│ Admin klik     │────►│ Validasi zoom_link │────►│ Invoke edge func   │
-│ "Kirim Email"  │     │ tersedia           │     │ send-order-email   │
-└────────────────┘     └────────────────────┘     └────────────────────┘
-                                                           │
-                                                           ▼
-                                                  ┌────────────────────┐
-                                                  │ Toast notification │
-                                                  │ sukses/gagal       │
-                                                  └────────────────────┘
-```
-
----
-
-## Ringkasan File
-
-| File | Aksi | Deskripsi |
-|------|------|-----------|
-| `src/components/admin/OrderDetailDialog.tsx` | Ubah | Tambah state, handler, dan UI section email |
-
----
-
-## Hasil
-
-| Aspek | Deskripsi |
-|-------|-----------|
-| Akses | Hanya muncul untuk order dengan status `paid` |
-| Validasi | Disabled jika Zoom meeting belum tersedia |
-| Feedback | Toast notification untuk sukses/gagal |
-| Non-blocking | Tidak mengganggu alur kerja admin lainnya |
