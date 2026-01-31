@@ -1,5 +1,5 @@
-
 import React, { useState } from 'react';
+import { flushSync } from 'react-dom';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Zap, Smartphone, Check, X, MessageCircle, Loader2 } from 'lucide-react';
@@ -20,8 +20,12 @@ const OrderOptionModal: React.FC<OrderOptionModalProps> = ({ isOpen, onClose }) 
     if (typeof window.fbq === 'function') {
       window.fbq('track', 'QuickOrderSelected');
     }
-    setIsLoading(true);
-    // Langsung navigasi - modal akan unmount bersama parent component
+    
+    // Force synchronous re-render agar spinner terlihat sebelum navigasi
+    flushSync(() => {
+      setIsLoading(true);
+    });
+    
     navigate('/quick-order');
   };
 
