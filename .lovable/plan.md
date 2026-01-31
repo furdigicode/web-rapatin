@@ -1,105 +1,201 @@
 
-# Rencana: Update Label dan Harga Package Selector
 
-## Ringkasan Perubahan
+# Rencana: Integrasi Email Konfirmasi Order via Mailjet
 
-1. **Ubah label** "Jumlah Peserta" → "Kapasitas Ruang Zoom"
-2. **Hapus icon Users** dari setiap pilihan paket
-3. **Update harga** sesuai permintaan baru:
+## Ringkasan
 
-| Kapasitas | Harga Normal (coret) | Harga Promo |
-|-----------|---------------------|-------------|
-| 100       | Rp40.000            | Rp20.000    |
-| 300       | Rp100.000           | Rp45.000    |
-| 500       | Rp180.000           | Rp75.000    |
-| 1000      | Rp350.000           | Rp155.000   |
+Mengirim email konfirmasi otomatis setelah pembayaran berhasil, berisi detail order dan kredensial Zoom Meeting, menggunakan Mailjet SMTP/API.
+
+---
+
+## Alur Kerja
+
+```text
+┌────────────────┐     ┌──────────────────┐     ┌────────────────────┐     ┌────────────────┐
+│ User Bayar     │────►│ Xendit Webhook   │────►│ Buat Zoom Meeting  │────►│ Kirim Email    │
+│                │     │ (xendit-webhook) │     │ (Rapatin API)      │     │ (send-email)   │
+└────────────────┘     └──────────────────┘     └────────────────────┘     └────────────────┘
+                                                                                    │
+                                                                                    ▼
+                                                                           ┌────────────────┐
+                                                                           │ Email sampai   │
+                                                                           │ ke pelanggan   │
+                                                                           └────────────────┘
+```
+
+---
+
+## Langkah Implementasi
+
+### 1. Tambahkan Secret Mailjet
+
+Akan meminta user menambahkan 2 secret:
+- `MAILJET_API_KEY` - API Key publik dari Mailjet
+- `MAILJET_SECRET_KEY` - Secret Key dari Mailjet
+
+### 2. Buat Edge Function `send-order-email`
+
+Edge function baru untuk mengirim email menggunakan Mailjet API v3 (lebih reliable daripada SMTP di serverless):
+
+```typescript
+// supabase/functions/send-order-email/index.ts
+
+// Menggunakan Mailjet Send API v3.1
+POST https://api.mailjet.com/v3.1/send
+Authorization: Basic (API_KEY:SECRET_KEY base64)
+Content-Type: application/json
+
+{
+  "Messages": [{
+    "From": { "Email": "noreply@rapatin.id", "Name": "Rapatin" },
+    "To": [{ "Email": "customer@email.com", "Name": "Customer Name" }],
+    "Subject": "Konfirmasi Order #INV-XXXXXX - Detail Zoom Meeting Anda",
+    "HTMLPart": "<html>...</html>"
+  }]
+}
+```
+
+### 3. Konten Email
+
+Email akan berisi:
+- Header dengan logo Rapatin
+- Nomor Order dan status pembayaran
+- Detail Meeting:
+  - Topik
+  - Tanggal & Waktu
+  - Kapasitas peserta
+  - Total pembayaran
+- Kredensial Zoom:
+  - Join URL (clickable button)
+  - Meeting ID
+  - Passcode
+- Jadwal sesi (jika recurring)
+- Footer dengan info kontak
+
+### 4. Integrasi dengan Xendit Webhook
+
+Setelah Zoom meeting berhasil dibuat, trigger edge function `send-order-email`:
+
+```typescript
+// Di xendit-webhook, setelah baris 596 (setelah Rapatin schedule created)
+if (scheduleResult) {
+  // ... existing code ...
+  
+  // Kirim email konfirmasi (non-blocking)
+  fetch(`${supabaseUrl}/functions/v1/send-order-email`, {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${supabaseAnonKey}` },
+    body: JSON.stringify({ orderId: order.id })
+  });
+}
+```
 
 ---
 
 ## Perubahan File
 
-### 1. `src/components/quick-order/PackageSelector.tsx`
-
-**Hapus import icon Users (baris 2):**
-```typescript
-// Sebelum
-import { Users, Check } from "lucide-react";
-
-// Sesudah
-import { Check } from "lucide-react";
-```
-
-**Update data packages (baris 10-15):**
-```typescript
-// Sebelum
-const packages: Package[] = [
-  { participants: 100, promoPrice: 10000, normalPrice: 20000 },
-  { participants: 300, promoPrice: 25000, normalPrice: 40000 },
-  { participants: 500, promoPrice: 55000, normalPrice: 70000 },
-  { participants: 1000, promoPrice: 100000, normalPrice: 130000 },
-];
-
-// Sesudah
-const packages: Package[] = [
-  { participants: 100, promoPrice: 20000, normalPrice: 40000 },
-  { participants: 300, promoPrice: 45000, normalPrice: 100000 },
-  { participants: 500, promoPrice: 75000, normalPrice: 180000 },
-  { participants: 1000, promoPrice: 155000, normalPrice: 350000 },
-];
-```
-
-**Hapus icon Users dari JSX (baris 61-64):**
-```typescript
-// Hapus baris ini:
-<Users className={cn(
-  "w-8 h-8 mb-2",
-  isSelected ? "text-primary" : "text-muted-foreground"
-)} />
-```
+| File | Aksi | Deskripsi |
+|------|------|-----------|
+| `supabase/functions/send-order-email/index.ts` | Baru | Edge function untuk kirim email via Mailjet |
+| `supabase/functions/xendit-webhook/index.ts` | Ubah | Trigger send-order-email setelah Zoom dibuat |
+| `supabase/config.toml` | Ubah | Tambah konfigurasi function send-order-email |
 
 ---
 
-### 2. `src/components/quick-order/QuickOrderForm.tsx`
-
-**Update label FormField (baris 290):**
-```typescript
-// Sebelum
-<FormLabel>Jumlah Peserta</FormLabel>
-
-// Sesudah
-<FormLabel>Kapasitas Ruang Zoom</FormLabel>
-```
-
----
-
-## Ringkasan Perubahan
-
-| File | Baris | Perubahan |
-|------|-------|-----------|
-| PackageSelector.tsx | 2 | Hapus `Users` dari import |
-| PackageSelector.tsx | 10-15 | Update harga packages |
-| PackageSelector.tsx | 61-64 | Hapus element icon Users |
-| QuickOrderForm.tsx | 290 | Ganti label "Jumlah Peserta" → "Kapasitas Ruang Zoom" |
-
----
-
-## Hasil Visual
+## Template Email (HTML)
 
 ```text
-Sebelum:
-┌────────────────┐
-│    👥 (icon)   │
-│      100       │
-│    Peserta     │
-│   Rp 20.000    │ (coret)
-│   Rp 10.000    │
-└────────────────┘
-
-Sesudah:
-┌────────────────┐
-│      100       │
-│    Peserta     │
-│   Rp 40.000    │ (coret)
-│   Rp 20.000    │
-└────────────────┘
+┌─────────────────────────────────────────────────────┐
+│                    🎉 RAPATIN                       │
+│                                                     │
+│          Pembayaran Berhasil!                       │
+│                                                     │
+├─────────────────────────────────────────────────────┤
+│                                                     │
+│  Order: INV-260131-0001                             │
+│  Status: ✓ Lunas                                    │
+│                                                     │
+├─────────────────────────────────────────────────────┤
+│  DETAIL MEETING                                     │
+│  ─────────────────                                  │
+│  Topik: Weekly Team Sync                            │
+│  Tanggal: Jumat, 31 Januari 2026                    │
+│  Waktu: 09:00 WIB                                   │
+│  Kapasitas: 100 Peserta                             │
+│  Total Bayar: Rp 20.000                             │
+│                                                     │
+├─────────────────────────────────────────────────────┤
+│  KREDENSIAL ZOOM                                    │
+│  ─────────────────                                  │
+│                                                     │
+│  ┌─────────────────────────────────────┐            │
+│  │      🔵 GABUNG MEETING              │            │
+│  └─────────────────────────────────────┘            │
+│                                                     │
+│  Meeting ID: 123 4567 8901                          │
+│  Passcode: abc123                                   │
+│  Host Key: 070707                                   │
+│                                                     │
+├─────────────────────────────────────────────────────┤
+│  📋 PANDUAN                                         │
+│  • Buka link meeting 5 menit sebelum mulai          │
+│  • Gunakan Host Key untuk mengklaim host            │
+│  • Panduan lengkap: rapatin.id/panduan              │
+│                                                     │
+├─────────────────────────────────────────────────────┤
+│  © 2026 Rapatin - Sewa Zoom Meeting Terpercaya      │
+│  WhatsApp: 0877-8898-0084                           │
+└─────────────────────────────────────────────────────┘
 ```
+
+---
+
+## Secrets yang Dibutuhkan
+
+| Secret | Deskripsi | Cara Mendapatkan |
+|--------|-----------|------------------|
+| `MAILJET_API_KEY` | API Key publik | Dashboard Mailjet → API Keys |
+| `MAILJET_SECRET_KEY` | Secret Key | Dashboard Mailjet → API Keys |
+
+---
+
+## Detail Teknis
+
+### Mailjet API Request
+
+```typescript
+const response = await fetch('https://api.mailjet.com/v3.1/send', {
+  method: 'POST',
+  headers: {
+    'Authorization': `Basic ${btoa(apiKey + ':' + secretKey)}`,
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({
+    Messages: [{
+      From: { Email: 'noreply@rapatin.id', Name: 'Rapatin' },
+      To: [{ Email: customerEmail, Name: customerName }],
+      Subject: `Konfirmasi Order ${orderNumber} - Detail Zoom Meeting Anda`,
+      HTMLPart: htmlContent,
+      TextPart: textContent, // Fallback plain text
+    }]
+  })
+});
+```
+
+### Error Handling
+
+- Jika email gagal terkirim, log error tapi jangan gagalkan webhook
+- Email bersifat non-blocking (fire and forget)
+- Retry bisa dilakukan manual dari admin panel jika diperlukan
+
+---
+
+## Hasil
+
+| Aspek | Deskripsi |
+|-------|-----------|
+| Trigger | Otomatis setelah pembayaran berhasil + Zoom dibuat |
+| Konten | Order details + Zoom credentials + Jadwal sesi |
+| Delivery | Via Mailjet API (lebih reliable dari SMTP) |
+| Error handling | Non-blocking, log error untuk debug |
+
