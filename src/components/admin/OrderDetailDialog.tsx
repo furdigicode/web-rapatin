@@ -99,6 +99,7 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
   const [isEditing, setIsEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [syncingKledo, setSyncingKledo] = useState(false);
+  const [sendingEmail, setSendingEmail] = useState(false);
   const [zoomData, setZoomData] = useState({
     meeting_id: '',
     zoom_passcode: '',
@@ -229,6 +230,41 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
       });
     }
     setSyncingKledo(false);
+  };
+
+  const handleResendEmail = async () => {
+    setSendingEmail(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('send-order-email', {
+        body: { orderId: order.id }
+      });
+
+      if (error) {
+        toast({
+          title: "Gagal mengirim email",
+          description: error.message,
+          variant: "destructive"
+        });
+      } else if (data?.error) {
+        toast({
+          title: "Gagal mengirim email",
+          description: data.error,
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "Email terkirim",
+          description: `Email konfirmasi berhasil dikirim ke ${order.email}`
+        });
+      }
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: "Terjadi kesalahan saat mengirim email",
+        variant: "destructive"
+      });
+    }
+    setSendingEmail(false);
   };
 
   // Cek dari order prop ATAU zoomData state (untuk immediate feedback setelah save)
@@ -673,6 +709,46 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
                       )}
                       {order.kledo_sync_error ? 'Coba Lagi' : 'Sync ke Kledo'}
                     </Button>
+                  )}
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* Email Konfirmasi Section - only for paid orders */}
+          {order.payment_status === 'paid' && (
+            <>
+              <Separator />
+              <div className="space-y-3">
+                <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide flex items-center gap-2">
+                  <Mail className="h-4 w-4" />
+                  Email Konfirmasi
+                </h3>
+                <div className="grid gap-3 p-4 bg-muted/50 rounded-lg">
+                  <p className="text-sm text-muted-foreground">
+                    Kirim email konfirmasi order & detail Zoom ke pelanggan.
+                  </p>
+                  
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleResendEmail}
+                    disabled={sendingEmail || !hasZoomData}
+                    className="w-full"
+                  >
+                    {sendingEmail ? (
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    ) : (
+                      <Mail className="h-4 w-4 mr-2" />
+                    )}
+                    Kirim Email Konfirmasi
+                  </Button>
+                  
+                  {!hasZoomData && (
+                    <p className="text-xs text-orange-600 flex items-center gap-1">
+                      <AlertTriangle className="h-3 w-3" />
+                      Zoom meeting harus tersedia sebelum mengirim email
+                    </p>
                   )}
                 </div>
               </div>
