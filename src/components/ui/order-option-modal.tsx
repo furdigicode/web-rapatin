@@ -20,7 +20,9 @@ const OrderOptionModal: React.FC<OrderOptionModalProps> = ({ isOpen, onClose }) 
       window.fbq('track', 'QuickOrderSelected');
     }
     onClose();
-    navigate('/quick-order');
+    setTimeout(() => {
+      navigate('/quick-order');
+    }, 100);
   };
 
   const handleViaApp = () => {
@@ -50,63 +52,7 @@ const OrderOptionModal: React.FC<OrderOptionModalProps> = ({ isOpen, onClose }) 
         </DialogHeader>
 
         <div className="grid md:grid-cols-2 gap-4 mt-4">
-          {/* Quick Order Option */}
-          <div className="border border-border rounded-xl p-5 hover:border-primary/50 hover:shadow-md transition-all bg-card">
-            <div className="flex items-center gap-2 mb-3">
-              <div className="w-10 h-10 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center">
-                <Zap className="w-5 h-5 text-orange-600 dark:text-orange-400" />
-              </div>
-              <div>
-                <h3 className="font-bold text-foreground">Quick Order</h3>
-                <p className="text-xs text-muted-foreground">Praktis & Cepat</p>
-              </div>
-            </div>
-            
-            <p className="text-sm text-muted-foreground mb-4">
-              Tanpa perlu daftar akun
-            </p>
-            
-            <div className="space-y-2 mb-4">
-              <div className="flex items-center gap-2 text-sm">
-                <Check className="w-4 h-4 text-green-600 dark:text-green-400 flex-shrink-0" />
-                <span className="text-foreground">Bayar langsung</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm">
-                <Check className="w-4 h-4 text-green-600 dark:text-green-400 flex-shrink-0" />
-                <span className="text-foreground">Link Zoom instan</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm">
-                <Check className="w-4 h-4 text-green-600 dark:text-green-400 flex-shrink-0" />
-                <span className="text-foreground">Tanpa registrasi</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <X className="w-4 h-4 text-red-400 flex-shrink-0" />
-                <span>Tidak bisa edit jadwal</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <X className="w-4 h-4 text-red-400 flex-shrink-0" />
-                <span>Tidak ada akses rekaman</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <X className="w-4 h-4 text-red-400 flex-shrink-0" />
-                <span>Tidak ada laporan peserta</span>
-              </div>
-            </div>
-            
-            <Button 
-              onClick={handleQuickOrder} 
-              variant="outline" 
-              className="w-full"
-            >
-              Pilih Quick Order
-            </Button>
-            
-            <p className="text-xs text-center text-muted-foreground mt-3">
-              Cocok untuk meeting sekali pakai
-            </p>
-          </div>
-
-          {/* Via Aplikasi Option */}
+          {/* Via Aplikasi Option - Rekomendasi (Left) */}
           <div className="border-2 border-primary rounded-xl p-5 relative shadow-md bg-primary/5">
             <div className="absolute -top-3 left-1/2 -translate-x-1/2">
               <span className="bg-primary text-primary-foreground text-xs px-3 py-1 rounded-full font-medium">
@@ -164,6 +110,62 @@ const OrderOptionModal: React.FC<OrderOptionModalProps> = ({ isOpen, onClose }) 
             
             <p className="text-xs text-center text-muted-foreground mt-3">
               Cocok untuk meeting rutin/berulang
+            </p>
+          </div>
+
+          {/* Quick Order Option (Right) */}
+          <div className="border border-border rounded-xl p-5 hover:border-primary/50 hover:shadow-md transition-all bg-card">
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-10 h-10 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center">
+                <Zap className="w-5 h-5 text-orange-600 dark:text-orange-400" />
+              </div>
+              <div>
+                <h3 className="font-bold text-foreground">Quick Order</h3>
+                <p className="text-xs text-muted-foreground">Praktis & Cepat</p>
+              </div>
+            </div>
+            
+            <p className="text-sm text-muted-foreground mb-4">
+              Tanpa perlu daftar akun
+            </p>
+            
+            <div className="space-y-2 mb-4">
+              <div className="flex items-center gap-2 text-sm">
+                <Check className="w-4 h-4 text-green-600 dark:text-green-400 flex-shrink-0" />
+                <span className="text-foreground">Bayar langsung</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm">
+                <Check className="w-4 h-4 text-green-600 dark:text-green-400 flex-shrink-0" />
+                <span className="text-foreground">Link Zoom instan</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm">
+                <Check className="w-4 h-4 text-green-600 dark:text-green-400 flex-shrink-0" />
+                <span className="text-foreground">Tanpa registrasi</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <X className="w-4 h-4 text-red-400 flex-shrink-0" />
+                <span>Tidak bisa edit jadwal</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <X className="w-4 h-4 text-red-400 flex-shrink-0" />
+                <span>Tidak ada akses rekaman</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <X className="w-4 h-4 text-red-400 flex-shrink-0" />
+                <span>Tidak ada laporan peserta</span>
+              </div>
+            </div>
+            
+            <Button 
+              onClick={handleQuickOrder} 
+              variant="outline" 
+              className="w-full"
+            >
+              Pilih Quick Order
+            </Button>
+            
+            <p className="text-xs text-center text-muted-foreground mt-3">
+              Cocok untuk meeting sekali pakai
             </p>
           </div>
         </div>
