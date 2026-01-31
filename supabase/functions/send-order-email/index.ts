@@ -80,7 +80,7 @@ function generateEmailHTML(order: Record<string, unknown>): string {
           
           <!-- Header -->
           <tr>
-            <td style="background: linear-gradient(135deg, #0891b2 0%, #0e7490 100%); padding: 32px; text-align: center;">
+            <td style="background-color: #179ecf; padding: 32px; text-align: center;">
               <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 700;">Rapatin</h1>
               <p style="margin: 8px 0 0 0; color: #a5f3fc; font-size: 16px;">Pembayaran Berhasil!</p>
             </td>
@@ -144,7 +144,7 @@ function generateEmailHTML(order: Record<string, unknown>): string {
                 ${recurringInfo}
                 <tr>
                   <td style="padding: 8px 0; color: #6b7280; font-size: 14px;">Total Bayar</td>
-                  <td style="padding: 8px 0; color: #0891b2; font-size: 16px; text-align: right; font-weight: 700;">${price}</td>
+                  <td style="padding: 8px 0; color: #179ecf; font-size: 16px; text-align: right; font-weight: 700;">${price}</td>
                 </tr>
               </table>
             </td>
@@ -161,7 +161,7 @@ function generateEmailHTML(order: Record<string, unknown>): string {
               <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 20px;">
                 <tr>
                   <td align="center">
-                    <a href="${zoomLink}" target="_blank" style="display: inline-block; background: linear-gradient(135deg, #0891b2 0%, #0e7490 100%); color: #ffffff; text-decoration: none; padding: 16px 48px; border-radius: 12px; font-size: 16px; font-weight: 600; box-shadow: 0 4px 14px rgba(8, 145, 178, 0.4);">
+                    <a href="${zoomLink}" target="_blank" style="display: inline-block; background-color: #179ecf; color: #ffffff; text-decoration: none; padding: 16px 48px; border-radius: 12px; font-size: 16px; font-weight: 600;">
                       🔵 Gabung Meeting
                     </a>
                   </td>
@@ -205,7 +205,7 @@ function generateEmailHTML(order: Record<string, unknown>): string {
           
           <!-- Tips -->
           <tr>
-            <td style="padding: 24px 32px 0 32px;">
+            <td style="padding: 24px 32px 24px 32px;">
               <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #fffbeb; border-radius: 12px; padding: 16px; border: 1px solid #fde68a;">
                 <tr>
                   <td>
@@ -221,15 +221,26 @@ function generateEmailHTML(order: Record<string, unknown>): string {
             </td>
           </tr>
           
+          <!-- Spacer -->
+          <tr>
+            <td style="height: 24px;"></td>
+          </tr>
+          
           <!-- Footer -->
           <tr>
-            <td style="padding: 32px; text-align: center; border-top: 1px solid #e5e7eb; margin-top: 24px;">
-              <p style="margin: 0; color: #6b7280; font-size: 13px;">
+            <td style="padding: 32px; text-align: center; border-top: 1px solid #e5e7eb;">
+              <p style="margin: 0 0 16px 0; color: #6b7280; font-size: 13px;">
                 Ada pertanyaan? Hubungi kami via WhatsApp
               </p>
-              <a href="https://wa.me/6287788980084" style="display: inline-block; margin-top: 12px; color: #2563eb; text-decoration: none; font-size: 14px; font-weight: 600;">
-                📱 0877-8898-0084
-              </a>
+              <table cellpadding="0" cellspacing="0" style="margin: 0 auto;">
+                <tr>
+                  <td align="center">
+                    <a href="https://wa.me/6287788980084" target="_blank" style="display: inline-block; background-color: #22c55e; color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 12px; font-size: 14px; font-weight: 600;">
+                      💬 Hubungi via WhatsApp
+                    </a>
+                  </td>
+                </tr>
+              </table>
               <p style="margin: 24px 0 0 0; color: #9ca3af; font-size: 12px;">
                 © 2026 Rapatin - Sewa Zoom Meeting Terpercaya
               </p>
