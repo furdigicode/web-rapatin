@@ -89,7 +89,7 @@ export function PricingSummary({
 
         <div className="space-y-3">
           {meetingTopic && (
-            <div className="flex items-start justify-between gap-2">
+            <div className="flex items-start justify-between gap-2 text-sm">
               <div className="flex items-center gap-2 text-muted-foreground flex-shrink-0">
                 <MessageSquare className="w-4 h-4" />
                 <span>Topik</span>
@@ -98,7 +98,7 @@ export function PricingSummary({
             </div>
           )}
 
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between text-sm">
             <div className="flex items-center gap-2 text-muted-foreground">
               <Users className="w-4 h-4" />
               <span>Kapasitas</span>
@@ -106,7 +106,7 @@ export function PricingSummary({
             <span className="font-medium">{participantCount ? `${participantCount} Peserta` : "-"}</span>
           </div>
 
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between text-sm">
             <div className="flex items-center gap-2 text-muted-foreground">
               <CalendarDays className="w-4 h-4" />
               <span>{isRecurring ? "Tanggal Mulai" : "Tanggal"}</span>
@@ -114,7 +114,7 @@ export function PricingSummary({
             <span className="font-medium text-right">{meetingDate ? formatDate(meetingDate) : "-"}</span>
           </div>
 
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between text-sm">
             <div className="flex items-center gap-2 text-muted-foreground">
               <Clock className="w-4 h-4" />
               <span>Jam Mulai</span>
@@ -123,7 +123,7 @@ export function PricingSummary({
           </div>
 
           {customPasscode && (
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between text-sm">
               <span className="text-muted-foreground">Passcode</span>
               <span className="font-mono font-medium">{customPasscode}</span>
             </div>
@@ -131,12 +131,12 @@ export function PricingSummary({
 
           <Separator className="my-3" />
 
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between text-sm">
             <span className="text-muted-foreground">Durasi per Tanggal</span>
             <span className="font-medium">24 Jam (Full Day)</span>
           </div>
 
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between text-sm">
             <span className="text-muted-foreground">Platform</span>
             <span className="font-medium">Zoom Meeting</span>
           </div>
@@ -146,7 +146,7 @@ export function PricingSummary({
             <>
               <Separator className="my-3" />
               <div className="space-y-3">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between text-sm">
                   <div className="flex items-center gap-2 text-muted-foreground">
                     <Repeat className="w-4 h-4" />
                     <span>Meeting Berulang</span>
