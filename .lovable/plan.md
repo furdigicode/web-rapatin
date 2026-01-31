@@ -1,87 +1,105 @@
 
+# Rencana: Update Label dan Harga Package Selector
 
-# Rencana: Fix Spinner Tidak Terlihat pada Tombol Quick Order
+## Ringkasan Perubahan
 
-## Masalah
+1. **Ubah label** "Jumlah Peserta" → "Kapasitas Ruang Zoom"
+2. **Hapus icon Users** dari setiap pilihan paket
+3. **Update harga** sesuai permintaan baru:
 
-Spinner tidak muncul karena navigasi terjadi **terlalu cepat** - React belum sempat re-render dengan state `isLoading = true` sebelum komponen unmount.
-
-```text
-Timeline saat ini:
-─────────────────────────────────────────────────►
-│ setIsLoading(true) │ navigate() │ unmount │
-                      ↑
-              Belum ada re-render!
-              Spinner tidak terlihat
-```
-
-## Solusi
-
-Gunakan `flushSync` dari React untuk **memaksa re-render sinkron** sebelum navigasi, atau tambahkan sedikit delay agar spinner sempat terlihat.
-
-**Opsi yang dipilih: `flushSync`** - karena ini memastikan UI update terlebih dahulu tanpa menambah delay artifisial.
-
-```text
-Timeline dengan flushSync:
-─────────────────────────────────────────────────►
-│ setIsLoading(true) │ re-render │ navigate() │ unmount │
-                      ↑
-              Spinner terlihat!
-```
-
----
-
-## Perubahan Kode
-
-### File: `src/components/ui/order-option-modal.tsx`
-
-**1. Tambah import flushSync:**
-```typescript
-import React, { useState } from 'react';
-import { flushSync } from 'react-dom';
-```
-
-**2. Update handleQuickOrder:**
-```typescript
-const handleQuickOrder = () => {
-  if (typeof window.fbq === 'function') {
-    window.fbq('track', 'QuickOrderSelected');
-  }
-  
-  // Force synchronous re-render agar spinner terlihat
-  flushSync(() => {
-    setIsLoading(true);
-  });
-  
-  // Navigasi setelah UI update
-  navigate('/quick-order');
-};
-```
+| Kapasitas | Harga Normal (coret) | Harga Promo |
+|-----------|---------------------|-------------|
+| 100       | Rp40.000            | Rp20.000    |
+| 300       | Rp100.000           | Rp45.000    |
+| 500       | Rp180.000           | Rp75.000    |
+| 1000      | Rp350.000           | Rp155.000   |
 
 ---
 
 ## Perubahan File
 
-| File | Aksi | Deskripsi |
-|------|------|-----------|
-| `src/components/ui/order-option-modal.tsx` | Ubah | Import `flushSync` dari react-dom dan wrap `setIsLoading` |
+### 1. `src/components/quick-order/PackageSelector.tsx`
+
+**Hapus import icon Users (baris 2):**
+```typescript
+// Sebelum
+import { Users, Check } from "lucide-react";
+
+// Sesudah
+import { Check } from "lucide-react";
+```
+
+**Update data packages (baris 10-15):**
+```typescript
+// Sebelum
+const packages: Package[] = [
+  { participants: 100, promoPrice: 10000, normalPrice: 20000 },
+  { participants: 300, promoPrice: 25000, normalPrice: 40000 },
+  { participants: 500, promoPrice: 55000, normalPrice: 70000 },
+  { participants: 1000, promoPrice: 100000, normalPrice: 130000 },
+];
+
+// Sesudah
+const packages: Package[] = [
+  { participants: 100, promoPrice: 20000, normalPrice: 40000 },
+  { participants: 300, promoPrice: 45000, normalPrice: 100000 },
+  { participants: 500, promoPrice: 75000, normalPrice: 180000 },
+  { participants: 1000, promoPrice: 155000, normalPrice: 350000 },
+];
+```
+
+**Hapus icon Users dari JSX (baris 61-64):**
+```typescript
+// Hapus baris ini:
+<Users className={cn(
+  "w-8 h-8 mb-2",
+  isSelected ? "text-primary" : "text-muted-foreground"
+)} />
+```
 
 ---
 
-## Detail Perubahan
+### 2. `src/components/quick-order/QuickOrderForm.tsx`
 
-| Baris | Perubahan |
-|-------|-----------|
-| 2-3 | Tambah import `flushSync` dari `react-dom` |
-| 19-27 | Wrap `setIsLoading(true)` dengan `flushSync()` |
+**Update label FormField (baris 290):**
+```typescript
+// Sebelum
+<FormLabel>Jumlah Peserta</FormLabel>
+
+// Sesudah
+<FormLabel>Kapasitas Ruang Zoom</FormLabel>
+```
 
 ---
 
-## Hasil
+## Ringkasan Perubahan
 
-| Aspek | Sebelum | Sesudah |
-|-------|---------|---------|
-| Spinner | Tidak terlihat | Terlihat sebelum navigasi |
-| Delay | 0ms | 0ms (tetap instan) |
-| Teknik | React batching skip render | flushSync memaksa render sinkron |
+| File | Baris | Perubahan |
+|------|-------|-----------|
+| PackageSelector.tsx | 2 | Hapus `Users` dari import |
+| PackageSelector.tsx | 10-15 | Update harga packages |
+| PackageSelector.tsx | 61-64 | Hapus element icon Users |
+| QuickOrderForm.tsx | 290 | Ganti label "Jumlah Peserta" → "Kapasitas Ruang Zoom" |
 
+---
+
+## Hasil Visual
+
+```text
+Sebelum:
+┌────────────────┐
+│    👥 (icon)   │
+│      100       │
+│    Peserta     │
+│   Rp 20.000    │ (coret)
+│   Rp 10.000    │
+└────────────────┘
+
+Sesudah:
+┌────────────────┐
+│      100       │
+│    Peserta     │
+│   Rp 40.000    │ (coret)
+│   Rp 20.000    │
+└────────────────┘
+```
