@@ -293,6 +293,7 @@ export type Database = {
           created_at: string
           custom_passcode: string | null
           email: string
+          email_sent_at: string | null
           end_type: string | null
           expired_at: string | null
           id: string
@@ -338,6 +339,7 @@ export type Database = {
           created_at?: string
           custom_passcode?: string | null
           email: string
+          email_sent_at?: string | null
           end_type?: string | null
           expired_at?: string | null
           id?: string
@@ -383,6 +385,7 @@ export type Database = {
           created_at?: string
           custom_passcode?: string | null
           email?: string
+          email_sent_at?: string | null
           end_type?: string | null
           expired_at?: string | null
           id?: string

@@ -775,8 +775,14 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
               )}
               {order.expired_at && (
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Kadaluarsa</span>
+                  <span className="text-muted-foreground">Pembayaran Kadaluarsa</span>
                   <span>{formatDateTime(order.expired_at)}</span>
+                </div>
+              )}
+              {order.email_sent_at && (
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Email Terkirim</span>
+                  <span>{formatDateTime(order.email_sent_at)}</span>
                 </div>
               )}
               {order.kledo_synced_at && (
