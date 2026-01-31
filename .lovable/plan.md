@@ -1,94 +1,73 @@
 
 
-# Rencana: Fix Flickering Modal - Navigate Langsung Tanpa Close
+# Rencana: Animasi Loading pada Tombol Quick Order
 
-## Masalah
+## Ringkasan
 
-Urutan event saat ini yang menyebabkan flickering:
-
-```text
-Klik "Pilih Quick Order"
-    │
-    ▼
-onClose() dipanggil
-    │
-    ▼
-Dialog state = closed, animasi CSS mulai (duration: 200ms)
-    │  ├── fade-out-0
-    │  └── zoom-out-95  
-    │
-    ▼ (setelah 100ms - animasi belum selesai)
-navigate('/quick-order') dipanggil
-    │
-    ▼
-React Router mulai render halaman baru
-    │
-    ▼
-Komponen SewaZoomHarianSection momentarily remount
-    │
-    ▼
-Modal sempat muncul kembali (state inconsistent)
-    │
-    ▼
-Akhirnya halaman /quick-order fully rendered
-    │
-    ▼
-Modal hilang (komponen unmount)
-```
-
-## Solusi
-
-**Navigate langsung tanpa memanggil onClose()** - ketika navigasi terjadi, komponen parent (`SewaZoomHarianSection`) akan unmount, sehingga modal juga otomatis hilang tanpa perlu animasi close.
-
-```text
-Klik "Pilih Quick Order"
-    │
-    ▼
-navigate('/quick-order') dipanggil langsung
-    │
-    ▼
-React Router unmount SewaZoomHarianSection
-    │
-    ▼
-Modal otomatis hilang (komponen destroyed)
-    │
-    ▼
-Halaman /quick-order rendered
-```
-
-Keuntungan:
-- Tidak ada race condition antara animasi dan navigasi
-- Transisi lebih cepat dan bersih
-- Tidak perlu setTimeout
+Menambahkan animasi loading (spinner + teks "Memuat...") pada tombol "Pilih Quick Order" saat diklik untuk memberikan feedback visual kepada user bahwa aksi sedang diproses.
 
 ---
 
-## Perubahan Kode
+## Desain
 
-### File: `src/components/ui/order-option-modal.tsx`
+```text
+Sebelum klik:
+┌─────────────────────────────┐
+│     Pilih Quick Order       │
+└─────────────────────────────┘
 
-**Baris 18-26 (sebelum):**
-```typescript
-const handleQuickOrder = () => {
-  if (typeof window.fbq === 'function') {
-    window.fbq('track', 'QuickOrderSelected');
-  }
-  onClose();
-  setTimeout(() => {
-    navigate('/quick-order');
-  }, 100);
-};
+Setelah klik (loading):
+┌─────────────────────────────┐
+│   [⟳ spinner]  Memuat...    │
+└─────────────────────────────┘
 ```
 
-**Baris 18-24 (sesudah):**
+---
+
+## Implementasi
+
+### Perubahan pada `src/components/ui/order-option-modal.tsx`
+
+**1. Tambah import dan state:**
+```typescript
+import React, { useState } from 'react';
+import { Loader2 } from 'lucide-react'; // Spinner icon
+```
+
+**2. Tambah state loading:**
+```typescript
+const [isLoading, setIsLoading] = useState(false);
+```
+
+**3. Update handleQuickOrder:**
 ```typescript
 const handleQuickOrder = () => {
   if (typeof window.fbq === 'function') {
     window.fbq('track', 'QuickOrderSelected');
   }
+  setIsLoading(true);
   // Langsung navigasi - modal akan unmount bersama parent component
   navigate('/quick-order');
 };
+```
+
+**4. Update Button Quick Order:**
+```typescript
+<Button 
+  onClick={handleQuickOrder} 
+  variant="outline" 
+  className="w-full"
+  disabled={isLoading}
+>
+  {isLoading ? (
+    <>
+      <Loader2 className="w-4 h-4 animate-spin" />
+      Memuat...
+    </>
+  ) : (
+    'Pilih Quick Order'
+  )}
+</Button>
 ```
 
 ---
@@ -97,15 +76,26 @@ const handleQuickOrder = () => {
 
 | File | Aksi | Deskripsi |
 |------|------|-----------|
-| `src/components/ui/order-option-modal.tsx` | Ubah | Hapus `onClose()` dan `setTimeout`, panggil `navigate()` langsung |
+| `src/components/ui/order-option-modal.tsx` | Ubah | Tambah state loading + spinner pada tombol Quick Order |
+
+---
+
+## Detail Perubahan Kode
+
+| Baris | Perubahan |
+|-------|-----------|
+| 2 | Tambah `useState` ke import React |
+| 5 | Tambah `Loader2` ke import lucide-react |
+| 15 | Tambah state `const [isLoading, setIsLoading] = useState(false);` |
+| 18-24 | Tambah `setIsLoading(true)` di handleQuickOrder |
+| 157-163 | Ganti Button dengan conditional render (spinner + "Memuat..." atau "Pilih Quick Order") |
 
 ---
 
 ## Hasil
 
-| Aspek | Sebelum | Sesudah |
-|-------|---------|---------|
-| Animasi | Close animation + navigate → flickering | Langsung navigate → clean |
-| Delay | 100ms sebelum navigasi | 0ms (instan) |
-| UX | Modal hilang-muncul-hilang | Modal langsung hilang |
+| Aksi | Sebelum | Sesudah |
+|------|---------|---------|
+| Klik Quick Order | Langsung navigasi tanpa feedback | Tombol berubah ke loading state dengan spinner dan teks "Memuat...", lalu navigasi |
+| Visual feedback | Tidak ada | User tahu bahwa aksi sedang diproses |
 
