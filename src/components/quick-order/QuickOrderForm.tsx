@@ -429,8 +429,8 @@ export function QuickOrderForm() {
             </div>
           </div>
 
-          {/* Right Column - Summary */}
-          <div className="space-y-4">
+          {/* Right Column - Summary (Sticky on Desktop) */}
+          <div className="space-y-4 lg:sticky lg:top-24 lg:self-start">
             <PricingSummary
               participantCount={selectedPackage}
               meetingDate={watchedDate}
