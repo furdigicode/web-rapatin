@@ -30,16 +30,6 @@ const formatShortDate = (dateStr: string): string => {
   return `${day}/${month}/${year}`;
 };
 
-const formatDateTime = (dateStr: string): string => {
-  const date = new Date(dateStr);
-  const day = date.getDate().toString().padStart(2, "0");
-  const month = (date.getMonth() + 1).toString().padStart(2, "0");
-  const year = date.getFullYear();
-  const hours = date.getHours().toString().padStart(2, "0");
-  const minutes = date.getMinutes().toString().padStart(2, "0");
-  return `${day}/${month}/${year} ${hours}:${minutes}`;
-};
-
 const formatMeetingDate = (dateStr: string): string => {
   const date = new Date(dateStr);
   return new Intl.DateTimeFormat("id-ID", {
@@ -67,83 +57,39 @@ const terbilang = (angka: number): string => {
 
   if (angka < 12) return satuan[angka];
   if (angka < 20) return satuan[angka - 10] + " Belas";
-  if (angka < 100)
-    return (
-      satuan[Math.floor(angka / 10)] +
-      " Puluh" +
-      (angka % 10 ? " " + satuan[angka % 10] : "")
-    );
-  if (angka < 200)
-    return "Seratus" + (angka - 100 ? " " + terbilang(angka - 100) : "");
+  if (angka < 100) return satuan[Math.floor(angka / 10)] + " Puluh" + (angka % 10 ? " " + satuan[angka % 10] : "");
+  if (angka < 200) return "Seratus" + (angka - 100 ? " " + terbilang(angka - 100) : "");
   if (angka < 1000)
-    return (
-      satuan[Math.floor(angka / 100)] +
-      " Ratus" +
-      (angka % 100 ? " " + terbilang(angka % 100) : "")
-    );
-  if (angka < 2000)
-    return "Seribu" + (angka - 1000 ? " " + terbilang(angka - 1000) : "");
+    return satuan[Math.floor(angka / 100)] + " Ratus" + (angka % 100 ? " " + terbilang(angka % 100) : "");
+  if (angka < 2000) return "Seribu" + (angka - 1000 ? " " + terbilang(angka - 1000) : "");
   if (angka < 1000000)
-    return (
-      terbilang(Math.floor(angka / 1000)) +
-      " Ribu" +
-      (angka % 1000 ? " " + terbilang(angka % 1000) : "")
-    );
+    return terbilang(Math.floor(angka / 1000)) + " Ribu" + (angka % 1000 ? " " + terbilang(angka % 1000) : "");
   if (angka < 1000000000)
-    return (
-      terbilang(Math.floor(angka / 1000000)) +
-      " Juta" +
-      (angka % 1000000 ? " " + terbilang(angka % 1000000) : "")
-    );
+    return terbilang(Math.floor(angka / 1000000)) + " Juta" + (angka % 1000000 ? " " + terbilang(angka % 1000000) : "");
 
   return angka.toString();
 };
 
-const loadImageAsBase64 = (url: string): Promise<string> => {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.crossOrigin = "anonymous";
-    img.onload = () => {
-      const canvas = document.createElement("canvas");
-      canvas.width = img.width;
-      canvas.height = img.height;
-      const ctx = canvas.getContext("2d");
-      ctx?.drawImage(img, 0, 0);
-      resolve(canvas.toDataURL("image/png"));
-    };
-    img.onerror = reject;
-    img.src = url;
-  });
-};
-
-export const generateReceipt = async (data: ReceiptData): Promise<void> => {
+export const generateReceipt = (data: ReceiptData): void => {
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.getWidth();
   const margin = 20;
   const rightCol = pageWidth / 2 + 10;
 
-  let y = 15;
+  let y = 20;
 
   // ========== HEADER SECTION ==========
-  // Logo image on the left
-  try {
-    const logoBase64 = await loadImageAsBase64("/lovable-uploads/2daea350-0851-4dd8-8f79-ee07aaaad905.png");
-    doc.addImage(logoBase64, "PNG", margin, y - 5, 40, 12);
-  } catch (error) {
-    // Fallback to text if image fails
-    doc.setFontSize(24);
-    doc.setFont("helvetica", "bold");
-    doc.setTextColor(37, 99, 235);
-    doc.text("Rapatin", margin, y + 5);
-  }
-
-  // "Invoice" on the right
-  doc.setFontSize(28);
+  // Logo "Rapatin" di kiri
+  doc.setFontSize(24);
   doc.setFont("helvetica", "bold");
   doc.setTextColor(37, 99, 235);
+  doc.text("Rapatin", margin, y + 5);
+
+  // "Invoice" di kanan
+  doc.setFontSize(28);
   doc.text("Invoice", pageWidth - margin, y + 5, { align: "right" });
 
-  // Invoice info on the right
+  // Invoice info di kanan
   y += 15;
   doc.setFontSize(10);
   doc.setFont("helvetica", "normal");
@@ -176,7 +122,7 @@ export const generateReceipt = async (data: ReceiptData): Promise<void> => {
   doc.setFontSize(10);
   doc.setFont("helvetica", "bold");
   doc.setTextColor(30, 58, 138);
-  doc.text("Informasi Perusahaan", margin, y);
+  doc.text("Ditagih Oleh:", margin, y);
 
   // Right Column: Tagihan Kepada
   doc.text("Tagihan Kepada", rightCol, y);
@@ -280,11 +226,7 @@ export const generateReceipt = async (data: ReceiptData): Promise<void> => {
   doc.text(`${topic}`, colX, y + 5);
   doc.setFontSize(8);
   doc.setTextColor(100, 100, 100);
-  doc.text(
-    `${meetingDateStr}${data.meetingTime ? " • " + data.meetingTime + " WIB" : ""}`,
-    colX,
-    y + 10
-  );
+  doc.text(`${meetingDateStr}${data.meetingTime ? " • " + data.meetingTime + " WIB" : ""}`, colX, y + 10);
 
   colX += colWidths[1];
   doc.setFontSize(10);
@@ -323,22 +265,6 @@ export const generateReceipt = async (data: ReceiptData): Promise<void> => {
   doc.text("Status", summaryX, y);
   doc.setTextColor(34, 197, 94); // Green
   doc.text("LUNAS", valueX, y, { align: "right" });
-
-  // Payment Method
-  y += 8;
-  doc.setFont("helvetica", "normal");
-  doc.setTextColor(80, 80, 80);
-  doc.text("Metode Bayar", summaryX, y);
-  doc.setTextColor(0, 0, 0);
-  doc.text(data.paymentMethod || "-", valueX, y, { align: "right" });
-
-  // Payment Time
-  y += 8;
-  doc.setTextColor(80, 80, 80);
-  doc.text("Dibayar", summaryX, y);
-  doc.setTextColor(0, 0, 0);
-  const paidAtFormatted = data.paidAt ? formatDateTime(data.paidAt) + " WIB" : "-";
-  doc.text(paidAtFormatted, valueX, y, { align: "right" });
 
   // ========== TERBILANG SECTION ==========
   y += 15;
