@@ -420,6 +420,16 @@ serve(async (req) => {
 
     console.log("Email sent successfully:", JSON.stringify(mailjetResult));
 
+    // Update email_sent_at timestamp
+    const { error: updateError } = await supabase
+      .from('guest_orders')
+      .update({ email_sent_at: new Date().toISOString() })
+      .eq('id', orderId);
+
+    if (updateError) {
+      console.error("Failed to update email_sent_at:", updateError);
+    }
+
     return new Response(
       JSON.stringify({ success: true, result: mailjetResult }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
