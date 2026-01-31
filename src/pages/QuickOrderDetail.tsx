@@ -652,23 +652,28 @@ export default function QuickOrderDetail() {
                     <Button
                       variant="outline"
                       className="w-full mt-4"
-                      onClick={() => {
-                        generateReceipt({
-                          orderNumber: order.order_number,
-                          name: order.name,
-                          email: order.email,
-                          whatsapp: order.whatsapp,
-                          meetingDate: order.meeting_date,
-                          meetingTime: order.meeting_time,
-                          meetingTopic: order.meeting_topic,
-                          participantCount: order.participant_count,
-                          price: order.price,
-                          paymentMethod: order.payment_method
-                            ? formatPaymentMethod(order.payment_method)
-                            : null,
-                          paidAt: order.paid_at,
-                        });
-                        toast.success("Tanda terima berhasil diunduh");
+                      onClick={async () => {
+                        try {
+                          await generateReceipt({
+                            orderNumber: order.order_number,
+                            name: order.name,
+                            email: order.email,
+                            whatsapp: order.whatsapp,
+                            meetingDate: order.meeting_date,
+                            meetingTime: order.meeting_time,
+                            meetingTopic: order.meeting_topic,
+                            participantCount: order.participant_count,
+                            price: order.price,
+                            paymentMethod: order.payment_method
+                              ? formatPaymentMethod(order.payment_method)
+                              : null,
+                            paidAt: order.paid_at,
+                          });
+                          toast.success("Tanda terima berhasil diunduh");
+                        } catch (error) {
+                          console.error("Error generating receipt:", error);
+                          toast.error("Gagal mengunduh tanda terima");
+                        }
                       }}
                     >
                       <Download className="w-4 h-4 mr-2" />
