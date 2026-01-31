@@ -594,6 +594,22 @@ serve(async (req) => {
               has_zoom_link: !!scheduleResult.join_url,
               is_recurring: typedOrder.is_recurring,
             });
+
+            // Trigger email notification (non-blocking)
+            const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+            console.log("Triggering order confirmation email for order:", order.id);
+            fetch(`${supabaseUrl}/functions/v1/send-order-email`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${supabaseAnonKey}`,
+              },
+              body: JSON.stringify({ orderId: order.id }),
+            }).then(res => {
+              console.log("Email trigger response status:", res.status);
+            }).catch(err => {
+              console.error("Failed to trigger email:", err);
+            });
           } else {
             console.error("Failed to create Rapatin schedule - order will be marked as paid but needs manual follow-up");
           }
