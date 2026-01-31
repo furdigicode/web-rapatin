@@ -182,9 +182,7 @@ export function RecurringMeetingSection({
                 Lebih dari 1 Hari?
               </Label>
               <p className="text-sm text-muted-foreground">
-                {isRecurring && totalDays > 1
-                  ? `${totalDays} tanggal meeting`
-                  : "Jadwalkan meeting berkala atau lebih dari 1 tanggal"}
+                {isRecurring && totalDays > 1 ? `${totalDays} tanggal meeting` : "Jadwalkan meeting berkala"}
               </p>
             </div>
           </div>

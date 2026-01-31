@@ -151,7 +151,7 @@ export function PricingSummary({
                     <Repeat className="w-4 h-4" />
                     <span>Meeting Berulang</span>
                   </div>
-                  <Badge variant="secondary">{totalDays} sesi</Badge>
+                  <Badge variant="secondary">{totalDays} tanggal</Badge>
                 </div>
 
                 {/* Show first few dates */}
@@ -200,11 +200,11 @@ export function PricingSummary({
           {isRecurring && totalDays > 1 && (
             <div className="space-y-2 bg-muted/30 rounded-lg p-3">
               <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">Harga per sesi</span>
+                <span className="text-muted-foreground">Harga per tanggal</span>
                 <span>{price > 0 ? formatRupiah(price) : "-"}</span>
               </div>
               <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">Jumlah sesi</span>
+                <span className="text-muted-foreground">Jumlah tanggal</span>
                 <span>×{totalDays}</span>
               </div>
               <Separator className="my-2" />
