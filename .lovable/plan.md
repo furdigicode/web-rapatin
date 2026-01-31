@@ -1,107 +1,91 @@
 
 
-# Rencana: Update Trust Signals di Bawah Total Bayar
+# Rencana: Perbaiki Layout Mobile - Hapus Padding yang Tidak Perlu
 
-## Ringkasan
+## Masalah
 
-Mengganti informasi di bawah "Total Bayar" dengan poin-poin yang lebih meyakinkan untuk pembayaran, karena informasi tentang pengiriman link Zoom sudah dipindahkan ke FAQ.
+Berdasarkan screenshot yang diberikan, ada whitespace di sisi kanan halaman Quick Order pada tampilan mobile. Masalah ini disebabkan oleh style default Vite di `src/App.css`:
+
+```css
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;  /* ← Ini menyebabkan whitespace */
+  text-align: center;
+}
+```
+
+`padding: 2rem` menambahkan 32px padding di semua sisi (termasuk kiri dan kanan), yang menyebabkan konten tidak memenuhi lebar layar sepenuhnya.
 
 ---
 
-## Trust Signals yang Diusulkan
+## Solusi
 
-| No | Trust Signal | Ikon | Alasan |
-|----|-------------|------|--------|
-| 1 | **Pembayaran 100% Aman** | Shield | Kepercayaan keamanan transaksi |
-| 2 | **Proses Instan** | Zap | Langsung dapat akses tanpa menunggu |
-| 3 | **Tanpa Biaya Tersembunyi** | BadgeCheck | Harga yang ditampilkan adalah final |
-| 4 | **7.000+ Meeting Terselenggara** | Users | Social proof - banyak yang sudah pakai |
+Hapus semua style dari `src/App.css` karena ini adalah sisa dari template default Vite yang tidak diperlukan lagi. Aplikasi Rapatin menggunakan Tailwind CSS dan container classes untuk mengatur layout.
 
 ---
 
 ## Perubahan Detail
 
-**File:** `src/components/quick-order/PricingSummary.tsx`
+**File:** `src/App.css`
 
-### Sebelum (baris 226-232):
-```tsx
-<div className="mt-4 flex items-start gap-2 p-3 bg-background/50 rounded-lg">
-  <Shield className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
-  <p className="text-xs text-muted-foreground">
-    Pembayaran aman dan terenkripsi. Link Zoom juga akan dikirim ke email dan WhatsApp (opsional) setelah
-    pembayaran berhasil.
-  </p>
-</div>
+### Sebelum:
+```css
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+/* ... dst */
 ```
 
 ### Sesudah:
-```tsx
-{/* Trust Signals */}
-<div className="mt-4 grid grid-cols-2 gap-2">
-  <div className="flex items-center gap-2 p-2 bg-background/50 rounded-lg">
-    <Shield className="w-4 h-4 text-green-600 flex-shrink-0" />
-    <span className="text-xs text-muted-foreground">Pembayaran 100% Aman</span>
-  </div>
-  <div className="flex items-center gap-2 p-2 bg-background/50 rounded-lg">
-    <Zap className="w-4 h-4 text-amber-500 flex-shrink-0" />
-    <span className="text-xs text-muted-foreground">Proses Instan</span>
-  </div>
-  <div className="flex items-center gap-2 p-2 bg-background/50 rounded-lg">
-    <BadgeCheck className="w-4 h-4 text-blue-500 flex-shrink-0" />
-    <span className="text-xs text-muted-foreground">Tanpa Biaya Tersembunyi</span>
-  </div>
-  <div className="flex items-center gap-2 p-2 bg-background/50 rounded-lg">
-    <Users className="w-4 h-4 text-primary flex-shrink-0" />
-    <span className="text-xs text-muted-foreground">7.000+ Meeting</span>
-  </div>
-</div>
+```css
+/* File dikosongkan - semua styling menggunakan Tailwind CSS */
 ```
+
+Atau bisa juga menghapus file ini sepenuhnya, tapi untuk keamanan cukup kosongkan isinya.
 
 ---
 
-## Preview Tampilan
+## Dampak Perubahan
+
+| Sebelum | Sesudah |
+|---------|---------|
+| Padding 32px di kiri-kanan semua halaman | Konten memenuhi lebar layar |
+| Whitespace terlihat di mobile | Layout mobile terlihat rapi |
+| `max-width: 1280px` membatasi lebar | Container menggunakan class Tailwind |
+
+---
+
+## Preview Visual
 
 ```text
-┌─────────────────────────────────────────────────────┐
-│                                                     │
-│  Biaya Payment Gateway        GRATIS               │
-│                                                     │
-│  Total Bayar                  Rp10.000             │
-│                                                     │
-│  ┌─────────────────┐  ┌─────────────────┐          │
-│  │ 🛡️ Pembayaran   │  │ ⚡ Proses       │          │
-│  │    100% Aman    │  │    Instan       │          │
-│  └─────────────────┘  └─────────────────┘          │
-│                                                     │
-│  ┌─────────────────┐  ┌─────────────────┐          │
-│  │ ✓ Tanpa Biaya   │  │ 👥 7.000+       │          │
-│  │   Tersembunyi   │  │    Meeting      │          │
-│  └─────────────────┘  └─────────────────┘          │
-│                                                     │
-└─────────────────────────────────────────────────────┘
+SEBELUM:                          SESUDAH:
+┌─────────────────────┐          ┌─────────────────────┐
+│  ┌───────────────┐  │          │ ┌─────────────────┐ │
+│  │   Content     │  │    →     │ │     Content     │ │
+│  │               │  │          │ │                 │ │
+│  └───────────────┘  │          │ └─────────────────┘ │
+│    ↑ padding 2rem   │          │   No extra padding  │
+└─────────────────────┘          └─────────────────────┘
 ```
 
 ---
 
-## Detail Teknis
+## Ringkasan Perubahan
 
-### Import Tambahan
-```tsx
-import { Zap, BadgeCheck } from "lucide-react";
-```
+| File | Aksi | Deskripsi |
+|------|------|-----------|
+| `src/App.css` | Ubah | Kosongkan/hapus semua style default Vite |
 
-### Ringkasan Perubahan
-
-| File | Baris | Aksi |
-|------|-------|------|
-| `src/components/quick-order/PricingSummary.tsx` | 1 | Tambah import `Zap`, `BadgeCheck` |
-| `src/components/quick-order/PricingSummary.tsx` | 226-232 | Ganti dengan grid 2x2 trust signals |
-
----
-
-## Catatan
-
-- **"7.000+ Meeting"** adalah angka estimasi. Jika ada data aktual dari database, bisa diganti dengan angka real.
-- Layout menggunakan `grid grid-cols-2` agar 4 poin tersusun rapi dalam 2 kolom.
-- Setiap ikon memiliki warna berbeda untuk variasi visual.
+Perubahan ini akan memperbaiki layout mobile pada halaman Quick Order dan semua halaman lainnya.
 
