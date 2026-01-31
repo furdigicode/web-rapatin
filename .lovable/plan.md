@@ -1,80 +1,48 @@
 
 
-# Rencana: Perbaiki Modal Pilihan Order
+# Rencana: Fix Flickering Modal saat Navigasi ke Quick Order
 
-## Ringkasan
+## Masalah
 
-Memperbaiki 3 hal pada modal pilihan order:
-1. Tukar posisi kartu (Via Aplikasi di kiri, Quick Order di kanan)
-2. Fix bug modal tidak tertutup saat klik Quick Order
-3. Pastikan Via Aplikasi membuka tab baru (sudah benar, tapi akan diverifikasi)
+Modal tidak langsung tertutup saat klik "Quick Order". Urutan yang terjadi:
+1. Modal mulai animasi close (fade-out + zoom-out)
+2. Setelah 100ms, navigasi terjadi
+3. Selama transisi route, komponen re-render dan modal sempat muncul kembali sebelum akhirnya hilang
 
----
+## Penyebab
 
-## Perubahan yang Akan Dilakukan
+Radix UI Dialog memiliki animasi CSS pada `DialogContent` dan `DialogOverlay`:
+- `data-[state=closed]:fade-out-0`
+- `data-[state=closed]:zoom-out-95`
 
-### 1. Tukar Posisi Kartu
+Animasi ini memerlukan waktu untuk selesai (~200ms berdasarkan `duration-200`). Ketika navigasi terjadi di tengah animasi, React Router melakukan re-render yang menyebabkan state tidak konsisten.
 
-| Sebelum | Sesudah |
-|---------|---------|
-| Kiri: Quick Order | Kiri: Via Aplikasi (Rekomendasi) |
-| Kanan: Via Aplikasi | Kanan: Quick Order |
+## Solusi
 
-### 2. Fix Modal Tidak Tertutup
-
-**Masalah**: `navigate()` mungkin terpanggil sebelum `onClose()` selesai mengupdate state, menyebabkan race condition.
-
-**Solusi**: Gunakan `setTimeout` untuk memastikan modal tertutup dulu sebelum navigasi, atau pindahkan urutan eksekusi.
+Gunakan pendekatan **navigate dulu, baru close** - karena saat navigasi ke halaman baru, komponen `SewaZoomHarianSection` akan unmount sehingga modal otomatis hilang tanpa perlu close animation.
 
 ```typescript
 const handleQuickOrder = () => {
   if (typeof window.fbq === 'function') {
     window.fbq('track', 'QuickOrderSelected');
   }
-  onClose(); // Tutup modal dulu
-  // Gunakan setTimeout untuk delay navigasi sedikit
-  setTimeout(() => {
-    navigate('/quick-order');
-  }, 100);
+  // Navigasi langsung tanpa close - komponen akan unmount
+  navigate('/quick-order');
 };
 ```
 
-### 3. Via Aplikasi Tab Baru
-
-Kode sudah benar menggunakan `window.open(url, '_blank')`. Ini akan membuka tab baru. Tidak perlu perubahan.
-
----
-
-## Layout Modal Setelah Update
-
-```text
-┌─────────────────────────────────────────────────────────────────────┐
-│                     🎯 Pilih Cara Order Anda                        │
-│                                                                     │
-│  ┌─────────────────────────────┐  ┌─────────────────────────────┐  │
-│  │    [Rekomendasi]            │  │                              │  │
-│  │ 📱 Via Aplikasi             │  │ ⚡ Quick Order               │  │
-│  │                              │  │                              │  │
-│  │  Fitur Lengkap               │  │  Praktis & Cepat             │  │
-│  │  ✓ Edit jadwal               │  │  ✓ Bayar langsung            │  │
-│  │  ✓ Rekaman cloud             │  │  ✓ Link Zoom instan          │  │
-│  │  ✓ Laporan peserta           │  │  ✓ Tanpa registrasi          │  │
-│  │  ✓ Ringkasan AI              │  │  ✗ Tidak bisa edit jadwal    │  │
-│  │  ✗ Perlu daftar akun         │  │  ✗ Tidak ada rekaman         │  │
-│  │                              │  │                              │  │
-│  │  [  Daftar & Mulai   ]       │  │  [  Pilih Quick Order  ]     │  │
-│  └──────────────────────────────┘  └──────────────────────────────┘  │
-│              KIRI                            KANAN                   │
-└─────────────────────────────────────────────────────────────────────┘
-```
+Pendekatan ini lebih bersih karena:
+1. Tidak ada race condition antara close dan navigate
+2. Modal akan langsung hilang saat halaman baru dimuat
+3. Tidak perlu setTimeout
 
 ---
 
-## Detail Perubahan Kode
+## Perubahan Kode
 
 ### File: `src/components/ui/order-option-modal.tsx`
 
-**1. Fix handleQuickOrder (line 18-24):**
+**Sebelum (line 18-26):**
 ```typescript
 const handleQuickOrder = () => {
   if (typeof window.fbq === 'function') {
@@ -87,9 +55,16 @@ const handleQuickOrder = () => {
 };
 ```
 
-**2. Tukar posisi kartu dalam grid (line 52-168):**
-
-Pindahkan blok "Via Aplikasi Option" (line 109-168) ke posisi pertama (sebelum "Quick Order Option").
+**Sesudah:**
+```typescript
+const handleQuickOrder = () => {
+  if (typeof window.fbq === 'function') {
+    window.fbq('track', 'QuickOrderSelected');
+  }
+  // Langsung navigasi - modal akan unmount bersama parent component
+  navigate('/quick-order');
+};
+```
 
 ---
 
@@ -97,14 +72,14 @@ Pindahkan blok "Via Aplikasi Option" (line 109-168) ke posisi pertama (sebelum "
 
 | File | Aksi | Deskripsi |
 |------|------|-----------|
-| `src/components/ui/order-option-modal.tsx` | Ubah | Tukar posisi kartu + fix navigasi |
+| `src/components/ui/order-option-modal.tsx` | Ubah | Hapus onClose() dan setTimeout, navigasi langsung |
 
 ---
 
-## Hasil Akhir
+## Hasil
 
-| Aksi User | Hasil |
-|-----------|-------|
-| Klik "Daftar & Mulai" | Membuka tab baru ke app.rapatin.id/register |
-| Klik "Pilih Quick Order" | Modal tertutup, lalu navigasi ke /quick-order |
+| Sebelum | Sesudah |
+|---------|---------|
+| Modal flickering (hilang-muncul-hilang) | Modal langsung hilang saat pindah halaman |
+| Delay 100ms sebelum navigasi | Navigasi instan |
 
