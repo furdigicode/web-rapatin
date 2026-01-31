@@ -19,10 +19,8 @@ const OrderOptionModal: React.FC<OrderOptionModalProps> = ({ isOpen, onClose }) 
     if (typeof window.fbq === 'function') {
       window.fbq('track', 'QuickOrderSelected');
     }
-    onClose();
-    setTimeout(() => {
-      navigate('/quick-order');
-    }, 100);
+    // Langsung navigasi - modal akan unmount bersama parent component
+    navigate('/quick-order');
   };
 
   const handleViaApp = () => {
