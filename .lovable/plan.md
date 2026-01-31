@@ -1,391 +1,229 @@
 
 
-# Rencana: Tombol Download Tanda Terima dengan Generate PDF
+# Rencana: Redesain PDF Tanda Terima (Invoice Style)
 
 ## Ringkasan
 
-Menambahkan tombol **"Download Tanda Terima"** di halaman Quick Order Detail dengan fitur generate PDF menggunakan library **jsPDF**. PDF akan berisi informasi lengkap order sebagai bukti pembayaran resmi.
+Mengubah desain PDF tanda terima agar mengikuti layout invoice profesional seperti pada gambar referensi, dengan struktur dua kolom, tabel produk, dan format invoice yang lebih formal.
 
 ---
 
-## Konten PDF Tanda Terima
+## Perbandingan Layout
 
-| Section | Konten |
-|---------|--------|
-| Header | Logo Rapatin + "TANDA TERIMA" |
-| Nomor Order | INV-260130-0001 |
-| Tanggal Bayar | Kamis, 30 Januari 2026 pukul 15:30 |
-| Nama Pemesan | John Doe |
-| Email | john@example.com |
-| WhatsApp | 087788980084 |
-| Detail Meeting | Tanggal, Kapasitas Peserta |
-| Detail Pembayaran | Total Bayar, Metode Pembayaran |
-| Footer | Terima kasih telah menggunakan Rapatin |
+| Aspek | Desain Lama | Desain Baru (Invoice Style) |
+|-------|-------------|----------------------------|
+| Header | Logo tengah | Logo kiri + "Invoice" kanan |
+| Info Order | Vertikal | Nomor/Tanggal di kanan atas |
+| Data Pemesan | Satu kolom | Dua kolom (Perusahaan & Pelanggan) |
+| Detail Produk | List sederhana | Tabel dengan header berwarna |
+| Summary | Inline | Ringkasan kanan bawah |
+| Footer | Sederhana | "Dengan Hormat" + tanda tangan |
 
 ---
 
-## Desain UI Tombol
+## Layout PDF Baru
 
 ```text
-┌─────────────────────────────────────────────┐
-│  Detail Order                               │
-├─────────────────────────────────────────────┤
-│  ...                                        │
-│  ─────────────────────────────────────────  │
-│  💳 Total Bayar                             │
-│      Rp150.000                              │
-│      via QRIS                               │
-│                                             │
-│  [📥 Download Tanda Terima] ← TOMBOL BARU   │
-└─────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────┐
+│                                                                     │
+│  [LOGO] Rapatin                              Invoice                │
+│                                         Nomor: INV-260130-0001      │
+│                                         Tanggal: 30/01/2026         │
+│                                         Tgl. Jatuh Tempo: 30/01/2026│
+│                                                                     │
+│  ─────────────────────────────────────────────────────────────────  │
+│                                                                     │
+│  Informasi Perusahaan              Tagihan Kepada                   │
+│  ────────────────────              ──────────────                   │
+│  Rapatin                           John Doe                         │
+│  Griya Nuansa Bening no 14,        Telp: 087788980084               │
+│  Kel. Jatisari, Kec. Mijen,        Email: john@example.com          │
+│  Kota Semarang                                                      │
+│  Telp: 087788980084                                                 │
+│  Email: rapatinapp@gmail.com                                        │
+│                                                                     │
+│  ─────────────────────────────────────────────────────────────────  │
+│                                                                     │
+│  ┌──────────────┬─────────────────────────┬──────────┬─────────────┐│
+│  │ Produk       │ Deskripsi               │ Kuantitas│ Jumlah      ││
+│  ├──────────────┼─────────────────────────┼──────────┼─────────────┤│
+│  │ Meeting 100  │ [Topik] - 30 Jan 2026   │    1     │ Rp 150.000  ││
+│  │ Participants │ 20:00 WIB               │          │             ││
+│  └──────────────┴─────────────────────────┴──────────┴─────────────┘│
+│                                                                     │
+│                                              Subtotal    Rp 150.000 │
+│                                              ─────────   ────────── │
+│                                              Total       Rp 150.000 │
+│                                              Status      LUNAS      │
+│                                                                     │
+│  ─────────────────────────────────────────────────────────────────  │
+│                                                                     │
+│  Terbilang                                                          │
+│  Seratus Lima Puluh Ribu Rupiah                                     │
+│                                                                     │
+│                                              Dengan Hormat,         │
+│                                                                     │
+│                                              ─────────────          │
+│                                              Rapatin                │
+│                                              Admin                  │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## Layout PDF
+## Fitur Baru
 
-```text
-┌─────────────────────────────────────────────────────────┐
-│                                                         │
-│  [LOGO]  RAPATIN                                        │
-│          Sewa Ruang Zoom Meeting                        │
-│                                                         │
-│  ═══════════════════════════════════════════════════    │
-│                                                         │
-│              TANDA TERIMA PEMBAYARAN                    │
-│                                                         │
-│  ───────────────────────────────────────────────────    │
-│                                                         │
-│  Nomor Order     : INV-260130-0001                      │
-│  Tanggal Bayar   : Kamis, 30 Januari 2026, 15:30 WIB    │
-│                                                         │
-│  ───────────────────────────────────────────────────    │
-│                                                         │
-│  DATA PEMESAN                                           │
-│  Nama            : John Doe                             │
-│  Email           : john@example.com                     │
-│  WhatsApp        : 087788980084                         │
-│                                                         │
-│  ───────────────────────────────────────────────────    │
-│                                                         │
-│  DETAIL MEETING                                         │
-│  Tanggal Meeting : Kamis, 30 Januari 2026               │
-│  Kapasitas       : 100 Peserta                          │
-│  Topik           : Weekly Team Sync                     │
-│                                                         │
-│  ───────────────────────────────────────────────────    │
-│                                                         │
-│  PEMBAYARAN                                             │
-│  Total Bayar     : Rp150.000                            │
-│  Metode          : QRIS                                 │
-│  Status          : LUNAS                                │
-│                                                         │
-│  ═══════════════════════════════════════════════════    │
-│                                                         │
-│  Terima kasih telah menggunakan Rapatin.                │
-│  www.rapatin.id                                         │
-│                                                         │
-└─────────────────────────────────────────────────────────┘
+### 1. Format Tanggal Invoice Style
+```typescript
+// Format: DD/MM/YYYY
+const formatShortDate = (dateStr: string): string => {
+  const date = new Date(dateStr);
+  const day = date.getDate().toString().padStart(2, '0');
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const year = date.getFullYear();
+  return `${day}/${month}/${year}`;
+};
+```
+
+### 2. Terbilang (Number to Words)
+```typescript
+// Konversi angka ke kata-kata Indonesia
+const terbilang = (angka: number): string => {
+  // Contoh: 150000 → "Seratus Lima Puluh Ribu Rupiah"
+};
+```
+
+### 3. Tabel Produk dengan Header Berwarna
+- Background biru muda untuk header tabel
+- Kolom: Produk, Deskripsi, Kuantitas, Jumlah
+
+### 4. Dua Kolom Info
+- Kiri: Informasi Perusahaan (Rapatin)
+- Kanan: Tagihan Kepada (Customer)
+
+---
+
+## Detail Implementasi
+
+### Warna yang Digunakan
+| Elemen | RGB | Hex |
+|--------|-----|-----|
+| Logo/Heading | (37, 99, 235) | #2563EB |
+| Subheading | (30, 58, 138) | #1E3A8A |
+| Table Header BG | (219, 234, 254) | #DBEAFE |
+| Text Muted | (100, 100, 100) | #646464 |
+| Status LUNAS | (34, 197, 94) | #22C55E |
+
+### Informasi Perusahaan (Statis)
+```
+Rapatin
+Griya Nuansa Bening no 14, Kel. Jatisari, 
+Kec. Mijen, Kota Semarang
+Telp: 087788980084
+Email: rapatinapp@gmail.com
 ```
 
 ---
 
-## Implementasi Teknis
-
-### 1. Install Dependency
-
-```bash
-npm install jspdf
-```
-
-### 2. File yang Diubah/Dibuat
+## Perubahan File
 
 | File | Aksi | Deskripsi |
 |------|------|-----------|
-| `package.json` | Ubah | Tambahkan dependency jspdf |
-| `src/utils/generateReceipt.ts` | Buat | Fungsi generate PDF receipt |
-| `src/pages/QuickOrderDetail.tsx` | Ubah | Tambahkan tombol + import fungsi |
+| `src/utils/generateReceipt.ts` | Ubah | Redesain total layout PDF |
 
 ---
 
-## Kode Implementasi
-
-### `src/utils/generateReceipt.ts`
+## Kode Baru (Struktur Utama)
 
 ```typescript
-import { jsPDF } from "jspdf";
-
-interface ReceiptData {
-  orderNumber: string | null;
-  name: string;
-  email: string;
-  whatsapp: string;
-  meetingDate: string;
-  meetingTime: string | null;
-  meetingTopic: string | null;
-  participantCount: number;
-  price: number;
-  paymentMethod: string | null;
-  paidAt: string | null;
-}
-
-const formatRupiah = (amount: number): string => {
-  return new Intl.NumberFormat("id-ID", {
-    style: "currency",
-    currency: "IDR",
-    minimumFractionDigits: 0,
-  }).format(amount);
-};
-
-const formatDate = (dateStr: string): string => {
-  const date = new Date(dateStr);
-  return new Intl.DateTimeFormat("id-ID", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  }).format(date);
-};
-
-const formatDateTime = (dateStr: string): string => {
-  const date = new Date(dateStr);
-  return new Intl.DateTimeFormat("id-ID", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(date);
-};
-
 export const generateReceipt = (data: ReceiptData): void => {
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.getWidth();
+  const margin = 20;
   
   let y = 20;
   
-  // Header - Company Name
+  // ========== HEADER SECTION ==========
+  // Logo "Rapatin" di kiri
   doc.setFontSize(24);
   doc.setFont("helvetica", "bold");
-  doc.setTextColor(37, 99, 235); // Blue color
-  doc.text("RAPATIN", pageWidth / 2, y, { align: "center" });
-  
-  y += 8;
-  doc.setFontSize(10);
-  doc.setFont("helvetica", "normal");
-  doc.setTextColor(100, 100, 100);
-  doc.text("Sewa Ruang Zoom Meeting", pageWidth / 2, y, { align: "center" });
-  
-  // Line separator
-  y += 10;
-  doc.setDrawColor(200, 200, 200);
-  doc.setLineWidth(0.5);
-  doc.line(20, y, pageWidth - 20, y);
-  
-  // Title
-  y += 15;
-  doc.setFontSize(18);
-  doc.setFont("helvetica", "bold");
-  doc.setTextColor(0, 0, 0);
-  doc.text("TANDA TERIMA PEMBAYARAN", pageWidth / 2, y, { align: "center" });
-  
-  // Order info
-  y += 15;
-  doc.setFontSize(11);
-  doc.setFont("helvetica", "normal");
-  
-  const labelX = 25;
-  const valueX = 80;
-  
-  doc.setFont("helvetica", "bold");
-  doc.text("Nomor Order", labelX, y);
-  doc.setFont("helvetica", "normal");
-  doc.text(`: ${data.orderNumber || "-"}`, valueX, y);
-  
-  y += 7;
-  doc.setFont("helvetica", "bold");
-  doc.text("Tanggal Bayar", labelX, y);
-  doc.setFont("helvetica", "normal");
-  doc.text(`: ${data.paidAt ? formatDateTime(data.paidAt) : "-"}`, valueX, y);
-  
-  // Section: Data Pemesan
-  y += 15;
-  doc.setDrawColor(200, 200, 200);
-  doc.line(20, y, pageWidth - 20, y);
-  
-  y += 10;
-  doc.setFontSize(12);
-  doc.setFont("helvetica", "bold");
   doc.setTextColor(37, 99, 235);
-  doc.text("DATA PEMESAN", labelX, y);
+  doc.text("Rapatin", margin, y + 5);
   
-  y += 10;
-  doc.setFontSize(11);
-  doc.setTextColor(0, 0, 0);
-  doc.setFont("helvetica", "bold");
-  doc.text("Nama", labelX, y);
-  doc.setFont("helvetica", "normal");
-  doc.text(`: ${data.name}`, valueX, y);
+  // "Invoice" di kanan
+  doc.setFontSize(28);
+  doc.text("Invoice", pageWidth - margin, y, { align: "right" });
   
-  y += 7;
-  doc.setFont("helvetica", "bold");
-  doc.text("Email", labelX, y);
-  doc.setFont("helvetica", "normal");
-  doc.text(`: ${data.email}`, valueX, y);
-  
-  y += 7;
-  doc.setFont("helvetica", "bold");
-  doc.text("WhatsApp", labelX, y);
-  doc.setFont("helvetica", "normal");
-  doc.text(`: ${data.whatsapp}`, valueX, y);
-  
-  // Section: Detail Meeting
-  y += 15;
-  doc.setDrawColor(200, 200, 200);
-  doc.line(20, y, pageWidth - 20, y);
-  
-  y += 10;
-  doc.setFontSize(12);
-  doc.setFont("helvetica", "bold");
-  doc.setTextColor(37, 99, 235);
-  doc.text("DETAIL MEETING", labelX, y);
-  
-  y += 10;
-  doc.setFontSize(11);
-  doc.setTextColor(0, 0, 0);
-  doc.setFont("helvetica", "bold");
-  doc.text("Tanggal Meeting", labelX, y);
-  doc.setFont("helvetica", "normal");
-  const meetingDateText = formatDate(data.meetingDate) + 
-    (data.meetingTime ? ` • ${data.meetingTime} WIB` : "");
-  doc.text(`: ${meetingDateText}`, valueX, y);
-  
-  y += 7;
-  doc.setFont("helvetica", "bold");
-  doc.text("Kapasitas", labelX, y);
-  doc.setFont("helvetica", "normal");
-  doc.text(`: ${data.participantCount} Peserta`, valueX, y);
-  
-  if (data.meetingTopic) {
-    y += 7;
-    doc.setFont("helvetica", "bold");
-    doc.text("Topik", labelX, y);
-    doc.setFont("helvetica", "normal");
-    doc.text(`: ${data.meetingTopic}`, valueX, y);
-  }
-  
-  // Section: Pembayaran
-  y += 15;
-  doc.setDrawColor(200, 200, 200);
-  doc.line(20, y, pageWidth - 20, y);
-  
-  y += 10;
-  doc.setFontSize(12);
-  doc.setFont("helvetica", "bold");
-  doc.setTextColor(37, 99, 235);
-  doc.text("PEMBAYARAN", labelX, y);
-  
-  y += 10;
-  doc.setFontSize(11);
-  doc.setTextColor(0, 0, 0);
-  doc.setFont("helvetica", "bold");
-  doc.text("Total Bayar", labelX, y);
-  doc.setFont("helvetica", "bold");
-  doc.setTextColor(37, 99, 235);
-  doc.text(`: ${formatRupiah(data.price)}`, valueX, y);
-  
-  y += 7;
-  doc.setTextColor(0, 0, 0);
-  doc.setFont("helvetica", "bold");
-  doc.text("Metode", labelX, y);
-  doc.setFont("helvetica", "normal");
-  doc.text(`: ${data.paymentMethod || "-"}`, valueX, y);
-  
-  y += 7;
-  doc.setFont("helvetica", "bold");
-  doc.text("Status", labelX, y);
-  doc.setFont("helvetica", "bold");
-  doc.setTextColor(34, 197, 94); // Green
-  doc.text(": LUNAS", valueX, y);
-  
-  // Footer
-  y += 20;
-  doc.setDrawColor(200, 200, 200);
-  doc.setLineWidth(0.5);
-  doc.line(20, y, pageWidth - 20, y);
-  
+  // Info Nomor, Tanggal di kanan
   y += 15;
   doc.setFontSize(10);
   doc.setFont("helvetica", "normal");
-  doc.setTextColor(100, 100, 100);
-  doc.text("Terima kasih telah menggunakan Rapatin.", pageWidth / 2, y, { 
-    align: "center" 
-  });
+  doc.setTextColor(0, 0, 0);
+  // Nomor, Tanggal, Tgl. Jatuh Tempo
   
-  y += 6;
-  doc.text("www.rapatin.id", pageWidth / 2, y, { align: "center" });
+  // ========== TWO COLUMN INFO ==========
+  // Left: Informasi Perusahaan
+  // Right: Tagihan Kepada (Customer)
   
-  // Generate filename
-  const filename = `Tanda-Terima-${data.orderNumber || "Order"}.pdf`;
+  // ========== PRODUCT TABLE ==========
+  // Header dengan background biru muda
+  // Row dengan data produk
+  
+  // ========== SUMMARY ==========
+  // Subtotal, Total, Status
+  
+  // ========== TERBILANG ==========
+  // Angka dalam kata-kata
+  
+  // ========== FOOTER ==========
+  // "Dengan Hormat," + Rapatin / Admin
+  
   doc.save(filename);
 };
 ```
 
-### `QuickOrderDetail.tsx` - Perubahan
+---
 
-```tsx
-// Import baru
-import { Download } from "lucide-react";
-import { generateReceipt } from "@/utils/generateReceipt";
+## Fungsi Helper Baru
 
-// Handler function
-const handleDownloadReceipt = () => {
-  if (!order) return;
+### 1. Terbilang (Angka ke Kata)
+```typescript
+const terbilang = (angka: number): string => {
+  const satuan = ['', 'Satu', 'Dua', 'Tiga', 'Empat', 'Lima', 'Enam', 'Tujuh', 'Delapan', 'Sembilan', 'Sepuluh', 'Sebelas'];
   
-  generateReceipt({
-    orderNumber: order.order_number,
-    name: order.name,
-    email: order.email,
-    whatsapp: order.whatsapp,
-    meetingDate: order.meeting_date,
-    meetingTime: order.meeting_time,
-    meetingTopic: order.meeting_topic,
-    participantCount: order.participant_count,
-    price: order.price,
-    paymentMethod: order.payment_method 
-      ? formatPaymentMethod(order.payment_method) 
-      : null,
-    paidAt: order.paid_at,
-  });
+  if (angka < 12) return satuan[angka];
+  if (angka < 20) return satuan[angka - 10] + ' Belas';
+  if (angka < 100) return satuan[Math.floor(angka / 10)] + ' Puluh' + (angka % 10 ? ' ' + satuan[angka % 10] : '');
+  if (angka < 200) return 'Seratus' + (angka - 100 ? ' ' + terbilang(angka - 100) : '');
+  if (angka < 1000) return satuan[Math.floor(angka / 100)] + ' Ratus' + (angka % 100 ? ' ' + terbilang(angka % 100) : '');
+  if (angka < 2000) return 'Seribu' + (angka - 1000 ? ' ' + terbilang(angka - 1000) : '');
+  if (angka < 1000000) return terbilang(Math.floor(angka / 1000)) + ' Ribu' + (angka % 1000 ? ' ' + terbilang(angka % 1000) : '');
+  if (angka < 1000000000) return terbilang(Math.floor(angka / 1000000)) + ' Juta' + (angka % 1000000 ? ' ' + terbilang(angka % 1000000) : '');
   
-  toast.success("Tanda terima berhasil diunduh");
+  return angka.toString();
 };
+```
 
-// Tombol di bawah metode pembayaran (setelah baris 646)
-{isPaid && (
-  <Button 
-    variant="outline" 
-    className="w-full mt-4"
-    onClick={handleDownloadReceipt}
-  >
-    <Download className="w-4 h-4 mr-2" />
-    Download Tanda Terima
-  </Button>
-)}
+### 2. Draw Table Function
+```typescript
+const drawTableRow = (
+  doc: jsPDF, 
+  y: number, 
+  cols: string[], 
+  widths: number[], 
+  isHeader: boolean
+) => {
+  // Draw cells with optional background
+};
 ```
 
 ---
 
-## Nama File PDF
+## Catatan
 
-Format: `Tanda-Terima-{order_number}.pdf`
-
-Contoh: `Tanda-Terima-INV-260130-0001.pdf`
-
----
-
-## Kondisi Tampil
-
-Tombol hanya muncul untuk order yang sudah **dibayar** (`isPaid`), karena tanda terima hanya relevan setelah pembayaran berhasil.
+- Desain mengikuti format invoice standar seperti pada gambar referensi
+- Kolom Diskon dan Pajak dari gambar tidak ditampilkan karena tidak ada data tersebut di sistem Quick Order
+- Tgl. Jatuh Tempo sama dengan Tanggal karena ini adalah tanda terima (sudah lunas)
+- "Sisa Tagihan" selalu Rp 0 karena status LUNAS
 
