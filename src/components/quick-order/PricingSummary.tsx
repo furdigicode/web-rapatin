@@ -100,7 +100,6 @@ export function PricingSummary({
 
           <div className="flex items-center justify-between text-sm">
             <div className="flex items-center gap-2 text-muted-foreground">
-              <Users className="w-4 h-4" />
               <span>Kapasitas</span>
             </div>
             <span className="font-medium">{participantCount ? `${participantCount} Peserta` : "-"}</span>
@@ -108,7 +107,6 @@ export function PricingSummary({
 
           <div className="flex items-center justify-between text-sm">
             <div className="flex items-center gap-2 text-muted-foreground">
-              <CalendarDays className="w-4 h-4" />
               <span>{isRecurring ? "Tanggal Mulai" : "Tanggal"}</span>
             </div>
             <span className="font-medium text-right">{meetingDate ? formatDate(meetingDate) : "-"}</span>
@@ -116,10 +114,9 @@ export function PricingSummary({
 
           <div className="flex items-center justify-between text-sm">
             <div className="flex items-center gap-2 text-muted-foreground">
-              <Clock className="w-4 h-4" />
               <span>Jam Mulai</span>
             </div>
-            <span className="font-medium">{meetingTime || "-"}</span>
+            <span className="font-medium">{meetingTime || "-"} WIB</span>
           </div>
 
           {/* Recurring Info */}
