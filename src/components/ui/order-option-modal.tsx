@@ -4,6 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Button } from "@/components/ui/button";
 import { Zap, Smartphone, Check, X, MessageCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { flushSync } from 'react-dom';
 import { useURLParams } from '@/hooks/useURLParams';
 
 interface OrderOptionModalProps {
@@ -19,7 +20,8 @@ const OrderOptionModal: React.FC<OrderOptionModalProps> = ({ isOpen, onClose }) 
     if (typeof window.fbq === 'function') {
       window.fbq('track', 'QuickOrderSelected');
     }
-    // Langsung navigasi - modal akan unmount bersama parent component
+    // Tutup modal secara sinkron dulu untuk menghindari flicker saat route berubah
+    flushSync(() => onClose());
     navigate('/quick-order');
   };
 
