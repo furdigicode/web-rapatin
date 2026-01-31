@@ -28,25 +28,25 @@ interface PricingSummaryProps {
 }
 
 const formatRupiah = (amount: number) => {
-  return new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR',
+  return new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(amount);
 };
 
 const formatDate = (date: Date) => {
-  return new Intl.DateTimeFormat('id-ID', {
-    weekday: 'long',
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
+  return new Intl.DateTimeFormat("id-ID", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
   }).format(date);
 };
 
 const formatShortDate = (date: Date) => {
-  return format(date, 'd MMM yyyy', { locale: id });
+  return format(date, "d MMM yyyy", { locale: id });
 };
 
 const FEATURE_LABELS: Record<keyof MeetingSettings, string> = {
@@ -57,10 +57,10 @@ const FEATURE_LABELS: Record<keyof MeetingSettings, string> = {
   is_req_unmute_permission: "Minta Izin Unmute",
 };
 
-export function PricingSummary({ 
-  participantCount, 
-  meetingDate, 
-  meetingTime, 
+export function PricingSummary({
+  participantCount,
+  meetingDate,
+  meetingTime,
   price,
   totalPrice,
   meetingTopic,
@@ -70,14 +70,14 @@ export function PricingSummary({
   totalDays = 1,
   recurringDates = [],
 }: PricingSummaryProps) {
-  const activeFeatures = meetingSettings 
+  const activeFeatures = meetingSettings
     ? (Object.entries(meetingSettings) as [keyof MeetingSettings, boolean][])
         .filter(([_, value]) => value)
         .map(([key]) => FEATURE_LABELS[key])
     : [];
 
   // Use totalPrice if provided, otherwise calculate from price
-  const finalPrice = totalPrice ?? (price * totalDays);
+  const finalPrice = totalPrice ?? price * totalDays;
 
   return (
     <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
@@ -86,7 +86,7 @@ export function PricingSummary({
           <Receipt className="w-5 h-5 text-primary" />
           Ringkasan Order
         </h3>
-        
+
         <div className="space-y-3">
           {meetingTopic && (
             <div className="flex items-start justify-between gap-2">
@@ -94,9 +94,7 @@ export function PricingSummary({
                 <MessageSquare className="w-4 h-4" />
                 <span>Topik</span>
               </div>
-              <span className="font-medium text-right line-clamp-2">
-                {meetingTopic}
-              </span>
+              <span className="font-medium text-right line-clamp-2">{meetingTopic}</span>
             </div>
           )}
 
@@ -105,19 +103,15 @@ export function PricingSummary({
               <Users className="w-4 h-4" />
               <span>Kapasitas</span>
             </div>
-            <span className="font-medium">
-              {participantCount ? `${participantCount} Peserta` : '-'}
-            </span>
+            <span className="font-medium">{participantCount ? `${participantCount} Peserta` : "-"}</span>
           </div>
-          
+
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 text-muted-foreground">
               <CalendarDays className="w-4 h-4" />
-              <span>{isRecurring ? 'Tanggal Mulai' : 'Tanggal'}</span>
+              <span>{isRecurring ? "Tanggal Mulai" : "Tanggal"}</span>
             </div>
-            <span className="font-medium text-right">
-              {meetingDate ? formatDate(meetingDate) : '-'}
-            </span>
+            <span className="font-medium text-right">{meetingDate ? formatDate(meetingDate) : "-"}</span>
           </div>
 
           <div className="flex items-center justify-between">
@@ -125,9 +119,7 @@ export function PricingSummary({
               <Clock className="w-4 h-4" />
               <span>Jam Mulai</span>
             </div>
-            <span className="font-medium">
-              {meetingTime || '-'}
-            </span>
+            <span className="font-medium">{meetingTime || "-"}</span>
           </div>
 
           {customPasscode && (
@@ -136,14 +128,14 @@ export function PricingSummary({
               <span className="font-mono font-medium">{customPasscode}</span>
             </div>
           )}
-          
+
           <Separator className="my-3" />
-          
+
           <div className="flex items-center justify-between">
             <span className="text-muted-foreground">Durasi per Sesi</span>
             <span className="font-medium">24 Jam (Full Day)</span>
           </div>
-          
+
           <div className="flex items-center justify-between">
             <span className="text-muted-foreground">Platform</span>
             <span className="font-medium">Zoom Meeting</span>
@@ -192,11 +184,7 @@ export function PricingSummary({
                 <span className="text-sm text-muted-foreground">Fitur Aktif:</span>
                 <div className="flex flex-wrap gap-1.5">
                   {activeFeatures.map((feature) => (
-                    <Badge 
-                      key={feature} 
-                      variant="secondary" 
-                      className="text-xs flex items-center gap-1"
-                    >
+                    <Badge key={feature} variant="secondary" className="text-xs flex items-center gap-1">
                       <CheckCircle2 className="w-3 h-3" />
                       {feature}
                     </Badge>
@@ -205,7 +193,7 @@ export function PricingSummary({
               </div>
             </>
           )}
-          
+
           <Separator className="my-3" />
 
           {/* Price Breakdown for Recurring */}
@@ -213,7 +201,7 @@ export function PricingSummary({
             <div className="space-y-2 bg-muted/30 rounded-lg p-3">
               <div className="flex items-center justify-between text-sm">
                 <span className="text-muted-foreground">Harga per sesi</span>
-                <span>{price > 0 ? formatRupiah(price) : '-'}</span>
+                <span>{price > 0 ? formatRupiah(price) : "-"}</span>
               </div>
               <div className="flex items-center justify-between text-sm">
                 <span className="text-muted-foreground">Jumlah sesi</span>
@@ -222,19 +210,18 @@ export function PricingSummary({
               <Separator className="my-2" />
             </div>
           )}
-          
+
           <div className="flex items-center justify-between text-lg">
             <span className="font-semibold">Total Bayar</span>
-            <span className="font-bold text-primary">
-              {finalPrice > 0 ? formatRupiah(finalPrice) : '-'}
-            </span>
+            <span className="font-bold text-primary">{finalPrice > 0 ? formatRupiah(finalPrice) : "-"}</span>
           </div>
         </div>
-        
+
         <div className="mt-4 flex items-start gap-2 p-3 bg-background/50 rounded-lg">
           <Shield className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
           <p className="text-xs text-muted-foreground">
-            Pembayaran aman dan terenkripsi. Link Zoom akan dikirim ke email dan WhatsApp setelah pembayaran berhasil.
+            Pembayaran aman dan terenkripsi. Link Zoom juga akan dikirim ke email dan WhatsApp (opsional) setelah
+            pembayaran berhasil.
           </p>
         </div>
       </CardContent>
