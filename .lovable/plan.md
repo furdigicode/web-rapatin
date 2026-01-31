@@ -1,155 +1,131 @@
 
-# Rencana: Tambah FAQ Section di Halaman Quick Order
+# Rencana: Perbaiki Tampilan FAQ di Mobile
 
-## Ringkasan
+## Masalah
 
-Menambahkan section FAQ (Pertanyaan yang Sering Diajukan) di bawah daftar payment method pada halaman Quick Order. FAQ menggunakan komponen Accordion untuk tampilan yang rapi dan interaktif.
+Dari screenshot terlihat FAQ section terlalu panjang di mobile karena:
+- Accordion trigger memiliki padding yang besar (py-4)
+- Tidak ada opsi untuk menyembunyikan seluruh FAQ section
+- Pertanyaan panjang memakan banyak baris
 
 ---
 
-## Struktur FAQ
+## Solusi
 
-| No | Pertanyaan | Jawaban |
-|----|-----------|---------|
-| 1 | Berapa lama durasi yang didapatkan? | 24 jam dalam satu tanggal, mulai jam 00:00 sampai jam 24:00. |
-| 2 | Apakah dalam satu tanggal bisa digunakan berkali-kali? | Ya, bisa. Anda dapat menggunakan meeting berkali-kali selama masih dalam tanggal yang sama. |
-| 3 | Bagaimana prosesnya? | Setelah mengisi data pesanan dan data meeting, kemudian menyelesaikan pembayaran, Anda langsung mendapatkan akses meeting. Akses diberikan langsung di halaman pembayaran berhasil, dan informasi juga dikirimkan ke email dan WhatsApp. |
-| 4 | Apakah pesanan bisa di-reschedule atau di-upgrade? | Tidak bisa. Pesanan melalui Quick Order tidak dapat diubah atau diedit. Jika ingin akses jadwal yang lebih fleksibel, silakan mendaftar ke aplikasi Rapatin. |
-| 5 | Apakah tersedia rekaman cloud? | Ya, tersedia. Untuk orderan Quick Order, hasil rekaman harus diminta manual melalui admin. Jika ingin akses rekaman tanpa bantuan admin, bisa mendaftar aplikasi Rapatin. |
-| 6 | (Footer) | Ada pertanyaan lain? Hubungi WhatsApp Admin → tombol |
+Memperbaiki styling FAQ agar lebih compact di mobile dengan:
+1. Mengurangi padding pada accordion trigger
+2. Membungkus FAQ dalam Collapsible component sehingga user bisa menyembunyikan seluruh section
+3. Memperkecil ukuran font di mobile
 
 ---
 
 ## Perubahan Detail
 
-### 1. Buat Komponen Baru: `QuickOrderFAQ.tsx`
-
 **File:** `src/components/quick-order/QuickOrderFAQ.tsx`
 
-Komponen menggunakan Accordion dari Radix UI yang sudah tersedia di project:
+### Perubahan yang dilakukan:
 
 ```tsx
-import { HelpCircle, MessageCircle } from "lucide-react";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
-import { Button } from "@/components/ui/button";
-
-const faqItems = [
-  {
-    question: "Berapa lama durasi yang didapatkan?",
-    answer: "24 jam dalam satu tanggal, mulai jam 00:00 sampai jam 24:00."
-  },
-  {
-    question: "Apakah dalam satu tanggal bisa digunakan berkali-kali?",
-    answer: "Ya, bisa. Anda dapat menggunakan meeting berkali-kali selama masih dalam tanggal yang sama."
-  },
-  {
-    question: "Bagaimana prosesnya?",
-    answer: "Setelah mengisi data pesanan dan data meeting, kemudian menyelesaikan pembayaran, Anda langsung mendapatkan akses meeting. Akses diberikan langsung di halaman pembayaran berhasil, dan informasi juga dikirimkan ke email dan WhatsApp."
-  },
-  {
-    question: "Apakah pesanan bisa di-reschedule atau di-upgrade?",
-    answer: "Tidak bisa. Pesanan melalui Quick Order tidak dapat diubah atau diedit. Jika ingin akses jadwal yang lebih fleksibel, silakan mendaftar ke aplikasi Rapatin."
-  },
-  {
-    question: "Apakah tersedia rekaman cloud?",
-    answer: "Ya, tersedia. Untuk orderan Quick Order, hasil rekaman harus diminta manual melalui admin. Jika ingin akses rekaman tanpa bantuan admin, bisa mendaftar aplikasi Rapatin."
-  }
-];
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { ChevronDown } from "lucide-react";
+import { useState } from "react";
 
 export function QuickOrderFAQ() {
-  const whatsappNumber = "6281234567890"; // Ganti dengan nomor admin
-  const whatsappMessage = encodeURIComponent("Halo, saya ada pertanyaan tentang Quick Order Rapatin");
+  const [isOpen, setIsOpen] = useState(false);
+  // ...
 
   return (
-    <div className="space-y-4">
-      <h3 className="font-semibold text-lg flex items-center gap-2">
-        <HelpCircle className="w-5 h-5 text-primary" />
-        Pertanyaan Umum
-      </h3>
+    <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+      {/* Header yang bisa diklik */}
+      <CollapsibleTrigger asChild>
+        <Button variant="ghost" className="w-full justify-between">
+          <span className="flex items-center gap-2">
+            <HelpCircle className="w-5 h-5 text-primary" />
+            Pertanyaan Umum
+          </span>
+          <ChevronDown className={cn("h-4 w-4 transition-transform", isOpen && "rotate-180")} />
+        </Button>
+      </CollapsibleTrigger>
 
-      <Accordion type="single" collapsible className="w-full">
-        {faqItems.map((item, index) => (
-          <AccordionItem key={index} value={`item-${index}`}>
-            <AccordionTrigger className="text-left text-sm">
-              {item.question}
-            </AccordionTrigger>
-            <AccordionContent className="text-sm text-muted-foreground">
-              {item.answer}
-            </AccordionContent>
-          </AccordionItem>
-        ))}
-      </Accordion>
+      {/* Content yang bisa di-collapse */}
+      <CollapsibleContent>
+        <Accordion type="single" collapsible className="w-full">
+          {faqItems.map((item, index) => (
+            <AccordionItem key={index} value={`item-${index}`}>
+              <AccordionTrigger className="text-left text-sm py-3">
+                {item.question}
+              </AccordionTrigger>
+              <AccordionContent className="text-sm text-muted-foreground">
+                {item.answer}
+              </AccordionContent>
+            </AccordionItem>
+          ))}
+        </Accordion>
 
-      <div className="pt-2">
-        <Button
-          variant="outline"
-          size="sm"
-          className="w-full"
-          asChild
-        >
-          <a
-            href={`https://wa.me/${whatsappNumber}?text=${whatsappMessage}`}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+        {/* WhatsApp Button */}
+        <Button variant="outline" size="sm" className="w-full mt-4" asChild>
+          <a href={...}>
             <MessageCircle className="w-4 h-4 mr-2" />
             Ada pertanyaan lain? Hubungi Admin
           </a>
         </Button>
-      </div>
-    </div>
+      </CollapsibleContent>
+    </Collapsible>
   );
 }
 ```
 
-### 2. Update QuickOrderForm untuk Menampilkan FAQ
-
-**File:** `src/components/quick-order/QuickOrderForm.tsx`
-
-Tambahkan import dan gunakan komponen di bawah `PaymentMethods`:
-
-```tsx
-// Tambah import
-import { QuickOrderFAQ } from "./QuickOrderFAQ";
-
-// Di bagian Right Column - Summary (setelah PaymentMethods, baris 463)
-<PaymentMethods />
-
-{/* FAQ Section */}
-<QuickOrderFAQ />
-```
-
 ---
 
-## Preview Tampilan
+## Preview Tampilan Mobile
 
+### Sebelum (FAQ terbuka langsung)
 ```text
-┌─────────────────────────────────────────────────────┐
-│  📋 Ringkasan Order                                 │
-│  ...                                                │
-│  Total Bayar              Rp10.000                  │
-└─────────────────────────────────────────────────────┘
+┌────────────────────────────────────┐
+│  [ Bayar Sekarang ]                │
+│  QRIS  Virtual Account  E-Wallet   │
+│                                    │
+│  ❓ Pertanyaan Umum                │
+│  ────────────────────────────────  │
+│  ▸ Berapa lama durasi...?     ▼    │
+│  ────────────────────────────────  │
+│  ▸ Apakah dalam satu tanggal...    │
+│    bisa digunakan berkali-kali? ▼  │
+│  ────────────────────────────────  │
+│  ▸ Bagaimana prosesnya?       ▼    │
+│  ────────────────────────────────  │
+│  ▸ Apakah pesanan bisa di-         │
+│    reschedule atau di-upgrade? ▼   │
+│  ────────────────────────────────  │
+│  ▸ Apakah tersedia rekaman... ▼    │
+│  ────────────────────────────────  │
+│                                    │
+│  [ 💬 Hubungi Admin ]              │
+└────────────────────────────────────┘
+```
 
-[ 💳 Bayar Sekarang ]
+### Sesudah (FAQ bisa di-collapse)
+```text
+┌────────────────────────────────────┐
+│  [ Bayar Sekarang ]                │
+│  QRIS  Virtual Account  E-Wallet   │
+│                                    │
+│  ❓ Pertanyaan Umum            ▼   │  ← Klik untuk expand
+└────────────────────────────────────┘
 
-   QRIS    Virtual Account    E-Wallet
+Ketika di-expand:
 
-┌─────────────────────────────────────────────────────┐
-│  ❓ Pertanyaan Umum                                 │
-│                                                     │
-│  ▸ Berapa lama durasi yang didapatkan?             │
-│  ▸ Apakah dalam satu tanggal bisa berkali-kali?    │
-│  ▸ Bagaimana prosesnya?                            │
-│  ▸ Apakah pesanan bisa di-reschedule/upgrade?      │
-│  ▸ Apakah tersedia rekaman cloud?                  │
-│                                                     │
-│  [ 💬 Ada pertanyaan lain? Hubungi Admin ]         │
-└─────────────────────────────────────────────────────┘
+┌────────────────────────────────────┐
+│  ❓ Pertanyaan Umum            ▲   │
+│                                    │
+│  ▸ Berapa lama durasi...?     ▼    │
+│  ▸ Apakah berkali-kali...     ▼    │
+│  ▸ Bagaimana prosesnya?       ▼    │
+│  ▸ Reschedule/upgrade?        ▼    │
+│  ▸ Rekaman cloud?             ▼    │
+│                                    │
+│  [ 💬 Hubungi Admin ]              │
+└────────────────────────────────────┘
 ```
 
 ---
@@ -158,13 +134,13 @@ import { QuickOrderFAQ } from "./QuickOrderFAQ";
 
 | File | Aksi | Deskripsi |
 |------|------|-----------|
-| `src/components/quick-order/QuickOrderFAQ.tsx` | Buat | Komponen FAQ dengan Accordion |
-| `src/components/quick-order/QuickOrderForm.tsx` | Ubah | Import dan tampilkan QuickOrderFAQ |
+| `src/components/quick-order/QuickOrderFAQ.tsx` | Ubah | Wrap dengan Collapsible, perkecil padding accordion trigger |
 
 ---
 
-## Catatan Teknis
+## Benefit
 
-- Menggunakan komponen `Accordion` dari Radix UI yang sudah tersedia di `@/components/ui/accordion`
-- Nomor WhatsApp admin perlu disesuaikan dengan nomor yang benar
-- FAQ menggunakan `type="single"` dan `collapsible` agar hanya satu item terbuka dalam satu waktu
+1. **Lebih compact di mobile** - User tidak melihat daftar panjang langsung
+2. **User bisa hide/show** - Jika tidak butuh FAQ, bisa disembunyikan
+3. **Padding lebih kecil** - py-3 instead of py-4 untuk accordion trigger
+4. **UX lebih baik** - Fokus pada tombol "Bayar Sekarang", FAQ sebagai optional info
