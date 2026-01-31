@@ -3,24 +3,16 @@ import React, { useState } from 'react';
 import SectionContainer from '@/components/layout/SectionContainer';
 import { Button } from '@/components/ui/button';
 import { CheckCircle, Users, Zap, Shield, MessageCircle, GraduationCap, Briefcase, ShoppingBag, Megaphone, ArrowRight } from 'lucide-react';
-import FreeTrialModal from '@/components/ui/free-trial-modal';
-import { shouldShowModal, getRedirectUrl } from '@/hooks/useURLParams';
+import OrderOptionModal from '@/components/ui/order-option-modal';
 
 const SewaZoomHarianSection: React.FC = () => {
-  const [modalOpen, setModalOpen] = useState(false);
+  const [orderModalOpen, setOrderModalOpen] = useState(false);
 
   const handleRegistration = () => {
-    // Track registration click with Facebook Pixel
     if (typeof window.fbq === 'function') {
       window.fbq('track', 'CTAClick');
     }
-    
-    if (shouldShowModal()) {
-      setModalOpen(true);
-    } else {
-      const redirectUrl = getRedirectUrl();
-      window.open(redirectUrl, '_blank');
-    }
+    setOrderModalOpen(true);
   };
 
   return (
@@ -158,12 +150,10 @@ const SewaZoomHarianSection: React.FC = () => {
         </div>
       </SectionContainer>
 
-      {shouldShowModal() && (
-        <FreeTrialModal
-          isOpen={modalOpen}
-          onClose={() => setModalOpen(false)}
-        />
-      )}
+      <OrderOptionModal
+        isOpen={orderModalOpen}
+        onClose={() => setOrderModalOpen(false)}
+      />
     </>
   );
 };
