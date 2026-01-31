@@ -1,58 +1,144 @@
 
-# Rencana: Perbaiki Tampilan FAQ di Mobile
+# Rencana: Perbaiki Layout FAQ di Quick Order
 
-## Masalah
+## Analisis Masalah
 
-Dari screenshot terlihat FAQ section terlalu panjang di mobile karena:
-- Accordion trigger memiliki padding yang besar (py-4)
-- Tidak ada opsi untuk menyembunyikan seluruh FAQ section
-- Pertanyaan panjang memakan banyak baris
+Dari screenshot terlihat bahwa ketika FAQ section di-expand:
+- Konten FAQ mempengaruhi lebar seluruh kolom form
+- Ini terjadi karena FAQ berada di dalam grid 2 kolom yang sama dengan form
+- Accordion yang terbuka menyebabkan reflow layout
+
+Di halaman QuickOrderDetail, FAQ ditampilkan dalam Card terpisah di luar grid form (lines 921-1015):
+
+```tsx
+{/* FAQ Section (only for paid orders) */}
+{isPaid && (
+  <Card>
+    <CardContent className="p-6">
+      <div className="flex items-center gap-2 mb-4">
+        <HelpCircle className="w-5 h-5 text-primary" />
+        <h2 className="font-semibold text-lg">Pertanyaan Umum (FAQ)</h2>
+      </div>
+      <Accordion type="single" collapsible className="w-full">
+        ...
+      </Accordion>
+    </CardContent>
+  </Card>
+)}
+```
 
 ---
 
 ## Solusi
 
-Memperbaiki styling FAQ agar lebih compact di mobile dengan:
-1. Mengurangi padding pada accordion trigger
-2. Membungkus FAQ dalam Collapsible component sehingga user bisa menyembunyikan seluruh section
-3. Memperkecil ukuran font di mobile
+Memindahkan FAQ section keluar dari grid form dan menempatkannya dalam Card terpisah di bawah form utama.
 
 ---
 
 ## Perubahan Detail
 
-**File:** `src/components/quick-order/QuickOrderFAQ.tsx`
+### 1. Update QuickOrderForm.tsx
 
-### Perubahan yang dilakukan:
+**Hapus FAQ dari dalam grid layout** dan kembalikan sebagai child component yang di-render di luar grid.
+
+### 2. Update QuickOrder.tsx (halaman utama)
+
+**Tambahkan FAQ dalam Card terpisah** di bawah form container.
+
+---
+
+## Struktur Sebelum
+
+```text
+┌─────────────────────────────────────────────────────────────┐
+│  bg-card border rounded-2xl p-6 shadow-lg                   │
+│                                                             │
+│  ┌────────────────────────┐  ┌────────────────────────┐    │
+│  │   Left Column          │  │   Right Column         │    │
+│  │   (Form Fields)        │  │   (Summary)            │    │
+│  │                        │  │   [Bayar Sekarang]     │    │
+│  │                        │  │   Payment Methods      │    │
+│  │                        │  │   FAQ Section ← MASALAH│    │
+│  └────────────────────────┘  └────────────────────────┘    │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+## Struktur Sesudah
+
+```text
+┌─────────────────────────────────────────────────────────────┐
+│  bg-card border rounded-2xl p-6 shadow-lg                   │
+│                                                             │
+│  ┌────────────────────────┐  ┌────────────────────────┐    │
+│  │   Left Column          │  │   Right Column         │    │
+│  │   (Form Fields)        │  │   (Summary)            │    │
+│  │                        │  │   [Bayar Sekarang]     │    │
+│  │                        │  │   Payment Methods      │    │
+│  └────────────────────────┘  └────────────────────────┘    │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│  Card terpisah untuk FAQ                                    │
+│  ┌─────────────────────────────────────────────────────────┐│
+│  │  ❓ Pertanyaan Umum                                     ││
+│  │  ▸ Berapa lama durasi yang didapatkan?                  ││
+│  │  ▸ Apakah dalam satu tanggal bisa berkali-kali?         ││
+│  │  ▸ Bagaimana prosesnya?                                 ││
+│  │  ...                                                    ││
+│  │  [ 💬 Ada pertanyaan lain? Hubungi Admin ]              ││
+│  └─────────────────────────────────────────────────────────┘│
+└─────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## File yang Diubah
+
+| File | Aksi | Deskripsi |
+|------|------|-----------|
+| `src/components/quick-order/QuickOrderForm.tsx` | Ubah | Hapus import dan render QuickOrderFAQ |
+| `src/components/quick-order/QuickOrderFAQ.tsx` | Ubah | Kembalikan ke struktur non-Collapsible, langsung gunakan Card |
+| `src/pages/QuickOrder.tsx` | Ubah | Import dan render QuickOrderFAQ dalam Card terpisah di bawah form |
+
+---
+
+## Detail Kode
+
+### QuickOrderFAQ.tsx (Struktur Baru)
 
 ```tsx
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { ChevronDown } from "lucide-react";
-import { useState } from "react";
+import { HelpCircle, MessageCircle } from "lucide-react";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+
+const faqItems = [
+  // ... same as before
+];
 
 export function QuickOrderFAQ() {
-  const [isOpen, setIsOpen] = useState(false);
-  // ...
+  const whatsappNumber = "6281318887658";
+  const whatsappMessage = encodeURIComponent("...");
 
   return (
-    <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-      {/* Header yang bisa diklik */}
-      <CollapsibleTrigger asChild>
-        <Button variant="ghost" className="w-full justify-between">
-          <span className="flex items-center gap-2">
-            <HelpCircle className="w-5 h-5 text-primary" />
-            Pertanyaan Umum
-          </span>
-          <ChevronDown className={cn("h-4 w-4 transition-transform", isOpen && "rotate-180")} />
-        </Button>
-      </CollapsibleTrigger>
+    <Card>
+      <CardContent className="p-6">
+        <div className="flex items-center gap-2 mb-4">
+          <HelpCircle className="w-5 h-5 text-primary" />
+          <h3 className="font-semibold text-lg">Pertanyaan Umum</h3>
+        </div>
 
-      {/* Content yang bisa di-collapse */}
-      <CollapsibleContent>
         <Accordion type="single" collapsible className="w-full">
           {faqItems.map((item, index) => (
             <AccordionItem key={index} value={`item-${index}`}>
-              <AccordionTrigger className="text-left text-sm py-3">
+              <AccordionTrigger className="text-left text-sm">
                 {item.question}
               </AccordionTrigger>
               <AccordionContent className="text-sm text-muted-foreground">
@@ -62,85 +148,47 @@ export function QuickOrderFAQ() {
           ))}
         </Accordion>
 
-        {/* WhatsApp Button */}
-        <Button variant="outline" size="sm" className="w-full mt-4" asChild>
-          <a href={...}>
-            <MessageCircle className="w-4 h-4 mr-2" />
-            Ada pertanyaan lain? Hubungi Admin
-          </a>
-        </Button>
-      </CollapsibleContent>
-    </Collapsible>
+        <div className="pt-4">
+          <Button variant="outline" size="sm" className="w-full" asChild>
+            <a href={`https://wa.me/${whatsappNumber}?text=${whatsappMessage}`}
+               target="_blank" rel="noopener noreferrer">
+              <MessageCircle className="w-4 h-4 mr-2" />
+              Ada pertanyaan lain? Hubungi Admin
+            </a>
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 ```
 
----
+### QuickOrder.tsx (Tambahan di Form Section)
 
-## Preview Tampilan Mobile
+```tsx
+import { QuickOrderFAQ } from "@/components/quick-order/QuickOrderFAQ";
 
-### Sebelum (FAQ terbuka langsung)
-```text
-┌────────────────────────────────────┐
-│  [ Bayar Sekarang ]                │
-│  QRIS  Virtual Account  E-Wallet   │
-│                                    │
-│  ❓ Pertanyaan Umum                │
-│  ────────────────────────────────  │
-│  ▸ Berapa lama durasi...?     ▼    │
-│  ────────────────────────────────  │
-│  ▸ Apakah dalam satu tanggal...    │
-│    bisa digunakan berkali-kali? ▼  │
-│  ────────────────────────────────  │
-│  ▸ Bagaimana prosesnya?       ▼    │
-│  ────────────────────────────────  │
-│  ▸ Apakah pesanan bisa di-         │
-│    reschedule atau di-upgrade? ▼   │
-│  ────────────────────────────────  │
-│  ▸ Apakah tersedia rekaman... ▼    │
-│  ────────────────────────────────  │
-│                                    │
-│  [ 💬 Hubungi Admin ]              │
-└────────────────────────────────────┘
+// Di bagian Form Section, setelah form container
+<section className="pb-16 md:pb-24">
+  <div className="container mx-auto px-4">
+    <div className="max-w-4xl mx-auto space-y-6">
+      {/* Form Container */}
+      <div className="bg-card border rounded-2xl p-6 md:p-8 shadow-lg">
+        <QuickOrderForm />
+      </div>
+
+      {/* FAQ Section - Card terpisah */}
+      <QuickOrderFAQ />
+    </div>
+  </div>
+</section>
 ```
-
-### Sesudah (FAQ bisa di-collapse)
-```text
-┌────────────────────────────────────┐
-│  [ Bayar Sekarang ]                │
-│  QRIS  Virtual Account  E-Wallet   │
-│                                    │
-│  ❓ Pertanyaan Umum            ▼   │  ← Klik untuk expand
-└────────────────────────────────────┘
-
-Ketika di-expand:
-
-┌────────────────────────────────────┐
-│  ❓ Pertanyaan Umum            ▲   │
-│                                    │
-│  ▸ Berapa lama durasi...?     ▼    │
-│  ▸ Apakah berkali-kali...     ▼    │
-│  ▸ Bagaimana prosesnya?       ▼    │
-│  ▸ Reschedule/upgrade?        ▼    │
-│  ▸ Rekaman cloud?             ▼    │
-│                                    │
-│  [ 💬 Hubungi Admin ]              │
-└────────────────────────────────────┘
-```
-
----
-
-## Ringkasan Perubahan
-
-| File | Aksi | Deskripsi |
-|------|------|-----------|
-| `src/components/quick-order/QuickOrderFAQ.tsx` | Ubah | Wrap dengan Collapsible, perkecil padding accordion trigger |
 
 ---
 
 ## Benefit
 
-1. **Lebih compact di mobile** - User tidak melihat daftar panjang langsung
-2. **User bisa hide/show** - Jika tidak butuh FAQ, bisa disembunyikan
-3. **Padding lebih kecil** - py-3 instead of py-4 untuk accordion trigger
-4. **UX lebih baik** - Fokus pada tombol "Bayar Sekarang", FAQ sebagai optional info
+1. **Layout stabil** - FAQ tidak mempengaruhi lebar kolom form
+2. **Konsisten dengan QuickOrderDetail** - Menggunakan pola Card terpisah yang sama
+3. **Lebih rapi di mobile** - FAQ memiliki container sendiri yang jelas
+4. **Tidak perlu Collapsible** - Card terpisah sudah cukup untuk visual separation
