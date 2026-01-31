@@ -1,75 +1,80 @@
 
 
-# Rencana: Seragamkan Font Size di PricingSummary
+# Rencana: Sticky Summary pada Desktop
 
 ## Analisis
 
-Saat ini ukuran font di PricingSummary tidak konsisten:
-- "Biaya Payment Gateway - GRATIS" menggunakan `text-sm`
-- Item lainnya (Topik, Kapasitas, Tanggal, Jam, Durasi, Platform) menggunakan ukuran default (base)
-- "Total Bayar" menggunakan `text-lg`
+Saat ini layout menggunakan grid 2 kolom pada desktop (`lg:grid-cols-2`):
+- **Kolom Kiri**: Form (Data Pemesan + Detail Meeting)
+- **Kolom Kanan**: PricingSummary + Button + PaymentMethods
+
+User ingin kolom kanan tetap terlihat (sticky) saat scroll di desktop, sehingga ringkasan order selalu visible ketika mengisi form.
+
+---
+
+## Solusi
+
+Menambahkan CSS `sticky` dan `top-*` pada wrapper kolom kanan, hanya aktif di layar desktop (`lg:`).
+
+---
 
 ## Perubahan
 
-Menambahkan `text-sm` pada semua item summary **kecuali** "Total Bayar" yang tetap `text-lg`.
+**File:** `src/components/quick-order/QuickOrderForm.tsx`
 
----
-
-## Detail Perubahan
-
-**File:** `src/components/quick-order/PricingSummary.tsx`
-
-| Bagian | Sebelum | Sesudah |
-|--------|---------|---------|
-| Topik row | tanpa text-sm | + `text-sm` |
-| Kapasitas row | tanpa text-sm | + `text-sm` |
-| Tanggal row | tanpa text-sm | + `text-sm` |
-| Jam Mulai row | tanpa text-sm | + `text-sm` |
-| Passcode row | tanpa text-sm | + `text-sm` |
-| Durasi row | tanpa text-sm | + `text-sm` |
-| Platform row | tanpa text-sm | + `text-sm` |
-| Meeting Berulang row | tanpa text-sm | + `text-sm` |
-| Payment Gateway | sudah `text-sm` | tetap |
-| **Total Bayar** | `text-lg` | **tetap `text-lg`** |
-
----
-
-## Kode Perubahan
-
+### Sebelum (line 432-434)
 ```tsx
-// Topik (line 92)
-<div className="flex items-start justify-between gap-2 text-sm">
+{/* Right Column - Summary */}
+<div className="space-y-4">
+  <PricingSummary
+```
 
-// Kapasitas (line 101)
-<div className="flex items-center justify-between text-sm">
-
-// Tanggal (line 109)
-<div className="flex items-center justify-between text-sm">
-
-// Jam Mulai (line 117)
-<div className="flex items-center justify-between text-sm">
-
-// Passcode (line 126)
-<div className="flex items-center justify-between text-sm">
-
-// Durasi per Tanggal (line 134)
-<div className="flex items-center justify-between text-sm">
-
-// Platform (line 139)
-<div className="flex items-center justify-between text-sm">
-
-// Meeting Berulang (line 149)
-<div className="flex items-center justify-between text-sm">
-
-// Total Bayar - TETAP text-lg (line 220)
-<div className="flex items-center justify-between text-lg">
+### Sesudah
+```tsx
+{/* Right Column - Summary (Sticky on Desktop) */}
+<div className="space-y-4 lg:sticky lg:top-24 lg:self-start">
+  <PricingSummary
 ```
 
 ---
 
-## Ringkasan
+## Penjelasan CSS
 
-| File | Aksi |
-|------|------|
-| `src/components/quick-order/PricingSummary.tsx` | Tambahkan `text-sm` pada semua row kecuali Total Bayar |
+| Class | Fungsi |
+|-------|--------|
+| `lg:sticky` | Membuat elemen sticky hanya di layar desktop (≥1024px) |
+| `lg:top-24` | Jarak 6rem dari atas viewport (memberi ruang untuk navbar) |
+| `lg:self-start` | Menjaga elemen tetap di posisi atas grid cell, tidak stretch |
+
+---
+
+## Visual Perubahan
+
+```text
+SEBELUM (Scroll ke bawah):
+┌──────────────────┐  ┌──────────────────┐
+│ Data Pemesan     │  │ (Tidak terlihat) │
+│                  │  │                  │
+│ Detail Meeting   │  │                  │
+│ (visible)        │  │                  │
+│                  │  │                  │
+└──────────────────┘  └──────────────────┘
+
+SESUDAH (Scroll ke bawah):
+┌──────────────────┐  ┌──────────────────┐
+│ Data Pemesan     │  │ Ringkasan Order  │ ← STICKY
+│                  │  │ [Bayar Sekarang] │
+│ Detail Meeting   │  │ Payment Methods  │
+│ (visible)        │  │                  │
+│                  │  │                  │
+└──────────────────┘  └──────────────────┘
+```
+
+---
+
+## Catatan
+
+- **Mobile**: Tidak ada perubahan - kolom summary tetap di bawah form seperti biasa
+- **Desktop**: Summary akan "mengikuti" scroll hingga user selesai mengisi form
+- `top-24` (6rem ≈ 96px) memberikan jarak yang cukup untuk navbar
 
