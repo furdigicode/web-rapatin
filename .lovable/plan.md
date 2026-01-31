@@ -1,154 +1,60 @@
 
-# Rencana: Tambah FAQ Section di Halaman Quick Order
+
+# Rencana: Tambah Informasi Biaya Payment Gateway Gratis
 
 ## Ringkasan
 
-Menambahkan section FAQ (Pertanyaan yang Sering Diajukan) di bawah daftar payment method pada halaman Quick Order. FAQ menggunakan komponen Accordion untuk tampilan yang rapi dan interaktif.
-
----
-
-## Struktur FAQ
-
-| No | Pertanyaan | Jawaban |
-|----|-----------|---------|
-| 1 | Berapa lama durasi yang didapatkan? | 24 jam dalam satu tanggal, mulai jam 00:00 sampai jam 24:00. |
-| 2 | Apakah dalam satu tanggal bisa digunakan berkali-kali? | Ya, bisa. Anda dapat menggunakan meeting berkali-kali selama masih dalam tanggal yang sama. |
-| 3 | Bagaimana prosesnya? | Setelah mengisi data pesanan dan data meeting, kemudian menyelesaikan pembayaran, Anda langsung mendapatkan akses meeting. Akses diberikan langsung di halaman pembayaran berhasil, dan informasi juga dikirimkan ke email dan WhatsApp. |
-| 4 | Apakah pesanan bisa di-reschedule atau di-upgrade? | Tidak bisa. Pesanan melalui Quick Order tidak dapat diubah atau diedit. Jika ingin akses jadwal yang lebih fleksibel, silakan mendaftar ke aplikasi Rapatin. |
-| 5 | Apakah tersedia rekaman cloud? | Ya, tersedia. Untuk orderan Quick Order, hasil rekaman harus diminta manual melalui admin. Jika ingin akses rekaman tanpa bantuan admin, bisa mendaftar aplikasi Rapatin. |
-| 6 | (Footer) | Ada pertanyaan lain? Hubungi WhatsApp Admin → tombol |
+Menambahkan informasi bahwa biaya payment gateway **GRATIS** di atas baris "Total Bayar" pada komponen Ringkasan Order.
 
 ---
 
 ## Perubahan Detail
 
-### 1. Buat Komponen Baru: `QuickOrderFAQ.tsx`
+**File:** `src/components/quick-order/PricingSummary.tsx`
 
-**File:** `src/components/quick-order/QuickOrderFAQ.tsx`
+### Lokasi: Sebelum "Total Bayar" (baris 214)
 
-Komponen menggunakan Accordion dari Radix UI yang sudah tersedia di project:
-
-```tsx
-import { HelpCircle, MessageCircle } from "lucide-react";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
-import { Button } from "@/components/ui/button";
-
-const faqItems = [
-  {
-    question: "Berapa lama durasi yang didapatkan?",
-    answer: "24 jam dalam satu tanggal, mulai jam 00:00 sampai jam 24:00."
-  },
-  {
-    question: "Apakah dalam satu tanggal bisa digunakan berkali-kali?",
-    answer: "Ya, bisa. Anda dapat menggunakan meeting berkali-kali selama masih dalam tanggal yang sama."
-  },
-  {
-    question: "Bagaimana prosesnya?",
-    answer: "Setelah mengisi data pesanan dan data meeting, kemudian menyelesaikan pembayaran, Anda langsung mendapatkan akses meeting. Akses diberikan langsung di halaman pembayaran berhasil, dan informasi juga dikirimkan ke email dan WhatsApp."
-  },
-  {
-    question: "Apakah pesanan bisa di-reschedule atau di-upgrade?",
-    answer: "Tidak bisa. Pesanan melalui Quick Order tidak dapat diubah atau diedit. Jika ingin akses jadwal yang lebih fleksibel, silakan mendaftar ke aplikasi Rapatin."
-  },
-  {
-    question: "Apakah tersedia rekaman cloud?",
-    answer: "Ya, tersedia. Untuk orderan Quick Order, hasil rekaman harus diminta manual melalui admin. Jika ingin akses rekaman tanpa bantuan admin, bisa mendaftar aplikasi Rapatin."
-  }
-];
-
-export function QuickOrderFAQ() {
-  const whatsappNumber = "6281234567890"; // Ganti dengan nomor admin
-  const whatsappMessage = encodeURIComponent("Halo, saya ada pertanyaan tentang Quick Order Rapatin");
-
-  return (
-    <div className="space-y-4">
-      <h3 className="font-semibold text-lg flex items-center gap-2">
-        <HelpCircle className="w-5 h-5 text-primary" />
-        Pertanyaan Umum
-      </h3>
-
-      <Accordion type="single" collapsible className="w-full">
-        {faqItems.map((item, index) => (
-          <AccordionItem key={index} value={`item-${index}`}>
-            <AccordionTrigger className="text-left text-sm">
-              {item.question}
-            </AccordionTrigger>
-            <AccordionContent className="text-sm text-muted-foreground">
-              {item.answer}
-            </AccordionContent>
-          </AccordionItem>
-        ))}
-      </Accordion>
-
-      <div className="pt-2">
-        <Button
-          variant="outline"
-          size="sm"
-          className="w-full"
-          asChild
-        >
-          <a
-            href={`https://wa.me/${whatsappNumber}?text=${whatsappMessage}`}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <MessageCircle className="w-4 h-4 mr-2" />
-            Ada pertanyaan lain? Hubungi Admin
-          </a>
-        </Button>
-      </div>
-    </div>
-  );
-}
-```
-
-### 2. Update QuickOrderForm untuk Menampilkan FAQ
-
-**File:** `src/components/quick-order/QuickOrderForm.tsx`
-
-Tambahkan import dan gunakan komponen di bawah `PaymentMethods`:
+Tambahkan baris baru yang menampilkan "Biaya Payment Gateway" dengan nilai "GRATIS" dalam warna hijau:
 
 ```tsx
-// Tambah import
-import { QuickOrderFAQ } from "./QuickOrderFAQ";
+{/* Biaya Payment Gateway - Gratis */}
+<div className="flex items-center justify-between text-sm">
+  <span className="text-muted-foreground">Biaya Payment Gateway</span>
+  <span className="font-medium text-green-600">GRATIS</span>
+</div>
 
-// Di bagian Right Column - Summary (setelah PaymentMethods, baris 463)
-<PaymentMethods />
-
-{/* FAQ Section */}
-<QuickOrderFAQ />
+<div className="flex items-center justify-between text-lg">
+  <span className="font-semibold">Total Bayar</span>
+  <span className="font-bold text-primary">{finalPrice > 0 ? formatRupiah(finalPrice) : "-"}</span>
+</div>
 ```
 
 ---
 
-## Preview Tampilan
+## Preview Ringkasan Order
 
 ```text
 ┌─────────────────────────────────────────────────────┐
 │  📋 Ringkasan Order                                 │
-│  ...                                                │
-│  Total Bayar              Rp10.000                  │
-└─────────────────────────────────────────────────────┘
-
-[ 💳 Bayar Sekarang ]
-
-   QRIS    Virtual Account    E-Wallet
-
-┌─────────────────────────────────────────────────────┐
-│  ❓ Pertanyaan Umum                                 │
+│  ───────────────────────────────────────           │
 │                                                     │
-│  ▸ Berapa lama durasi yang didapatkan?             │
-│  ▸ Apakah dalam satu tanggal bisa berkali-kali?    │
-│  ▸ Bagaimana prosesnya?                            │
-│  ▸ Apakah pesanan bisa di-reschedule/upgrade?      │
-│  ▸ Apakah tersedia rekaman cloud?                  │
+│  💬 Topik               Meeting Bulanan Tim        │
+│  👥 Kapasitas           100 Peserta                │
+│  📅 Tanggal             Jumat, 31 Januari 2026     │
+│  🕐 Jam Mulai           10:00                      │
 │                                                     │
-│  [ 💬 Ada pertanyaan lain? Hubungi Admin ]         │
+│  ───────────────────────────────────────           │
+│                                                     │
+│  Durasi per Sesi        24 Jam (Full Day)          │
+│  Platform               Zoom Meeting               │
+│                                                     │
+│  ───────────────────────────────────────           │
+│                                                     │
+│  Biaya Payment Gateway  GRATIS  ← NEW (hijau)      │
+│                                                     │
+│  Total Bayar            Rp10.000  (biru/primary)   │
+│                                                     │
+│  🛡️ Pembayaran aman dan terenkripsi...            │
 └─────────────────────────────────────────────────────┘
 ```
 
@@ -156,15 +62,9 @@ import { QuickOrderFAQ } from "./QuickOrderFAQ";
 
 ## Ringkasan Perubahan
 
-| File | Aksi | Deskripsi |
-|------|------|-----------|
-| `src/components/quick-order/QuickOrderFAQ.tsx` | Buat | Komponen FAQ dengan Accordion |
-| `src/components/quick-order/QuickOrderForm.tsx` | Ubah | Import dan tampilkan QuickOrderFAQ |
+| File | Baris | Aksi |
+|------|-------|------|
+| `src/components/quick-order/PricingSummary.tsx` | sebelum 214 | Tambah baris "Biaya Payment Gateway: GRATIS" |
 
----
+Perubahan ini memberikan informasi transparan kepada pelanggan bahwa tidak ada biaya tambahan untuk menggunakan payment gateway.
 
-## Catatan Teknis
-
-- Menggunakan komponen `Accordion` dari Radix UI yang sudah tersedia di `@/components/ui/accordion`
-- Nomor WhatsApp admin perlu disesuaikan dengan nomor yang benar
-- FAQ menggunakan `type="single"` dan `collapsible` agar hanya satu item terbuka dalam satu waktu
