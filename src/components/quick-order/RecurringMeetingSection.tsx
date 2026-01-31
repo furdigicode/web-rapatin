@@ -1,34 +1,20 @@
-import { useState, useEffect } from 'react';
-import { format } from 'date-fns';
-import { id } from 'date-fns/locale';
-import { Repeat, CalendarDays, ChevronDown, ChevronUp, Info } from 'lucide-react';
-import { Control, useWatch, useFormContext } from 'react-hook-form';
+import { useState, useEffect } from "react";
+import { format } from "date-fns";
+import { id } from "date-fns/locale";
+import { Repeat, CalendarDays, ChevronDown, ChevronUp, Info } from "lucide-react";
+import { Control, useWatch, useFormContext } from "react-hook-form";
 
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Calendar } from '@/components/ui/calendar';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from '@/components/ui/collapsible';
-import { Badge } from '@/components/ui/badge';
-import { cn } from '@/lib/utils';
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Calendar } from "@/components/ui/calendar";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 import {
   calculateRecurringDays,
   getDayLabel,
@@ -36,7 +22,7 @@ import {
   validateRecurringParams,
   RecurrenceType,
   EndType,
-} from '@/utils/recurringCalculation';
+} from "@/utils/recurringCalculation";
 
 interface RecurringMeetingSectionProps {
   control: Control<any>;
@@ -46,13 +32,13 @@ interface RecurringMeetingSectionProps {
 }
 
 const WEEKDAYS = [
-  { value: 1, label: 'Min' },
-  { value: 2, label: 'Sen' },
-  { value: 3, label: 'Sel' },
-  { value: 4, label: 'Rab' },
-  { value: 5, label: 'Kam' },
-  { value: 6, label: 'Jum' },
-  { value: 7, label: 'Sab' },
+  { value: 1, label: "Min" },
+  { value: 2, label: "Sen" },
+  { value: 3, label: "Sel" },
+  { value: 4, label: "Rab" },
+  { value: 5, label: "Kam" },
+  { value: 6, label: "Jum" },
+  { value: 7, label: "Sab" },
 ];
 
 export function RecurringMeetingSection({
@@ -62,7 +48,7 @@ export function RecurringMeetingSection({
   onRecurringChange,
 }: RecurringMeetingSectionProps) {
   const { setValue } = useFormContext();
-  
+
   const [isOpen, setIsOpen] = useState(false);
   const [isRecurring, setIsRecurring] = useState(false);
   const [recurrenceType, setRecurrenceType] = useState<RecurrenceType>(1);
@@ -70,8 +56,8 @@ export function RecurringMeetingSection({
   const [weeklyDays, setWeeklyDays] = useState<number[]>([]);
   const [monthlyDay, setMonthlyDay] = useState<number>(1);
   const [monthlyWeek, setMonthlyWeek] = useState<number>(1);
-  const [monthlyOption, setMonthlyOption] = useState<'day' | 'week'>('day');
-  const [endType, setEndType] = useState<EndType>('end_after_type');
+  const [monthlyOption, setMonthlyOption] = useState<"day" | "week">("day");
+  const [endType, setEndType] = useState<EndType>("end_after_type");
   const [endDate, setEndDate] = useState<Date | undefined>();
   const [endAfterCount, setEndAfterCount] = useState(3);
   const [previewDates, setPreviewDates] = useState<string[]>([]);
@@ -96,8 +82,8 @@ export function RecurringMeetingSection({
       endDate,
       endAfterCount,
       weeklyDays: recurrenceType === 2 ? weeklyDays : undefined,
-      monthlyDay: recurrenceType === 3 && monthlyOption === 'day' ? monthlyDay : undefined,
-      monthlyWeek: recurrenceType === 3 && monthlyOption === 'week' ? monthlyWeek : undefined,
+      monthlyDay: recurrenceType === 3 && monthlyOption === "day" ? monthlyDay : undefined,
+      monthlyWeek: recurrenceType === 3 && monthlyOption === "week" ? monthlyWeek : undefined,
     });
 
     if (error) {
@@ -116,8 +102,8 @@ export function RecurringMeetingSection({
       endDate,
       endAfterCount,
       weeklyDays: recurrenceType === 2 ? weeklyDays : undefined,
-      monthlyDay: recurrenceType === 3 && monthlyOption === 'day' ? monthlyDay : undefined,
-      monthlyWeek: recurrenceType === 3 && monthlyOption === 'week' ? monthlyWeek : undefined,
+      monthlyDay: recurrenceType === 3 && monthlyOption === "day" ? monthlyDay : undefined,
+      monthlyWeek: recurrenceType === 3 && monthlyOption === "week" ? monthlyWeek : undefined,
     });
 
     setPreviewDates(result.formattedDates.slice(0, 10));
@@ -125,15 +111,15 @@ export function RecurringMeetingSection({
     onRecurringChange({ isRecurring: true, totalDays: result.totalDays, dates: result.dates });
 
     // Update form values
-    setValue('is_recurring', true);
-    setValue('recurrence_type', recurrenceType);
-    setValue('repeat_interval', repeatInterval);
-    setValue('weekly_days', recurrenceType === 2 ? weeklyDays : null);
-    setValue('monthly_day', recurrenceType === 3 && monthlyOption === 'day' ? monthlyDay : null);
-    setValue('monthly_week', recurrenceType === 3 && monthlyOption === 'week' ? monthlyWeek : null);
-    setValue('end_type', endType);
-    setValue('recurrence_end_date', endType === 'end_date' ? endDate : null);
-    setValue('recurrence_count', endType === 'end_after_type' ? endAfterCount : null);
+    setValue("is_recurring", true);
+    setValue("recurrence_type", recurrenceType);
+    setValue("repeat_interval", repeatInterval);
+    setValue("weekly_days", recurrenceType === 2 ? weeklyDays : null);
+    setValue("monthly_day", recurrenceType === 3 && monthlyOption === "day" ? monthlyDay : null);
+    setValue("monthly_week", recurrenceType === 3 && monthlyOption === "week" ? monthlyWeek : null);
+    setValue("end_type", endType);
+    setValue("recurrence_end_date", endType === "end_date" ? endDate : null);
+    setValue("recurrence_count", endType === "end_after_type" ? endAfterCount : null);
   }, [
     isRecurring,
     startDate,
@@ -154,31 +140,32 @@ export function RecurringMeetingSection({
   // Reset recurring values when toggle is off
   useEffect(() => {
     if (!isRecurring) {
-      setValue('is_recurring', false);
-      setValue('recurrence_type', null);
-      setValue('repeat_interval', null);
-      setValue('weekly_days', null);
-      setValue('monthly_day', null);
-      setValue('monthly_week', null);
-      setValue('end_type', null);
-      setValue('recurrence_end_date', null);
-      setValue('recurrence_count', null);
+      setValue("is_recurring", false);
+      setValue("recurrence_type", null);
+      setValue("repeat_interval", null);
+      setValue("weekly_days", null);
+      setValue("monthly_day", null);
+      setValue("monthly_week", null);
+      setValue("end_type", null);
+      setValue("recurrence_end_date", null);
+      setValue("recurrence_count", null);
     }
   }, [isRecurring, setValue]);
 
   const toggleWeekday = (day: number) => {
-    setWeeklyDays(prev => 
-      prev.includes(day) 
-        ? prev.filter(d => d !== day)
-        : [...prev, day].sort((a, b) => a - b)
+    setWeeklyDays((prev) =>
+      prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day].sort((a, b) => a - b),
     );
   };
 
   const getIntervalLabel = () => {
     switch (recurrenceType) {
-      case 1: return 'hari';
-      case 2: return 'minggu';
-      case 3: return 'bulan';
+      case 1:
+        return "hari";
+      case 2:
+        return "minggu";
+      case 3:
+        return "bulan";
     }
   };
 
@@ -192,12 +179,12 @@ export function RecurringMeetingSection({
             </div>
             <div>
               <Label htmlFor="recurring-toggle" className="font-medium cursor-pointer">
-                Meeting Berulang
+                Lebih dari 1 Hari?
               </Label>
               <p className="text-sm text-muted-foreground">
                 {isRecurring && totalDays > 1
-                  ? `${totalDays} sesi meeting`
-                  : 'Jadwalkan meeting berkala'}
+                  ? `${totalDays} tanggal meeting`
+                  : "Jadwalkan meeting berkala atau lebih dari 1 tanggal"}
               </p>
             </div>
           </div>
@@ -228,14 +215,14 @@ export function RecurringMeetingSection({
                 <Label>Tipe Pengulangan</Label>
                 <div className="flex gap-2">
                   {[
-                    { value: 1 as RecurrenceType, label: 'Harian' },
-                    { value: 2 as RecurrenceType, label: 'Mingguan' },
-                    { value: 3 as RecurrenceType, label: 'Bulanan' },
+                    { value: 1 as RecurrenceType, label: "Harian" },
+                    { value: 2 as RecurrenceType, label: "Mingguan" },
+                    { value: 3 as RecurrenceType, label: "Bulanan" },
                   ].map((option) => (
                     <Button
                       key={option.value}
                       type="button"
-                      variant={recurrenceType === option.value ? 'default' : 'outline'}
+                      variant={recurrenceType === option.value ? "default" : "outline"}
                       size="sm"
                       onClick={() => setRecurrenceType(option.value)}
                     >
@@ -270,7 +257,7 @@ export function RecurringMeetingSection({
                       <Button
                         key={day.value}
                         type="button"
-                        variant={weeklyDays.includes(day.value) ? 'default' : 'outline'}
+                        variant={weeklyDays.includes(day.value) ? "default" : "outline"}
                         size="sm"
                         className="w-11"
                         onClick={() => toggleWeekday(day.value)}
@@ -288,7 +275,7 @@ export function RecurringMeetingSection({
                   <Label>Pada</Label>
                   <RadioGroup
                     value={monthlyOption}
-                    onValueChange={(value) => setMonthlyOption(value as 'day' | 'week')}
+                    onValueChange={(value) => setMonthlyOption(value as "day" | "week")}
                   >
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="day" id="monthly-day" />
@@ -297,7 +284,7 @@ export function RecurringMeetingSection({
                         <Select
                           value={monthlyDay.toString()}
                           onValueChange={(v) => setMonthlyDay(parseInt(v))}
-                          disabled={monthlyOption !== 'day'}
+                          disabled={monthlyOption !== "day"}
                         >
                           <SelectTrigger className="w-20">
                             <SelectValue />
@@ -319,7 +306,7 @@ export function RecurringMeetingSection({
                         <Select
                           value={monthlyWeek.toString()}
                           onValueChange={(v) => setMonthlyWeek(parseInt(v))}
-                          disabled={monthlyOption !== 'week'}
+                          disabled={monthlyOption !== "week"}
                         >
                           <SelectTrigger className="w-28">
                             <SelectValue />
@@ -341,10 +328,7 @@ export function RecurringMeetingSection({
               {/* End Type */}
               <div className="space-y-3">
                 <Label>Berakhir</Label>
-                <RadioGroup
-                  value={endType}
-                  onValueChange={(value) => setEndType(value as EndType)}
-                >
+                <RadioGroup value={endType} onValueChange={(value) => setEndType(value as EndType)}>
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="end_after_type" id="end-after" />
                     <Label htmlFor="end-after" className="flex items-center gap-2 font-normal">
@@ -356,7 +340,7 @@ export function RecurringMeetingSection({
                         value={endAfterCount}
                         onChange={(e) => setEndAfterCount(Math.max(2, parseInt(e.target.value) || 2))}
                         className="w-20"
-                        disabled={endType !== 'end_after_type'}
+                        disabled={endType !== "end_after_type"}
                       />
                       kali pertemuan
                     </Label>
@@ -370,14 +354,14 @@ export function RecurringMeetingSection({
                           <Button
                             variant="outline"
                             size="sm"
-                            disabled={endType !== 'end_date'}
+                            disabled={endType !== "end_date"}
                             className={cn(
-                              'w-40 justify-start text-left font-normal',
-                              !endDate && 'text-muted-foreground'
+                              "w-40 justify-start text-left font-normal",
+                              !endDate && "text-muted-foreground",
                             )}
                           >
                             <CalendarDays className="mr-2 h-4 w-4" />
-                            {endDate ? format(endDate, 'd MMM yyyy', { locale: id }) : 'Pilih'}
+                            {endDate ? format(endDate, "d MMM yyyy", { locale: id }) : "Pilih"}
                           </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-0" align="start">
@@ -421,9 +405,7 @@ export function RecurringMeetingSection({
                       </li>
                     ))}
                     {totalDays > 10 && (
-                      <li className="text-xs text-muted-foreground pt-1">
-                        ... dan {totalDays - 10} jadwal lainnya
-                      </li>
+                      <li className="text-xs text-muted-foreground pt-1">... dan {totalDays - 10} jadwal lainnya</li>
                     )}
                   </ul>
                 </div>

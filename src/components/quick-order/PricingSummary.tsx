@@ -132,7 +132,7 @@ export function PricingSummary({
           <Separator className="my-3" />
 
           <div className="flex items-center justify-between">
-            <span className="text-muted-foreground">Durasi per Sesi</span>
+            <span className="text-muted-foreground">Durasi per Tanggal</span>
             <span className="font-medium">24 Jam (Full Day)</span>
           </div>
 
