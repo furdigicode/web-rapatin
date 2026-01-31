@@ -36,7 +36,7 @@ import { PricingSummary } from "./PricingSummary";
 import { PaymentMethods } from "./PaymentMethods";
 import { MeetingSettingsSection } from "./MeetingSettingsSection";
 import { RecurringMeetingSection } from "./RecurringMeetingSection";
-
+import { QuickOrderFAQ } from "./QuickOrderFAQ";
 
 // Generate time options from 00:00 to 23:00
 const timeOptions = Array.from({ length: 24 }, (_, i) => {
@@ -462,6 +462,9 @@ export function QuickOrderForm() {
             </Button>
 
             <PaymentMethods />
+
+            {/* FAQ Section */}
+            <QuickOrderFAQ />
           </div>
         </div>
       </form>
