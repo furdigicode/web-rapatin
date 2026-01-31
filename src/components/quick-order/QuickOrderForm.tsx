@@ -287,7 +287,7 @@ export function QuickOrderForm() {
                 name="participant_count"
                 render={() => (
                   <FormItem>
-                    <FormLabel>Jumlah Peserta</FormLabel>
+                    <FormLabel>Kapasitas Ruang Zoom</FormLabel>
                     <FormControl>
                       <PackageSelector
                         selected={selectedPackage}

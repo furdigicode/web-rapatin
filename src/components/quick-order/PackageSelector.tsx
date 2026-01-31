@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { Users, Check } from "lucide-react";
+import { Check } from "lucide-react";
 
 interface Package {
   participants: number;
@@ -8,10 +8,10 @@ interface Package {
 }
 
 const packages: Package[] = [
-  { participants: 100, promoPrice: 10000, normalPrice: 20000 },
-  { participants: 300, promoPrice: 25000, normalPrice: 40000 },
-  { participants: 500, promoPrice: 55000, normalPrice: 70000 },
-  { participants: 1000, promoPrice: 100000, normalPrice: 130000 },
+  { participants: 100, promoPrice: 20000, normalPrice: 40000 },
+  { participants: 300, promoPrice: 45000, normalPrice: 100000 },
+  { participants: 500, promoPrice: 75000, normalPrice: 180000 },
+  { participants: 1000, promoPrice: 155000, normalPrice: 350000 },
 ];
 
 interface PackageSelectorProps {
@@ -58,10 +58,6 @@ export function PackageSelector({ selected, onSelect }: PackageSelectorProps) {
               -{discount}%
             </div>
             
-            <Users className={cn(
-              "w-8 h-8 mb-2",
-              isSelected ? "text-primary" : "text-muted-foreground"
-            )} />
             
             <span className={cn(
               "text-lg font-bold",
