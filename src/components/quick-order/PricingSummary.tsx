@@ -151,7 +151,7 @@ export function PricingSummary({
                     <Repeat className="w-4 h-4" />
                     <span>Meeting Berulang</span>
                   </div>
-                  <Badge variant="secondary">{totalDays} tanggal</Badge>
+                  <Badge variant="secondary">{totalDays} sesi</Badge>
                 </div>
 
                 {/* Show first few dates */}
@@ -200,11 +200,11 @@ export function PricingSummary({
           {isRecurring && totalDays > 1 && (
             <div className="space-y-2 bg-muted/30 rounded-lg p-3">
               <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">Harga per tanggal</span>
+                <span className="text-muted-foreground">Harga per sesi</span>
                 <span>{price > 0 ? formatRupiah(price) : "-"}</span>
               </div>
               <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">Jumlah tanggal</span>
+                <span className="text-muted-foreground">Jumlah sesi</span>
                 <span>×{totalDays}</span>
               </div>
               <Separator className="my-2" />
@@ -225,10 +225,7 @@ export function PricingSummary({
 
         <div className="mt-4 flex items-start gap-2 p-3 bg-background/50 rounded-lg">
           <Shield className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
-          <p className="text-xs text-muted-foreground">
-            Pembayaran aman dan terenkripsi. Link Zoom juga akan dikirim ke email dan WhatsApp (opsional) setelah
-            pembayaran berhasil.
-          </p>
+          <p className="text-xs text-muted-foreground">Pembayaran aman dan terenkripsi via Xendit</p>
         </div>
       </CardContent>
     </Card>
