@@ -80,9 +80,9 @@ function generateEmailHTML(order: Record<string, unknown>): string {
           
           <!-- Header -->
           <tr>
-            <td style="background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); padding: 32px; text-align: center;">
+            <td style="background: linear-gradient(135deg, #0891b2 0%, #0e7490 100%); padding: 32px; text-align: center;">
               <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 700;">Rapatin</h1>
-              <p style="margin: 8px 0 0 0; color: #bfdbfe; font-size: 16px;">Pembayaran Berhasil!</p>
+              <p style="margin: 8px 0 0 0; color: #a5f3fc; font-size: 16px;">Pembayaran Berhasil!</p>
             </td>
           </tr>
           
@@ -144,7 +144,7 @@ function generateEmailHTML(order: Record<string, unknown>): string {
                 ${recurringInfo}
                 <tr>
                   <td style="padding: 8px 0; color: #6b7280; font-size: 14px;">Total Bayar</td>
-                  <td style="padding: 8px 0; color: #2563eb; font-size: 16px; text-align: right; font-weight: 700;">${price}</td>
+                  <td style="padding: 8px 0; color: #0891b2; font-size: 16px; text-align: right; font-weight: 700;">${price}</td>
                 </tr>
               </table>
             </td>
@@ -161,7 +161,7 @@ function generateEmailHTML(order: Record<string, unknown>): string {
               <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 20px;">
                 <tr>
                   <td align="center">
-                    <a href="${zoomLink}" target="_blank" style="display: inline-block; background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); color: #ffffff; text-decoration: none; padding: 16px 48px; border-radius: 12px; font-size: 16px; font-weight: 600; box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);">
+                    <a href="${zoomLink}" target="_blank" style="display: inline-block; background: linear-gradient(135deg, #0891b2 0%, #0e7490 100%); color: #ffffff; text-decoration: none; padding: 16px 48px; border-radius: 12px; font-size: 16px; font-weight: 600; box-shadow: 0 4px 14px rgba(8, 145, 178, 0.4);">
                       🔵 Gabung Meeting
                     </a>
                   </td>
@@ -169,18 +169,35 @@ function generateEmailHTML(order: Record<string, unknown>): string {
               </table>
               
               <!-- Credentials Table -->
-              <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f9fafb; border-radius: 12px; padding: 16px; border: 1px solid #e5e7eb;">
+              <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f9fafb; border-radius: 12px; border: 1px solid #e5e7eb;">
                 <tr>
-                  <td style="padding: 8px 12px; color: #6b7280; font-size: 14px;">Meeting ID</td>
-                  <td style="padding: 8px 12px; color: #111827; font-size: 14px; text-align: right; font-family: 'Courier New', monospace; font-weight: 600;">${meetingId}</td>
+                  <td style="padding: 16px;">
+                    <table width="100%" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td style="padding: 8px 12px; color: #6b7280; font-size: 14px;">Meeting ID</td>
+                        <td style="padding: 8px 12px; color: #111827; font-size: 14px; text-align: right; font-family: 'Courier New', monospace; font-weight: 600;">${meetingId}</td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 8px 12px; color: #6b7280; font-size: 14px;">Passcode</td>
+                        <td style="padding: 8px 12px; color: #111827; font-size: 14px; text-align: right; font-family: 'Courier New', monospace; font-weight: 600;">${passcode}</td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 8px 12px; color: #6b7280; font-size: 14px;">Host Key</td>
+                        <td style="padding: 8px 12px; color: #111827; font-size: 14px; text-align: right; font-family: 'Courier New', monospace; font-weight: 600;">${hostKey}</td>
+                      </tr>
+                    </table>
+                  </td>
                 </tr>
+              </table>
+              
+              <!-- Panduan Host Button -->
+              <table width="100%" cellpadding="0" cellspacing="0" style="margin-top: 16px;">
                 <tr>
-                  <td style="padding: 8px 12px; color: #6b7280; font-size: 14px;">Passcode</td>
-                  <td style="padding: 8px 12px; color: #111827; font-size: 14px; text-align: right; font-family: 'Courier New', monospace; font-weight: 600;">${passcode}</td>
-                </tr>
-                <tr>
-                  <td style="padding: 8px 12px; color: #6b7280; font-size: 14px;">Host Key</td>
-                  <td style="padding: 8px 12px; color: #111827; font-size: 14px; text-align: right; font-family: 'Courier New', monospace; font-weight: 600;">${hostKey}</td>
+                  <td align="center">
+                    <a href="https://www.youtube.com/watch?v=8QX78u43_JE" target="_blank" style="display: inline-block; background: #f3f4f6; color: #374151; text-decoration: none; padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: 500; border: 1px solid #d1d5db;">
+                      📖 Panduan Cara Menjadi Host
+                    </a>
+                  </td>
                 </tr>
               </table>
             </td>
