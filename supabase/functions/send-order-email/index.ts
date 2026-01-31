@@ -356,7 +356,7 @@ serve(async (req) => {
     const emailPayload = {
       Messages: [{
         From: {
-          Email: "noreply@rapatin.id",
+          Email: "admin@rapatin.id",
           Name: "Rapatin"
         },
         To: [{
