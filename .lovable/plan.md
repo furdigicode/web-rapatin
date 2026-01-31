@@ -1,73 +1,61 @@
 
 
-# Rencana: Animasi Loading pada Tombol Quick Order
+# Rencana: Fix Spinner Tidak Terlihat pada Tombol Quick Order
 
-## Ringkasan
+## Masalah
 
-Menambahkan animasi loading (spinner + teks "Memuat...") pada tombol "Pilih Quick Order" saat diklik untuk memberikan feedback visual kepada user bahwa aksi sedang diproses.
-
----
-
-## Desain
+Spinner tidak muncul karena navigasi terjadi **terlalu cepat** - React belum sempat re-render dengan state `isLoading = true` sebelum komponen unmount.
 
 ```text
-Sebelum klik:
-┌─────────────────────────────┐
-│     Pilih Quick Order       │
-└─────────────────────────────┘
+Timeline saat ini:
+─────────────────────────────────────────────────►
+│ setIsLoading(true) │ navigate() │ unmount │
+                      ↑
+              Belum ada re-render!
+              Spinner tidak terlihat
+```
 
-Setelah klik (loading):
-┌─────────────────────────────┐
-│   [⟳ spinner]  Memuat...    │
-└─────────────────────────────┘
+## Solusi
+
+Gunakan `flushSync` dari React untuk **memaksa re-render sinkron** sebelum navigasi, atau tambahkan sedikit delay agar spinner sempat terlihat.
+
+**Opsi yang dipilih: `flushSync`** - karena ini memastikan UI update terlebih dahulu tanpa menambah delay artifisial.
+
+```text
+Timeline dengan flushSync:
+─────────────────────────────────────────────────►
+│ setIsLoading(true) │ re-render │ navigate() │ unmount │
+                      ↑
+              Spinner terlihat!
 ```
 
 ---
 
-## Implementasi
+## Perubahan Kode
 
-### Perubahan pada `src/components/ui/order-option-modal.tsx`
+### File: `src/components/ui/order-option-modal.tsx`
 
-**1. Tambah import dan state:**
+**1. Tambah import flushSync:**
 ```typescript
 import React, { useState } from 'react';
-import { Loader2 } from 'lucide-react'; // Spinner icon
+import { flushSync } from 'react-dom';
 ```
 
-**2. Tambah state loading:**
-```typescript
-const [isLoading, setIsLoading] = useState(false);
-```
-
-**3. Update handleQuickOrder:**
+**2. Update handleQuickOrder:**
 ```typescript
 const handleQuickOrder = () => {
   if (typeof window.fbq === 'function') {
     window.fbq('track', 'QuickOrderSelected');
   }
-  setIsLoading(true);
-  // Langsung navigasi - modal akan unmount bersama parent component
+  
+  // Force synchronous re-render agar spinner terlihat
+  flushSync(() => {
+    setIsLoading(true);
+  });
+  
+  // Navigasi setelah UI update
   navigate('/quick-order');
 };
-```
-
-**4. Update Button Quick Order:**
-```typescript
-<Button 
-  onClick={handleQuickOrder} 
-  variant="outline" 
-  className="w-full"
-  disabled={isLoading}
->
-  {isLoading ? (
-    <>
-      <Loader2 className="w-4 h-4 animate-spin" />
-      Memuat...
-    </>
-  ) : (
-    'Pilih Quick Order'
-  )}
-</Button>
 ```
 
 ---
@@ -76,26 +64,24 @@ const handleQuickOrder = () => {
 
 | File | Aksi | Deskripsi |
 |------|------|-----------|
-| `src/components/ui/order-option-modal.tsx` | Ubah | Tambah state loading + spinner pada tombol Quick Order |
+| `src/components/ui/order-option-modal.tsx` | Ubah | Import `flushSync` dari react-dom dan wrap `setIsLoading` |
 
 ---
 
-## Detail Perubahan Kode
+## Detail Perubahan
 
 | Baris | Perubahan |
 |-------|-----------|
-| 2 | Tambah `useState` ke import React |
-| 5 | Tambah `Loader2` ke import lucide-react |
-| 15 | Tambah state `const [isLoading, setIsLoading] = useState(false);` |
-| 18-24 | Tambah `setIsLoading(true)` di handleQuickOrder |
-| 157-163 | Ganti Button dengan conditional render (spinner + "Memuat..." atau "Pilih Quick Order") |
+| 2-3 | Tambah import `flushSync` dari `react-dom` |
+| 19-27 | Wrap `setIsLoading(true)` dengan `flushSync()` |
 
 ---
 
 ## Hasil
 
-| Aksi | Sebelum | Sesudah |
-|------|---------|---------|
-| Klik Quick Order | Langsung navigasi tanpa feedback | Tombol berubah ke loading state dengan spinner dan teks "Memuat...", lalu navigasi |
-| Visual feedback | Tidak ada | User tahu bahwa aksi sedang diproses |
+| Aspek | Sebelum | Sesudah |
+|-------|---------|---------|
+| Spinner | Tidak terlihat | Terlihat sebelum navigasi |
+| Delay | 0ms | 0ms (tetap instan) |
+| Teknik | React batching skip render | flushSync memaksa render sinkron |
 
