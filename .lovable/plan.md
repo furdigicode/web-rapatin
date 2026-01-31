@@ -1,40 +1,65 @@
 
 
-# Rencana: Fix Flickering Modal saat Navigasi ke Quick Order
+# Rencana: Fix Flickering Modal - Navigate Langsung Tanpa Close
 
 ## Masalah
 
-Modal tidak langsung tertutup saat klik "Quick Order". Urutan yang terjadi:
-1. Modal mulai animasi close (fade-out + zoom-out)
-2. Setelah 100ms, navigasi terjadi
-3. Selama transisi route, komponen re-render dan modal sempat muncul kembali sebelum akhirnya hilang
+Urutan event saat ini yang menyebabkan flickering:
 
-## Penyebab
-
-Radix UI Dialog memiliki animasi CSS pada `DialogContent` dan `DialogOverlay`:
-- `data-[state=closed]:fade-out-0`
-- `data-[state=closed]:zoom-out-95`
-
-Animasi ini memerlukan waktu untuk selesai (~200ms berdasarkan `duration-200`). Ketika navigasi terjadi di tengah animasi, React Router melakukan re-render yang menyebabkan state tidak konsisten.
+```text
+Klik "Pilih Quick Order"
+    │
+    ▼
+onClose() dipanggil
+    │
+    ▼
+Dialog state = closed, animasi CSS mulai (duration: 200ms)
+    │  ├── fade-out-0
+    │  └── zoom-out-95  
+    │
+    ▼ (setelah 100ms - animasi belum selesai)
+navigate('/quick-order') dipanggil
+    │
+    ▼
+React Router mulai render halaman baru
+    │
+    ▼
+Komponen SewaZoomHarianSection momentarily remount
+    │
+    ▼
+Modal sempat muncul kembali (state inconsistent)
+    │
+    ▼
+Akhirnya halaman /quick-order fully rendered
+    │
+    ▼
+Modal hilang (komponen unmount)
+```
 
 ## Solusi
 
-Gunakan pendekatan **navigate dulu, baru close** - karena saat navigasi ke halaman baru, komponen `SewaZoomHarianSection` akan unmount sehingga modal otomatis hilang tanpa perlu close animation.
+**Navigate langsung tanpa memanggil onClose()** - ketika navigasi terjadi, komponen parent (`SewaZoomHarianSection`) akan unmount, sehingga modal juga otomatis hilang tanpa perlu animasi close.
 
-```typescript
-const handleQuickOrder = () => {
-  if (typeof window.fbq === 'function') {
-    window.fbq('track', 'QuickOrderSelected');
-  }
-  // Navigasi langsung tanpa close - komponen akan unmount
-  navigate('/quick-order');
-};
+```text
+Klik "Pilih Quick Order"
+    │
+    ▼
+navigate('/quick-order') dipanggil langsung
+    │
+    ▼
+React Router unmount SewaZoomHarianSection
+    │
+    ▼
+Modal otomatis hilang (komponen destroyed)
+    │
+    ▼
+Halaman /quick-order rendered
 ```
 
-Pendekatan ini lebih bersih karena:
-1. Tidak ada race condition antara close dan navigate
-2. Modal akan langsung hilang saat halaman baru dimuat
-3. Tidak perlu setTimeout
+Keuntungan:
+- Tidak ada race condition antara animasi dan navigasi
+- Transisi lebih cepat dan bersih
+- Tidak perlu setTimeout
 
 ---
 
@@ -42,7 +67,7 @@ Pendekatan ini lebih bersih karena:
 
 ### File: `src/components/ui/order-option-modal.tsx`
 
-**Sebelum (line 18-26):**
+**Baris 18-26 (sebelum):**
 ```typescript
 const handleQuickOrder = () => {
   if (typeof window.fbq === 'function') {
@@ -55,7 +80,7 @@ const handleQuickOrder = () => {
 };
 ```
 
-**Sesudah:**
+**Baris 18-24 (sesudah):**
 ```typescript
 const handleQuickOrder = () => {
   if (typeof window.fbq === 'function') {
@@ -72,14 +97,15 @@ const handleQuickOrder = () => {
 
 | File | Aksi | Deskripsi |
 |------|------|-----------|
-| `src/components/ui/order-option-modal.tsx` | Ubah | Hapus onClose() dan setTimeout, navigasi langsung |
+| `src/components/ui/order-option-modal.tsx` | Ubah | Hapus `onClose()` dan `setTimeout`, panggil `navigate()` langsung |
 
 ---
 
 ## Hasil
 
-| Sebelum | Sesudah |
-|---------|---------|
-| Modal flickering (hilang-muncul-hilang) | Modal langsung hilang saat pindah halaman |
-| Delay 100ms sebelum navigasi | Navigasi instan |
+| Aspek | Sebelum | Sesudah |
+|-------|---------|---------|
+| Animasi | Close animation + navigate → flickering | Langsung navigate → clean |
+| Delay | 100ms sebelum navigasi | 0ms (instan) |
+| UX | Modal hilang-muncul-hilang | Modal langsung hilang |
 
