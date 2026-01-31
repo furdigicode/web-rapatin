@@ -211,6 +211,12 @@ export function PricingSummary({
             </div>
           )}
 
+          {/* Biaya Payment Gateway - Gratis */}
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-muted-foreground">Biaya Payment Gateway</span>
+            <span className="font-medium text-green-600">GRATIS</span>
+          </div>
+
           <div className="flex items-center justify-between text-lg">
             <span className="font-semibold">Total Bayar</span>
             <span className="font-bold text-primary">{finalPrice > 0 ? formatRupiah(finalPrice) : "-"}</span>
