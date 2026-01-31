@@ -773,7 +773,7 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
                   <span>{formatDateTime(order.paid_at)}</span>
                 </div>
               )}
-              {order.expired_at && (
+              {!order.paid_at && order.expired_at && (
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Pembayaran Kadaluarsa</span>
                   <span>{formatDateTime(order.expired_at)}</span>
