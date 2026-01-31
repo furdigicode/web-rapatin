@@ -1,127 +1,140 @@
 
 
-# Rencana: Redesain PDF Tanda Terima (Invoice Style)
+# Rencana: Tambahkan Logo, Metode Pembayaran, dan Waktu Bayar di PDF Invoice
 
 ## Ringkasan
 
-Mengubah desain PDF tanda terima agar mengikuti layout invoice profesional seperti pada gambar referensi, dengan struktur dua kolom, tabel produk, dan format invoice yang lebih formal.
+Menambahkan 3 perubahan pada PDF tanda terima:
+1. **Ganti teks "Rapatin" dengan logo gambar** seperti yang digunakan di navbar
+2. **Tampilkan metode pembayaran** di bagian summary
+3. **Tampilkan waktu pembayaran lengkap** (tanggal + jam)
 
 ---
 
-## Perbandingan Layout
+## Perubahan yang Akan Dilakukan
 
-| Aspek | Desain Lama | Desain Baru (Invoice Style) |
-|-------|-------------|----------------------------|
-| Header | Logo tengah | Logo kiri + "Invoice" kanan |
-| Info Order | Vertikal | Nomor/Tanggal di kanan atas |
-| Data Pemesan | Satu kolom | Dua kolom (Perusahaan & Pelanggan) |
-| Detail Produk | List sederhana | Tabel dengan header berwarna |
-| Summary | Inline | Ringkasan kanan bawah |
-| Footer | Sederhana | "Dengan Hormat" + tanda tangan |
+### 1. Ganti Teks "Rapatin" dengan Logo
+
+| Sebelum | Sesudah |
+|---------|---------|
+| Teks "Rapatin" (font biru) | Logo gambar Rapatin (PNG) |
+
+Logo yang akan digunakan: `/lovable-uploads/2daea350-0851-4dd8-8f79-ee07aaaad905.png`
+
+### 2. Tambah Metode Pembayaran
+
+Lokasi: Di bagian Summary (di bawah Status LUNAS)
+
+```text
+Subtotal       Rp 150.000
+─────────────────────────
+Total          Rp 150.000
+Status         LUNAS
+Metode Bayar   QRIS        ← BARU
+```
+
+### 3. Tampilkan Waktu Bayar Lengkap
+
+Saat ini hanya menampilkan tanggal (30/01/2026), akan ditambahkan jam (30/01/2026 15:30 WIB)
 
 ---
 
-## Layout PDF Baru
+## Layout PDF Setelah Update
 
 ```text
 ┌─────────────────────────────────────────────────────────────────────┐
 │                                                                     │
-│  [LOGO] Rapatin                              Invoice                │
+│  [LOGO RAPATIN]                              Invoice                │
 │                                         Nomor: INV-260130-0001      │
-│                                         Tanggal: 30/01/2026         │
+│                                         Tanggal: 30/01/2026 15:30   │
 │                                         Tgl. Jatuh Tempo: 30/01/2026│
 │                                                                     │
 │  ─────────────────────────────────────────────────────────────────  │
 │                                                                     │
 │  Informasi Perusahaan              Tagihan Kepada                   │
-│  ────────────────────              ──────────────                   │
-│  Rapatin                           John Doe                         │
-│  Griya Nuansa Bening no 14,        Telp: 087788980084               │
-│  Kel. Jatisari, Kec. Mijen,        Email: john@example.com          │
-│  Kota Semarang                                                      │
-│  Telp: 087788980084                                                 │
-│  Email: rapatinapp@gmail.com                                        │
+│  ...                                ...                             │
 │                                                                     │
 │  ─────────────────────────────────────────────────────────────────  │
 │                                                                     │
-│  ┌──────────────┬─────────────────────────┬──────────┬─────────────┐│
-│  │ Produk       │ Deskripsi               │ Kuantitas│ Jumlah      ││
-│  ├──────────────┼─────────────────────────┼──────────┼─────────────┤│
-│  │ Meeting 100  │ [Topik] - 30 Jan 2026   │    1     │ Rp 150.000  ││
-│  │ Participants │ 20:00 WIB               │          │             ││
-│  └──────────────┴─────────────────────────┴──────────┴─────────────┘│
+│  [TABEL PRODUK]                                                     │
 │                                                                     │
 │                                              Subtotal    Rp 150.000 │
 │                                              ─────────   ────────── │
 │                                              Total       Rp 150.000 │
 │                                              Status      LUNAS      │
+│                                              Metode      QRIS    ← BARU│
+│                                              Dibayar     30/01/2026 15:30 WIB ← BARU│
 │                                                                     │
 │  ─────────────────────────────────────────────────────────────────  │
 │                                                                     │
 │  Terbilang                                                          │
 │  Seratus Lima Puluh Ribu Rupiah                                     │
 │                                                                     │
-│                                              Dengan Hormat,         │
-│                                                                     │
-│                                              ─────────────          │
-│                                              Rapatin                │
-│                                              Admin                  │
-│                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## Fitur Baru
+## Detail Implementasi Teknis
 
-### 1. Format Tanggal Invoice Style
+### 1. Embed Logo ke PDF
+
+jsPDF mendukung embed gambar dengan `doc.addImage()`. Perlu convert logo PNG ke base64 atau load dari URL.
+
+Pendekatan: Buat fungsi async untuk load logo dan convert ke base64, lalu embed ke PDF.
+
 ```typescript
-// Format: DD/MM/YYYY
-const formatShortDate = (dateStr: string): string => {
+// Load image and convert to base64
+const loadImageAsBase64 = (url: string): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const ctx = canvas.getContext("2d");
+      ctx?.drawImage(img, 0, 0);
+      resolve(canvas.toDataURL("image/png"));
+    };
+    img.onerror = reject;
+    img.src = url;
+  });
+};
+
+// Di generateReceipt:
+const logoBase64 = await loadImageAsBase64("/lovable-uploads/2daea350-0851-4dd8-8f79-ee07aaaad905.png");
+doc.addImage(logoBase64, "PNG", margin, y, 40, 12); // width 40, height 12
+```
+
+### 2. Format Waktu Lengkap
+
+```typescript
+const formatDateTime = (dateStr: string): string => {
   const date = new Date(dateStr);
-  const day = date.getDate().toString().padStart(2, '0');
-  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const day = date.getDate().toString().padStart(2, "0");
+  const month = (date.getMonth() + 1).toString().padStart(2, "0");
   const year = date.getFullYear();
-  return `${day}/${month}/${year}`;
+  const hours = date.getHours().toString().padStart(2, "0");
+  const minutes = date.getMinutes().toString().padStart(2, "0");
+  return `${day}/${month}/${year} ${hours}:${minutes}`;
 };
 ```
 
-### 2. Terbilang (Number to Words)
+### 3. Tambah Metode Bayar di Summary
+
 ```typescript
-// Konversi angka ke kata-kata Indonesia
-const terbilang = (angka: number): string => {
-  // Contoh: 150000 → "Seratus Lima Puluh Ribu Rupiah"
-};
-```
+// Setelah Status LUNAS
+y += 8;
+doc.setTextColor(80, 80, 80);
+doc.text("Metode Bayar", summaryX, y);
+doc.setFont("helvetica", "normal");
+doc.setTextColor(0, 0, 0);
+doc.text(data.paymentMethod || "-", valueX, y, { align: "right" });
 
-### 3. Tabel Produk dengan Header Berwarna
-- Background biru muda untuk header tabel
-- Kolom: Produk, Deskripsi, Kuantitas, Jumlah
-
-### 4. Dua Kolom Info
-- Kiri: Informasi Perusahaan (Rapatin)
-- Kanan: Tagihan Kepada (Customer)
-
----
-
-## Detail Implementasi
-
-### Warna yang Digunakan
-| Elemen | RGB | Hex |
-|--------|-----|-----|
-| Logo/Heading | (37, 99, 235) | #2563EB |
-| Subheading | (30, 58, 138) | #1E3A8A |
-| Table Header BG | (219, 234, 254) | #DBEAFE |
-| Text Muted | (100, 100, 100) | #646464 |
-| Status LUNAS | (34, 197, 94) | #22C55E |
-
-### Informasi Perusahaan (Statis)
-```
-Rapatin
-Griya Nuansa Bening no 14, Kel. Jatisari, 
-Kec. Mijen, Kota Semarang
-Telp: 087788980084
-Email: rapatinapp@gmail.com
+y += 8;
+doc.text("Dibayar", summaryX, y);
+doc.text(formatDateTime(data.paidAt) + " WIB", valueX, y, { align: "right" });
 ```
 
 ---
@@ -130,100 +143,14 @@ Email: rapatinapp@gmail.com
 
 | File | Aksi | Deskripsi |
 |------|------|-----------|
-| `src/utils/generateReceipt.ts` | Ubah | Redesain total layout PDF |
-
----
-
-## Kode Baru (Struktur Utama)
-
-```typescript
-export const generateReceipt = (data: ReceiptData): void => {
-  const doc = new jsPDF();
-  const pageWidth = doc.internal.pageSize.getWidth();
-  const margin = 20;
-  
-  let y = 20;
-  
-  // ========== HEADER SECTION ==========
-  // Logo "Rapatin" di kiri
-  doc.setFontSize(24);
-  doc.setFont("helvetica", "bold");
-  doc.setTextColor(37, 99, 235);
-  doc.text("Rapatin", margin, y + 5);
-  
-  // "Invoice" di kanan
-  doc.setFontSize(28);
-  doc.text("Invoice", pageWidth - margin, y, { align: "right" });
-  
-  // Info Nomor, Tanggal di kanan
-  y += 15;
-  doc.setFontSize(10);
-  doc.setFont("helvetica", "normal");
-  doc.setTextColor(0, 0, 0);
-  // Nomor, Tanggal, Tgl. Jatuh Tempo
-  
-  // ========== TWO COLUMN INFO ==========
-  // Left: Informasi Perusahaan
-  // Right: Tagihan Kepada (Customer)
-  
-  // ========== PRODUCT TABLE ==========
-  // Header dengan background biru muda
-  // Row dengan data produk
-  
-  // ========== SUMMARY ==========
-  // Subtotal, Total, Status
-  
-  // ========== TERBILANG ==========
-  // Angka dalam kata-kata
-  
-  // ========== FOOTER ==========
-  // "Dengan Hormat," + Rapatin / Admin
-  
-  doc.save(filename);
-};
-```
-
----
-
-## Fungsi Helper Baru
-
-### 1. Terbilang (Angka ke Kata)
-```typescript
-const terbilang = (angka: number): string => {
-  const satuan = ['', 'Satu', 'Dua', 'Tiga', 'Empat', 'Lima', 'Enam', 'Tujuh', 'Delapan', 'Sembilan', 'Sepuluh', 'Sebelas'];
-  
-  if (angka < 12) return satuan[angka];
-  if (angka < 20) return satuan[angka - 10] + ' Belas';
-  if (angka < 100) return satuan[Math.floor(angka / 10)] + ' Puluh' + (angka % 10 ? ' ' + satuan[angka % 10] : '');
-  if (angka < 200) return 'Seratus' + (angka - 100 ? ' ' + terbilang(angka - 100) : '');
-  if (angka < 1000) return satuan[Math.floor(angka / 100)] + ' Ratus' + (angka % 100 ? ' ' + terbilang(angka % 100) : '');
-  if (angka < 2000) return 'Seribu' + (angka - 1000 ? ' ' + terbilang(angka - 1000) : '');
-  if (angka < 1000000) return terbilang(Math.floor(angka / 1000)) + ' Ribu' + (angka % 1000 ? ' ' + terbilang(angka % 1000) : '');
-  if (angka < 1000000000) return terbilang(Math.floor(angka / 1000000)) + ' Juta' + (angka % 1000000 ? ' ' + terbilang(angka % 1000000) : '');
-  
-  return angka.toString();
-};
-```
-
-### 2. Draw Table Function
-```typescript
-const drawTableRow = (
-  doc: jsPDF, 
-  y: number, 
-  cols: string[], 
-  widths: number[], 
-  isHeader: boolean
-) => {
-  // Draw cells with optional background
-};
-```
+| `src/utils/generateReceipt.ts` | Ubah | Update fungsi jadi async, tambah logo, metode bayar, waktu bayar |
+| `src/pages/QuickOrderDetail.tsx` | Ubah | Update pemanggilan ke `await generateReceipt()` |
 
 ---
 
 ## Catatan
 
-- Desain mengikuti format invoice standar seperti pada gambar referensi
-- Kolom Diskon dan Pajak dari gambar tidak ditampilkan karena tidak ada data tersebut di sistem Quick Order
-- Tgl. Jatuh Tempo sama dengan Tanggal karena ini adalah tanda terima (sudah lunas)
-- "Sisa Tagihan" selalu Rp 0 karena status LUNAS
+- Fungsi `generateReceipt` perlu diubah menjadi **async** karena loading gambar bersifat asynchronous
+- Logo akan di-embed langsung ke PDF sehingga tidak perlu koneksi internet saat membuka PDF
+- Ukuran logo disesuaikan agar proporsional dengan layout
 
