@@ -99,9 +99,9 @@ function generateEmailHTML(order: Record<string, unknown>): string {
           <!-- Order Info -->
           <tr>
             <td style="padding: 0 32px;">
-              <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f0fdf4; border-radius: 12px; padding: 20px; border: 1px solid #bbf7d0;">
+              <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f0fdf4; border-radius: 12px; border: 1px solid #bbf7d0;">
                 <tr>
-                  <td>
+                  <td style="padding: 20px;">
                     <table width="100%" cellpadding="0" cellspacing="0">
                       <tr>
                         <td style="color: #166534; font-size: 14px; font-weight: 600;">Order</td>
@@ -169,18 +169,24 @@ function generateEmailHTML(order: Record<string, unknown>): string {
               </table>
               
               <!-- Credentials Table -->
-              <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f9fafb; border-radius: 12px; padding: 16px; border: 1px solid #e5e7eb;">
+              <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f9fafb; border-radius: 12px; border: 1px solid #e5e7eb;">
                 <tr>
-                  <td style="padding: 8px 12px; color: #6b7280; font-size: 14px;">Meeting ID</td>
-                  <td style="padding: 8px 12px; color: #111827; font-size: 14px; text-align: right; font-family: 'Courier New', monospace; font-weight: 600;">${meetingId}</td>
-                </tr>
-                <tr>
-                  <td style="padding: 8px 12px; color: #6b7280; font-size: 14px;">Passcode</td>
-                  <td style="padding: 8px 12px; color: #111827; font-size: 14px; text-align: right; font-family: 'Courier New', monospace; font-weight: 600;">${passcode}</td>
-                </tr>
-                <tr>
-                  <td style="padding: 8px 12px; color: #6b7280; font-size: 14px;">Host Key</td>
-                  <td style="padding: 8px 12px; color: #111827; font-size: 14px; text-align: right; font-family: 'Courier New', monospace; font-weight: 600;">${hostKey}</td>
+                  <td style="padding: 16px;">
+                    <table width="100%" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td style="padding: 8px 0; color: #6b7280; font-size: 14px;">Meeting ID</td>
+                        <td style="padding: 8px 0; color: #111827; font-size: 14px; text-align: right; font-family: 'Courier New', monospace; font-weight: 600;">${meetingId}</td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 8px 0; color: #6b7280; font-size: 14px;">Passcode</td>
+                        <td style="padding: 8px 0; color: #111827; font-size: 14px; text-align: right; font-family: 'Courier New', monospace; font-weight: 600;">${passcode}</td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 8px 0; color: #6b7280; font-size: 14px;">Host Key</td>
+                        <td style="padding: 8px 0; color: #111827; font-size: 14px; text-align: right; font-family: 'Courier New', monospace; font-weight: 600;">${hostKey}</td>
+                      </tr>
+                    </table>
+                  </td>
                 </tr>
               </table>
             </td>
@@ -189,9 +195,9 @@ function generateEmailHTML(order: Record<string, unknown>): string {
           <!-- Tips -->
           <tr>
             <td style="padding: 24px 32px 0 32px;">
-              <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #fffbeb; border-radius: 12px; padding: 16px; border: 1px solid #fde68a;">
+              <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #fffbeb; border-radius: 12px; border: 1px solid #fde68a;">
                 <tr>
-                  <td>
+                  <td style="padding: 16px;">
                     <p style="margin: 0 0 8px 0; color: #92400e; font-size: 14px; font-weight: 600;">💡 Tips Penting</p>
                     <ul style="margin: 0; padding-left: 20px; color: #92400e; font-size: 13px; line-height: 1.8;">
                       <li>Buka link meeting 5 menit sebelum jadwal dimulai</li>
@@ -204,15 +210,26 @@ function generateEmailHTML(order: Record<string, unknown>): string {
             </td>
           </tr>
           
+          <!-- Spacer before footer -->
+          <tr>
+            <td style="height: 24px;"></td>
+          </tr>
+          
           <!-- Footer -->
           <tr>
-            <td style="padding: 32px; text-align: center; border-top: 1px solid #e5e7eb; margin-top: 24px;">
-              <p style="margin: 0; color: #6b7280; font-size: 13px;">
+            <td style="padding: 32px; text-align: center; border-top: 1px solid #e5e7eb;">
+              <p style="margin: 0 0 16px 0; color: #6b7280; font-size: 13px;">
                 Ada pertanyaan? Hubungi kami via WhatsApp
               </p>
-              <a href="https://wa.me/6287788980084" style="display: inline-block; margin-top: 12px; color: #2563eb; text-decoration: none; font-size: 14px; font-weight: 600;">
-                📱 0877-8898-0084
-              </a>
+              <table cellpadding="0" cellspacing="0" style="margin: 0 auto;">
+                <tr>
+                  <td align="center">
+                    <a href="https://wa.me/6287788980084" target="_blank" style="display: inline-block; background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 12px; font-size: 14px; font-weight: 600; box-shadow: 0 4px 14px rgba(34, 197, 94, 0.4);">
+                      💬 Hubungi via WhatsApp
+                    </a>
+                  </td>
+                </tr>
+              </table>
               <p style="margin: 24px 0 0 0; color: #9ca3af; font-size: 12px;">
                 © 2026 Rapatin - Sewa Zoom Meeting Terpercaya
               </p>
