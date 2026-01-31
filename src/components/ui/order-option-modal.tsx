@@ -1,8 +1,8 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Zap, Smartphone, Check, X, MessageCircle } from 'lucide-react';
+import { Zap, Smartphone, Check, X, MessageCircle, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useURLParams } from '@/hooks/useURLParams';
 
@@ -14,11 +14,13 @@ interface OrderOptionModalProps {
 const OrderOptionModal: React.FC<OrderOptionModalProps> = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
   const urlParams = useURLParams();
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleQuickOrder = () => {
     if (typeof window.fbq === 'function') {
       window.fbq('track', 'QuickOrderSelected');
     }
+    setIsLoading(true);
     // Langsung navigasi - modal akan unmount bersama parent component
     navigate('/quick-order');
   };
@@ -158,8 +160,16 @@ const OrderOptionModal: React.FC<OrderOptionModalProps> = ({ isOpen, onClose }) 
               onClick={handleQuickOrder} 
               variant="outline" 
               className="w-full"
+              disabled={isLoading}
             >
-              Pilih Quick Order
+              {isLoading ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Memuat...
+                </>
+              ) : (
+                'Pilih Quick Order'
+              )}
             </Button>
             
             <p className="text-xs text-center text-muted-foreground mt-3">
