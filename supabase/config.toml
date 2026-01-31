@@ -29,3 +29,6 @@ verify_jwt = false
 
 [functions.kledo-sync]
 verify_jwt = false
+
+[functions.send-order-email]
+verify_jwt = false
