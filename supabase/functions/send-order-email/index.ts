@@ -167,7 +167,7 @@ function generateEmailHTML(order: Record<string, unknown>): string {
           <tr>
             <td style="padding: 24px 32px 0 32px;">
               <h2 style="margin: 0 0 16px 0; color: #111827; font-size: 18px; font-weight: 600; border-bottom: 2px solid #e5e7eb; padding-bottom: 8px;">
-                🔐 Akses Ruang Zoom
+                🔐 Kredensial Zoom
               </h2>
               
               <!-- Join Button -->
@@ -175,7 +175,7 @@ function generateEmailHTML(order: Record<string, unknown>): string {
                 <tr>
                   <td align="center">
                     <a href="${zoomLink}" target="_blank" style="display: inline-block; background-color: #179ecf; color: #ffffff; text-decoration: none; padding: 16px 48px; border-radius: 12px; font-size: 16px; font-weight: 600;">
-                      Gabung Meeting
+                    Gabung Meeting
                     </a>
                   </td>
                 </tr>
