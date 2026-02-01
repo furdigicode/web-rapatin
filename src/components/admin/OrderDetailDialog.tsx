@@ -33,7 +33,8 @@ import {
   AlertTriangle,
   X,
   RefreshCw,
-  BarChart3
+  BarChart3,
+  MessageCircle
 } from 'lucide-react';
 import { GuestOrder } from '@/types/OrderTypes';
 import { formatRupiah } from '@/utils/formatRupiah';
@@ -100,6 +101,9 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
   const [saving, setSaving] = useState(false);
   const [syncingKledo, setSyncingKledo] = useState(false);
   const [sendingEmail, setSendingEmail] = useState(false);
+  const [sendingWhatsApp, setSendingWhatsApp] = useState(false);
+  const [whatsAppCooldownEnd, setWhatsAppCooldownEnd] = useState<Date | null>(null);
+  const [cooldownTimeLeft, setCooldownTimeLeft] = useState("");
   const [zoomData, setZoomData] = useState({
     meeting_id: '',
     zoom_passcode: '',
@@ -115,8 +119,48 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
         zoom_link: order.zoom_link || ''
       });
       setIsEditing(false);
+      
+      // Check WhatsApp cooldown
+      if (order.whatsapp_sent_at) {
+        const sentAt = new Date(order.whatsapp_sent_at);
+        const cooldownEnd = new Date(sentAt.getTime() + 60 * 60 * 1000); // 1 hour
+        if (cooldownEnd > new Date()) {
+          setWhatsAppCooldownEnd(cooldownEnd);
+        } else {
+          setWhatsAppCooldownEnd(null);
+        }
+      } else {
+        setWhatsAppCooldownEnd(null);
+      }
     }
   }, [order, open]);
+
+  // Countdown timer for WhatsApp cooldown
+  useEffect(() => {
+    if (!whatsAppCooldownEnd) {
+      setCooldownTimeLeft("");
+      return;
+    }
+
+    const updateCountdown = () => {
+      const now = new Date();
+      const diff = whatsAppCooldownEnd.getTime() - now.getTime();
+
+      if (diff <= 0) {
+        setWhatsAppCooldownEnd(null);
+        setCooldownTimeLeft("");
+        return;
+      }
+
+      const minutes = Math.floor(diff / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+      setCooldownTimeLeft(`${minutes}m ${seconds}s`);
+    };
+
+    updateCountdown();
+    const interval = setInterval(updateCountdown, 1000);
+    return () => clearInterval(interval);
+  }, [whatsAppCooldownEnd]);
 
   if (!order) return null;
 
@@ -266,6 +310,47 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
     }
     setSendingEmail(false);
   };
+
+  const handleSendWhatsApp = async () => {
+    setSendingWhatsApp(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('send-whatsapp-notification', {
+        body: { order_id: order.id }
+      });
+
+      if (error) {
+        toast({
+          title: "Gagal mengirim WhatsApp",
+          description: error.message,
+          variant: "destructive"
+        });
+      } else if (data?.error) {
+        toast({
+          title: "Gagal mengirim WhatsApp",
+          description: data.error,
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "WhatsApp terkirim",
+          description: `Pesan WhatsApp berhasil dikirim ke ${order.whatsapp}`
+        });
+        // Set cooldown
+        const cooldownEnd = new Date(Date.now() + 60 * 60 * 1000);
+        setWhatsAppCooldownEnd(cooldownEnd);
+        onUpdate?.();
+      }
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: "Terjadi kesalahan saat mengirim WhatsApp",
+        variant: "destructive"
+      });
+    }
+    setSendingWhatsApp(false);
+  };
+
+  const isWhatsAppCooldown = whatsAppCooldownEnd !== null;
 
   // Cek dari order prop ATAU zoomData state (untuk immediate feedback setelah save)
   const hasZoomData = 
@@ -752,6 +837,51 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
                   )}
                 </div>
               </div>
+
+              {/* WhatsApp Notification Section */}
+              <Separator />
+              <div className="space-y-3">
+                <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide flex items-center gap-2">
+                  <MessageCircle className="h-4 w-4" />
+                  Notifikasi WhatsApp
+                </h3>
+                <div className="grid gap-3 p-4 bg-muted/50 rounded-lg">
+                  <p className="text-sm text-muted-foreground">
+                    Kirim detail Zoom meeting ke WhatsApp pelanggan.
+                  </p>
+                  
+                  <Button
+                    size="sm"
+                    onClick={handleSendWhatsApp}
+                    disabled={sendingWhatsApp || isWhatsAppCooldown || !hasZoomData}
+                    className="w-full bg-blue-500 hover:bg-blue-600 text-white"
+                  >
+                    {sendingWhatsApp ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        Mengirim...
+                      </>
+                    ) : isWhatsAppCooldown ? (
+                      <>
+                        <Clock className="h-4 w-4 mr-2" />
+                        Tunggu {cooldownTimeLeft}
+                      </>
+                    ) : (
+                      <>
+                        <MessageCircle className="h-4 w-4 mr-2" />
+                        Kirim ke WhatsApp
+                      </>
+                    )}
+                  </Button>
+                  
+                  {!hasZoomData && (
+                    <p className="text-xs text-orange-600 flex items-center gap-1">
+                      <AlertTriangle className="h-3 w-3" />
+                      Zoom meeting harus tersedia sebelum mengirim WhatsApp
+                    </p>
+                  )}
+                </div>
+              </div>
             </>
           )}
 
@@ -789,6 +919,12 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Sync Kledo</span>
                   <span>{formatDateTime(order.kledo_synced_at)}</span>
+                </div>
+              )}
+              {order.whatsapp_sent_at && (
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">WhatsApp Terkirim</span>
+                  <span>{formatDateTime(order.whatsapp_sent_at)}</span>
                 </div>
               )}
             </div>
