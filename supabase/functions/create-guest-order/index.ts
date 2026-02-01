@@ -14,12 +14,12 @@ function generateAccessSlug(length: number = 24): string {
   return Array.from(array, byte => chars[byte % chars.length]).join('');
 }
 
-// Pricing configuration (in Rupiah)
+// Pricing configuration (in Rupiah) - Quick Order prices (+Rp 5.000 dari Via Aplikasi)
 const PRICING: Record<number, { promo: number; normal: number }> = {
-  100: { promo: 10000, normal: 20000 },
-  300: { promo: 25000, normal: 40000 },
-  500: { promo: 55000, normal: 70000 },
-  1000: { promo: 100000, normal: 130000 },
+  100: { promo: 25000, normal: 40000 },
+  300: { promo: 45000, normal: 80000 },
+  500: { promo: 75000, normal: 140000 },
+  1000: { promo: 135000, normal: 260000 },
 };
 
 interface OrderRequest {
