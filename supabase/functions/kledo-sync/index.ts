@@ -79,6 +79,23 @@ function formatDateForKledo(dateString: string): string {
 }
 
 /**
+ * Invalidate cached token when it's rejected by Kledo
+ */
+async function invalidateCachedToken(supabase: ReturnType<typeof createClient>): Promise<void> {
+  console.log("Invalidating cached Kledo token...");
+  const { error } = await supabase
+    .from('kledo_auth_tokens')
+    .delete()
+    .gt('expires_at', new Date().toISOString());
+  
+  if (error) {
+    console.error("Failed to invalidate token:", error);
+  } else {
+    console.log("Cached token invalidated successfully");
+  }
+}
+
+/**
  * Login to Kledo API and get access token
  */
 async function loginToKledo(): Promise<string | null> {
@@ -192,6 +209,15 @@ async function getKledoToken(supabase: ReturnType<typeof createClient>): Promise
 }
 
 /**
+ * Check if error is an authentication error
+ */
+function isAuthenticationError(status: number, message: string): boolean {
+  return status === 401 || 
+         message.toLowerCase().includes('unauthenticated') ||
+         message.toLowerCase().includes('unauthorized');
+}
+
+/**
  * Create bank transaction in Kledo (penerimaan)
  */
 async function createBankTransaction(
@@ -199,7 +225,7 @@ async function createBankTransaction(
   transDate: string,
   memo: string,
   amount: number
-): Promise<{ success: boolean; refNumber?: string; error?: string }> {
+): Promise<{ success: boolean; refNumber?: string; error?: string; isAuthError?: boolean }> {
   console.log("Creating Kledo bank transaction:", { transDate, memo, amount });
 
   try {
@@ -229,7 +255,9 @@ async function createBankTransaction(
     console.log("Kledo bank transaction response:", JSON.stringify(result));
 
     if (!response.ok) {
-      return { success: false, error: result.message || `HTTP ${response.status}` };
+      const errorMessage = result.message || `HTTP ${response.status}`;
+      const isAuthError = isAuthenticationError(response.status, errorMessage);
+      return { success: false, error: errorMessage, isAuthError };
     }
 
     // Simpan ref_number dari response Kledo
@@ -258,7 +286,7 @@ async function createExpense(
   memo: string,
   feeAmount: number,
   methodName: string
-): Promise<{ success: boolean; id?: string; error?: string }> {
+): Promise<{ success: boolean; id?: string; error?: string; isAuthError?: boolean }> {
   console.log("Creating Kledo expense:", { transDate, memo, feeAmount, methodName });
 
   try {
@@ -288,7 +316,9 @@ async function createExpense(
     console.log("Kledo expense response:", JSON.stringify(result));
 
     if (!response.ok) {
-      return { success: false, error: result.message || `HTTP ${response.status}` };
+      const errorMessage = result.message || `HTTP ${response.status}`;
+      const isAuthError = isAuthenticationError(response.status, errorMessage);
+      return { success: false, error: errorMessage, isAuthError };
     }
 
     if (result.data?.id) {
@@ -362,21 +392,6 @@ serve(async (req) => {
       );
     }
 
-    // Get Kledo token (with caching)
-    const token = await getKledoToken(supabase);
-    if (!token) {
-      const errorMsg = 'Failed to login to Kledo';
-      await supabase
-        .from('guest_orders')
-        .update({ kledo_sync_error: errorMsg })
-        .eq('id', orderId);
-      
-      return new Response(
-        JSON.stringify({ error: errorMsg }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
     // Prepare data - gunakan order_number untuk memo
     const transDate = formatDateForKledo(order.paid_at || order.created_at);
     const memo = order.order_number || order.access_slug || orderId;
@@ -387,72 +402,207 @@ serve(async (req) => {
     const { fee, methodName } = calculatePaymentFee(amount, paymentMethod);
     console.log("Calculated fee:", { amount, paymentMethod, fee, methodName });
 
-    // Create bank transaction
-    const bankTransResult = await createBankTransaction(token, transDate, memo, amount);
-    
-    if (!bankTransResult.success) {
-      const errorMsg = `Bank transaction failed: ${bankTransResult.error}`;
-      await supabase
-        .from('guest_orders')
-        .update({ kledo_sync_error: errorMsg })
-        .eq('id', orderId);
-      
-      return new Response(
-        JSON.stringify({ error: errorMsg }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+    // Retry mechanism for auth errors
+    const MAX_RETRIES = 1;
+    let retryCount = 0;
+    let token: string | null = null;
+
+    // Helper function to get token with proper error handling
+    async function ensureToken(): Promise<string | null> {
+      token = await getKledoToken(supabase);
+      if (!token) {
+        const errorMsg = 'Failed to login to Kledo';
+        await supabase
+          .from('guest_orders')
+          .update({ kledo_sync_error: errorMsg })
+          .eq('id', orderId);
+      }
+      return token;
     }
 
-    // Create expense for payment gateway fee
-    const expenseResult = await createExpense(token, transDate, memo, fee, methodName);
-    
-    if (!expenseResult.success) {
-      // Bank transaction succeeded but expense failed - still save the ref_number
-      const errorMsg = `Expense failed: ${expenseResult.error}`;
+    // Execute Kledo sync with retry logic
+    async function executeKledoSync(): Promise<Response> {
+      // Get token if not available
+      if (!token) {
+        token = await ensureToken();
+        if (!token) {
+          return new Response(
+            JSON.stringify({ error: 'Failed to login to Kledo' }),
+            { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+      }
+
+      // Create bank transaction
+      const bankTransResult = await createBankTransaction(token, transDate, memo, amount);
+      
+      // Check for auth error and retry if possible
+      if (!bankTransResult.success && bankTransResult.isAuthError && retryCount < MAX_RETRIES) {
+        console.log(`Auth error detected on bank transaction, refreshing token and retrying... (attempt ${retryCount + 1})`);
+        retryCount++;
+        
+        // Invalidate old token
+        await invalidateCachedToken(supabase);
+        
+        // Force fresh login
+        token = null;
+        
+        // Retry
+        return executeKledoSync();
+      }
+      
+      if (!bankTransResult.success) {
+        const errorMsg = `Bank transaction failed: ${bankTransResult.error}`;
+        await supabase
+          .from('guest_orders')
+          .update({ kledo_sync_error: errorMsg })
+          .eq('id', orderId);
+        
+        return new Response(
+          JSON.stringify({ error: errorMsg }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      // Create expense for payment gateway fee
+      const expenseResult = await createExpense(token!, transDate, memo, fee, methodName);
+      
+      // Check for auth error on expense and retry if possible
+      if (!expenseResult.success && expenseResult.isAuthError && retryCount < MAX_RETRIES) {
+        console.log(`Auth error detected on expense, refreshing token and retrying... (attempt ${retryCount + 1})`);
+        retryCount++;
+        
+        // Invalidate old token
+        await invalidateCachedToken(supabase);
+        
+        // Force fresh login
+        token = null;
+        
+        // Note: Bank transaction already succeeded, so we only retry the expense
+        const newToken = await ensureToken();
+        if (!newToken) {
+          // Save bank transaction result even if we can't get a new token
+          await supabase
+            .from('guest_orders')
+            .update({ 
+              kledo_invoice_id: bankTransResult.refNumber,
+              kledo_sync_error: 'Expense failed: Token refresh failed after bank transaction',
+              kledo_synced_at: new Date().toISOString()
+            })
+            .eq('id', orderId);
+          
+          return new Response(
+            JSON.stringify({ 
+              success: true, 
+              warning: 'Expense failed: Token refresh failed',
+              kledo_invoice_id: bankTransResult.refNumber 
+            }),
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+        
+        // Retry expense only
+        const retryExpenseResult = await createExpense(newToken, transDate, memo, fee, methodName);
+        
+        if (!retryExpenseResult.success) {
+          const errorMsg = `Expense failed after retry: ${retryExpenseResult.error}`;
+          await supabase
+            .from('guest_orders')
+            .update({ 
+              kledo_invoice_id: bankTransResult.refNumber,
+              kledo_sync_error: errorMsg,
+              kledo_synced_at: new Date().toISOString()
+            })
+            .eq('id', orderId);
+          
+          return new Response(
+            JSON.stringify({ 
+              success: true, 
+              warning: errorMsg,
+              kledo_invoice_id: bankTransResult.refNumber 
+            }),
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+        
+        // Retry succeeded
+        await supabase
+          .from('guest_orders')
+          .update({ 
+            kledo_invoice_id: bankTransResult.refNumber,
+            kledo_synced_at: new Date().toISOString(),
+            kledo_sync_error: null
+          })
+          .eq('id', orderId);
+
+        console.log("Kledo sync completed successfully after expense retry:", {
+          orderId,
+          memo,
+          bankTransRefNumber: bankTransResult.refNumber,
+          expenseId: retryExpenseResult.id,
+        });
+
+        return new Response(
+          JSON.stringify({ 
+            success: true,
+            kledo_invoice_id: bankTransResult.refNumber,
+            kledo_expense_id: retryExpenseResult.id
+          }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+      
+      if (!expenseResult.success) {
+        // Bank transaction succeeded but expense failed - still save the ref_number
+        const errorMsg = `Expense failed: ${expenseResult.error}`;
+        await supabase
+          .from('guest_orders')
+          .update({ 
+            kledo_invoice_id: bankTransResult.refNumber,
+            kledo_sync_error: errorMsg,
+            kledo_synced_at: new Date().toISOString()
+          })
+          .eq('id', orderId);
+        
+        return new Response(
+          JSON.stringify({ 
+            success: true, 
+            warning: errorMsg,
+            kledo_invoice_id: bankTransResult.refNumber 
+          }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      // Update order with success - simpan ref_number ke kledo_invoice_id
       await supabase
         .from('guest_orders')
         .update({ 
           kledo_invoice_id: bankTransResult.refNumber,
-          kledo_sync_error: errorMsg,
-          kledo_synced_at: new Date().toISOString()
+          kledo_synced_at: new Date().toISOString(),
+          kledo_sync_error: null
         })
         .eq('id', orderId);
-      
+
+      console.log("Kledo sync completed successfully:", {
+        orderId,
+        memo,
+        bankTransRefNumber: bankTransResult.refNumber,
+        expenseId: expenseResult.id,
+      });
+
       return new Response(
         JSON.stringify({ 
-          success: true, 
-          warning: errorMsg,
-          kledo_invoice_id: bankTransResult.refNumber 
+          success: true,
+          kledo_invoice_id: bankTransResult.refNumber,
+          kledo_expense_id: expenseResult.id
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // Update order with success - simpan ref_number ke kledo_invoice_id
-    await supabase
-      .from('guest_orders')
-      .update({ 
-        kledo_invoice_id: bankTransResult.refNumber,
-        kledo_synced_at: new Date().toISOString(),
-        kledo_sync_error: null
-      })
-      .eq('id', orderId);
-
-    console.log("Kledo sync completed successfully:", {
-      orderId,
-      memo,
-      bankTransRefNumber: bankTransResult.refNumber,
-      expenseId: expenseResult.id,
-    });
-
-    return new Response(
-      JSON.stringify({ 
-        success: true,
-        kledo_invoice_id: bankTransResult.refNumber,
-        kledo_expense_id: expenseResult.id
-      }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    // Execute the sync
+    return await executeKledoSync();
 
   } catch (error) {
     console.error("Kledo sync error:", error);
