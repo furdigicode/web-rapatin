@@ -210,8 +210,17 @@ export function QuickOrderForm() {
         return;
       }
 
-      if (data?.invoice_url) {
-        // Redirect to Xendit payment page
+      if (data?.access_slug) {
+        // Store invoice URL for detail page auto-redirect
+        if (data?.invoice_url) {
+          sessionStorage.setItem(`xendit_url_${data.access_slug}`, data.invoice_url);
+        }
+        
+        // Navigate to order detail page with pending status
+        // User can see summary and click pay button from there
+        window.location.href = `/quick-order/${data.access_slug}`;
+      } else if (data?.invoice_url) {
+        // Fallback: direct redirect to Xendit (legacy flow)
         window.location.href = data.invoice_url;
       } else {
         toast.error("Gagal mendapatkan link pembayaran");
