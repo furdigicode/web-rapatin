@@ -1,130 +1,126 @@
 
 
-# Rencana: Perbaiki Kledo Token Retry Mechanism
+# Rencana: Integrasi BalesOtomatis.id untuk Notifikasi WhatsApp
 
-## Analisis Masalah
+## Ringkasan
 
-Token Kledo yang tersimpan di database (`kledo_auth_tokens`) sudah tidak valid di sisi Kledo, meskipun belum melewati waktu `expires_at` di database kami.
-
-**Data ditemukan:**
-- Token tersimpan: `expires_at: 2026-02-28` (seharusnya masih valid)
-- Order `INV-260201-0001` gagal: **"Bank transaction failed: Unauthenticated."**
-- Artinya Kledo menolak token meskipun secara waktu masih valid
-
-**Root cause:**
-Kledo API bisa me-revoke token sebelum waktu expired (misalnya karena perubahan password, logout dari device lain, atau kebijakan keamanan Kledo).
+Menambahkan fitur kirim notifikasi WhatsApp ke pembeli melalui API BalesOtomatis.id dengan tombol manual di halaman Detail Order (bukan otomatis).
 
 ---
 
-## Solusi
+## Kebutuhan API Key
 
-Implementasi **retry mechanism** ketika API Kledo mengembalikan error "Unauthenticated":
-
-1. Deteksi response "Unauthenticated" dari Kledo API
-2. Hapus token lama dari cache
-3. Login ulang untuk mendapatkan token baru
-4. Retry request dengan token baru (maksimal 1 kali retry)
+Perlu menambahkan 2 secret baru ke Supabase:
+- `BALESOTOMATIS_API_KEY` - API Key dari Member Area > Integration > Access Token
+- `BALESOTOMATIS_NUMBER_ID` - ID nomor WhatsApp yang terdaftar di BalesOtomatis
 
 ---
 
-## Perubahan File
+## Komponen yang Dibuat/Diubah
 
-**File:** `supabase/functions/kledo-sync/index.ts`
+### 1. Edge Function: `send-whatsapp-notification`
 
-### 1. Tambahkan fungsi untuk invalidate token
+**File:** `supabase/functions/send-whatsapp-notification/index.ts`
 
-```typescript
-/**
- * Invalidate cached token when it's rejected by Kledo
- */
-async function invalidateCachedToken(supabase: ReturnType<typeof createClient>): Promise<void> {
-  console.log("Invalidating cached Kledo token...");
-  const { error } = await supabase
-    .from('kledo_auth_tokens')
-    .delete()
-    .gt('expires_at', new Date().toISOString());
-  
-  if (error) {
-    console.error("Failed to invalidate token:", error);
-  }
+Fungsi ini akan:
+- Menerima `order_id` dari request
+- Mengambil data order dari database
+- Mengirim pesan WhatsApp ke nomor pembeli via API BalesOtomatis
+- Mencatat `whatsapp_sent_at` ke database untuk rate limiting
+
+**Endpoint API BalesOtomatis:**
+```
+POST https://api.balesotomatis.id/public/v1/send_personal_message
+```
+
+**Body Request:**
+```json
+{
+  "api_key": "YOUR-API-KEY",
+  "number_id": "YOUR-NUMBER-ID",
+  "enable_typing": "1",
+  "method_send": "async",
+  "phone_no": "TARGET-PHONE-NUMBER",
+  "country_code": "62",
+  "message": "Pesan kredensial Zoom"
 }
 ```
 
-### 2. Modifikasi `createBankTransaction` untuk mengembalikan status auth
+**Template Pesan WhatsApp:**
+```text
+Halo [Nama],
 
-```typescript
-async function createBankTransaction(
-  token: string,
-  transDate: string,
-  memo: string,
-  amount: number
-): Promise<{ success: boolean; refNumber?: string; error?: string; isAuthError?: boolean }> {
-  // ... existing code ...
-  
-  const result = await response.json();
-  
-  // Deteksi error autentikasi
-  if (!response.ok) {
-    const errorMessage = result.message || `HTTP ${response.status}`;
-    const isAuthError = response.status === 401 || 
-                        errorMessage.toLowerCase().includes('unauthenticated') ||
-                        errorMessage.toLowerCase().includes('unauthorized');
-    return { success: false, error: errorMessage, isAuthError };
-  }
-  // ... rest of code ...
-}
+Berikut detail Zoom Meeting Anda:
+
+📋 *Order:* [Order Number]
+📅 *Tanggal:* [Tanggal Meeting]
+⏰ *Waktu:* [Jam] WIB
+
+🔐 *Kredensial Zoom:*
+Meeting ID: [Meeting ID]
+Passcode: [Passcode]
+Host Key: 070707
+
+🔗 Link Meeting:
+[Zoom Link]
+
+Panduan menjadi Host: https://youtu.be/8QX78u43_JE
+
+Terima kasih telah menggunakan Rapatin! 🙏
 ```
 
-### 3. Modifikasi `createExpense` dengan cara yang sama
+---
 
-```typescript
-async function createExpense(
-  token: string,
-  transDate: string,
-  memo: string,
-  feeAmount: number,
-  methodName: string
-): Promise<{ success: boolean; id?: string; error?: string; isAuthError?: boolean }> {
-  // ... sama seperti createBankTransaction, tambahkan isAuthError ...
-}
+### 2. Database: Tambah kolom untuk rate limiting
+
+**Migration:** Tambah kolom `whatsapp_sent_at` ke tabel `guest_orders`
+
+```sql
+ALTER TABLE guest_orders 
+ADD COLUMN IF NOT EXISTS whatsapp_sent_at TIMESTAMPTZ DEFAULT NULL;
 ```
 
-### 4. Tambahkan retry logic di main handler
+Kolom ini untuk mencatat kapan terakhir pesan WhatsApp dikirim, sehingga bisa di-rate limit (cooldown).
 
-```typescript
-// Dalam serve handler, setelah mendapatkan token:
+---
 
-let token = await getKledoToken(supabase);
-let retryCount = 0;
-const MAX_RETRIES = 1;
+### 3. Frontend: Tombol "Kirim ke WhatsApp"
 
-async function executeKledoSync(): Promise<Response> {
-  // Create bank transaction
-  const bankTransResult = await createBankTransaction(token, transDate, memo, amount);
-  
-  // Jika auth error dan belum retry, coba login ulang
-  if (!bankTransResult.success && bankTransResult.isAuthError && retryCount < MAX_RETRIES) {
-    console.log("Auth error detected, refreshing token and retrying...");
-    retryCount++;
-    
-    // Invalidate old token
-    await invalidateCachedToken(supabase);
-    
-    // Get new token (will force fresh login)
-    token = await getKledoToken(supabase);
-    if (!token) {
-      // ... handle error ...
-    }
-    
-    // Retry
-    return executeKledoSync();
-  }
-  
-  // ... rest of existing logic ...
-}
+**File:** `src/pages/QuickOrderDetail.tsx`
 
-return await executeKledoSync();
+Tambahkan tombol di bagian Detail Zoom Meeting (setelah area Invitation):
+
+```tsx
+{/* Tombol Kirim ke WhatsApp */}
+<Button
+  onClick={handleSendWhatsApp}
+  disabled={isSendingWhatsApp || isWhatsAppCooldown}
+  className="w-full bg-blue-500 hover:bg-blue-600 text-white"
+>
+  {isSendingWhatsApp ? (
+    <>
+      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+      Mengirim...
+    </>
+  ) : isWhatsAppCooldown ? (
+    <>
+      <Clock className="w-4 h-4 mr-2" />
+      Tunggu {cooldownTimeLeft}
+    </>
+  ) : (
+    <>
+      <MessageCircle className="w-4 h-4 mr-2" />
+      Kirim ke WhatsApp
+    </>
+  )}
+</Button>
 ```
+
+**Logic Cooldown:**
+- Setelah tombol diklik dan berhasil, disable selama 1 jam
+- Tampilkan sisa waktu cooldown pada tombol
+- Simpan timestamp di database (`whatsapp_sent_at`)
+- Cek kondisi cooldown saat load halaman
 
 ---
 
@@ -132,63 +128,149 @@ return await executeKledoSync();
 
 ```text
 ┌─────────────────────────────────────────────────────────────┐
-│                    KLEDO SYNC REQUEST                       │
+│           HALAMAN DETAIL ORDER (QuickOrderDetail)           │
 └─────────────────────────────────────────────────────────────┘
                               │
                               ▼
 ┌─────────────────────────────────────────────────────────────┐
-│ 1. Ambil token dari cache (kledo_auth_tokens)               │
-│    - Jika ada & belum expired → gunakan                     │
-│    - Jika tidak ada → login baru                            │
+│ Detail Zoom Meeting                                         │
+│ ┌─────────────────────────────────────────────────────────┐ │
+│ │ Meeting ID: 123 4567 8901                    [Copy]     │ │
+│ │ Passcode: abc123                             [Copy]     │ │
+│ │ Link Meeting: https://zoom.us/j/...  [Open] [Copy]      │ │
+│ │ Host Key: ••••••                     [Eye]  [Copy]      │ │
+│ └─────────────────────────────────────────────────────────┘ │
+│                                                             │
+│ ┌───────────────────────────────────────────────────────┐   │
+│ │ Invitation                                    [Copy]  │   │
+│ │ ...                                                   │   │
+│ └───────────────────────────────────────────────────────┘   │
+│                                                             │
+│ ┌───────────────────────────────────────────────────────┐   │
+│ │ 💬  Kirim ke WhatsApp                                 │ ← BARU
+│ └───────────────────────────────────────────────────────┘   │
+│                                                             │
+│ [Panduan Menjadi Host]    [Panduan Lainnya]                │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼ (Klik tombol)
+┌─────────────────────────────────────────────────────────────┐
+│ Edge Function: send-whatsapp-notification                   │
+│ 1. Validasi order_id                                        │
+│ 2. Ambil data order dari database                           │
+│ 3. Cek apakah masih dalam cooldown period                   │
+│ 4. Format pesan WhatsApp                                    │
+│ 5. Kirim ke API BalesOtomatis.id                            │
+│ 6. Update whatsapp_sent_at di database                      │
+│ 7. Return success/error                                     │
 └─────────────────────────────────────────────────────────────┘
                               │
                               ▼
 ┌─────────────────────────────────────────────────────────────┐
-│ 2. Panggil Kledo API (createBankTransaction)                │
+│ BalesOtomatis.id API                                        │
+│ POST /public/v1/send_personal_message                       │
+│ → Kirim pesan ke nomor WhatsApp pembeli                     │
 └─────────────────────────────────────────────────────────────┘
-                              │
-              ┌───────────────┴───────────────┐
-              ▼                               ▼
-┌─────────────────────────┐     ┌─────────────────────────────┐
-│ SUCCESS                 │     │ ERROR: Unauthenticated      │
-│ → Lanjut ke expense     │     │ (isAuthError = true)        │
-└─────────────────────────┘     └─────────────────────────────┘
-                                              │
-                                              ▼
-                              ┌───────────────────────────────┐
-                              │ 3. Retry Count < MAX_RETRIES? │
-                              └───────────────────────────────┘
-                                              │
-                              ┌───────────────┴───────────────┐
-                              ▼                               ▼
-                    ┌─────────────────┐          ┌─────────────────┐
-                    │ YES             │          │ NO              │
-                    │ • Hapus token   │          │ • Return error  │
-                    │ • Login ulang   │          │ • Update order  │
-                    │ • Retry request │          │   sync_error    │
-                    └─────────────────┘          └─────────────────┘
-                              │
-                              ▼
-                    ┌─────────────────────────────────────────────┐
-                    │ Kembali ke langkah 2 dengan token baru      │
-                    └─────────────────────────────────────────────┘
 ```
 
 ---
 
-## Ringkasan Perubahan
+## Posisi Tombol (Visual)
 
-| Komponen | Perubahan |
-|----------|-----------|
-| `invalidateCachedToken()` | Fungsi baru untuk menghapus token dari cache |
-| `createBankTransaction()` | Tambah return `isAuthError` |
-| `createExpense()` | Tambah return `isAuthError` |
-| Main handler | Tambah retry logic dengan max 1 retry |
+```text
+SEBELUM:
+┌────────────────────────────────┐
+│ Invitation           [Copy]   │
+│ ...                           │
+├────────────────────────────────┤
+│ [Panduan Host] [Panduan Lain] │
+└────────────────────────────────┘
+
+SESUDAH:
+┌────────────────────────────────┐
+│ Invitation           [Copy]   │
+│ ...                           │
+├────────────────────────────────┤
+│ [💬 Kirim ke WhatsApp]        │ ← Tombol biru, lebar penuh
+├────────────────────────────────┤
+│ [Panduan Host] [Panduan Lain] │
+└────────────────────────────────┘
+```
 
 ---
 
-## Hasil yang Diharapkan
+## State dan Logic Cooldown
 
-1. **Sebelum:** Token cached yang sudah di-revoke Kledo menyebabkan error permanen
-2. **Sesudah:** Sistem otomatis mendeteksi auth error, menghapus token lama, login ulang, dan retry request
+```tsx
+// State
+const [isSendingWhatsApp, setIsSendingWhatsApp] = useState(false);
+const [whatsAppCooldownEnd, setWhatsAppCooldownEnd] = useState<Date | null>(null);
+const [cooldownTimeLeft, setCooldownTimeLeft] = useState("");
+
+// Cek cooldown saat order di-load
+useEffect(() => {
+  if (order?.whatsapp_sent_at) {
+    const sentAt = new Date(order.whatsapp_sent_at);
+    const cooldownEnd = new Date(sentAt.getTime() + 60 * 60 * 1000); // +1 jam
+    if (cooldownEnd > new Date()) {
+      setWhatsAppCooldownEnd(cooldownEnd);
+    }
+  }
+}, [order?.whatsapp_sent_at]);
+
+// Countdown timer untuk cooldown
+useEffect(() => {
+  if (!whatsAppCooldownEnd) return;
+  
+  const interval = setInterval(() => {
+    const now = new Date();
+    const diff = whatsAppCooldownEnd.getTime() - now.getTime();
+    
+    if (diff <= 0) {
+      setWhatsAppCooldownEnd(null);
+      setCooldownTimeLeft("");
+      return;
+    }
+    
+    const minutes = Math.floor(diff / (1000 * 60));
+    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+    setCooldownTimeLeft(`${minutes}m ${seconds}s`);
+  }, 1000);
+  
+  return () => clearInterval(interval);
+}, [whatsAppCooldownEnd]);
+
+const isWhatsAppCooldown = whatsAppCooldownEnd !== null;
+```
+
+---
+
+## Ringkasan File yang Diubah
+
+| File | Aksi | Deskripsi |
+|------|------|-----------|
+| `supabase/functions/send-whatsapp-notification/index.ts` | Baru | Edge function untuk kirim WhatsApp via BalesOtomatis API |
+| `supabase/config.toml` | Ubah | Tambah konfigurasi function baru |
+| Migration SQL | Baru | Tambah kolom `whatsapp_sent_at` ke `guest_orders` |
+| `src/pages/QuickOrderDetail.tsx` | Ubah | Tambah tombol "Kirim ke WhatsApp" dengan cooldown logic |
+| `src/integrations/supabase/types.ts` | Ubah | Tambah field `whatsapp_sent_at` ke tipe GuestOrder |
+| `src/types/OrderTypes.ts` | Ubah | Tambah field `whatsapp_sent_at` |
+
+---
+
+## Catatan Keamanan
+
+- API Key BalesOtomatis disimpan sebagai secret di Supabase (tidak exposed ke frontend)
+- Rate limiting 1 jam mencegah spam
+- Edge function memvalidasi order sebelum kirim
+
+---
+
+## Langkah Implementasi
+
+1. User perlu menambahkan secrets: `BALESOTOMATIS_API_KEY` dan `BALESOTOMATIS_NUMBER_ID`
+2. Jalankan migration untuk tambah kolom `whatsapp_sent_at`
+3. Buat edge function `send-whatsapp-notification`
+4. Update `QuickOrderDetail.tsx` dengan tombol dan logic cooldown
+5. Update types di frontend
 
