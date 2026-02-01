@@ -73,7 +73,8 @@ interface OrderDetails {
   recurrence_end_date: string | null;
   recurrence_count: number | null;
   total_days: number | null;
-  // WhatsApp notification
+  // Notification timestamps
+  email_sent_at: string | null;
   whatsapp_sent_at: string | null;
 }
 
@@ -1171,8 +1172,12 @@ export default function QuickOrderDetail() {
                                 : "bg-yellow-500 animate-pulse"
                           }`}
                         />
+                        {/* Show connector line if email or whatsapp history exists */}
+                        {(order.email_sent_at || order.whatsapp_sent_at) && (
+                          <div className="w-0.5 h-full bg-border min-h-[40px]" />
+                        )}
                       </div>
-                      <div>
+                      <div className={order.email_sent_at || order.whatsapp_sent_at ? "pb-6" : ""}>
                         <p
                           className={`font-medium text-sm ${
                             order.zoom_link
@@ -1194,6 +1199,37 @@ export default function QuickOrderDetail() {
                         )}
                       </div>
                     </div>
+
+                    {/* Timeline Item 4: Email Terkirim (conditional) */}
+                    {order.email_sent_at && (
+                      <div className="flex gap-4">
+                        <div className="flex flex-col items-center">
+                          <div className="w-3 h-3 bg-blue-500 rounded-full" />
+                          {/* Show connector line if whatsapp history exists */}
+                          {order.whatsapp_sent_at && (
+                            <div className="w-0.5 h-full bg-border min-h-[40px]" />
+                          )}
+                        </div>
+                        <div className={order.whatsapp_sent_at ? "pb-6" : ""}>
+                          <p className="font-medium text-sm text-blue-600">Email terkirim</p>
+                          <p className="text-sm text-muted-foreground">{formatDateTime(order.email_sent_at)}</p>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Timeline Item 5: WhatsApp Terkirim (conditional) */}
+                    {order.whatsapp_sent_at && (
+                      <div className="flex gap-4">
+                        <div className="flex flex-col items-center">
+                          <div className="w-3 h-3 bg-green-500 rounded-full" />
+                          {/* No connector line - last item */}
+                        </div>
+                        <div>
+                          <p className="font-medium text-sm text-green-600">WhatsApp terkirim</p>
+                          <p className="text-sm text-muted-foreground">{formatDateTime(order.whatsapp_sent_at)}</p>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
