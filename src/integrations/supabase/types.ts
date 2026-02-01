@@ -328,6 +328,7 @@ export type Database = {
           updated_at: string
           weekly_days: number[] | null
           whatsapp: string
+          whatsapp_sent_at: string | null
           xendit_invoice_id: string | null
           xendit_invoice_url: string | null
           xendit_reference_id: string | null
@@ -374,6 +375,7 @@ export type Database = {
           updated_at?: string
           weekly_days?: number[] | null
           whatsapp: string
+          whatsapp_sent_at?: string | null
           xendit_invoice_id?: string | null
           xendit_invoice_url?: string | null
           xendit_reference_id?: string | null
@@ -420,6 +422,7 @@ export type Database = {
           updated_at?: string
           weekly_days?: number[] | null
           whatsapp?: string
+          whatsapp_sent_at?: string | null
           xendit_invoice_id?: string | null
           xendit_invoice_url?: string | null
           xendit_reference_id?: string | null

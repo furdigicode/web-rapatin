@@ -73,6 +73,8 @@ interface OrderDetails {
   recurrence_end_date: string | null;
   recurrence_count: number | null;
   total_days: number | null;
+  // WhatsApp notification
+  whatsapp_sent_at: string | null;
 }
 
 const formatRupiah = (amount: number) => {
@@ -287,6 +289,11 @@ export default function QuickOrderDetail() {
   const [error, setError] = useState<string | null>(null);
   const [timeLeft, setTimeLeft] = useState<string>("");
   const [showHostKey, setShowHostKey] = useState(false);
+  
+  // WhatsApp notification states
+  const [isSendingWhatsApp, setIsSendingWhatsApp] = useState(false);
+  const [whatsAppCooldownEnd, setWhatsAppCooldownEnd] = useState<Date | null>(null);
+  const [cooldownTimeLeft, setCooldownTimeLeft] = useState("");
 
   const fetchOrder = useCallback(
     async (showLoadingState = false) => {
@@ -382,6 +389,89 @@ export default function QuickOrderDetail() {
 
   const handleCheckStatus = () => {
     fetchOrder(true);
+  };
+
+  // WhatsApp cooldown: check on order load
+  useEffect(() => {
+    if (order?.whatsapp_sent_at) {
+      const sentAt = new Date(order.whatsapp_sent_at);
+      const cooldownEnd = new Date(sentAt.getTime() + 60 * 60 * 1000); // +1 hour
+      if (cooldownEnd > new Date()) {
+        setWhatsAppCooldownEnd(cooldownEnd);
+      } else {
+        setWhatsAppCooldownEnd(null);
+      }
+    }
+  }, [order?.whatsapp_sent_at]);
+
+  // WhatsApp cooldown countdown timer
+  useEffect(() => {
+    if (!whatsAppCooldownEnd) {
+      setCooldownTimeLeft("");
+      return;
+    }
+    
+    const updateCooldown = () => {
+      const now = new Date();
+      const diff = whatsAppCooldownEnd.getTime() - now.getTime();
+      
+      if (diff <= 0) {
+        setWhatsAppCooldownEnd(null);
+        setCooldownTimeLeft("");
+        return;
+      }
+      
+      const minutes = Math.floor(diff / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+      setCooldownTimeLeft(`${minutes}m ${seconds}s`);
+    };
+
+    updateCooldown();
+    const interval = setInterval(updateCooldown, 1000);
+    return () => clearInterval(interval);
+  }, [whatsAppCooldownEnd]);
+
+  const isWhatsAppCooldown = whatsAppCooldownEnd !== null;
+
+  const handleSendWhatsApp = async () => {
+    if (!order || isSendingWhatsApp || isWhatsAppCooldown) return;
+
+    setIsSendingWhatsApp(true);
+    try {
+      const response = await fetch(
+        "https://mepznzrijuoyvjcmkspf.supabase.co/functions/v1/send-whatsapp-notification",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            apikey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1lcHpuenJpanVveXZqY21rc3BmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDczNzU5NDcsImV4cCI6MjA2Mjk1MTk0N30.mIGM28Ztelp6enqg36m03SB7v_Vlsruyd79Rj9mRUuA",
+          },
+          body: JSON.stringify({ order_id: order.id }),
+        }
+      );
+
+      const result = await response.json();
+
+      if (!response.ok || result.error) {
+        toast.error(result.error || "Gagal mengirim WhatsApp");
+        return;
+      }
+
+      toast.success("Pesan WhatsApp berhasil dikirim!");
+      
+      // Set cooldown immediately
+      const cooldownEnd = new Date(Date.now() + 60 * 60 * 1000);
+      setWhatsAppCooldownEnd(cooldownEnd);
+      
+      // Update order state with new whatsapp_sent_at
+      setOrder(prev => prev ? { ...prev, whatsapp_sent_at: result.whatsapp_sent_at } : null);
+      
+    } catch (err) {
+      console.error("Error sending WhatsApp:", err);
+      toast.error("Terjadi kesalahan saat mengirim WhatsApp");
+    } finally {
+      setIsSendingWhatsApp(false);
+    }
   };
 
   // Loading state
@@ -790,6 +880,30 @@ export default function QuickOrderDetail() {
                           className="min-h-[180px] font-mono text-xs resize-none bg-muted cursor-default"
                         />
                       </div>
+
+                      {/* WhatsApp Notification Button */}
+                      <Button
+                        onClick={handleSendWhatsApp}
+                        disabled={isSendingWhatsApp || isWhatsAppCooldown}
+                        className="w-full bg-blue-500 hover:bg-blue-600 text-white"
+                      >
+                        {isSendingWhatsApp ? (
+                          <>
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            Mengirim...
+                          </>
+                        ) : isWhatsAppCooldown ? (
+                          <>
+                            <Clock className="w-4 h-4 mr-2" />
+                            Tunggu {cooldownTimeLeft}
+                          </>
+                        ) : (
+                          <>
+                            <MessageCircle className="w-4 h-4 mr-2" />
+                            Kirim ke WhatsApp
+                          </>
+                        )}
+                      </Button>
 
                       {/* Panduan Buttons */}
                       <div className="flex flex-col sm:flex-row gap-3 mt-4">
