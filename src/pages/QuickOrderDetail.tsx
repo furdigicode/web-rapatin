@@ -1139,7 +1139,7 @@ export default function QuickOrderDetail() {
                     {/* Timeline Item 1: Order Dibuat */}
                     <div className="flex gap-4">
                       <div className="flex flex-col items-center">
-                        <div className="w-3 h-3 bg-primary rounded-full" />
+                        <div className="w-3 h-3 bg-primary rounded-full shrink-0" />
                         <div className="w-0.5 h-full bg-border min-h-[40px]" />
                       </div>
                       <div className="pb-6">
@@ -1151,7 +1151,7 @@ export default function QuickOrderDetail() {
                     {/* Timeline Item 2: Pembayaran Diterima */}
                     <div className="flex gap-4">
                       <div className="flex flex-col items-center">
-                        <div className="w-3 h-3 bg-green-500 rounded-full" />
+                        <div className="w-3 h-3 bg-green-500 rounded-full shrink-0" />
                         <div className="w-0.5 h-full bg-border min-h-[40px]" />
                       </div>
                       <div className="pb-6">
@@ -1164,7 +1164,7 @@ export default function QuickOrderDetail() {
                     <div className="flex gap-4">
                       <div className="flex flex-col items-center">
                         <div
-                          className={`w-3 h-3 rounded-full ${
+                          className={`w-3 h-3 rounded-full shrink-0 ${
                             order.zoom_link
                               ? "bg-green-500"
                               : order.paid_at && isZoomCreationLikelyFailed(order.paid_at)
@@ -1204,7 +1204,7 @@ export default function QuickOrderDetail() {
                     {order.email_sent_at && (
                       <div className="flex gap-4">
                         <div className="flex flex-col items-center">
-                          <div className="w-3 h-3 bg-blue-500 rounded-full" />
+                          <div className="w-3 h-3 bg-blue-500 rounded-full shrink-0" />
                           {/* Show connector line if whatsapp history exists */}
                           {order.whatsapp_sent_at && (
                             <div className="w-0.5 h-full bg-border min-h-[40px]" />
@@ -1221,7 +1221,7 @@ export default function QuickOrderDetail() {
                     {order.whatsapp_sent_at && (
                       <div className="flex gap-4">
                         <div className="flex flex-col items-center">
-                          <div className="w-3 h-3 bg-green-500 rounded-full" />
+                          <div className="w-3 h-3 bg-green-500 rounded-full shrink-0" />
                           {/* No connector line - last item */}
                         </div>
                         <div>
