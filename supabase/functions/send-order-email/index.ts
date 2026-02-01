@@ -2,29 +2,42 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
 // Format date to Indonesian format
 function formatDate(dateString: string): string {
   const date = new Date(dateString);
-  const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
-  const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
-  
+  const days = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+  const months = [
+    "Januari",
+    "Februari",
+    "Maret",
+    "April",
+    "Mei",
+    "Juni",
+    "Juli",
+    "Agustus",
+    "September",
+    "Oktober",
+    "November",
+    "Desember",
+  ];
+
   const dayName = days[date.getDay()];
   const day = date.getDate();
   const month = months[date.getMonth()];
   const year = date.getFullYear();
-  
+
   return `${dayName}, ${day} ${month} ${year}`;
 }
 
 // Format price to Rupiah
 function formatRupiah(amount: number): string {
-  return new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR',
+  return new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(amount);
@@ -32,29 +45,29 @@ function formatRupiah(amount: number): string {
 
 // Format Meeting ID with spaces (123 4567 8901)
 function formatMeetingId(meetingId: string | null): string {
-  if (!meetingId) return '-';
-  const cleaned = meetingId.replace(/\D/g, '');
-  return cleaned.replace(/(\d{3})(\d{4})(\d{4})/, '$1 $2 $3');
+  if (!meetingId) return "-";
+  const cleaned = meetingId.replace(/\D/g, "");
+  return cleaned.replace(/(\d{3})(\d{4})(\d{4})/, "$1 $2 $3");
 }
 
 // Generate HTML email template
 function generateEmailHTML(order: Record<string, unknown>): string {
-  const orderNumber = order.order_number as string || '-';
-  const meetingTopic = order.meeting_topic as string || 'Zoom Meeting';
+  const orderNumber = (order.order_number as string) || "-";
+  const meetingTopic = (order.meeting_topic as string) || "Zoom Meeting";
   const meetingDate = formatDate(order.meeting_date as string);
-  const meetingTime = order.meeting_time as string || '09:00';
+  const meetingTime = (order.meeting_time as string) || "09:00";
   const participantCount = order.participant_count as number;
   const price = formatRupiah(order.price as number);
-  const zoomLink = order.zoom_link as string || '';
+  const zoomLink = (order.zoom_link as string) || "";
   const meetingId = formatMeetingId(order.meeting_id as string);
-  const passcode = order.zoom_passcode as string || '-';
-  const hostKey = '070707';
+  const passcode = (order.zoom_passcode as string) || "-";
+  const hostKey = "070707";
   const customerName = order.name as string;
   const isRecurring = order.is_recurring as boolean;
   const totalDays = order.total_days as number;
 
   // Recurring info section
-  let recurringInfo = '';
+  let recurringInfo = "";
   if (isRecurring && totalDays && totalDays > 1) {
     recurringInfo = `
       <tr>
@@ -154,7 +167,7 @@ function generateEmailHTML(order: Record<string, unknown>): string {
           <tr>
             <td style="padding: 24px 32px 0 32px;">
               <h2 style="margin: 0 0 16px 0; color: #111827; font-size: 18px; font-weight: 600; border-bottom: 2px solid #e5e7eb; padding-bottom: 8px;">
-                🔐 Kredensial Zoom
+                🔐 Akses Ruang Zoom
               </h2>
               
               <!-- Join Button -->
@@ -162,7 +175,7 @@ function generateEmailHTML(order: Record<string, unknown>): string {
                 <tr>
                   <td align="center">
                     <a href="${zoomLink}" target="_blank" style="display: inline-block; background-color: #179ecf; color: #ffffff; text-decoration: none; padding: 16px 48px; border-radius: 12px; font-size: 16px; font-weight: 600;">
-                      🔵 Gabung Meeting
+                      Gabung Meeting
                     </a>
                   </td>
                 </tr>
@@ -258,16 +271,16 @@ function generateEmailHTML(order: Record<string, unknown>): string {
 
 // Generate plain text fallback
 function generateEmailText(order: Record<string, unknown>): string {
-  const orderNumber = order.order_number as string || '-';
-  const meetingTopic = order.meeting_topic as string || 'Zoom Meeting';
+  const orderNumber = (order.order_number as string) || "-";
+  const meetingTopic = (order.meeting_topic as string) || "Zoom Meeting";
   const meetingDate = formatDate(order.meeting_date as string);
-  const meetingTime = order.meeting_time as string || '09:00';
+  const meetingTime = (order.meeting_time as string) || "09:00";
   const participantCount = order.participant_count as number;
   const price = formatRupiah(order.price as number);
-  const zoomLink = order.zoom_link as string || '';
+  const zoomLink = (order.zoom_link as string) || "";
   const meetingId = formatMeetingId(order.meeting_id as string);
-  const passcode = order.zoom_passcode as string || '-';
-  const hostKey = '070707';
+  const passcode = (order.zoom_passcode as string) || "-";
+  const hostKey = "070707";
   const customerName = order.name as string;
 
   return `
@@ -316,7 +329,7 @@ Ada pertanyaan? Hubungi kami via WhatsApp: 0877-8898-0084
 
 serve(async (req) => {
   // Handle CORS preflight
-  if (req.method === 'OPTIONS') {
+  if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
@@ -325,53 +338,53 @@ serve(async (req) => {
 
     if (!orderId) {
       console.error("Missing orderId in request");
-      return new Response(
-        JSON.stringify({ error: 'Missing orderId' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return new Response(JSON.stringify({ error: "Missing orderId" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     console.log("Processing email for order:", orderId);
 
     // Initialize Supabase client
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
     // Fetch order details
     const { data: order, error: fetchError } = await supabase
-      .from('guest_orders')
-      .select('*')
-      .eq('id', orderId)
+      .from("guest_orders")
+      .select("*")
+      .eq("id", orderId)
       .single();
 
     if (fetchError || !order) {
       console.error("Order not found:", orderId, fetchError);
-      return new Response(
-        JSON.stringify({ error: 'Order not found' }),
-        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return new Response(JSON.stringify({ error: "Order not found" }), {
+        status: 404,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     // Check if order has zoom_link (meeting was created)
     if (!order.zoom_link) {
       console.error("Order does not have zoom_link yet:", orderId);
-      return new Response(
-        JSON.stringify({ error: 'Meeting not created yet' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return new Response(JSON.stringify({ error: "Meeting not created yet" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     // Get Mailjet credentials
-    const mailjetApiKey = Deno.env.get('MAILJET_API_KEY');
-    const mailjetSecretKey = Deno.env.get('MAILJET_SECRET_KEY');
+    const mailjetApiKey = Deno.env.get("MAILJET_API_KEY");
+    const mailjetSecretKey = Deno.env.get("MAILJET_SECRET_KEY");
 
     if (!mailjetApiKey || !mailjetSecretKey) {
       console.error("Mailjet credentials not configured");
-      return new Response(
-        JSON.stringify({ error: 'Email service not configured' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return new Response(JSON.stringify({ error: "Email service not configured" }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     // Generate email content
@@ -380,30 +393,34 @@ serve(async (req) => {
 
     // Send email via Mailjet API v3.1
     const authHeader = btoa(`${mailjetApiKey}:${mailjetSecretKey}`);
-    
+
     const emailPayload = {
-      Messages: [{
-        From: {
-          Email: "admin@rapatin.id",
-          Name: "Rapatin"
+      Messages: [
+        {
+          From: {
+            Email: "admin@rapatin.id",
+            Name: "Rapatin",
+          },
+          To: [
+            {
+              Email: order.email,
+              Name: order.name,
+            },
+          ],
+          Subject: `Konfirmasi Order ${order.order_number} - Detail Zoom Meeting Anda`,
+          HTMLPart: htmlContent,
+          TextPart: textContent,
         },
-        To: [{
-          Email: order.email,
-          Name: order.name
-        }],
-        Subject: `Konfirmasi Order ${order.order_number} - Detail Zoom Meeting Anda`,
-        HTMLPart: htmlContent,
-        TextPart: textContent,
-      }]
+      ],
     };
 
     console.log("Sending email to:", order.email);
 
-    const mailjetResponse = await fetch('https://api.mailjet.com/v3.1/send', {
-      method: 'POST',
+    const mailjetResponse = await fetch("https://api.mailjet.com/v3.1/send", {
+      method: "POST",
       headers: {
-        'Authorization': `Basic ${authHeader}`,
-        'Content-Type': 'application/json',
+        Authorization: `Basic ${authHeader}`,
+        "Content-Type": "application/json",
       },
       body: JSON.stringify(emailPayload),
     });
@@ -412,34 +429,32 @@ serve(async (req) => {
 
     if (!mailjetResponse.ok) {
       console.error("Mailjet API error:", mailjetResponse.status, JSON.stringify(mailjetResult));
-      return new Response(
-        JSON.stringify({ error: 'Failed to send email', details: mailjetResult }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return new Response(JSON.stringify({ error: "Failed to send email", details: mailjetResult }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     console.log("Email sent successfully:", JSON.stringify(mailjetResult));
 
     // Update email_sent_at timestamp
     const { error: updateError } = await supabase
-      .from('guest_orders')
+      .from("guest_orders")
       .update({ email_sent_at: new Date().toISOString() })
-      .eq('id', orderId);
+      .eq("id", orderId);
 
     if (updateError) {
       console.error("Failed to update email_sent_at:", updateError);
     }
 
-    return new Response(
-      JSON.stringify({ success: true, result: mailjetResult }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
-
+    return new Response(JSON.stringify({ success: true, result: mailjetResult }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   } catch (error) {
     console.error("Unexpected error:", error);
-    return new Response(
-      JSON.stringify({ error: 'Internal server error' }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    return new Response(JSON.stringify({ error: "Internal server error" }), {
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   }
 });
