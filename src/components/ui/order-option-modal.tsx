@@ -85,11 +85,15 @@ const OrderOptionModal: React.FC<OrderOptionModalProps> = ({ isOpen, onClose }) 
               </div>
               <div className="flex items-center gap-2 text-sm">
                 <Check className="w-4 h-4 text-green-600 dark:text-green-400 flex-shrink-0" />
-                <span className="text-foreground">Akses rekaman cloud</span>
+                <span className="text-foreground">Akses rekaman mandiri</span>
               </div>
               <div className="flex items-center gap-2 text-sm">
                 <Check className="w-4 h-4 text-green-600 dark:text-green-400 flex-shrink-0" />
-                <span className="text-foreground">Laporan peserta</span>
+                <span className="text-foreground">Lihat status progress rekaman</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm">
+                <Check className="w-4 h-4 text-green-600 dark:text-green-400 flex-shrink-0" />
+                <span className="text-foreground">Laporan peserta otomatis</span>
               </div>
               <div className="flex items-center gap-2 text-sm">
                 <Check className="w-4 h-4 text-green-600 dark:text-green-400 flex-shrink-0" />
@@ -151,12 +155,12 @@ const OrderOptionModal: React.FC<OrderOptionModalProps> = ({ isOpen, onClose }) 
                 <span>Tidak bisa edit jadwal</span>
               </div>
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <X className="w-4 h-4 text-red-400 flex-shrink-0" />
-                <span>Tidak ada akses rekaman</span>
+                <MessageCircle className="w-4 h-4 text-amber-500 flex-shrink-0" />
+                <span>Rekaman via request admin</span>
               </div>
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <X className="w-4 h-4 text-red-400 flex-shrink-0" />
-                <span>Tidak ada laporan peserta</span>
+                <MessageCircle className="w-4 h-4 text-amber-500 flex-shrink-0" />
+                <span>Laporan via request admin</span>
               </div>
             </div>
             
