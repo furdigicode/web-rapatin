@@ -45,6 +45,7 @@ export interface GuestOrder {
   kledo_synced_at: string | null;
   kledo_sync_error: string | null;
   email_sent_at: string | null;
+  whatsapp_sent_at: string | null;
 }
 
 export interface OrderStats {
