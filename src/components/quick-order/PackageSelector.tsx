@@ -8,10 +8,10 @@ interface Package {
 }
 
 const packages: Package[] = [
-  { participants: 100, promoPrice: 20000, normalPrice: 40000 },
-  { participants: 300, promoPrice: 45000, normalPrice: 100000 },
-  { participants: 500, promoPrice: 75000, normalPrice: 180000 },
-  { participants: 1000, promoPrice: 155000, normalPrice: 350000 },
+  { participants: 100, promoPrice: 25000, normalPrice: 40000 },
+  { participants: 300, promoPrice: 45000, normalPrice: 80000 },
+  { participants: 500, promoPrice: 75000, normalPrice: 140000 },
+  { participants: 1000, promoPrice: 135000, normalPrice: 260000 },
 ];
 
 interface PackageSelectorProps {

@@ -4,10 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Check, Video, Mic, Users, Globe, Clock, Calendar, BarChart, MessageSquare, Share2, UserPlus, Zap, FileText, Languages, VideoIcon } from 'lucide-react';
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import FreeTrialModal from '@/components/ui/free-trial-modal';
+import OrderOptionModal from '@/components/ui/order-option-modal';
 import CountdownTimer from '@/components/ui/countdown-timer';
 import { formatRupiah } from '@/utils/formatRupiah';
-import { shouldShowModal, getRedirectUrl } from '@/hooks/useURLParams';
 
 const PricingSection: React.FC = () => {
   const [modalOpen, setModalOpen] = useState(false);
@@ -38,23 +37,17 @@ const PricingSection: React.FC = () => {
   ];
   
   const plans = [
-    { participants: "100 Peserta", originalPrice: 20000, promoPrice: 10000, popular: true },
-    { participants: "300 Peserta", originalPrice: 40000, promoPrice: 25000 },
-    { participants: "500 Peserta", originalPrice: 70000, promoPrice: 55000 },
-    { participants: "1000 Peserta", originalPrice: 130000, promoPrice: 100000 }
+    { participants: "100 Peserta", originalPrice: 40000, appPrice: 20000, quickOrderPrice: 25000, popular: true },
+    { participants: "300 Peserta", originalPrice: 80000, appPrice: 40000, quickOrderPrice: 45000 },
+    { participants: "500 Peserta", originalPrice: 140000, appPrice: 70000, quickOrderPrice: 75000 },
+    { participants: "1000 Peserta", originalPrice: 260000, appPrice: 130000, quickOrderPrice: 135000 }
   ];
 
   const handleRegistration = () => {
     if (typeof window.fbq === 'function') {
       window.fbq('track', 'CTAClick');
     }
-    
-    if (shouldShowModal()) {
-      setModalOpen(true);
-    } else {
-      const redirectUrl = getRedirectUrl();
-      window.open(redirectUrl, '_blank');
-    }
+    setModalOpen(true);
   };
   
   return (
@@ -130,23 +123,25 @@ const PricingSection: React.FC = () => {
                             <p className="text-xs text-muted-foreground">/rapat/tanggal</p>
                           </div>
                           <div className="text-right">
-                            {isPromoActive ? (
-                              <div className="flex flex-col items-end">
-                                <div className="flex items-center gap-2 mb-1">
-                                  <span className="font-bold text-base md:text-lg text-primary">
-                                    {formatRupiah(plan.promoPrice)}
-                                  </span>
-                                  <Badge variant="destructive" className="text-xs px-1.5 py-0.5">
-                                    HEMAT
-                                  </Badge>
-                                </div>
-                                <span className="text-xs md:text-sm text-muted-foreground line-through">
-                                  {formatRupiah(plan.originalPrice)}
+                            {isPromoActive && (
+                              <p className="text-xs text-muted-foreground line-through mb-1">
+                                {formatRupiah(plan.originalPrice)}
+                              </p>
+                            )}
+                            <div className="space-y-0.5">
+                              <div className="flex items-center justify-end gap-2">
+                                <span className="text-xs text-muted-foreground">Via Aplikasi</span>
+                                <span className="font-bold text-sm text-green-600 dark:text-green-400">
+                                  {formatRupiah(plan.appPrice)}
                                 </span>
                               </div>
-                            ) : (
-                              <p className="text-lg md:text-xl font-bold">{formatRupiah(plan.originalPrice)}</p>
-                            )}
+                              <div className="flex items-center justify-end gap-2">
+                                <span className="text-xs text-muted-foreground">Quick Order</span>
+                                <span className="font-bold text-sm text-orange-500 dark:text-orange-400">
+                                  {formatRupiah(plan.quickOrderPrice)}
+                                </span>
+                              </div>
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -168,12 +163,10 @@ const PricingSection: React.FC = () => {
         </div>
       </section>
 
-      {shouldShowModal() && (
-        <FreeTrialModal
-          isOpen={modalOpen}
-          onClose={() => setModalOpen(false)}
-        />
-      )}
+      <OrderOptionModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+      />
     </>
   );
 };
