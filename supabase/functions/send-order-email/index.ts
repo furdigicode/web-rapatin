@@ -50,6 +50,36 @@ function formatMeetingId(meetingId: string | null): string {
   return cleaned.replace(/(\d{3})(\d{4})(\d{4})/, "$1 $2 $3");
 }
 
+// Generate invitation text for sharing
+function generateInvitationText(order: Record<string, unknown>): string {
+  const topic = (order.meeting_topic as string) || "Zoom Meeting";
+  const customerName = order.name as string;
+  const zoomLink = order.zoom_link as string;
+  const meetingId = formatMeetingId(order.meeting_id as string);
+  const passcode = (order.zoom_passcode as string) || "-";
+  const meetingDate = order.meeting_date as string;
+  const meetingTime = (order.meeting_time as string) || "09:00";
+  
+  // Format date untuk invitation
+  const date = new Date(meetingDate);
+  const formattedDate = date.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric"
+  });
+  
+  return `${customerName} is inviting you to a scheduled Zoom meeting.
+
+Topic: ${topic}
+Time: ${formattedDate} ${meetingTime} Jakarta
+
+Join Zoom Meeting
+${zoomLink}
+
+Meeting ID: ${meetingId}
+Passcode: ${passcode}`;
+}
+
 // Generate HTML email template
 function generateEmailHTML(order: Record<string, unknown>): string {
   const orderNumber = (order.order_number as string) || "-";
@@ -170,17 +200,6 @@ function generateEmailHTML(order: Record<string, unknown>): string {
                 🔐 Kredensial Zoom
               </h2>
               
-              <!-- Join Button -->
-              <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 20px;">
-                <tr>
-                  <td align="center">
-                    <a href="${zoomLink}" target="_blank" style="display: inline-block; background-color: #179ecf; color: #ffffff; text-decoration: none; padding: 16px 48px; border-radius: 12px; font-size: 16px; font-weight: 600;">
-                    Gabung Meeting
-                    </a>
-                  </td>
-                </tr>
-              </table>
-              
               <!-- Credentials Table -->
               <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f9fafb; border-radius: 12px; border: 1px solid #e5e7eb;">
                 <tr>
@@ -203,13 +222,36 @@ function generateEmailHTML(order: Record<string, unknown>): string {
                 </tr>
               </table>
               
-              <!-- Panduan Host Button -->
-              <table width="100%" cellpadding="0" cellspacing="0" style="margin-top: 16px;">
+              <!-- Invitation Card -->
+              <table width="100%" cellpadding="0" cellspacing="0" style="margin-top: 16px; background-color: #f9fafb; border-radius: 12px; border: 1px solid #e5e7eb;">
+                <tr>
+                  <td style="padding: 16px;">
+                    <p style="margin: 0 0 12px 0; color: #6b7280; font-size: 14px; font-weight: 600;">📝 Invitation</p>
+                    <pre style="margin: 0; white-space: pre-wrap; word-wrap: break-word; font-family: 'Courier New', monospace; font-size: 12px; color: #374151; background: #ffffff; padding: 12px; border-radius: 8px; border: 1px solid #e5e7eb; line-height: 1.6;">${generateInvitationText(order)}</pre>
+                  </td>
+                </tr>
+              </table>
+              
+              <!-- Action Buttons - Side by side -->
+              <table width="100%" cellpadding="0" cellspacing="0" style="margin-top: 20px;">
                 <tr>
                   <td align="center">
-                    <a href="https://www.youtube.com/watch?v=8QX78u43_JE" target="_blank" style="display: inline-block; background: #f3f4f6; color: #374151; text-decoration: none; padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: 500; border: 1px solid #d1d5db;">
-                      📖 Panduan Cara Menjadi Host
-                    </a>
+                    <table cellpadding="0" cellspacing="0">
+                      <tr>
+                        <!-- Gabung Meeting Button -->
+                        <td style="padding-right: 8px;">
+                          <a href="${zoomLink}" target="_blank" style="display: inline-block; background-color: #179ecf; color: #ffffff; text-decoration: none; padding: 14px 24px; border-radius: 10px; font-size: 14px; font-weight: 600;">
+                            Gabung Meeting
+                          </a>
+                        </td>
+                        <!-- Panduan Button -->
+                        <td style="padding-left: 8px;">
+                          <a href="https://www.youtube.com/watch?v=8QX78u43_JE" target="_blank" style="display: inline-block; background: #f3f4f6; color: #374151; text-decoration: none; padding: 14px 24px; border-radius: 10px; font-size: 14px; font-weight: 500; border: 1px solid #d1d5db;">
+                            📖 Panduan Host
+                          </a>
+                        </td>
+                      </tr>
+                    </table>
                   </td>
                 </tr>
               </table>
@@ -283,6 +325,8 @@ function generateEmailText(order: Record<string, unknown>): string {
   const hostKey = "070707";
   const customerName = order.name as string;
 
+  const invitationText = generateInvitationText(order);
+  
   return `
 RAPATIN - Pembayaran Berhasil!
 
@@ -312,6 +356,11 @@ Link Meeting: ${zoomLink}
 Meeting ID: ${meetingId}
 Passcode: ${passcode}
 Host Key: ${hostKey}
+
+---
+INVITATION (Salin untuk dibagikan)
+---
+${invitationText}
 
 ---
 TIPS PENTING
