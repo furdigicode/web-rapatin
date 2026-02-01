@@ -1,230 +1,194 @@
 
 
-# Rencana: Update Template Email Konfirmasi
+# Rencana: Perbaiki Kledo Token Retry Mechanism
 
-## Ringkasan Perubahan
+## Analisis Masalah
 
-1. **Pindahkan tombol "Gabung Meeting"** dari atas kredensial ke bawah (sejajar dengan tombol Panduan)
-2. **Tambahkan card Invitation** yang menampilkan teks undangan meeting seperti di halaman detail
+Token Kledo yang tersimpan di database (`kledo_auth_tokens`) sudah tidak valid di sisi Kledo, meskipun belum melewati waktu `expires_at` di database kami.
+
+**Data ditemukan:**
+- Token tersimpan: `expires_at: 2026-02-28` (seharusnya masih valid)
+- Order `INV-260201-0001` gagal: **"Bank transaction failed: Unauthenticated."**
+- Artinya Kledo menolak token meskipun secara waktu masih valid
+
+**Root cause:**
+Kledo API bisa me-revoke token sebelum waktu expired (misalnya karena perubahan password, logout dari device lain, atau kebijakan keamanan Kledo).
 
 ---
 
-## Perubahan Detail
+## Solusi
 
-**File:** `supabase/functions/send-order-email/index.ts`
+Implementasi **retry mechanism** ketika API Kledo mengembalikan error "Unauthenticated":
 
-### 1. Generate Invitation Text
+1. Deteksi response "Unauthenticated" dari Kledo API
+2. Hapus token lama dari cache
+3. Login ulang untuk mendapatkan token baru
+4. Retry request dengan token baru (maksimal 1 kali retry)
 
-Tambahkan fungsi baru untuk menghasilkan teks invitation:
+---
+
+## Perubahan File
+
+**File:** `supabase/functions/kledo-sync/index.ts`
+
+### 1. Tambahkan fungsi untuk invalidate token
 
 ```typescript
-function generateInvitationText(order: Record<string, unknown>): string {
-  const topic = (order.meeting_topic as string) || "Zoom Meeting";
-  const customerName = order.name as string;
-  const zoomLink = order.zoom_link as string;
-  const meetingId = formatMeetingId(order.meeting_id as string);
-  const passcode = (order.zoom_passcode as string) || "-";
-  const meetingDate = order.meeting_date as string;
-  const meetingTime = (order.meeting_time as string) || "09:00";
+/**
+ * Invalidate cached token when it's rejected by Kledo
+ */
+async function invalidateCachedToken(supabase: ReturnType<typeof createClient>): Promise<void> {
+  console.log("Invalidating cached Kledo token...");
+  const { error } = await supabase
+    .from('kledo_auth_tokens')
+    .delete()
+    .gt('expires_at', new Date().toISOString());
   
-  // Format date untuk invitation
-  const date = new Date(meetingDate);
-  const formattedDate = date.toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric"
-  });
-  
-  return `${customerName} is inviting you to a scheduled Zoom meeting.
-
-Topic: ${topic}
-Time: ${formattedDate} ${meetingTime} Jakarta
-
-Join Zoom Meeting
-${zoomLink}
-
-Meeting ID: ${meetingId}
-Passcode: ${passcode}`;
+  if (error) {
+    console.error("Failed to invalidate token:", error);
+  }
 }
 ```
 
-### 2. Struktur Email Baru di Bagian Kredensial
+### 2. Modifikasi `createBankTransaction` untuk mengembalikan status auth
+
+```typescript
+async function createBankTransaction(
+  token: string,
+  transDate: string,
+  memo: string,
+  amount: number
+): Promise<{ success: boolean; refNumber?: string; error?: string; isAuthError?: boolean }> {
+  // ... existing code ...
+  
+  const result = await response.json();
+  
+  // Deteksi error autentikasi
+  if (!response.ok) {
+    const errorMessage = result.message || `HTTP ${response.status}`;
+    const isAuthError = response.status === 401 || 
+                        errorMessage.toLowerCase().includes('unauthenticated') ||
+                        errorMessage.toLowerCase().includes('unauthorized');
+    return { success: false, error: errorMessage, isAuthError };
+  }
+  // ... rest of code ...
+}
+```
+
+### 3. Modifikasi `createExpense` dengan cara yang sama
+
+```typescript
+async function createExpense(
+  token: string,
+  transDate: string,
+  memo: string,
+  feeAmount: number,
+  methodName: string
+): Promise<{ success: boolean; id?: string; error?: string; isAuthError?: boolean }> {
+  // ... sama seperti createBankTransaction, tambahkan isAuthError ...
+}
+```
+
+### 4. Tambahkan retry logic di main handler
+
+```typescript
+// Dalam serve handler, setelah mendapatkan token:
+
+let token = await getKledoToken(supabase);
+let retryCount = 0;
+const MAX_RETRIES = 1;
+
+async function executeKledoSync(): Promise<Response> {
+  // Create bank transaction
+  const bankTransResult = await createBankTransaction(token, transDate, memo, amount);
+  
+  // Jika auth error dan belum retry, coba login ulang
+  if (!bankTransResult.success && bankTransResult.isAuthError && retryCount < MAX_RETRIES) {
+    console.log("Auth error detected, refreshing token and retrying...");
+    retryCount++;
+    
+    // Invalidate old token
+    await invalidateCachedToken(supabase);
+    
+    // Get new token (will force fresh login)
+    token = await getKledoToken(supabase);
+    if (!token) {
+      // ... handle error ...
+    }
+    
+    // Retry
+    return executeKledoSync();
+  }
+  
+  // ... rest of existing logic ...
+}
+
+return await executeKledoSync();
+```
+
+---
+
+## Diagram Flow
 
 ```text
-SEBELUM:
-┌─────────────────────────────────────┐
-│ 🔐 Kredensial Zoom                  │
-├─────────────────────────────────────┤
-│    [ Gabung Meeting ] ← tombol      │
-│                                     │
-│ ┌─────────────────────────────────┐ │
-│ │ Meeting ID: 123 4567 8901       │ │
-│ │ Passcode: abc123                │ │
-│ │ Host Key: 070707                │ │
-│ └─────────────────────────────────┘ │
-│                                     │
-│  [📖 Panduan Cara Menjadi Host]     │
-└─────────────────────────────────────┘
-
-SESUDAH:
-┌─────────────────────────────────────┐
-│ 🔐 Kredensial Zoom                  │
-├─────────────────────────────────────┤
-│ ┌─────────────────────────────────┐ │
-│ │ Meeting ID: 123 4567 8901       │ │
-│ │ Passcode: abc123                │ │
-│ │ Host Key: 070707                │ │
-│ └─────────────────────────────────┘ │
-│                                     │
-│ ┌─────────────────────────────────┐ │
-│ │ 📝 Invitation                   │ │
-│ │ ─────────────────────────────── │ │
-│ │ [Nama] is inviting you to a     │ │
-│ │ scheduled Zoom meeting.         │ │
-│ │                                 │ │
-│ │ Topic: [Topik Meeting]          │ │
-│ │ Time: Jan 15, 2026 09:00 Jakarta│ │
-│ │                                 │ │
-│ │ Join Zoom Meeting               │ │
-│ │ https://zoom.us/j/123...        │ │
-│ │                                 │ │
-│ │ Meeting ID: 123 4567 8901       │ │
-│ │ Passcode: abc123                │ │
-│ └─────────────────────────────────┘ │
-│                                     │
-│ [ Gabung Meeting ] [📖 Panduan]     │ ← kedua tombol sejajar
-└─────────────────────────────────────┘
-```
-
-### 3. Perubahan HTML Email
-
-**Hapus** tombol "Gabung Meeting" dari posisi atas (lines 173-182)
-
-**Tambahkan** card Invitation setelah tabel kredensial:
-
-```html
-<!-- Invitation Card -->
-<table width="100%" cellpadding="0" cellspacing="0" style="margin-top: 16px; background-color: #f9fafb; border-radius: 12px; border: 1px solid #e5e7eb;">
-  <tr>
-    <td style="padding: 16px;">
-      <p style="margin: 0 0 12px 0; color: #6b7280; font-size: 14px; font-weight: 600;">📝 Invitation</p>
-      <pre style="margin: 0; white-space: pre-wrap; word-wrap: break-word; font-family: 'Courier New', monospace; font-size: 12px; color: #374151; background: #ffffff; padding: 12px; border-radius: 8px; border: 1px solid #e5e7eb; line-height: 1.6;">${invitationText}</pre>
-    </td>
-  </tr>
-</table>
-```
-
-**Ubah** section tombol menjadi 2 tombol sejajar:
-
-```html
-<!-- Action Buttons - Side by side -->
-<table width="100%" cellpadding="0" cellspacing="0" style="margin-top: 20px;">
-  <tr>
-    <td align="center">
-      <table cellpadding="0" cellspacing="0">
-        <tr>
-          <!-- Gabung Meeting Button -->
-          <td style="padding-right: 8px;">
-            <a href="${zoomLink}" target="_blank" style="display: inline-block; background-color: #179ecf; color: #ffffff; text-decoration: none; padding: 14px 24px; border-radius: 10px; font-size: 14px; font-weight: 600;">
-              Gabung Meeting
-            </a>
-          </td>
-          <!-- Panduan Button -->
-          <td style="padding-left: 8px;">
-            <a href="https://www.youtube.com/watch?v=8QX78u43_JE" target="_blank" style="display: inline-block; background: #f3f4f6; color: #374151; text-decoration: none; padding: 14px 24px; border-radius: 10px; font-size: 14px; font-weight: 500; border: 1px solid #d1d5db;">
-              📖 Panduan Host
-            </a>
-          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-```
-
-### 4. Update Plain Text Email
-
-Tambahkan section Invitation di versi plain text:
-
-```text
----
-INVITATION (Salin untuk dibagikan)
----
-[Nama] is inviting you to a scheduled Zoom meeting.
-
-Topic: [Topik]
-Time: [Tanggal] [Waktu] Jakarta
-
-Join Zoom Meeting
-[Link]
-
-Meeting ID: [ID]
-Passcode: [Passcode]
+┌─────────────────────────────────────────────────────────────┐
+│                    KLEDO SYNC REQUEST                       │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│ 1. Ambil token dari cache (kledo_auth_tokens)               │
+│    - Jika ada & belum expired → gunakan                     │
+│    - Jika tidak ada → login baru                            │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│ 2. Panggil Kledo API (createBankTransaction)                │
+└─────────────────────────────────────────────────────────────┘
+                              │
+              ┌───────────────┴───────────────┐
+              ▼                               ▼
+┌─────────────────────────┐     ┌─────────────────────────────┐
+│ SUCCESS                 │     │ ERROR: Unauthenticated      │
+│ → Lanjut ke expense     │     │ (isAuthError = true)        │
+└─────────────────────────┘     └─────────────────────────────┘
+                                              │
+                                              ▼
+                              ┌───────────────────────────────┐
+                              │ 3. Retry Count < MAX_RETRIES? │
+                              └───────────────────────────────┘
+                                              │
+                              ┌───────────────┴───────────────┐
+                              ▼                               ▼
+                    ┌─────────────────┐          ┌─────────────────┐
+                    │ YES             │          │ NO              │
+                    │ • Hapus token   │          │ • Return error  │
+                    │ • Login ulang   │          │ • Update order  │
+                    │ • Retry request │          │   sync_error    │
+                    └─────────────────┘          └─────────────────┘
+                              │
+                              ▼
+                    ┌─────────────────────────────────────────────┐
+                    │ Kembali ke langkah 2 dengan token baru      │
+                    └─────────────────────────────────────────────┘
 ```
 
 ---
 
-## Ringkasan File yang Diubah
+## Ringkasan Perubahan
 
-| File | Aksi | Deskripsi |
-|------|------|-----------|
-| `supabase/functions/send-order-email/index.ts` | Ubah | Pindahkan tombol Gabung, tambahkan card Invitation, sejajarkan tombol aksi |
+| Komponen | Perubahan |
+|----------|-----------|
+| `invalidateCachedToken()` | Fungsi baru untuk menghapus token dari cache |
+| `createBankTransaction()` | Tambah return `isAuthError` |
+| `createExpense()` | Tambah return `isAuthError` |
+| Main handler | Tambah retry logic dengan max 1 retry |
 
 ---
 
-## Preview Visual Email
+## Hasil yang Diharapkan
 
-```text
-┌─────────────────────────────────────────────────┐
-│           RAPATIN                               │
-│       Pembayaran Berhasil!                      │
-├─────────────────────────────────────────────────┤
-│ Halo [Nama],                                    │
-│ Terima kasih telah melakukan pemesanan...       │
-├─────────────────────────────────────────────────┤
-│ ┌─ Order ──────────────────────────────────┐    │
-│ │ RPT-240115-0001                   ✓ Lunas│    │
-│ └──────────────────────────────────────────┘    │
-├─────────────────────────────────────────────────┤
-│ 📋 Detail Meeting                               │
-│ Topik: Team Weekly Sync                         │
-│ Tanggal: Rabu, 15 Januari 2026                 │
-│ Waktu: 09:00 WIB                               │
-│ Kapasitas: 100 Peserta                         │
-│ Total Bayar: Rp89.000                          │
-├─────────────────────────────────────────────────┤
-│ 🔐 Kredensial Zoom                              │
-│ ┌──────────────────────────────────────────┐    │
-│ │ Meeting ID    123 4567 8901              │    │
-│ │ Passcode      abc123                     │    │
-│ │ Host Key      070707                     │    │
-│ └──────────────────────────────────────────┘    │
-│                                                 │
-│ ┌──────────────────────────────────────────┐    │
-│ │ 📝 Invitation                            │    │
-│ │ ──────────────────────────────────────── │    │
-│ │ John Doe is inviting you to a scheduled  │    │
-│ │ Zoom meeting.                            │    │
-│ │                                          │    │
-│ │ Topic: Team Weekly Sync                  │    │
-│ │ Time: Jan 15, 2026 09:00 Jakarta         │    │
-│ │                                          │    │
-│ │ Join Zoom Meeting                        │    │
-│ │ https://us06web.zoom.us/j/12345678901    │    │
-│ │                                          │    │
-│ │ Meeting ID: 123 4567 8901                │    │
-│ │ Passcode: abc123                         │    │
-│ └──────────────────────────────────────────┘    │
-│                                                 │
-│   [Gabung Meeting]    [📖 Panduan Host]         │
-├─────────────────────────────────────────────────┤
-│ 💡 Tips Penting                                 │
-│ • Buka link meeting 5 menit sebelum jadwal     │
-│ • Gunakan Host Key untuk menjadi host          │
-│ • Pastikan koneksi internet stabil             │
-├─────────────────────────────────────────────────┤
-│        [💬 Hubungi via WhatsApp]                │
-│        © 2026 Rapatin                           │
-└─────────────────────────────────────────────────┘
-```
+1. **Sebelum:** Token cached yang sudah di-revoke Kledo menyebabkan error permanen
+2. **Sesudah:** Sistem otomatis mendeteksi auth error, menghapus token lama, login ulang, dan retry request
 
