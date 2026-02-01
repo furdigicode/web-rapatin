@@ -355,6 +355,19 @@ export default function QuickOrderDetail() {
     return () => clearInterval(interval);
   }, [fetchOrder, order?.payment_status]);
 
+  // Auto-redirect to Xendit if coming from form submission
+  useEffect(() => {
+    if (order && order.payment_status === 'pending' && slug) {
+      const xenditUrl = sessionStorage.getItem(`xendit_url_${slug}`);
+      if (xenditUrl) {
+        // Clear the stored URL to prevent re-redirect
+        sessionStorage.removeItem(`xendit_url_${slug}`);
+        // Auto-redirect to payment page
+        window.location.href = xenditUrl;
+      }
+    }
+  }, [order, slug]);
+
   // Countdown timer
   useEffect(() => {
     if (!order?.expired_at || order.payment_status !== "pending") return;
