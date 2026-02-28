@@ -85,7 +85,7 @@ const VotingList: React.FC<VotingListProps> = ({ onEdit }) => {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-4">
+      <div className="flex flex-col sm:flex-row gap-4">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
           <Input
@@ -96,7 +96,7 @@ const VotingList: React.FC<VotingListProps> = ({ onEdit }) => {
           />
         </div>
         <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-[180px]">
+          <SelectTrigger className="w-full sm:w-[180px]">
             <SelectValue placeholder="Filter Status" />
           </SelectTrigger>
           <SelectContent>
@@ -111,7 +111,7 @@ const VotingList: React.FC<VotingListProps> = ({ onEdit }) => {
       {isLoading ? (
         <div className="text-center py-8">Loading...</div>
       ) : (
-        <div className="border rounded-lg">
+        <div className="border rounded-lg overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>

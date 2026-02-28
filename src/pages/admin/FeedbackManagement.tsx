@@ -196,7 +196,7 @@ const FeedbackManagement = () => {
     <AdminLayout title="Manajemen Feedback">
       <div className="space-y-6">
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
           <Card>
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
@@ -261,12 +261,12 @@ const FeedbackManagement = () => {
         {/* Filters */}
         <Card>
           <CardHeader>
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
                 <CardTitle>Daftar Feedback</CardTitle>
                 <CardDescription>Kelola semua feedback dari pengguna</CardDescription>
               </div>
-              <Button onClick={exportToCSV} variant="outline">
+              <Button onClick={exportToCSV} variant="outline" className="w-full sm:w-auto">
                 <Download className="w-4 h-4 mr-2" />
                 Export CSV
               </Button>
@@ -332,7 +332,7 @@ const FeedbackManagement = () => {
                 Tidak ada feedback yang ditemukan
               </div>
             ) : (
-              <div className="rounded-md border">
+              <div className="rounded-md border overflow-x-auto">
                 <Table>
                   <TableHeader>
                     <TableRow>

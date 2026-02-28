@@ -373,8 +373,8 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
+          <DialogTitle className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
               <span>Detail Order</span>
               {order.order_number && (
                 <code className="text-sm font-mono bg-muted px-2 py-0.5 rounded">
