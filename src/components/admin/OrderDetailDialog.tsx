@@ -382,7 +382,20 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
                 </code>
               )}
             </div>
-            {getStatusBadge(order.payment_status)}
+            <div className="flex items-center gap-2">
+              {order.access_slug && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7"
+                  onClick={() => window.open(`/quick-order/${order.access_slug}`, '_blank')}
+                  title="Buka halaman order"
+                >
+                  <ExternalLink className="h-4 w-4" />
+                </Button>
+              )}
+              {getStatusBadge(order.payment_status)}
+            </div>
           </DialogTitle>
         </DialogHeader>
 
