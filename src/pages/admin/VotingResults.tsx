@@ -185,9 +185,9 @@ const VotingResults: React.FC = () => {
 
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between w-full">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 w-full">
           <div>
-            <h1 className="text-2xl font-bold">Hasil Voting: {voting.title}</h1>
+            <h1 className="text-xl sm:text-2xl font-bold">Hasil Voting: {voting.title}</h1>
             <p className="text-muted-foreground">Analisis dan detail responden</p>
           </div>
           <div className="flex items-center gap-2">
@@ -274,14 +274,14 @@ const VotingResults: React.FC = () => {
         {/* Responses Table */}
         <Card>
           <CardHeader>
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
                 <CardTitle>Detail Responden</CardTitle>
                 <CardDescription>
                   {responses?.length || 0} responden
                 </CardDescription>
               </div>
-              <div className="relative w-64">
+              <div className="relative w-full sm:w-64">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                 <Input
                   placeholder="Cari responden..."
@@ -296,7 +296,7 @@ const VotingResults: React.FC = () => {
             {responsesLoading ? (
               <div className="text-center py-8">Loading...</div>
             ) : filteredResponses && filteredResponses.length > 0 ? (
-              <div className="border rounded-lg">
+              <div className="border rounded-lg overflow-x-auto">
                 <Table>
                   <TableHeader>
                     <TableRow>
