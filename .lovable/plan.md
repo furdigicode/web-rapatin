@@ -1,28 +1,29 @@
 
-# Rencana: Tampilkan Jadwal Recurring Meeting di Admin Order Detail
 
-## Masalah
-Order "Yayasan Sadar Hati" adalah recurring meeting (daily, 2 hari: 4 & 5 Maret), tapi dialog detail order admin hanya menampilkan tanggal pertama (4 Maret). Admin tidak bisa melihat bahwa ini order 2 hari.
+# Migrasi WhatsApp: BalesOtomatis → KirimChat
 
-## Perubahan
+## Pre-requisite: Secret
+- `KIRIMCHAT_API_KEY` belum dikonfigurasi. **Anda perlu menambahkan secret ini di Supabase dashboard** sebelum edge function bisa berfungsi.
 
-### `src/components/admin/OrderDetailDialog.tsx`
+## Perubahan: `supabase/functions/send-whatsapp-notification/index.ts`
 
-1. Import `addDays`, `addWeeks`, `addMonths` dari `date-fns`
-2. Tambah fungsi `generateRecurringDates` (sama seperti yang ada di `QuickOrderDetail.tsx`)
-3. Di bagian "Detail Meeting", setelah tanggal meeting:
-   - Jika `order.is_recurring && order.total_days > 1`:
-     - Tampilkan badge "Recurring" (misal `Badge` dengan label "Recurring · X sesi")
-     - Tampilkan daftar semua tanggal sesi
-   - Jika tidak recurring, tampilkan tanggal tunggal seperti sekarang
+Rewrite seluruh file untuk:
 
-Contoh tampilan di dialog:
-```
-📅 Recurring · 2 sesi
-   - Rabu, 4 Maret 2026
-   - Kamis, 5 Maret 2026
-```
+1. **Ganti credential**: `BALESOTOMATIS_API_KEY` + `BALESOTOMATIS_NUMBER_ID` → `KIRIMCHAT_API_KEY`
+2. **Format nomor telepon**: KirimChat butuh format `628xxx` (dengan country code), bukan tanpa
+3. **Ganti API endpoint**: `https://api-prod.kirim.chat/api/v1/public/messages/send`
+4. **Auth header**: `Authorization: Bearer {apiKey}` + `Content-Type: application/json`
+5. **Template message "akses"** dengan 6 parameter body:
+   - `{{1}}` = nama customer (`order.name`)
+   - `{{2}}` = meeting topic (`order.meeting_topic || "Zoom Meeting"`)
+   - `{{3}}` = tanggal + waktu (`"4 Maret 2026 - 13:00 WIB"`)
+   - `{{4}}` = zoom link
+   - `{{5}}` = meeting ID
+   - `{{6}}` = passcode
+6. **Hapus** manual message builder dan interface `BalesOtomatisResponse`
+7. **Pertahankan** cooldown logic, order validation, dan `whatsapp_sent_at` update
 
 | File | Perubahan |
 |------|-----------|
-| `OrderDetailDialog.tsx` | Tambah recurring dates display + badge di bagian Detail Meeting |
+| `send-whatsapp-notification/index.ts` | Full rewrite ke KirimChat API |
+
