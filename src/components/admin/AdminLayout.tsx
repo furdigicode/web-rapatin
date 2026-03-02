@@ -261,7 +261,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title }) => {
     <SidebarProvider>
       <div className="min-h-screen flex w-full">
         <AppSidebar />
-        <SidebarInset>
+        <SidebarInset className="overflow-hidden">
           <header className="h-16 border-b flex items-center justify-between px-4 bg-card">
             <div className="flex items-center">
               <SidebarTrigger className="mr-2" />
@@ -282,7 +282,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title }) => {
             </div>
           </header>
           
-          <main className="flex-1 overflow-auto p-4 sm:p-6">
+          <main className="flex-1 overflow-x-hidden overflow-y-auto p-4 sm:p-6">
             {children}
           </main>
         </SidebarInset>

@@ -260,14 +260,14 @@ const OrderManagement = () => {
     color: string;
   }) => (
     <Card>
-      <CardContent className="p-6">
+      <CardContent className="p-4 sm:p-6">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm text-muted-foreground">{title}</p>
-            <p className="text-3xl font-bold">{value}</p>
+            <p className="text-xs sm:text-sm text-muted-foreground">{title}</p>
+            <p className="text-2xl sm:text-3xl font-bold">{value}</p>
           </div>
-          <div className={`p-3 rounded-full ${color}`}>
-            <Icon className="h-6 w-6 text-white" />
+          <div className={`p-2 sm:p-3 rounded-full ${color}`}>
+            <Icon className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
           </div>
         </div>
       </CardContent>
@@ -288,7 +288,7 @@ const OrderManagement = () => {
       </AdminPageHeader>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <StatCard title="Total Order" value={stats.total} icon={Package} color="bg-primary" />
         <StatCard title="Menunggu" value={stats.pending} icon={Clock} color="bg-yellow-500" />
         <StatCard title="Lunas" value={stats.paid} icon={CheckCircle} color="bg-green-500" />
@@ -320,7 +320,7 @@ const OrderManagement = () => {
       </div>
 
       {/* Orders Table */}
-      <Card>
+      <Card className="overflow-hidden">
         <CardContent className="p-0">
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
