@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { format } from 'date-fns';
+import { format, addDays, addWeeks, addMonths } from 'date-fns';
 import { id } from 'date-fns/locale';
 import { 
   Dialog, 
@@ -191,6 +191,22 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
 
   const formatDate = (dateStr: string) => {
     return format(new Date(dateStr), "EEEE, d MMMM yyyy", { locale: id });
+  };
+
+  const generateRecurringDates = (order: GuestOrder): Date[] => {
+    if (!order.is_recurring || !order.total_days || order.total_days <= 1) {
+      return [new Date(order.meeting_date)];
+    }
+    const dates: Date[] = [];
+    const startDate = new Date(order.meeting_date);
+    const recurrenceType = order.recurrence_type || 1;
+    const repeatInterval = order.repeat_interval || 1;
+    for (let i = 0; i < order.total_days; i++) {
+      if (recurrenceType === 1) dates.push(addDays(startDate, i * repeatInterval));
+      else if (recurrenceType === 2) dates.push(addWeeks(startDate, i * repeatInterval));
+      else if (recurrenceType === 3) dates.push(addMonths(startDate, i * repeatInterval));
+    }
+    return dates;
   };
 
   const handleSaveZoomDetails = async () => {
@@ -435,10 +451,28 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
                   <span className="font-medium">{order.meeting_topic}</span>
                 </div>
               )}
-              <div className="flex items-center gap-3">
-                <Calendar className="h-4 w-4 text-muted-foreground" />
-                <span>{formatDate(order.meeting_date)}</span>
-              </div>
+              {order.is_recurring && order.total_days && order.total_days > 1 ? (
+                <div className="space-y-2">
+                  <div className="flex items-center gap-3">
+                    <Calendar className="h-4 w-4 text-muted-foreground" />
+                    <Badge variant="secondary" className="text-xs">
+                      Recurring · {order.total_days} sesi
+                    </Badge>
+                  </div>
+                  <div className="ml-7 space-y-1">
+                    {generateRecurringDates(order).map((date, idx) => (
+                      <p key={idx} className="text-sm">
+                        {format(date, "EEEE, d MMMM yyyy", { locale: id })}
+                      </p>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center gap-3">
+                  <Calendar className="h-4 w-4 text-muted-foreground" />
+                  <span>{formatDate(order.meeting_date)}</span>
+                </div>
+              )}
               {order.meeting_time && (
                 <div className="flex items-center gap-3">
                   <Clock className="h-4 w-4 text-muted-foreground" />
