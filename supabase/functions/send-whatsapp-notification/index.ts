@@ -10,14 +10,7 @@ const corsHeaders = {
 // Cooldown period in milliseconds (1 hour)
 const COOLDOWN_MS = 60 * 60 * 1000;
 
-interface BalesOtomatisResponse {
-  status?: boolean;
-  message?: string;
-  error?: string;
-}
-
 serve(async (req) => {
-  // Handle CORS preflight
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
@@ -32,24 +25,20 @@ serve(async (req) => {
       );
     }
 
-    // Get API credentials from secrets
-    const apiKey = Deno.env.get("BALESOTOMATIS_API_KEY");
-    const numberId = Deno.env.get("BALESOTOMATIS_NUMBER_ID");
-
-    if (!apiKey || !numberId) {
-      console.error("Missing BalesOtomatis credentials");
+    const apiKey = Deno.env.get("KIRIMCHAT_API_KEY");
+    if (!apiKey) {
+      console.error("Missing KIRIMCHAT_API_KEY");
       return new Response(
         JSON.stringify({ error: "WhatsApp service not configured" }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    // Initialize Supabase client
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Fetch order details
+    // Fetch order
     const { data: order, error: orderError } = await supabase
       .from("guest_orders")
       .select("*")
@@ -64,7 +53,6 @@ serve(async (req) => {
       );
     }
 
-    // Check if order is paid and has zoom details
     if (order.payment_status !== "paid") {
       return new Response(
         JSON.stringify({ error: "Order belum dibayar" }),
@@ -79,103 +67,90 @@ serve(async (req) => {
       );
     }
 
-    // Check cooldown (rate limiting)
+    // Cooldown check
     if (order.whatsapp_sent_at) {
       const lastSentTime = new Date(order.whatsapp_sent_at).getTime();
-      const now = Date.now();
-      const timeSinceLastSent = now - lastSentTime;
-
+      const timeSinceLastSent = Date.now() - lastSentTime;
       if (timeSinceLastSent < COOLDOWN_MS) {
         const remainingMs = COOLDOWN_MS - timeSinceLastSent;
         const remainingMinutes = Math.ceil(remainingMs / (1000 * 60));
         return new Response(
-          JSON.stringify({ 
+          JSON.stringify({
             error: `Tunggu ${remainingMinutes} menit lagi untuk mengirim ulang`,
-            cooldown_remaining_ms: remainingMs
+            cooldown_remaining_ms: remainingMs,
           }),
           { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
     }
 
-    // Format meeting date
+    // Format date + time for template parameter {{3}}
     const meetingDate = new Date(order.meeting_date);
     const formattedDate = meetingDate.toLocaleDateString("id-ID", {
-      weekday: "long",
       day: "numeric",
       month: "long",
       year: "numeric",
     });
+    const dateTimeStr = `${formattedDate} - ${order.meeting_time || "00:00"} WIB`;
 
-    // Build WhatsApp message
-    const message = `Halo ${order.name},
-
-Berikut detail Zoom Meeting Anda:
-
-📋 *Order:* ${order.order_number || order.id}
-📅 *Tanggal:* ${formattedDate}
-⏰ *Waktu:* ${order.meeting_time || "Sesuai jadwal"} WIB
-
-🔐 *Kredensial Zoom:*
-Meeting ID: ${order.meeting_id}
-Passcode: ${order.zoom_passcode || "-"}
-Host Key: 070707
-
-🔗 Link Meeting:
-${order.zoom_link}
-
-Panduan menjadi Host: https://youtu.be/8QX78u43_JE
-
-Terima kasih telah menggunakan Rapatin! 🙏`;
-
-    // Format phone number (ensure it starts with country code)
-    let phoneNo = order.whatsapp.replace(/\D/g, ""); // Remove non-digits
-    // Remove leading zero if present
-    if (phoneNo.startsWith("0")) {
-      phoneNo = phoneNo.substring(1);
-    }
-    // Remove country code if already present (62)
-    if (phoneNo.startsWith("62")) {
-      phoneNo = phoneNo.substring(2);
+    // Format phone number to 628xxx
+    let phone = order.whatsapp.replace(/\D/g, "");
+    if (phone.startsWith("0")) {
+      phone = "62" + phone.substring(1);
+    } else if (!phone.startsWith("62")) {
+      phone = "62" + phone;
     }
 
-    console.log("Sending WhatsApp to:", phoneNo);
-    console.log("Message:", message);
+    console.log("Sending WhatsApp via KirimChat to:", phone);
 
-    // Call BalesOtomatis API
-    const balesResponse = await fetch(
-      "https://api.balesotomatis.id/public/v1/send_personal_message",
+    // KirimChat API call with template "akses"
+    const kirimResponse = await fetch(
+      "https://api-prod.kirim.chat/api/v1/public/messages/send",
       {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${apiKey}`,
         },
         body: JSON.stringify({
-          api_key: apiKey,
-          number_id: numberId,
-          enable_typing: "1",
-          method_send: "async",
-          phone_no: phoneNo,
-          country_code: "62",
-          message: message,
+          phone_number: phone,
+          channel: "whatsapp",
+          message_type: "template",
+          template: {
+            name: "akses",
+            language: { code: "id" },
+            components: [
+              {
+                type: "body",
+                parameters: [
+                  { type: "text", text: order.name },
+                  { type: "text", text: order.meeting_topic || "Zoom Meeting" },
+                  { type: "text", text: dateTimeStr },
+                  { type: "text", text: order.zoom_link },
+                  { type: "text", text: order.meeting_id },
+                  { type: "text", text: order.zoom_passcode || "-" },
+                ],
+              },
+            ],
+          },
         }),
       }
     );
 
-    const balesResult: BalesOtomatisResponse = await balesResponse.json();
-    console.log("BalesOtomatis response:", balesResult);
+    const kirimResult = await kirimResponse.json();
+    console.log("KirimChat response:", JSON.stringify(kirimResult));
 
-    if (!balesResponse.ok || balesResult.error) {
-      console.error("BalesOtomatis error:", balesResult);
+    if (!kirimResponse.ok) {
+      console.error("KirimChat error:", kirimResult);
       return new Response(
-        JSON.stringify({ 
-          error: balesResult.message || balesResult.error || "Gagal mengirim WhatsApp" 
+        JSON.stringify({
+          error: kirimResult.message || kirimResult.error || "Gagal mengirim WhatsApp",
         }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    // Update whatsapp_sent_at timestamp
+    // Update timestamp
     const { error: updateError } = await supabase
       .from("guest_orders")
       .update({ whatsapp_sent_at: new Date().toISOString() })
@@ -183,20 +158,18 @@ Terima kasih telah menggunakan Rapatin! 🙏`;
 
     if (updateError) {
       console.error("Failed to update whatsapp_sent_at:", updateError);
-      // Don't fail the request, the message was already sent
     }
 
     console.log("WhatsApp sent successfully to order:", order_id);
 
     return new Response(
-      JSON.stringify({ 
-        success: true, 
+      JSON.stringify({
+        success: true,
         message: "Pesan WhatsApp berhasil dikirim",
-        whatsapp_sent_at: new Date().toISOString()
+        whatsapp_sent_at: new Date().toISOString(),
       }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
-
   } catch (error) {
     console.error("Error in send-whatsapp-notification:", error);
     return new Response(
