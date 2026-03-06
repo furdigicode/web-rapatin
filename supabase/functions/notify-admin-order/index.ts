@@ -3,12 +3,11 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
 // Hardcoded admin WhatsApp number
-const ADMIN_PHONE = "6285156473083";
+const ADMIN_PHONE = "6282133579061";
 
 function formatRupiah(amount: number): string {
   return new Intl.NumberFormat("id-ID", {
@@ -27,19 +26,19 @@ serve(async (req) => {
     const { order_id, event_type } = await req.json();
 
     if (!order_id || !event_type) {
-      return new Response(
-        JSON.stringify({ error: "order_id and event_type are required" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      return new Response(JSON.stringify({ error: "order_id and event_type are required" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     const apiKey = Deno.env.get("KIRIMCHAT_API_KEY");
     if (!apiKey) {
       console.error("Missing KIRIMCHAT_API_KEY");
-      return new Response(
-        JSON.stringify({ error: "WhatsApp service not configured" }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      return new Response(JSON.stringify({ error: "WhatsApp service not configured" }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
@@ -54,10 +53,10 @@ serve(async (req) => {
 
     if (orderError || !order) {
       console.error("Order not found:", orderError);
-      return new Response(
-        JSON.stringify({ error: "Order not found" }),
-        { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      return new Response(JSON.stringify({ error: "Order not found" }), {
+        status: 404,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     // Format date
@@ -96,53 +95,50 @@ Metode: ${order.payment_method || "-"}${order.is_recurring && order.total_days >
 
 Link Admin: https://rapatin.lovable.app/admin/orders`;
     } else {
-      return new Response(
-        JSON.stringify({ error: "Invalid event_type" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      return new Response(JSON.stringify({ error: "Invalid event_type" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     console.log(`Sending admin notification (${event_type}) for order:`, order_id);
 
-    const kirimResponse = await fetch(
-      "https://api-prod.kirim.chat/api/v1/public/messages/send",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${apiKey}`,
-        },
-        body: JSON.stringify({
-          phone_number: ADMIN_PHONE,
-          channel: "whatsapp",
-          message_type: "text",
-          message: { body: message },
-        }),
-      }
-    );
+    const kirimResponse = await fetch("https://api-prod.kirim.chat/api/v1/public/messages/send", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        phone_number: ADMIN_PHONE,
+        channel: "whatsapp",
+        message_type: "text",
+        message: { body: message },
+      }),
+    });
 
     const kirimResult = await kirimResponse.json();
     console.log("KirimChat response:", JSON.stringify(kirimResult));
 
     if (!kirimResponse.ok) {
       console.error("KirimChat error:", kirimResult);
-      return new Response(
-        JSON.stringify({ error: "Failed to send admin notification" }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      return new Response(JSON.stringify({ error: "Failed to send admin notification" }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     console.log("Admin notification sent successfully for order:", order_id);
 
-    return new Response(
-      JSON.stringify({ success: true }),
-      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return new Response(JSON.stringify({ success: true }), {
+      status: 200,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   } catch (error) {
     console.error("Error in notify-admin-order:", error);
-    return new Response(
-      JSON.stringify({ error: "Internal server error" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return new Response(JSON.stringify({ error: "Internal server error" }), {
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   }
 });
