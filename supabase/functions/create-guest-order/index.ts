@@ -344,6 +344,21 @@ serve(async (req) => {
       price: order.price,
     });
 
+    // Fire-and-forget: notify admin via WhatsApp
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+    fetch(`${supabaseUrl}/functions/v1/notify-admin-order`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${supabaseAnonKey}`,
+      },
+      body: JSON.stringify({ order_id: order.id, event_type: 'new_order' }),
+    }).then(res => {
+      console.log("Admin notification (new_order) trigger status:", res.status);
+    }).catch(err => {
+      console.error("Failed to trigger admin notification:", err);
+    });
+
     return new Response(
       JSON.stringify({
         success: true,
