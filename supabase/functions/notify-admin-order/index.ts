@@ -113,7 +113,7 @@ Link Admin: https://rapatin.lovable.app/admin/orders`;
         phone_number: ADMIN_PHONE,
         channel: "whatsapp",
         message_type: "text",
-        message: { body: message },
+        content: message,
       }),
     });
 

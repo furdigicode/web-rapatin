@@ -1,31 +1,29 @@
 
 
-# Fix: KirimChat Text Message Payload
+# Migrasi WhatsApp: BalesOtomatis → KirimChat
 
-## Masalah
-KirimChat mengembalikan error `"content is required for text messages"`. Payload saat ini menggunakan `message: { body: ... }` yang salah untuk tipe pesan teks.
+## Pre-requisite: Secret
+- `KIRIMCHAT_API_KEY` belum dikonfigurasi. **Anda perlu menambahkan secret ini di Supabase dashboard** sebelum edge function bisa berfungsi.
 
-## Perbaikan: `supabase/functions/notify-admin-order/index.ts`
+## Perubahan: `supabase/functions/send-whatsapp-notification/index.ts`
 
-Ubah body request dari:
-```json
-{
-  "phone_number": "628...",
-  "channel": "whatsapp",
-  "message_type": "text",
-  "message": { "body": message }
-}
-```
+Rewrite seluruh file untuk:
 
-Menjadi:
-```json
-{
-  "phone_number": "628...",
-  "channel": "whatsapp",
-  "message_type": "text",
-  "content": message
-}
-```
+1. **Ganti credential**: `BALESOTOMATIS_API_KEY` + `BALESOTOMATIS_NUMBER_ID` → `KIRIMCHAT_API_KEY`
+2. **Format nomor telepon**: KirimChat butuh format `628xxx` (dengan country code), bukan tanpa
+3. **Ganti API endpoint**: `https://api-prod.kirim.chat/api/v1/public/messages/send`
+4. **Auth header**: `Authorization: Bearer {apiKey}` + `Content-Type: application/json`
+5. **Template message "akses"** dengan 6 parameter body:
+   - `{{1}}` = nama customer (`order.name`)
+   - `{{2}}` = meeting topic (`order.meeting_topic || "Zoom Meeting"`)
+   - `{{3}}` = tanggal + waktu (`"4 Maret 2026 - 13:00 WIB"`)
+   - `{{4}}` = zoom link
+   - `{{5}}` = meeting ID
+   - `{{6}}` = passcode
+6. **Hapus** manual message builder dan interface `BalesOtomatisResponse`
+7. **Pertahankan** cooldown logic, order validation, dan `whatsapp_sent_at` update
 
-Hanya perubahan pada field payload, satu baris edit.
+| File | Perubahan |
+|------|-----------|
+| `send-whatsapp-notification/index.ts` | Full rewrite ke KirimChat API |
 
