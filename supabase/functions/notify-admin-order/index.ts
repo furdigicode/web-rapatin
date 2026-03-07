@@ -69,12 +69,18 @@ serve(async (req) => {
     const dateTimeStr = `${formattedDate}, ${order.meeting_time || "00:00"} WIB`;
 
     const orderNumber = order.order_number || "-";
-    let headerText = "";
 
+    // Determine template name based on event type
+    let templateName = "";
     if (event_type === "new_order") {
-      headerText = "Order Baru";
+      templateName = "order_new";
     } else if (event_type === "payment_success") {
-      headerText = "Pembayaran Berhasil";
+      // Template untuk payment_success belum dibuat, skip pengiriman
+      console.log(`Skipping admin notification: template for '${event_type}' not yet available. Order: ${order_id}`);
+      return new Response(JSON.stringify({ success: true, skipped: true, reason: "Template not yet available" }), {
+        status: 200,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     } else {
       return new Response(JSON.stringify({ error: "Invalid event_type" }), {
         status: 400,
@@ -95,13 +101,9 @@ serve(async (req) => {
         channel: "whatsapp",
         message_type: "template",
         template: {
-          name: "notifikasi",
-          language: { code: "en" },
+          name: templateName,
+          language: { code: "id" },
           components: [
-            {
-              type: "header",
-              parameters: [{ type: "text", text: headerText }],
-            },
             {
               type: "body",
               parameters: [
@@ -115,8 +117,9 @@ serve(async (req) => {
             },
             {
               type: "button",
-              index: 0,
-              parameters: [{ type: "text", text: order.access_slug || "" }],
+              sub_type: "url",
+              index: "0",
+              parameters: [{ type: "text", text: `/${order.access_slug || ""}` }],
             },
           ],
         },
