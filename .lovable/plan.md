@@ -1,29 +1,28 @@
 
 
-# Migrasi WhatsApp: BalesOtomatis → KirimChat
+# Tambah Trigger Manual Notifikasi Admin di Order Detail Dialog
 
-## Pre-requisite: Secret
-- `KIRIMCHAT_API_KEY` belum dikonfigurasi. **Anda perlu menambahkan secret ini di Supabase dashboard** sebelum edge function bisa berfungsi.
+## Perubahan: `src/components/admin/OrderDetailDialog.tsx`
 
-## Perubahan: `supabase/functions/send-whatsapp-notification/index.ts`
+Tambahkan section baru **"Notifikasi Admin"** di dialog detail order, tepat setelah section WhatsApp Notification (sebelum Timeline). Section ini berisi tombol untuk memanggil `notify-admin-order` Edge Function secara manual.
 
-Rewrite seluruh file untuk:
+### Detail Implementasi
 
-1. **Ganti credential**: `BALESOTOMATIS_API_KEY` + `BALESOTOMATIS_NUMBER_ID` → `KIRIMCHAT_API_KEY`
-2. **Format nomor telepon**: KirimChat butuh format `628xxx` (dengan country code), bukan tanpa
-3. **Ganti API endpoint**: `https://api-prod.kirim.chat/api/v1/public/messages/send`
-4. **Auth header**: `Authorization: Bearer {apiKey}` + `Content-Type: application/json`
-5. **Template message "akses"** dengan 6 parameter body:
-   - `{{1}}` = nama customer (`order.name`)
-   - `{{2}}` = meeting topic (`order.meeting_topic || "Zoom Meeting"`)
-   - `{{3}}` = tanggal + waktu (`"4 Maret 2026 - 13:00 WIB"`)
-   - `{{4}}` = zoom link
-   - `{{5}}` = meeting ID
-   - `{{6}}` = passcode
-6. **Hapus** manual message builder dan interface `BalesOtomatisResponse`
-7. **Pertahankan** cooldown logic, order validation, dan `whatsapp_sent_at` update
+1. **State baru**: `sendingAdminNotif` (boolean loading state)
+2. **Handler baru**: `handleNotifyAdmin()` — memanggil `supabase.functions.invoke('notify-admin-order', { body: { order_id, event_type } })` dengan event_type pilihan (default "new_order" untuk pending, "payment_success" untuk paid)
+3. **UI**: Section dengan icon `Bell`, judul "Notifikasi Admin WA", deskripsi singkat, dan tombol trigger. Tersedia untuk semua status order (tidak hanya paid).
+4. **Posisi**: Setelah WhatsApp Notification section, sebelum Timeline separator.
+
+### Struktur UI
+
+```
+─── Notifikasi Admin WA ───
+Kirim notifikasi order ke WhatsApp admin.
+
+[ 🔔 Kirim Notif Admin ]
+```
 
 | File | Perubahan |
 |------|-----------|
-| `send-whatsapp-notification/index.ts` | Full rewrite ke KirimChat API |
+| `OrderDetailDialog.tsx` | Tambah state, handler, dan UI section untuk trigger manual notify-admin-order |
 
