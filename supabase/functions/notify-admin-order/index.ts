@@ -68,32 +68,13 @@ serve(async (req) => {
     });
     const dateTimeStr = `${formattedDate}, ${order.meeting_time || "00:00"} WIB`;
 
-    // Build message based on event type
-    let message = "";
     const orderNumber = order.order_number || "-";
+    let headerText = "";
 
     if (event_type === "new_order") {
-      message = `🔔 ORDER BARU #${orderNumber}
-
-Nama: ${order.name}
-Email: ${order.email}
-WA: ${order.whatsapp}
-Topik: ${order.meeting_topic || "-"}
-Tanggal: ${dateTimeStr}
-Peserta: ${order.participant_count} orang
-Harga: ${formatRupiah(order.price)}${order.is_recurring && order.total_days > 1 ? `\nSesi: ${order.total_days}x (Recurring)` : ""}
-
-Status: Menunggu Pembayaran`;
+      headerText = "Order Baru";
     } else if (event_type === "payment_success") {
-      message = `✅ PEMBAYARAN BERHASIL #${orderNumber}
-
-Nama: ${order.name}
-Topik: ${order.meeting_topic || "-"}
-Tanggal: ${dateTimeStr}
-Total: ${formatRupiah(order.price)}
-Metode: ${order.payment_method || "-"}${order.is_recurring && order.total_days > 1 ? `\nSesi: ${order.total_days}x (Recurring)` : ""}
-
-Link Admin: https://rapatin.lovable.app/admin/orders`;
+      headerText = "Pembayaran Berhasil";
     } else {
       return new Response(JSON.stringify({ error: "Invalid event_type" }), {
         status: 400,
@@ -112,8 +93,37 @@ Link Admin: https://rapatin.lovable.app/admin/orders`;
       body: JSON.stringify({
         phone_number: ADMIN_PHONE,
         channel: "whatsapp",
-        message_type: "text",
-        content: message,
+        message_type: "template",
+        template: {
+          name: "notif_admin",
+          language: { code: "id" },
+          components: [
+            {
+              type: "header",
+              parameters: [
+                { type: "text", text: headerText },
+              ],
+            },
+            {
+              type: "body",
+              parameters: [
+                { type: "text", text: orderNumber },
+                { type: "text", text: order.name },
+                { type: "text", text: formatRupiah(order.price) },
+                { type: "text", text: order.meeting_topic || "-" },
+                { type: "text", text: dateTimeStr },
+                { type: "text", text: `${order.participant_count}` },
+              ],
+            },
+            {
+              type: "button",
+              index: 0,
+              parameters: [
+                { type: "text", text: order.access_slug || "" },
+              ],
+            },
+          ],
+        },
       }),
     });
 
