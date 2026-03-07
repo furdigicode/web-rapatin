@@ -75,12 +75,7 @@ serve(async (req) => {
     if (event_type === "new_order") {
       templateName = "order_new";
     } else if (event_type === "payment_success") {
-      // Template untuk payment_success belum dibuat, skip pengiriman
-      console.log(`Skipping admin notification: template for '${event_type}' not yet available. Order: ${order_id}`);
-      return new Response(JSON.stringify({ success: true, skipped: true, reason: "Template not yet available" }), {
-        status: 200,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      templateName = "order_paid";
     } else {
       return new Response(JSON.stringify({ error: "Invalid event_type" }), {
         status: 400,

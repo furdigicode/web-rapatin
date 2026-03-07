@@ -1,19 +1,29 @@
 
 
-# Aktifkan Template `order_paid` untuk Payment Success
+# Migrasi WhatsApp: BalesOtomatis → KirimChat
 
-## Perubahan: `supabase/functions/notify-admin-order/index.ts`
+## Pre-requisite: Secret
+- `KIRIMCHAT_API_KEY` belum dikonfigurasi. **Anda perlu menambahkan secret ini di Supabase dashboard** sebelum edge function bisa berfungsi.
 
-Saat ini `payment_success` di-skip karena template belum tersedia. Sekarang template `order_paid` sudah dibuat di KirimChat dengan format body dan button yang sama persis dengan `order_new`.
+## Perubahan: `supabase/functions/send-whatsapp-notification/index.ts`
 
-### Yang berubah
+Rewrite seluruh file untuk:
 
-Baris 77-83: Ganti block skip menjadi:
-```typescript
-} else if (event_type === "payment_success") {
-  templateName = "order_paid";
-}
-```
+1. **Ganti credential**: `BALESOTOMATIS_API_KEY` + `BALESOTOMATIS_NUMBER_ID` → `KIRIMCHAT_API_KEY`
+2. **Format nomor telepon**: KirimChat butuh format `628xxx` (dengan country code), bukan tanpa
+3. **Ganti API endpoint**: `https://api-prod.kirim.chat/api/v1/public/messages/send`
+4. **Auth header**: `Authorization: Bearer {apiKey}` + `Content-Type: application/json`
+5. **Template message "akses"** dengan 6 parameter body:
+   - `{{1}}` = nama customer (`order.name`)
+   - `{{2}}` = meeting topic (`order.meeting_topic || "Zoom Meeting"`)
+   - `{{3}}` = tanggal + waktu (`"4 Maret 2026 - 13:00 WIB"`)
+   - `{{4}}` = zoom link
+   - `{{5}}` = meeting ID
+   - `{{6}}` = passcode
+6. **Hapus** manual message builder dan interface `BalesOtomatisResponse`
+7. **Pertahankan** cooldown logic, order validation, dan `whatsapp_sent_at` update
 
-Hanya 1 perubahan kecil — menghapus skip logic dan mengisi `templateName = "order_paid"`.
+| File | Perubahan |
+|------|-----------|
+| `send-whatsapp-notification/index.ts` | Full rewrite ke KirimChat API |
 
