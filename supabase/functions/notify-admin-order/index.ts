@@ -95,14 +95,12 @@ serve(async (req) => {
         channel: "whatsapp",
         message_type: "template",
         template: {
-          name: "notif_admin",
+          name: "notifikasi",
           language: { code: "id" },
           components: [
             {
               type: "header",
-              parameters: [
-                { type: "text", text: headerText },
-              ],
+              parameters: [{ type: "text", text: headerText }],
             },
             {
               type: "body",
@@ -118,9 +116,7 @@ serve(async (req) => {
             {
               type: "button",
               index: 0,
-              parameters: [
-                { type: "text", text: order.access_slug || "" },
-              ],
+              parameters: [{ type: "text", text: order.access_slug || "" }],
             },
           ],
         },
