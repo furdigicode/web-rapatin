@@ -34,7 +34,8 @@ import {
   X,
   RefreshCw,
   BarChart3,
-  MessageCircle
+  MessageCircle,
+  Bell
 } from 'lucide-react';
 import { GuestOrder } from '@/types/OrderTypes';
 import { formatRupiah } from '@/utils/formatRupiah';
@@ -102,6 +103,7 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
   const [syncingKledo, setSyncingKledo] = useState(false);
   const [sendingEmail, setSendingEmail] = useState(false);
   const [sendingWhatsApp, setSendingWhatsApp] = useState(false);
+  const [sendingAdminNotif, setSendingAdminNotif] = useState(false);
   const [whatsAppCooldownEnd, setWhatsAppCooldownEnd] = useState<Date | null>(null);
   const [cooldownTimeLeft, setCooldownTimeLeft] = useState("");
   const [zoomData, setZoomData] = useState({
@@ -931,6 +933,60 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
               </div>
             </>
           )}
+
+          <Separator />
+
+          {/* Notifikasi Admin WA */}
+          <div className="space-y-3">
+            <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide flex items-center gap-2">
+              <Bell className="h-4 w-4" />
+              Notifikasi Admin WA
+            </h3>
+            <p className="text-xs text-muted-foreground">
+              Kirim notifikasi order ke WhatsApp admin secara manual.
+            </p>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={async () => {
+                setSendingAdminNotif(true);
+                try {
+                  const eventType = order.payment_status === 'paid' ? 'payment_success' : 'new_order';
+                  const { error } = await supabase.functions.invoke('notify-admin-order', {
+                    body: { order_id: order.id, event_type: eventType }
+                  });
+                  if (error) throw error;
+                  toast({
+                    title: "Notifikasi admin terkirim",
+                    description: `Pesan template "${eventType === 'new_order' ? 'Order Baru' : 'Pembayaran Berhasil'}" berhasil dikirim.`,
+                  });
+                } catch (err: any) {
+                  console.error("Error sending admin notification:", err);
+                  toast({
+                    title: "Gagal mengirim notifikasi admin",
+                    description: err.message || "Terjadi kesalahan",
+                    variant: "destructive",
+                  });
+                } finally {
+                  setSendingAdminNotif(false);
+                }
+              }}
+              disabled={sendingAdminNotif}
+              className="w-full"
+            >
+              {sendingAdminNotif ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Mengirim...
+                </>
+              ) : (
+                <>
+                  <Bell className="h-4 w-4 mr-2" />
+                  Kirim Notif Admin
+                </>
+              )}
+            </Button>
+          </div>
 
           <Separator />
 
