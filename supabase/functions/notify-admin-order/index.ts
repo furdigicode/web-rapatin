@@ -119,7 +119,7 @@ serve(async (req) => {
               type: "button",
               sub_type: "url",
               index: "0",
-              parameters: [{ type: "text", text: `/${order.access_slug || ""}` }],
+              parameters: [{ type: "text", text: `${order.access_slug || ""}` }],
             },
           ],
         },
