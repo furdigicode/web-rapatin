@@ -96,7 +96,7 @@ serve(async (req) => {
         message_type: "template",
         template: {
           name: "notifikasi",
-          language: { code: "id" },
+          language: { code: "en" },
           components: [
             {
               type: "header",
