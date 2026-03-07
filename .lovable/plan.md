@@ -1,29 +1,30 @@
 
 
-# Migrasi WhatsApp: BalesOtomatis → KirimChat
+# Fix Template KirimChat di `notify-admin-order`
 
-## Pre-requisite: Secret
-- `KIRIMCHAT_API_KEY` belum dikonfigurasi. **Anda perlu menambahkan secret ini di Supabase dashboard** sebelum edge function bisa berfungsi.
+## Perubahan yang Diperlukan
 
-## Perubahan: `supabase/functions/send-whatsapp-notification/index.ts`
+Berdasarkan format request body yang user berikan, ada beberapa perbedaan dengan kode saat ini:
 
-Rewrite seluruh file untuk:
+| Aspek | Saat Ini (Salah) | Seharusnya |
+|-------|-----------------|------------|
+| Template name | `"notifikasi"` | `"order_new"` (untuk new_order) — nanti akan ada template terpisah untuk payment_success |
+| Language code | `"en"` | `"id"` |
+| Header component | Ada (dengan parameter) | Tidak ada — header statis di template |
+| Button `sub_type` | Tidak ada | `"url"` |
+| Button `index` | `0` (number) | `"0"` (string) |
+| Button slug | `access_slug` saja | `"/" + access_slug` (dengan garis miring di depan) |
 
-1. **Ganti credential**: `BALESOTOMATIS_API_KEY` + `BALESOTOMATIS_NUMBER_ID` → `KIRIMCHAT_API_KEY`
-2. **Format nomor telepon**: KirimChat butuh format `628xxx` (dengan country code), bukan tanpa
-3. **Ganti API endpoint**: `https://api-prod.kirim.chat/api/v1/public/messages/send`
-4. **Auth header**: `Authorization: Bearer {apiKey}` + `Content-Type: application/json`
-5. **Template message "akses"** dengan 6 parameter body:
-   - `{{1}}` = nama customer (`order.name`)
-   - `{{2}}` = meeting topic (`order.meeting_topic || "Zoom Meeting"`)
-   - `{{3}}` = tanggal + waktu (`"4 Maret 2026 - 13:00 WIB"`)
-   - `{{4}}` = zoom link
-   - `{{5}}` = meeting ID
-   - `{{6}}` = passcode
-6. **Hapus** manual message builder dan interface `BalesOtomatisResponse`
-7. **Pertahankan** cooldown logic, order validation, dan `whatsapp_sent_at` update
+## Perubahan: `supabase/functions/notify-admin-order/index.ts`
 
-| File | Perubahan |
-|------|-----------|
-| `send-whatsapp-notification/index.ts` | Full rewrite ke KirimChat API |
+1. Hapus header component dari payload
+2. Ganti template name: `"order_new"` untuk `new_order` event (nanti bisa ditambah template kedua untuk `payment_success`)
+3. Language code → `"id"`
+4. Button: tambah `sub_type: "url"`, index jadi string `"0"`, slug diawali `/`
+5. Hapus variabel `headerText` yang tidak lagi dipakai
+6. Untuk `event_type === "payment_success"`, sementara pakai template yang sama (`order_new`) sampai template baru dibuat — atau skip pengiriman dan log saja
+
+Karena user bilang akan membuat template terpisah untuk pembayaran berhasil, saya akan:
+- Gunakan `order_new` untuk `new_order`
+- Untuk `payment_success`, log bahwa template belum tersedia dan return success (tidak block flow)
 
