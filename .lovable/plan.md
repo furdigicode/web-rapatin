@@ -1,29 +1,31 @@
+# Perbaiki Tampilan Jadwal Recurring di Dialog Admin
 
+## Masalah
 
-# Migrasi WhatsApp: BalesOtomatis → KirimChat
+Dialog detail order di admin (`src/components/admin/OrderDetailDialog.tsx`) menampilkan jadwal recurring yang **salah** untuk tipe weekly dengan banyak hari. Contoh order Benny (INV-260608-0002):
 
-## Pre-requisite: Secret
-- `KIRIMCHAT_API_KEY` belum dikonfigurasi. **Anda perlu menambahkan secret ini di Supabase dashboard** sebelum edge function bisa berfungsi.
+- DB: `weekly_days=[3,4,5]` (Sel, Rab, Kam), `count=3`, mulai 9 Juni
+- Admin menampilkan: **9, 16, 23 Juni** (salah — semua Selasa)
+- Yang sebenarnya dikirim ke Rapatin: **9, 10, 11 Juni** (benar — Sel, Rab, Kam)
 
-## Perubahan: `supabase/functions/send-whatsapp-notification/index.ts`
+Penyebab: fungsi lokal `generateRecurringDates` (baris 198-212) hanya melakukan `addWeeks(startDate, i * interval)` dan mengabaikan `weekly_days`, `monthly_day`, `monthly_week`, dan `end_type`.
 
-Rewrite seluruh file untuk:
+## Perubahan
 
-1. **Ganti credential**: `BALESOTOMATIS_API_KEY` + `BALESOTOMATIS_NUMBER_ID` → `KIRIMCHAT_API_KEY`
-2. **Format nomor telepon**: KirimChat butuh format `628xxx` (dengan country code), bukan tanpa
-3. **Ganti API endpoint**: `https://api-prod.kirim.chat/api/v1/public/messages/send`
-4. **Auth header**: `Authorization: Bearer {apiKey}` + `Content-Type: application/json`
-5. **Template message "akses"** dengan 6 parameter body:
-   - `{{1}}` = nama customer (`order.name`)
-   - `{{2}}` = meeting topic (`order.meeting_topic || "Zoom Meeting"`)
-   - `{{3}}` = tanggal + waktu (`"4 Maret 2026 - 13:00 WIB"`)
-   - `{{4}}` = zoom link
-   - `{{5}}` = meeting ID
-   - `{{6}}` = passcode
-6. **Hapus** manual message builder dan interface `BalesOtomatisResponse`
-7. **Pertahankan** cooldown logic, order validation, dan `whatsapp_sent_at` update
+**File:** `src/components/admin/OrderDetailDialog.tsx`
 
-| File | Perubahan |
-|------|-----------|
-| `send-whatsapp-notification/index.ts` | Full rewrite ke KirimChat API |
+1. Import `calculateRecurringDays` dari `@/utils/recurringCalculation` (helper yang sudah dipakai customer dan terbukti benar).
+2. Ganti isi fungsi `generateRecurringDates` agar memanggil `calculateRecurringDays` dengan parameter dari order:
+   - `startDate`, `startTime` dari `meeting_date` + `meeting_time`
+   - `recurrenceType`, `repeatInterval`
+   - `endType` dari `order.end_type`
+   - `endDate` dari `recurrence_end_date`, `endAfterCount` dari `recurrence_count`
+   - `weeklyDays`, `monthlyDay`, `monthlyWeek` dari kolom DB terkait
+3. Fallback: kalau order belum punya `end_type` (data lama), pakai logika lama berbasis `total_days` agar tidak break order historis.
+4. Hapus import `addDays/addWeeks/addMonths` jika tidak dipakai di tempat lain di file ini.
 
+## Catatan
+
+- **Tidak menyentuh** logika pengiriman ke Rapatin (`xendit-webhook`) — payload sudah benar.
+- **Tidak menyentuh** customer preview — sudah benar.
+- Khusus order Benny: jadwal aktual di Rapatin (9/10/11 Juni) adalah yang dipesan customer; setelah fix ini, dialog admin akan menampilkan tanggal yang sama dan konsisten dengan dashboard Rapatin.

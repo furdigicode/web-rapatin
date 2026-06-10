@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { format, addDays, addWeeks, addMonths } from 'date-fns';
+import { calculateRecurringDays, type RecurrenceType, type EndType } from '@/utils/recurringCalculation';
 import { id } from 'date-fns/locale';
 import { 
   Dialog, 
@@ -199,10 +200,35 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
     if (!order.is_recurring || !order.total_days || order.total_days <= 1) {
       return [new Date(order.meeting_date)];
     }
-    const dates: Date[] = [];
+
     const startDate = new Date(order.meeting_date);
-    const recurrenceType = order.recurrence_type || 1;
+    const recurrenceType = (order.recurrence_type || 1) as RecurrenceType;
     const repeatInterval = order.repeat_interval || 1;
+    const endType = (order.end_type as EndType | null) || null;
+
+    // Use shared helper when we have enough metadata (matches customer preview + Rapatin payload)
+    if (endType === 'end_after_type' || endType === 'end_date') {
+      try {
+        const result = calculateRecurringDays({
+          startDate,
+          startTime: order.meeting_time || '00:00',
+          recurrenceType,
+          repeatInterval,
+          endType,
+          endDate: order.recurrence_end_date ? new Date(order.recurrence_end_date) : undefined,
+          endAfterCount: order.recurrence_count || undefined,
+          weeklyDays: order.weekly_days || undefined,
+          monthlyDay: order.monthly_day || undefined,
+          monthlyWeek: order.monthly_week || undefined,
+        });
+        if (result.dates.length > 0) return result.dates;
+      } catch (e) {
+        console.error('Failed to calculate recurring dates, falling back:', e);
+      }
+    }
+
+    // Fallback for legacy orders without end_type
+    const dates: Date[] = [];
     for (let i = 0; i < order.total_days; i++) {
       if (recurrenceType === 1) dates.push(addDays(startDate, i * repeatInterval));
       else if (recurrenceType === 2) dates.push(addWeeks(startDate, i * repeatInterval));
@@ -210,6 +236,7 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
     }
     return dates;
   };
+
 
   const handleSaveZoomDetails = async () => {
     // Basic URL validation if zoom_link is provided
