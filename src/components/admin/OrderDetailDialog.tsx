@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { format, addDays, addWeeks, addMonths } from 'date-fns';
+import { calculateRecurringDays, type RecurrenceType, type EndType } from '@/utils/recurringCalculation';
 import { id } from 'date-fns/locale';
 import { 
   Dialog, 
