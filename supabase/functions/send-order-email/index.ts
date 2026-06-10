@@ -1,5 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { getRecurringDates, formatInvitationLine } from "../_shared/recurring.ts";
+
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -57,21 +59,27 @@ function generateInvitationText(order: Record<string, unknown>): string {
   const zoomLink = order.zoom_link as string;
   const meetingId = formatMeetingId(order.meeting_id as string);
   const passcode = (order.zoom_passcode as string) || "-";
-  const meetingDate = order.meeting_date as string;
   const meetingTime = (order.meeting_time as string) || "09:00";
-  
-  // Format date untuk invitation
-  const date = new Date(meetingDate);
-  const formattedDate = date.toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric"
-  });
-  
+
+  // Build time section — multiple sessions for recurring
+  const dates = getRecurringDates(order as never);
+  let timeSection: string;
+  if (dates.length > 1) {
+    timeSection = dates
+      .map((d, idx) =>
+        idx === 0
+          ? `Time: ${formatInvitationLine(d, meetingTime)}`
+          : `      ${formatInvitationLine(d, meetingTime)}`,
+      )
+      .join("\n");
+  } else {
+    timeSection = `Time: ${formatInvitationLine(dates[0], meetingTime)}`;
+  }
+
   return `${customerName} is inviting you to a scheduled Zoom meeting.
 
 Topic: ${topic}
-Time: ${formattedDate} ${meetingTime} Jakarta
+${timeSection}
 
 Join Zoom Meeting
 ${zoomLink}

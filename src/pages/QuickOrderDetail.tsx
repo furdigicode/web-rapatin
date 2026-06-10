@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { format, addDays, addWeeks, addMonths } from "date-fns";
+import { calculateRecurringDays, type RecurrenceType, type EndType } from "@/utils/recurringCalculation";
 import { id } from "date-fns/locale";
 import {
   CheckCircle2,
@@ -169,32 +170,40 @@ const generateRecurringDates = (order: OrderDetails): Date[] => {
     return [new Date(order.meeting_date)];
   }
 
-  const dates: Date[] = [];
   const startDate = new Date(order.meeting_date);
-  const totalDays = order.total_days;
-  const recurrenceType = order.recurrence_type || 1;
+  const recurrenceType = (order.recurrence_type || 1) as RecurrenceType;
   const repeatInterval = order.repeat_interval || 1;
+  const endType = (order.end_type as EndType | null) || null;
 
-  if (recurrenceType === 1) {
-    // Daily: tambah hari sesuai interval
-    for (let i = 0; i < totalDays; i++) {
-      const date = addDays(startDate, i * repeatInterval);
-      dates.push(date);
-    }
-  } else if (recurrenceType === 2) {
-    // Weekly
-    for (let i = 0; i < totalDays; i++) {
-      const date = addWeeks(startDate, i * repeatInterval);
-      dates.push(date);
-    }
-  } else if (recurrenceType === 3) {
-    // Monthly
-    for (let i = 0; i < totalDays; i++) {
-      const date = addMonths(startDate, i * repeatInterval);
-      dates.push(date);
+  // Use shared helper when we have enough metadata (matches form preview + Rapatin payload)
+  if (endType === "end_after_type" || endType === "end_date") {
+    try {
+      const result = calculateRecurringDays({
+        startDate,
+        startTime: order.meeting_time || "00:00",
+        recurrenceType,
+        repeatInterval,
+        endType,
+        endDate: order.recurrence_end_date ? new Date(order.recurrence_end_date) : undefined,
+        endAfterCount: order.recurrence_count || undefined,
+        weeklyDays: order.weekly_days || undefined,
+        monthlyDay: order.monthly_day || undefined,
+        monthlyWeek: order.monthly_week || undefined,
+      });
+      if (result.dates.length > 0) return result.dates;
+    } catch (e) {
+      console.error("Failed to calculate recurring dates, falling back:", e);
     }
   }
 
+  // Fallback untuk order lama tanpa end_type
+  const dates: Date[] = [];
+  const totalDays = order.total_days;
+  for (let i = 0; i < totalDays; i++) {
+    if (recurrenceType === 1) dates.push(addDays(startDate, i * repeatInterval));
+    else if (recurrenceType === 2) dates.push(addWeeks(startDate, i * repeatInterval));
+    else if (recurrenceType === 3) dates.push(addMonths(startDate, i * repeatInterval));
+  }
   return dates;
 };
 
