@@ -376,6 +376,7 @@ async function sendTemplate(
   templateName: string,
   language: string,
   headerImageUrl: string | null,
+  bodyVariables: string[],
 ): Promise<{ ok: boolean; status: number; body: string }> {
   const apiKey = Deno.env.get("KIRIMCHAT_API_KEY");
   if (!apiKey) {
@@ -387,6 +388,12 @@ async function sendTemplate(
     components.push({
       type: "header",
       parameters: [{ type: "image", image: { link: headerImageUrl } }],
+    });
+  }
+  if (bodyVariables && bodyVariables.length > 0) {
+    components.push({
+      type: "body",
+      parameters: bodyVariables.map((text) => ({ type: "text", text: text && text.length > 0 ? text : " " })),
     });
   }
   try {
@@ -405,7 +412,7 @@ async function sendTemplate(
           template: {
             name: templateName,
             language: { code: language },
-            components,
+            ...(components.length ? { components } : {}),
           },
         }),
       },
@@ -414,7 +421,7 @@ async function sendTemplate(
     if (!res.ok) {
       console.error("Rule send failed:", res.status, body);
     } else {
-      console.log("Rule template sent:", templateName, "to", phone);
+      console.log("Rule template sent:", templateName, "to", phone, "vars=", bodyVariables.length);
     }
     return { ok: res.ok, status: res.status, body };
   } catch (e) {
@@ -422,4 +429,15 @@ async function sendTemplate(
     return { ok: false, status: 0, body: (e as Error).message };
   }
 }
+
+function substitutePlaceholders(template: string, ctx: Record<string, string>): string {
+  if (!template) return "";
+  return template.replace(/\{\{\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*\}\}/g, (match, key) => {
+    if (Object.prototype.hasOwnProperty.call(ctx, key)) {
+      return ctx[key] ?? "";
+    }
+    return match;
+  });
+}
+
 
