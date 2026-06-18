@@ -161,6 +161,33 @@ const KirimchatRules: React.FC = () => {
   const [form, setForm] = useState<RuleForm>(emptyForm);
   const [saving, setSaving] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [logRule, setLogRule] = useState<Rule | null>(null);
+  const [logs, setLogs] = useState<WebhookEvent[]>([]);
+  const [logsLoading, setLogsLoading] = useState(false);
+  const [expandedLog, setExpandedLog] = useState<string | null>(null);
+
+  const loadLogs = async (ruleId: string) => {
+    setLogsLoading(true);
+    const { data, error } = await supabase
+      .from("kirimchat_webhook_events")
+      .select("id, event_type, phone_number, template_name, status, error_message, rule_action, payload, received_at")
+      .eq("matched_rule_id", ruleId)
+      .order("received_at", { ascending: false })
+      .limit(50);
+    if (error) {
+      toast({ title: "Gagal memuat log", description: error.message, variant: "destructive" });
+    } else {
+      setLogs((data ?? []) as WebhookEvent[]);
+    }
+    setLogsLoading(false);
+  };
+
+  const openLogs = (r: Rule) => {
+    setLogRule(r);
+    setExpandedLog(null);
+    setLogs([]);
+    loadLogs(r.id);
+  };
 
   const load = async () => {
     setLoading(true);
