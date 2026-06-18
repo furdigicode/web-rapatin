@@ -89,7 +89,15 @@ const ruleSchema = z.object({
   delay_seconds: z.number().int().min(0).max(300),
   template_name: z.string().trim().min(1, "Nama template wajib").max(100),
   template_language: z.string().trim().min(1).max(10),
+  header_image_url: z
+    .string()
+    .trim()
+    .max(2000)
+    .url("URL gambar tidak valid")
+    .optional()
+    .or(z.literal("")),
   priority: z.number().int().min(0).max(1000),
+
 });
 
 type RuleForm = z.infer<typeof ruleSchema>;
