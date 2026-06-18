@@ -20,15 +20,28 @@ const SewaZoomHarianSection: React.FC = () => {
       <SectionContainer background="gradient-up" className="py-16">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
+            <div className="inline-flex items-center py-1 px-4 bg-accent/70 rounded-full backdrop-blur-sm mb-4 animate-fade-in">
+              <span className="text-xs font-medium text-primary text-center">
+                Platform Zoom Harian Pay-as-you-go
+              </span>
+            </div>
             <h1 className="text-3xl md:text-4xl font-bold mb-6 text-foreground">
               Sewa Zoom Harian: Solusi Praktis Meeting Online Tanpa Langganan
             </h1>
             <p className="text-muted-foreground text-lg leading-relaxed mb-8">
               Apakah Anda membutuhkan link Zoom hanya untuk satu hari? Atau ingin mengadakan webinar, kelas online, atau rapat penting tanpa harus langganan akun Zoom setiap bulan? Rapatin hadir sebagai solusi terbaik dengan fitur <strong>sewa Zoom harian</strong> yang fleksibel dan terjangkau.
             </p>
-            <p className="text-muted-foreground text-lg leading-relaxed">
+            <p className="text-muted-foreground text-lg leading-relaxed mb-8">
               Layanan ini sangat cocok untuk Anda yang mengadakan acara sekali pakai, seperti webinar promosi, kelas intensif, presentasi proyek, hingga kegiatan internal perusahaan. Anda tidak perlu lagi repot membuat akun Zoom baru atau membayar biaya bulanan—cukup pesan link Zoom harian sesuai tanggal dan kebutuhan Anda, dan link akan langsung aktif selama 24 jam penuh.
             </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in">
+              <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-white rounded-lg h-12 px-8">
+                <a href="#pricing">Lihat Harga</a>
+              </Button>
+              <Button variant="outline" size="lg" className="rounded-lg h-12 px-8" onClick={handleRegistration}>
+                Pesan Sekarang
+              </Button>
+            </div>
           </div>
 
           <div className="glass rounded-2xl p-8 mb-12 shadow-elevation border border-white/40">
