@@ -433,6 +433,7 @@ export type Database = {
       }
       kirimchat_rules: {
         Row: {
+          action_type: string
           body_variables: Json
           case_sensitive: boolean
           created_at: string
@@ -446,10 +447,12 @@ export type Database = {
           name: string
           priority: number
           template_language: string
-          template_name: string
+          template_name: string | null
+          text_content: string | null
           updated_at: string
         }
         Insert: {
+          action_type?: string
           body_variables?: Json
           case_sensitive?: boolean
           created_at?: string
@@ -463,10 +466,12 @@ export type Database = {
           name: string
           priority?: number
           template_language?: string
-          template_name: string
+          template_name?: string | null
+          text_content?: string | null
           updated_at?: string
         }
         Update: {
+          action_type?: string
           body_variables?: Json
           case_sensitive?: boolean
           created_at?: string
@@ -480,7 +485,8 @@ export type Database = {
           name?: string
           priority?: number
           template_language?: string
-          template_name?: string
+          template_name?: string | null
+          text_content?: string | null
           updated_at?: string
         }
         Relationships: []

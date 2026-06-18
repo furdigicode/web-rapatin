@@ -302,13 +302,19 @@ serve(async (req) => {
         const resolvedVars = rawVars.map((v) => substitutePlaceholders(v, ctx));
 
         const dispatchedAt = new Date().toISOString();
-        const result = await sendTemplate(
-          normalizePhone(phone_number),
-          matched.template_name,
-          matched.template_language || "id",
-          matched.header_image_url || null,
-          resolvedVars,
-        );
+        const actionType = (matched.action_type as string) || "template";
+        const result = actionType === "text"
+          ? await sendText(
+              normalizePhone(phone_number),
+              substitutePlaceholders(matched.text_content || "", ctx),
+            )
+          : await sendTemplate(
+              normalizePhone(phone_number),
+              matched.template_name,
+              matched.template_language || "id",
+              matched.header_image_url || null,
+              resolvedVars,
+            );
 
         let parsedResponse: any;
         try {
@@ -382,6 +388,48 @@ function normalizePhone(raw: string): string {
   if (phone.startsWith("0")) phone = "62" + phone.substring(1);
   else if (!phone.startsWith("62")) phone = "62" + phone;
   return phone;
+}
+
+async function sendText(
+  phone: string,
+  content: string,
+): Promise<{ ok: boolean; status: number; body: string; request: any; durationMs: number }> {
+  const apiKey = Deno.env.get("KIRIMCHAT_API_KEY");
+  const requestBody = {
+    phone_number: phone,
+    channel: "whatsapp",
+    message_type: "text",
+    content: content && content.length > 0 ? content : " ",
+  };
+  if (!apiKey) {
+    console.error("KIRIMCHAT_API_KEY missing; cannot send text");
+    return { ok: false, status: 0, body: "missing_api_key", request: requestBody, durationMs: 0 };
+  }
+  const startedAt = Date.now();
+  try {
+    const res = await fetch(
+      "https://api-prod.kirim.chat/api/v1/public/messages/send",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify(requestBody),
+      },
+    );
+    const body = await res.text();
+    const durationMs = Date.now() - startedAt;
+    if (!res.ok) {
+      console.error("Rule send text failed:", res.status, body);
+    } else {
+      console.log("Rule text sent to", phone);
+    }
+    return { ok: res.ok, status: res.status, body, request: requestBody, durationMs };
+  } catch (e) {
+    console.error("sendText error:", e);
+    return { ok: false, status: 0, body: (e as Error).message, request: requestBody, durationMs: Date.now() - startedAt };
+  }
 }
 
 async function sendTemplate(
