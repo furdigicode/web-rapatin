@@ -290,7 +290,9 @@ serve(async (req) => {
           normalizePhone(phone_number),
           matched.template_name,
           matched.template_language || "id",
+          matched.header_image_url || null,
         );
+
 
         await supabase
           .from("kirimchat_webhook_events")
