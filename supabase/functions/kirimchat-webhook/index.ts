@@ -1,4 +1,6 @@
+// v2 text-action support
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
@@ -302,19 +304,35 @@ serve(async (req) => {
         const resolvedVars = rawVars.map((v) => substitutePlaceholders(v, ctx));
 
         const dispatchedAt = new Date().toISOString();
-        const actionType = (matched.action_type as string) || "template";
-        const result = actionType === "text"
-          ? await sendText(
-              normalizePhone(phone_number),
-              substitutePlaceholders(matched.text_content || "", ctx),
-            )
-          : await sendTemplate(
-              normalizePhone(phone_number),
-              matched.template_name,
-              matched.template_language || "id",
-              matched.header_image_url || null,
-              resolvedVars,
-            );
+        const actionType = String(matched.action_type ?? "template").toLowerCase();
+        console.log("Matched rule", matched.id, "name=", matched.name, "action_type=", actionType, "raw=", matched.action_type);
+
+        let result: { ok: boolean; status: number; body: string; request: any; durationMs: number };
+        if (actionType === "text") {
+          const content = substitutePlaceholders(matched.text_content || "", ctx);
+          result = await sendText(normalizePhone(phone_number), content);
+        } else {
+          if (!matched.template_name) {
+            console.warn("Template action but template_name is empty for rule", matched.id);
+            await supabase
+              .from("kirimchat_webhook_events")
+              .update({
+                matched_rule_id: matched.id,
+                rule_action: "skipped_invalid_config",
+                error_message: "action_type=template but template_name is empty",
+              })
+              .eq("id", eventRowId);
+            return;
+          }
+          result = await sendTemplate(
+            normalizePhone(phone_number),
+            matched.template_name,
+            matched.template_language || "id",
+            matched.header_image_url || null,
+            resolvedVars,
+          );
+        }
+
 
         let parsedResponse: any;
         try {
