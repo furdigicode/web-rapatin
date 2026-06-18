@@ -421,6 +421,9 @@ const KirimchatRules: React.FC = () => {
                       <Switch checked={r.is_active} onCheckedChange={() => toggleActive(r)} />
                     </TableCell>
                     <TableCell className="text-right">
+                      <Button variant="ghost" size="icon" onClick={() => openLogs(r)} title="Lihat Log">
+                        <ScrollText className="h-4 w-4" />
+                      </Button>
                       <Button variant="ghost" size="icon" onClick={() => openEdit(r)}>
                         <Pencil className="h-4 w-4" />
                       </Button>
