@@ -1,0 +1,1 @@
+UPDATE public.kirimchat_rules SET event_type = REPLACE(event_type, '_', '.') WHERE event_type LIKE 'message\_%' ESCAPE '\';

@@ -1,53 +1,41 @@
-## Tambah field "URL Gambar Header" pada KirimChat Rules
+## Diagnosis
 
-Menambahkan opsi gambar header untuk rule yang mengirim template berformat gambar (mis. `promo_with_image`).
+Webhook `cmqjbbumv5cvfrubbtlyqw53a` (event `message.received`, content `"123#"`) tidak memicu rule (`rule_action: no_match`). Dua bug di `supabase/functions/kirimchat-webhook/index.ts`:
 
-### 1. Database
-Migration baru menambah kolom di `kirimchat_rules`:
+1. **Event type tidak konsisten** — payload KirimChat memakai dot (`message.received`), tapi UI Rules menyimpan underscore (`message_received`), sehingga filter `.in("event_type", [event_type, "*"])` tidak pernah cocok.
+2. **`message_text` kosong** — pick paths tidak menyertakan `data.content` (lokasi sebenarnya isi pesan pada payload KirimChat). Akibatnya keyword `"123#"` tidak akan match meski event sudah benar.
+
+## Perubahan
+
+### 1. Gunakan format titik (`message.received`) di semua tempat
+
+Sesuai permintaan: pakai titik, jangan ubah ke underscore.
+
+**Edge function `supabase/functions/kirimchat-webhook/index.ts`:**
+- Hapus normalisasi titik. `normalizeEventType` cukup trim + lowercase (tetap rapikan spasi/dash, tapi **biarkan titik apa adanya**).
+- Hasil: event tersimpan sebagai `message.received`, `message.sent`, dll.
+- Tambah `"data.content"` dan `"data.message.content"` ke pick paths `message_text`.
+
+**UI Rules `src/pages/admin/KirimchatRules.tsx`:**
+- Ubah daftar `EVENT_TYPES` value menjadi dotted:
+  - `message.received`, `message.sent`, `message.delivered`, `message.read`, `message.failed`
+- Default form `event_type: "message.received"`.
+- Label tetap (Bahasa Indonesia).
+
+### 2. Migrasi data rule existing
+
+Rule yang sudah ada (`c21ce536-...`) bernilai `message_received`. Migrasi konversi underscore → dot untuk semua row di `kirimchat_rules`:
 
 ```sql
-ALTER TABLE public.kirimchat_rules
-  ADD COLUMN IF NOT EXISTS header_image_url text;
+UPDATE public.kirimchat_rules
+SET event_type = REPLACE(event_type, '_', '.')
+WHERE event_type LIKE 'message\_%' ESCAPE '\';
 ```
 
-Nullable — hanya diisi bila template punya header gambar.
+Event lama di `kirimchat_webhook_events` dibiarkan apa adanya (riwayat audit).
 
-### 2. Form Admin (`src/pages/admin/KirimchatRules.tsx`)
-- Tambah field opsional **URL Gambar Header (opsional)** di dialog Tambah/Edit, di bawah baris Template Name / Language.
-- Validasi zod: `header_image_url: z.string().trim().url("URL tidak valid").max(2000).optional().or(z.literal(""))`.
-- Kirim `null` ke DB bila kosong.
-- Tampilkan kolom kecil di tabel? Tidak — cukup indikator ikon gambar bila terisi agar tabel tetap ringkas (badge "img" pada kolom Template).
+## Verifikasi
 
-### 3. Edge function `kirimchat-webhook` — builder payload template
-Update `sendTemplate(...)` agar menerima `headerImageUrl?: string` dan membangun body sesuai contoh user:
-
-```ts
-const components: any[] = [];
-if (headerImageUrl) {
-  components.push({
-    type: "header",
-    parameters: [{ type: "image", image: { link: headerImageUrl } }],
-  });
-}
-// body parameters tetap kosong/diisi nanti jika ada fitur variable
-const body = {
-  phone_number: phone,
-  channel: "whatsapp",
-  message_type: "template",
-  template: {
-    name: template_name,
-    language: { code: template_language },
-    ...(components.length ? { components } : {}),
-  },
-};
-```
-
-Caller meneruskan `matched.header_image_url` ke helper.
-
-### 4. Types
-Regenerasi `src/integrations/supabase/types.ts` otomatis ikut migration; interface `Rule` di halaman ditambah `header_image_url: string | null`.
-
-### 5. Verifikasi
-- Buat/edit rule, isi URL gambar → tersimpan.
-- Trigger webhook cocok → edge function mengirim payload template dengan `components.header.image.link` sesuai input.
-- Rule tanpa URL tetap berjalan seperti sebelumnya (tanpa `components`).
+1. Trigger ulang (atau balas `123#` dari WA `6282133579061`).
+2. Cek row baru `kirimchat_webhook_events`: `event_type = message.received`, `matched_rule_id = c21ce536-...`, `rule_action = sent`.
+3. UI Rules menampilkan event `Pesan Masuk` (value `message.received`).
