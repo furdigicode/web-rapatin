@@ -61,6 +61,7 @@ const FeedbackManagement = lazy(() => import("./pages/admin/FeedbackManagement")
 const OrderManagement = lazy(() => import("./pages/admin/OrderManagement"));
 const KirimchatWebhooks = lazy(() => import("./pages/admin/KirimchatWebhooks"));
 const KirimchatRules = lazy(() => import("./pages/admin/KirimchatRules"));
+const KirimchatTemplates = lazy(() => import("./pages/admin/KirimchatTemplates"));
 
 // Sitemap page (for viewing/debugging) - Lazy loaded
 const Sitemap = lazy(() => import("./pages/Sitemap"));
