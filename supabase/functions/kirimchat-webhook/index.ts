@@ -38,7 +38,8 @@ function pick(obj: any, paths: string[]): string | null {
 
 function normalizeEventType(raw: string | null): string {
   if (!raw) return "unknown";
-  return raw.toLowerCase().replace(/[\s-]+/g, "_");
+  // Keep dots (KirimChat format e.g. "message.received"); only normalize whitespace/dashes.
+  return raw.trim().toLowerCase().replace(/[\s-]+/g, "_");
 }
 
 function toHex(buf: ArrayBuffer): string {
