@@ -12,7 +12,8 @@ import {
   Settings,
   Vote,
   MessageSquare,
-  ShoppingCart
+  ShoppingCart,
+  Webhook
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -213,6 +214,17 @@ const AppSidebar = () => {
                   <Link to="/admin/feedback">
                     <MessageSquare />
                     <span>Feedback</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton 
+                  asChild 
+                  isActive={location.pathname === '/admin/kirimchat-webhooks'}
+                >
+                  <Link to="/admin/kirimchat-webhooks">
+                    <Webhook />
+                    <span>KirimChat Webhook</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>

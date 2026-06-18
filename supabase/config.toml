@@ -38,3 +38,6 @@ verify_jwt = false
 
 [functions.notify-admin-order]
 verify_jwt = false
+
+[functions.kirimchat-webhook]
+verify_jwt = false
