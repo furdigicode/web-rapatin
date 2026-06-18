@@ -53,6 +53,11 @@ interface WebhookEvent {
   rule_action: string | null;
   payload: any;
   received_at: string;
+  dispatch_request: any;
+  dispatch_response: any;
+  dispatch_status_code: number | null;
+  dispatch_duration_ms: number | null;
+  dispatched_at: string | null;
 }
 
 interface Rule {
