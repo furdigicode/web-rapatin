@@ -249,6 +249,17 @@ const AppSidebar = () => {
                       </Link>
                     </SidebarMenuSubButton>
                   </SidebarMenuSubItem>
+                  <SidebarMenuSubItem>
+                    <SidebarMenuSubButton
+                      asChild
+                      isActive={location.pathname === '/admin/kirimchat-templates'}
+                    >
+                      <Link to="/admin/kirimchat-templates">
+                        <FileText />
+                        <span>Templates</span>
+                      </Link>
+                    </SidebarMenuSubButton>
+                  </SidebarMenuSubItem>
                 </SidebarMenuSub>
               </SidebarMenuItem>
               <SidebarMenuItem>
