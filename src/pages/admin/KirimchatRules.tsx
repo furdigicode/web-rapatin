@@ -164,7 +164,9 @@ const KirimchatRules: React.FC = () => {
       delay_seconds: r.delay_seconds,
       template_name: r.template_name,
       template_language: r.template_language,
+      header_image_url: r.header_image_url ?? "",
       priority: r.priority,
+
     });
     setDialogOpen(true);
   };
