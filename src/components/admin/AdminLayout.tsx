@@ -64,7 +64,7 @@ const AppSidebar = () => {
   const isVotingActive = location.pathname === '/admin/voting' || location.pathname === '/admin/voting-categories';
   const isVotingGroupOpen = isVotingActive;
 
-  const isKirimchatActive = location.pathname === '/admin/kirimchat-webhooks' || location.pathname === '/admin/kirimchat-rules';
+  const isKirimchatActive = location.pathname === '/admin/kirimchat-webhooks' || location.pathname === '/admin/kirimchat-rules' || location.pathname === '/admin/kirimchat-templates';
 
   return (
     <Sidebar>
