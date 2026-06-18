@@ -105,7 +105,7 @@ type RuleForm = z.infer<typeof ruleSchema>;
 const emptyForm: RuleForm = {
   name: "",
   is_active: true,
-  event_type: "message_received",
+  event_type: "message.received",
   match_mode: "contains",
   keyword: "",
   case_sensitive: false,
