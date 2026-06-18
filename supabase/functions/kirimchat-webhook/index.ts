@@ -122,11 +122,23 @@ serve(async (req) => {
     console.warn("KIRIMCHAT_WEBHOOK_SECRET not configured — accepting without verification.");
   }
 
+  const supabase = createClient(
+    Deno.env.get("SUPABASE_URL")!,
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+  );
+
   let body: any;
   try {
     body = JSON.parse(rawBody);
   } catch (e) {
     console.error("Invalid JSON body:", e);
+    // Tetap simpan jejak agar admin bisa melihat di dasbor
+    await supabase.from("kirimchat_webhook_events").insert({
+      event_type: "unknown",
+      status: "invalid_json",
+      error_message: (e as Error).message,
+      payload: { _raw: rawBody?.slice(0, 10000) ?? "" },
+    });
     return new Response(JSON.stringify({ error: "Invalid JSON" }), {
       status: 400,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
