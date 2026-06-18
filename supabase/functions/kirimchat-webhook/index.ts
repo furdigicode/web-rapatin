@@ -201,10 +201,18 @@ serve(async (req) => {
     "data.error",
   ]);
 
-  const supabase = createClient(
-    Deno.env.get("SUPABASE_URL")!,
-    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
-  );
+  const { error: insertError } = await supabase
+    .from("kirimchat_webhook_events")
+    .insert({
+      event_type,
+      channel,
+      message_id,
+      phone_number,
+      template_name,
+      status,
+      error_message,
+      payload: body,
+    });
 
   const { error: insertError } = await supabase
     .from("kirimchat_webhook_events")
