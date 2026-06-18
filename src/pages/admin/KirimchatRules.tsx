@@ -580,63 +580,95 @@ const KirimchatRules: React.FC = () => {
             </div>
 
             <div className="md:col-span-2 space-y-2">
-              <Label>Template</Label>
+              <Label>Tipe Aksi</Label>
               <Select
-                value={form.template_name ? templateKey(form.template_name, form.template_language) : ""}
-                onValueChange={handleTemplateChange}
-                disabled={templates.length === 0}
+                value={form.action_type}
+                onValueChange={(v) => setForm({ ...form, action_type: v as RuleForm["action_type"] })}
               >
-                <SelectTrigger>
-                  <SelectValue placeholder={templates.length === 0 ? "Tidak ada template — sinkron dulu" : "Pilih template"} />
-                </SelectTrigger>
+                <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  {templates.map((t) => (
-                    <SelectItem key={t.id} value={templateKey(t.template_name, t.language)}>
-                      {t.template_name} ({t.language}){t.category ? ` — ${t.category}` : ""}
-                    </SelectItem>
-                  ))}
+                  <SelectItem value="template">Kirim Template WhatsApp</SelectItem>
+                  <SelectItem value="text">Kirim Pesan Teks</SelectItem>
                 </SelectContent>
               </Select>
-              {selectedTemplate?.body_content && (
-                <div className="rounded-md border bg-muted/40 p-2 text-xs whitespace-pre-wrap">
-                  {selectedTemplate.body_content}
-                </div>
-              )}
             </div>
 
-            {variableCount > 0 && (
-              <div className="md:col-span-2 space-y-3 rounded-md border p-3">
-                <div>
-                  <Label>Variabel Body ({variableCount})</Label>
-                  <p className="text-xs text-muted-foreground">
-                    Bisa pakai placeholder dinamis: {PLACEHOLDERS.join(", ")}
-                  </p>
-                </div>
-                {Array.from({ length: variableCount }, (_, i) => (
-                  <div key={i} className="space-y-1">
-                    <Label className="text-xs"><code>{`{{${i + 1}}}`}</code></Label>
-                    <Input
-                      value={form.body_variables[i] ?? ""}
-                      onChange={(e) => updateVariable(i, e.target.value)}
-                      placeholder={`Mis. Halo {{customer_name}}`}
-                    />
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {selectedTemplate?.header_type === "IMAGE" && (
+            {isTextAction ? (
               <div className="md:col-span-2 space-y-2">
-                <Label>URL Gambar Header</Label>
-                <Input
-                  value={form.header_image_url ?? ""}
-                  onChange={(e) => setForm({ ...form, header_image_url: e.target.value })}
-                  placeholder="https://example.com/promo-banner.jpg"
+                <Label>Isi Pesan</Label>
+                <Textarea
+                  rows={5}
+                  value={form.text_content ?? ""}
+                  onChange={(e) => setForm({ ...form, text_content: e.target.value })}
+                  placeholder={`Mis. Halo {{customer_name}}, pesan kamu sudah kami terima.`}
+                  maxLength={4096}
                 />
                 <p className="text-xs text-muted-foreground">
-                  Template ini punya header gambar — wajib isi URL.
+                  Bisa pakai placeholder dinamis: {PLACEHOLDERS.join(", ")}
                 </p>
               </div>
+            ) : (
+              <>
+                <div className="md:col-span-2 space-y-2">
+                  <Label>Template</Label>
+                  <Select
+                    value={form.template_name ? templateKey(form.template_name, form.template_language) : ""}
+                    onValueChange={handleTemplateChange}
+                    disabled={templates.length === 0}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder={templates.length === 0 ? "Tidak ada template — sinkron dulu" : "Pilih template"} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {templates.map((t) => (
+                        <SelectItem key={t.id} value={templateKey(t.template_name, t.language)}>
+                          {t.template_name} ({t.language}){t.category ? ` — ${t.category}` : ""}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {selectedTemplate?.body_content && (
+                    <div className="rounded-md border bg-muted/40 p-2 text-xs whitespace-pre-wrap">
+                      {selectedTemplate.body_content}
+                    </div>
+                  )}
+                </div>
+
+                {variableCount > 0 && (
+                  <div className="md:col-span-2 space-y-3 rounded-md border p-3">
+                    <div>
+                      <Label>Variabel Body ({variableCount})</Label>
+                      <p className="text-xs text-muted-foreground">
+                        Bisa pakai placeholder dinamis: {PLACEHOLDERS.join(", ")}
+                      </p>
+                    </div>
+                    {Array.from({ length: variableCount }, (_, i) => (
+                      <div key={i} className="space-y-1">
+                        <Label className="text-xs"><code>{`{{${i + 1}}}`}</code></Label>
+                        <Input
+                          value={form.body_variables[i] ?? ""}
+                          onChange={(e) => updateVariable(i, e.target.value)}
+                          placeholder={`Mis. Halo {{customer_name}}`}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {selectedTemplate?.header_type === "IMAGE" && (
+                  <div className="md:col-span-2 space-y-2">
+                    <Label>URL Gambar Header</Label>
+                    <Input
+                      value={form.header_image_url ?? ""}
+                      onChange={(e) => setForm({ ...form, header_image_url: e.target.value })}
+                      placeholder="https://example.com/promo-banner.jpg"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Template ini punya header gambar — wajib isi URL.
+                    </p>
+                  </div>
+                )}
+              </>
             )}
           </div>
 
