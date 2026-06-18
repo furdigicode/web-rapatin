@@ -187,9 +187,11 @@ const KirimchatRules: React.FC = () => {
       delay_seconds: parsed.data.delay_seconds,
       template_name: parsed.data.template_name,
       template_language: parsed.data.template_language,
+      header_image_url: parsed.data.header_image_url?.trim() ? parsed.data.header_image_url.trim() : null,
       priority: parsed.data.priority,
       keyword: parsed.data.match_mode === "any" ? null : (parsed.data.keyword?.trim() || null),
     };
+
     if (payload.match_mode !== "any" && !payload.keyword) {
       toast({ title: "Keyword wajib", description: "Isi keyword atau pilih mode Any.", variant: "destructive" });
       return;
