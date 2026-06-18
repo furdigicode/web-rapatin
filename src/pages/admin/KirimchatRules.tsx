@@ -54,9 +54,11 @@ interface Rule {
   delay_seconds: number;
   template_name: string;
   template_language: string;
+  header_image_url: string | null;
   priority: number;
   created_at: string;
   updated_at: string;
+
 }
 
 const EVENT_TYPES = [
