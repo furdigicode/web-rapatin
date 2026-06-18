@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import AdminLayout from "@/components/admin/AdminLayout";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import { supabase } from "@/integrations/supabase/client";
@@ -55,10 +55,21 @@ interface Rule {
   template_name: string;
   template_language: string;
   header_image_url: string | null;
+  body_variables: string[] | null;
   priority: number;
   created_at: string;
   updated_at: string;
+}
 
+interface Template {
+  id: string;
+  template_name: string;
+  language: string;
+  category: string | null;
+  status: string | null;
+  body_content: string | null;
+  variable_count: number;
+  header_type: string | null;
 }
 
 const EVENT_TYPES = [
@@ -79,6 +90,15 @@ const MATCH_MODES = [
   { value: "regex", label: "Regex" },
 ];
 
+const PLACEHOLDERS = [
+  "{{customer_name}}",
+  "{{customer_phone}}",
+  "{{customer_id}}",
+  "{{message_text}}",
+  "{{channel}}",
+  "{{event_type}}",
+];
+
 const ruleSchema = z.object({
   name: z.string().trim().min(1, "Nama wajib").max(100),
   is_active: z.boolean(),
@@ -87,7 +107,7 @@ const ruleSchema = z.object({
   keyword: z.string().max(500).optional().nullable(),
   case_sensitive: z.boolean(),
   delay_seconds: z.number().int().min(0).max(300),
-  template_name: z.string().trim().min(1, "Nama template wajib").max(100),
+  template_name: z.string().trim().min(1, "Pilih template").max(100),
   template_language: z.string().trim().min(1).max(10),
   header_image_url: z
     .string()
@@ -96,8 +116,8 @@ const ruleSchema = z.object({
     .url("URL gambar tidak valid")
     .optional()
     .or(z.literal("")),
+  body_variables: z.array(z.string().max(500)).max(20),
   priority: z.number().int().min(0).max(1000),
-
 });
 
 type RuleForm = z.infer<typeof ruleSchema>;
@@ -113,13 +133,16 @@ const emptyForm: RuleForm = {
   template_name: "",
   template_language: "id",
   header_image_url: "",
+  body_variables: [],
   priority: 0,
-
 };
+
+const templateKey = (name: string, lang: string) => `${name}::${lang}`;
 
 const KirimchatRules: React.FC = () => {
   const { toast } = useToast();
   const [rules, setRules] = useState<Rule[]>([]);
+  const [templates, setTemplates] = useState<Template[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Rule | null>(null);
@@ -129,15 +152,26 @@ const KirimchatRules: React.FC = () => {
 
   const load = async () => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from("kirimchat_rules")
-      .select("*")
-      .order("priority", { ascending: false })
-      .order("created_at", { ascending: true });
-    if (error) {
-      toast({ title: "Gagal memuat", description: error.message, variant: "destructive" });
+    const [rulesRes, templatesRes] = await Promise.all([
+      supabase
+        .from("kirimchat_rules")
+        .select("*")
+        .order("priority", { ascending: false })
+        .order("created_at", { ascending: true }),
+      supabase
+        .from("kirimchat_templates")
+        .select("id, template_name, language, category, status, body_content, variable_count, header_type")
+        .order("template_name", { ascending: true }),
+    ]);
+    if (rulesRes.error) {
+      toast({ title: "Gagal memuat rules", description: rulesRes.error.message, variant: "destructive" });
     } else {
-      setRules((data ?? []) as Rule[]);
+      setRules((rulesRes.data ?? []) as any as Rule[]);
+    }
+    if (templatesRes.error) {
+      toast({ title: "Gagal memuat templates", description: templatesRes.error.message, variant: "destructive" });
+    } else {
+      setTemplates((templatesRes.data ?? []) as Template[]);
     }
     setLoading(false);
   };
@@ -145,6 +179,14 @@ const KirimchatRules: React.FC = () => {
   useEffect(() => {
     load();
   }, []);
+
+  const selectedTemplate = useMemo(
+    () =>
+      templates.find(
+        (t) => t.template_name === form.template_name && t.language === form.template_language,
+      ) ?? null,
+    [templates, form.template_name, form.template_language],
+  );
 
   const openCreate = () => {
     setEditing(null);
@@ -165,10 +207,29 @@ const KirimchatRules: React.FC = () => {
       template_name: r.template_name,
       template_language: r.template_language,
       header_image_url: r.header_image_url ?? "",
+      body_variables: Array.isArray(r.body_variables) ? r.body_variables : [],
       priority: r.priority,
-
     });
     setDialogOpen(true);
+  };
+
+  const handleTemplateChange = (key: string) => {
+    const t = templates.find((x) => templateKey(x.template_name, x.language) === key);
+    if (!t) return;
+    const current = form.body_variables ?? [];
+    const next = Array.from({ length: t.variable_count }, (_, i) => current[i] ?? "");
+    setForm({
+      ...form,
+      template_name: t.template_name,
+      template_language: t.language,
+      body_variables: next,
+    });
+  };
+
+  const updateVariable = (i: number, v: string) => {
+    const arr = [...(form.body_variables ?? [])];
+    arr[i] = v;
+    setForm({ ...form, body_variables: arr });
   };
 
   const submit = async () => {
@@ -177,6 +238,18 @@ const KirimchatRules: React.FC = () => {
       const first = parsed.error.issues[0];
       toast({ title: "Form tidak valid", description: first.message, variant: "destructive" });
       return;
+    }
+    const variableCount = selectedTemplate?.variable_count ?? 0;
+    if (variableCount > 0) {
+      const vars = parsed.data.body_variables;
+      if (vars.length < variableCount || vars.slice(0, variableCount).some((v) => !v.trim())) {
+        toast({
+          title: "Variabel belum lengkap",
+          description: `Template ini butuh ${variableCount} variabel.`,
+          variant: "destructive",
+        });
+        return;
+      }
     }
     const payload = {
       name: parsed.data.name,
@@ -188,6 +261,7 @@ const KirimchatRules: React.FC = () => {
       template_name: parsed.data.template_name,
       template_language: parsed.data.template_language,
       header_image_url: parsed.data.header_image_url?.trim() ? parsed.data.header_image_url.trim() : null,
+      body_variables: parsed.data.body_variables.slice(0, variableCount),
       priority: parsed.data.priority,
       keyword: parsed.data.match_mode === "any" ? null : (parsed.data.keyword?.trim() || null),
     };
@@ -198,8 +272,8 @@ const KirimchatRules: React.FC = () => {
     }
     setSaving(true);
     const { error } = editing
-      ? await supabase.from("kirimchat_rules").update(payload).eq("id", editing.id)
-      : await supabase.from("kirimchat_rules").insert(payload);
+      ? await supabase.from("kirimchat_rules").update(payload as any).eq("id", editing.id)
+      : await supabase.from("kirimchat_rules").insert(payload as any);
     setSaving(false);
     if (error) {
       toast({ title: "Gagal menyimpan", description: error.message, variant: "destructive" });
@@ -236,6 +310,7 @@ const KirimchatRules: React.FC = () => {
 
   const eventLabel = (v: string) => EVENT_TYPES.find((e) => e.value === v)?.label ?? v;
   const matchLabel = (v: string) => MATCH_MODES.find((m) => m.value === v)?.label ?? v;
+  const variableCount = selectedTemplate?.variable_count ?? 0;
 
   return (
     <AdminLayout title="KirimChat Rules">
@@ -247,6 +322,12 @@ const KirimchatRules: React.FC = () => {
           <Plus className="mr-2 h-4 w-4" /> Tambah Rule
         </Button>
       </AdminPageHeader>
+
+      {templates.length === 0 && !loading && (
+        <div className="mb-4 rounded-md border border-amber-300 bg-amber-50 text-amber-900 p-3 text-sm">
+          Belum ada template di database. Buka menu <strong>Templates</strong> dan klik "Sinkron dari KirimChat" terlebih dahulu.
+        </div>
+      )}
 
       <div className="rounded-md border bg-card">
         <Table>
@@ -277,39 +358,47 @@ const KirimchatRules: React.FC = () => {
                 </TableCell>
               </TableRow>
             ) : (
-              rules.map((r) => (
-                <TableRow key={r.id}>
-                  <TableCell className="font-medium">{r.name}</TableCell>
-                  <TableCell>
-                    <Badge variant="outline">{eventLabel(r.event_type)}</Badge>
-                  </TableCell>
-                  <TableCell>{matchLabel(r.match_mode)}</TableCell>
-                  <TableCell className="max-w-[200px] truncate">
-                    {r.keyword ? <code className="text-xs">{r.keyword}</code> : <span className="text-muted-foreground">—</span>}
-                  </TableCell>
-                  <TableCell>{r.delay_seconds}s</TableCell>
-                  <TableCell><code className="text-xs">{r.template_name}</code></TableCell>
-                  <TableCell>{r.priority}</TableCell>
-                  <TableCell>
-                    <Switch checked={r.is_active} onCheckedChange={() => toggleActive(r)} />
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <Button variant="ghost" size="icon" onClick={() => openEdit(r)}>
-                      <Pencil className="h-4 w-4" />
-                    </Button>
-                    <Button variant="ghost" size="icon" onClick={() => setDeleteId(r.id)}>
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))
+              rules.map((r) => {
+                const varCount = Array.isArray(r.body_variables) ? r.body_variables.length : 0;
+                return (
+                  <TableRow key={r.id}>
+                    <TableCell className="font-medium">{r.name}</TableCell>
+                    <TableCell>
+                      <Badge variant="outline">{eventLabel(r.event_type)}</Badge>
+                    </TableCell>
+                    <TableCell>{matchLabel(r.match_mode)}</TableCell>
+                    <TableCell className="max-w-[200px] truncate">
+                      {r.keyword ? <code className="text-xs">{r.keyword}</code> : <span className="text-muted-foreground">—</span>}
+                    </TableCell>
+                    <TableCell>{r.delay_seconds}s</TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-1.5">
+                        <code className="text-xs">{r.template_name}</code>
+                        {varCount > 0 && <Badge variant="secondary" className="text-[10px]">{varCount} var</Badge>}
+                      </div>
+                    </TableCell>
+                    <TableCell>{r.priority}</TableCell>
+                    <TableCell>
+                      <Switch checked={r.is_active} onCheckedChange={() => toggleActive(r)} />
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Button variant="ghost" size="icon" onClick={() => openEdit(r)}>
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button variant="ghost" size="icon" onClick={() => setDeleteId(r.id)}>
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                );
+              })
             )}
           </TableBody>
         </Table>
       </div>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Zap className="h-4 w-4" />
@@ -407,37 +496,66 @@ const KirimchatRules: React.FC = () => {
               />
             </div>
 
-            <div className="space-y-2">
-              <Label>Nama Template KirimChat</Label>
-              <Input
-                value={form.template_name}
-                onChange={(e) => setForm({ ...form, template_name: e.target.value })}
-                placeholder="Mis. balasan_halo"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label>Bahasa Template</Label>
-              <Input
-                value={form.template_language}
-                onChange={(e) => setForm({ ...form, template_language: e.target.value })}
-                placeholder="id"
-              />
-            </div>
-
             <div className="md:col-span-2 space-y-2">
-              <Label>URL Gambar Header (opsional)</Label>
-              <Input
-                value={form.header_image_url ?? ""}
-                onChange={(e) => setForm({ ...form, header_image_url: e.target.value })}
-                placeholder="https://example.com/promo-banner.jpg"
-              />
-              <p className="text-xs text-muted-foreground">
-                Isi hanya jika template KirimChat memiliki header berupa gambar.
-              </p>
+              <Label>Template</Label>
+              <Select
+                value={form.template_name ? templateKey(form.template_name, form.template_language) : ""}
+                onValueChange={handleTemplateChange}
+                disabled={templates.length === 0}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder={templates.length === 0 ? "Tidak ada template — sinkron dulu" : "Pilih template"} />
+                </SelectTrigger>
+                <SelectContent>
+                  {templates.map((t) => (
+                    <SelectItem key={t.id} value={templateKey(t.template_name, t.language)}>
+                      {t.template_name} ({t.language}){t.category ? ` — ${t.category}` : ""}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {selectedTemplate?.body_content && (
+                <div className="rounded-md border bg-muted/40 p-2 text-xs whitespace-pre-wrap">
+                  {selectedTemplate.body_content}
+                </div>
+              )}
             </div>
-          </div>
 
+            {variableCount > 0 && (
+              <div className="md:col-span-2 space-y-3 rounded-md border p-3">
+                <div>
+                  <Label>Variabel Body ({variableCount})</Label>
+                  <p className="text-xs text-muted-foreground">
+                    Bisa pakai placeholder dinamis: {PLACEHOLDERS.join(", ")}
+                  </p>
+                </div>
+                {Array.from({ length: variableCount }, (_, i) => (
+                  <div key={i} className="space-y-1">
+                    <Label className="text-xs"><code>{`{{${i + 1}}}`}</code></Label>
+                    <Input
+                      value={form.body_variables[i] ?? ""}
+                      onChange={(e) => updateVariable(i, e.target.value)}
+                      placeholder={`Mis. Halo {{customer_name}}`}
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {selectedTemplate?.header_type === "IMAGE" && (
+              <div className="md:col-span-2 space-y-2">
+                <Label>URL Gambar Header</Label>
+                <Input
+                  value={form.header_image_url ?? ""}
+                  onChange={(e) => setForm({ ...form, header_image_url: e.target.value })}
+                  placeholder="https://example.com/promo-banner.jpg"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Template ini punya header gambar — wajib isi URL.
+                </p>
+              </div>
+            )}
+          </div>
 
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)} disabled={saving}>
