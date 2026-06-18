@@ -315,7 +315,7 @@ const KirimchatWebhooks: React.FC = () => {
                 )}
                 {selected.status && (
                   <div>
-                    <div className="text-muted-foreground text-xs">Status</div>
+                    <div className="text-muted-foreground text-xs">Status Penerimaan</div>
                     <div>{selected.status}</div>
                   </div>
                 )}
