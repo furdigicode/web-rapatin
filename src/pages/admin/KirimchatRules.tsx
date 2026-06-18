@@ -70,7 +70,9 @@ interface Rule {
   keyword: string | null;
   case_sensitive: boolean;
   delay_seconds: number;
-  template_name: string;
+  action_type: string;
+  text_content: string | null;
+  template_name: string | null;
   template_language: string;
   header_image_url: string | null;
   body_variables: string[] | null;
