@@ -40,8 +40,20 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { Pencil, Plus, Trash2, Zap } from "lucide-react";
+import { Pencil, Plus, Trash2, Zap, ScrollText, RefreshCw, ChevronDown, ChevronRight } from "lucide-react";
 import { z } from "zod";
+
+interface WebhookEvent {
+  id: string;
+  event_type: string;
+  phone_number: string | null;
+  template_name: string | null;
+  status: string | null;
+  error_message: string | null;
+  rule_action: string | null;
+  payload: any;
+  received_at: string;
+}
 
 interface Rule {
   id: string;
@@ -149,6 +161,33 @@ const KirimchatRules: React.FC = () => {
   const [form, setForm] = useState<RuleForm>(emptyForm);
   const [saving, setSaving] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [logRule, setLogRule] = useState<Rule | null>(null);
+  const [logs, setLogs] = useState<WebhookEvent[]>([]);
+  const [logsLoading, setLogsLoading] = useState(false);
+  const [expandedLog, setExpandedLog] = useState<string | null>(null);
+
+  const loadLogs = async (ruleId: string) => {
+    setLogsLoading(true);
+    const { data, error } = await supabase
+      .from("kirimchat_webhook_events")
+      .select("id, event_type, phone_number, template_name, status, error_message, rule_action, payload, received_at")
+      .eq("matched_rule_id", ruleId)
+      .order("received_at", { ascending: false })
+      .limit(50);
+    if (error) {
+      toast({ title: "Gagal memuat log", description: error.message, variant: "destructive" });
+    } else {
+      setLogs((data ?? []) as WebhookEvent[]);
+    }
+    setLogsLoading(false);
+  };
+
+  const openLogs = (r: Rule) => {
+    setLogRule(r);
+    setExpandedLog(null);
+    setLogs([]);
+    loadLogs(r.id);
+  };
 
   const load = async () => {
     setLoading(true);
@@ -382,6 +421,9 @@ const KirimchatRules: React.FC = () => {
                       <Switch checked={r.is_active} onCheckedChange={() => toggleActive(r)} />
                     </TableCell>
                     <TableCell className="text-right">
+                      <Button variant="ghost" size="icon" onClick={() => openLogs(r)} title="Lihat Log">
+                        <ScrollText className="h-4 w-4" />
+                      </Button>
                       <Button variant="ghost" size="icon" onClick={() => openEdit(r)}>
                         <Pencil className="h-4 w-4" />
                       </Button>
@@ -582,6 +624,98 @@ const KirimchatRules: React.FC = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <Dialog open={!!logRule} onOpenChange={(o) => !o && setLogRule(null)}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <ScrollText className="h-4 w-4" />
+              Log: {logRule?.name}
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className="flex justify-end">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => logRule && loadLogs(logRule.id)}
+              disabled={logsLoading}
+            >
+              <RefreshCw className={`h-3 w-3 mr-1 ${logsLoading ? "animate-spin" : ""}`} />
+              Refresh
+            </Button>
+          </div>
+
+          <div className="rounded-md border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-8"></TableHead>
+                  <TableHead>Waktu</TableHead>
+                  <TableHead>Event</TableHead>
+                  <TableHead>Phone</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Error</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {logsLoading ? (
+                  <TableRow>
+                    <TableCell colSpan={6} className="text-center text-muted-foreground py-6">Memuat…</TableCell>
+                  </TableRow>
+                ) : logs.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={6} className="text-center text-muted-foreground py-6">
+                      Belum ada log untuk rule ini.
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  logs.map((log) => {
+                    const expanded = expandedLog === log.id;
+                    const action = log.rule_action ?? "—";
+                    const badgeVariant: "default" | "secondary" | "destructive" | "outline" =
+                      action === "sent" ? "default" : action === "failed" ? "destructive" : "secondary";
+                    return (
+                      <React.Fragment key={log.id}>
+                        <TableRow
+                          className="cursor-pointer hover:bg-muted/50"
+                          onClick={() => setExpandedLog(expanded ? null : log.id)}
+                        >
+                          <TableCell>
+                            {expanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                          </TableCell>
+                          <TableCell className="text-xs whitespace-nowrap">
+                            {new Date(log.received_at).toLocaleString("id-ID")}
+                          </TableCell>
+                          <TableCell><Badge variant="outline" className="text-xs">{log.event_type}</Badge></TableCell>
+                          <TableCell className="text-xs">{log.phone_number ?? "—"}</TableCell>
+                          <TableCell><Badge variant={badgeVariant} className="text-xs">{action}</Badge></TableCell>
+                          <TableCell className="max-w-[200px] truncate text-xs text-muted-foreground">
+                            {log.error_message ?? "—"}
+                          </TableCell>
+                        </TableRow>
+                        {expanded && (
+                          <TableRow>
+                            <TableCell colSpan={6} className="bg-muted/30 p-0">
+                              <pre className="text-[11px] p-3 overflow-x-auto max-h-[400px]">
+{JSON.stringify(log.payload, null, 2)}
+                              </pre>
+                            </TableCell>
+                          </TableRow>
+                        )}
+                      </React.Fragment>
+                    );
+                  })
+                )}
+              </TableBody>
+            </Table>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setLogRule(null)}>Tutup</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </AdminLayout>
   );
 };
