@@ -390,12 +390,8 @@ async function sendTemplate(
   language: string,
   headerImageUrl: string | null,
   bodyVariables: string[],
-): Promise<{ ok: boolean; status: number; body: string }> {
+): Promise<{ ok: boolean; status: number; body: string; request: any; durationMs: number }> {
   const apiKey = Deno.env.get("KIRIMCHAT_API_KEY");
-  if (!apiKey) {
-    console.error("KIRIMCHAT_API_KEY missing; cannot send template");
-    return { ok: false, status: 0, body: "missing_api_key" };
-  }
   const components: any[] = [];
   if (headerImageUrl) {
     components.push({
@@ -409,6 +405,23 @@ async function sendTemplate(
       parameters: bodyVariables.map((text) => ({ type: "text", text: text && text.length > 0 ? text : " " })),
     });
   }
+  const requestBody = {
+    phone_number: phone,
+    channel: "whatsapp",
+    message_type: "template",
+    template: {
+      name: templateName,
+      language: { code: language },
+      ...(components.length ? { components } : {}),
+    },
+  };
+
+  if (!apiKey) {
+    console.error("KIRIMCHAT_API_KEY missing; cannot send template");
+    return { ok: false, status: 0, body: "missing_api_key", request: requestBody, durationMs: 0 };
+  }
+
+  const startedAt = Date.now();
   try {
     const res = await fetch(
       "https://api-prod.kirim.chat/api/v1/public/messages/send",
@@ -418,28 +431,20 @@ async function sendTemplate(
           "Content-Type": "application/json",
           Authorization: `Bearer ${apiKey}`,
         },
-        body: JSON.stringify({
-          phone_number: phone,
-          channel: "whatsapp",
-          message_type: "template",
-          template: {
-            name: templateName,
-            language: { code: language },
-            ...(components.length ? { components } : {}),
-          },
-        }),
+        body: JSON.stringify(requestBody),
       },
     );
     const body = await res.text();
+    const durationMs = Date.now() - startedAt;
     if (!res.ok) {
       console.error("Rule send failed:", res.status, body);
     } else {
       console.log("Rule template sent:", templateName, "to", phone, "vars=", bodyVariables.length);
     }
-    return { ok: res.ok, status: res.status, body };
+    return { ok: res.ok, status: res.status, body, request: requestBody, durationMs };
   } catch (e) {
     console.error("sendTemplate error:", e);
-    return { ok: false, status: 0, body: (e as Error).message };
+    return { ok: false, status: 0, body: (e as Error).message, request: requestBody, durationMs: Date.now() - startedAt };
   }
 }
 
