@@ -302,13 +302,19 @@ serve(async (req) => {
         const resolvedVars = rawVars.map((v) => substitutePlaceholders(v, ctx));
 
         const dispatchedAt = new Date().toISOString();
-        const result = await sendTemplate(
-          normalizePhone(phone_number),
-          matched.template_name,
-          matched.template_language || "id",
-          matched.header_image_url || null,
-          resolvedVars,
-        );
+        const actionType = (matched.action_type as string) || "template";
+        const result = actionType === "text"
+          ? await sendText(
+              normalizePhone(phone_number),
+              substitutePlaceholders(matched.text_content || "", ctx),
+            )
+          : await sendTemplate(
+              normalizePhone(phone_number),
+              matched.template_name,
+              matched.template_language || "id",
+              matched.header_image_url || null,
+              resolvedVars,
+            );
 
         let parsedResponse: any;
         try {
