@@ -201,7 +201,24 @@ serve(async (req) => {
     "data.error",
   ]);
 
-  const { error: insertError } = await supabase
+  // Extract message text for rule matching
+  const message_text = pick(body, [
+    "message",
+    "text",
+    "message.text",
+    "message.body",
+    "message.content",
+    "data.message",
+    "data.text",
+    "data.message.text",
+    "data.message.body",
+    "payload.message",
+    "payload.text",
+    "content",
+    "body",
+  ]) ?? "";
+
+  const { data: insertedRows, error: insertError } = await supabase
     .from("kirimchat_webhook_events")
     .insert({
       event_type,
@@ -212,8 +229,9 @@ serve(async (req) => {
       status,
       error_message,
       payload: body,
-    });
-
+    })
+    .select("id")
+    .single();
 
   if (insertError) {
     console.error("Failed to insert webhook event:", insertError);
@@ -223,8 +241,158 @@ serve(async (req) => {
     });
   }
 
+  const eventRowId = insertedRows?.id as string | undefined;
+
+  // Rule evaluation & async dispatch (non-blocking response)
+  if (eventRowId) {
+    const evaluate = async () => {
+      try {
+        const { data: rules, error: rulesError } = await supabase
+          .from("kirimchat_rules")
+          .select("*")
+          .eq("is_active", true)
+          .in("event_type", [event_type, "*"])
+          .order("priority", { ascending: false })
+          .order("created_at", { ascending: true });
+
+        if (rulesError) {
+          console.error("Failed to load rules:", rulesError);
+          return;
+        }
+
+        const matched = (rules ?? []).find((r: any) =>
+          matchRule(r, message_text),
+        );
+
+        if (!matched) {
+          await supabase
+            .from("kirimchat_webhook_events")
+            .update({ rule_action: "no_match" })
+            .eq("id", eventRowId);
+          return;
+        }
+
+        const delayMs = Math.max(0, Math.min(300, matched.delay_seconds ?? 0)) * 1000;
+        if (delayMs > 0) {
+          await new Promise((r) => setTimeout(r, delayMs));
+        }
+
+        if (!phone_number) {
+          console.warn("Matched rule but no phone_number to send to:", matched.id);
+          await supabase
+            .from("kirimchat_webhook_events")
+            .update({ matched_rule_id: matched.id, rule_action: "skipped_no_phone" })
+            .eq("id", eventRowId);
+          return;
+        }
+
+        const result = await sendTemplate(
+          normalizePhone(phone_number),
+          matched.template_name,
+          matched.template_language || "id",
+        );
+
+        await supabase
+          .from("kirimchat_webhook_events")
+          .update({
+            matched_rule_id: matched.id,
+            rule_action: result.ok ? "sent" : "failed",
+          })
+          .eq("id", eventRowId);
+      } catch (e) {
+        console.error("Rule evaluation error:", e);
+        await supabase
+          .from("kirimchat_webhook_events")
+          .update({ rule_action: "error" })
+          .eq("id", eventRowId);
+      }
+    };
+
+    // @ts-ignore EdgeRuntime is available in Supabase Edge Functions
+    if (typeof EdgeRuntime !== "undefined" && EdgeRuntime.waitUntil) {
+      // @ts-ignore
+      EdgeRuntime.waitUntil(evaluate());
+    } else {
+      evaluate();
+    }
+  }
+
   return new Response(JSON.stringify({ ok: true }), {
     status: 200,
     headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
 });
+
+function matchRule(rule: any, text: string): boolean {
+  const mode = rule.match_mode as string;
+  if (mode === "any") return true;
+  const kw = rule.keyword as string | null;
+  if (!kw) return false;
+  const haystack = rule.case_sensitive ? text : text.toLowerCase();
+  const needle = rule.case_sensitive ? kw : kw.toLowerCase();
+  switch (mode) {
+    case "contains": return haystack.includes(needle);
+    case "exact": return haystack.trim() === needle.trim();
+    case "starts_with": return haystack.startsWith(needle);
+    case "ends_with": return haystack.endsWith(needle);
+    case "regex":
+      try {
+        return new RegExp(kw, rule.case_sensitive ? "" : "i").test(text);
+      } catch (e) {
+        console.error("Invalid regex in rule", rule.id, e);
+        return false;
+      }
+    default: return false;
+  }
+}
+
+function normalizePhone(raw: string): string {
+  let phone = raw.replace(/\D/g, "");
+  if (phone.startsWith("0")) phone = "62" + phone.substring(1);
+  else if (!phone.startsWith("62")) phone = "62" + phone;
+  return phone;
+}
+
+async function sendTemplate(
+  phone: string,
+  templateName: string,
+  language: string,
+): Promise<{ ok: boolean; status: number; body: string }> {
+  const apiKey = Deno.env.get("KIRIMCHAT_API_KEY");
+  if (!apiKey) {
+    console.error("KIRIMCHAT_API_KEY missing; cannot send template");
+    return { ok: false, status: 0, body: "missing_api_key" };
+  }
+  try {
+    const res = await fetch(
+      "https://api-prod.kirim.chat/api/v1/public/messages/send",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          phone_number: phone,
+          channel: "whatsapp",
+          message_type: "template",
+          template: {
+            name: templateName,
+            language: { code: language },
+            components: [],
+          },
+        }),
+      },
+    );
+    const body = await res.text();
+    if (!res.ok) {
+      console.error("Rule send failed:", res.status, body);
+    } else {
+      console.log("Rule template sent:", templateName, "to", phone);
+    }
+    return { ok: res.ok, status: res.status, body };
+  } catch (e) {
+    console.error("sendTemplate error:", e);
+    return { ok: false, status: 0, body: (e as Error).message };
+  }
+}

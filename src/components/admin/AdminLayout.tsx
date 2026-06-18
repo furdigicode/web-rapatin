@@ -13,7 +13,9 @@ import {
   Vote,
   MessageSquare,
   ShoppingCart,
-  Webhook
+  Webhook,
+  MessageCircle,
+  Zap
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -61,6 +63,8 @@ const AppSidebar = () => {
   
   const isVotingActive = location.pathname === '/admin/voting' || location.pathname === '/admin/voting-categories';
   const isVotingGroupOpen = isVotingActive;
+
+  const isKirimchatActive = location.pathname === '/admin/kirimchat-webhooks' || location.pathname === '/admin/kirimchat-rules';
 
   return (
     <Sidebar>
@@ -218,15 +222,34 @@ const AppSidebar = () => {
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton 
-                  asChild 
-                  isActive={location.pathname === '/admin/kirimchat-webhooks'}
-                >
-                  <Link to="/admin/kirimchat-webhooks">
-                    <Webhook />
-                    <span>KirimChat Webhook</span>
-                  </Link>
+                <SidebarMenuButton isActive={isKirimchatActive}>
+                  <MessageCircle />
+                  <span>KirimChat</span>
                 </SidebarMenuButton>
+                <SidebarMenuSub>
+                  <SidebarMenuSubItem>
+                    <SidebarMenuSubButton
+                      asChild
+                      isActive={location.pathname === '/admin/kirimchat-webhooks'}
+                    >
+                      <Link to="/admin/kirimchat-webhooks">
+                        <Webhook />
+                        <span>Webhook</span>
+                      </Link>
+                    </SidebarMenuSubButton>
+                  </SidebarMenuSubItem>
+                  <SidebarMenuSubItem>
+                    <SidebarMenuSubButton
+                      asChild
+                      isActive={location.pathname === '/admin/kirimchat-rules'}
+                    >
+                      <Link to="/admin/kirimchat-rules">
+                        <Zap />
+                        <span>Rules</span>
+                      </Link>
+                    </SidebarMenuSubButton>
+                  </SidebarMenuSubItem>
+                </SidebarMenuSub>
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton 

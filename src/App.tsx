@@ -60,6 +60,7 @@ const VotingResults = lazy(() => import("./pages/admin/VotingResults"));
 const FeedbackManagement = lazy(() => import("./pages/admin/FeedbackManagement"));
 const OrderManagement = lazy(() => import("./pages/admin/OrderManagement"));
 const KirimchatWebhooks = lazy(() => import("./pages/admin/KirimchatWebhooks"));
+const KirimchatRules = lazy(() => import("./pages/admin/KirimchatRules"));
 
 // Sitemap page (for viewing/debugging) - Lazy loaded
 const Sitemap = lazy(() => import("./pages/Sitemap"));
@@ -136,6 +137,7 @@ const AppRoutes = () => {
         <Route path="/admin/feedback" element={<ProtectedRoute><FeedbackManagement /></ProtectedRoute>} />
         <Route path="/admin/orders" element={<ProtectedRoute><OrderManagement /></ProtectedRoute>} />
         <Route path="/admin/kirimchat-webhooks" element={<ProtectedRoute><KirimchatWebhooks /></ProtectedRoute>} />
+        <Route path="/admin/kirimchat-rules" element={<ProtectedRoute><KirimchatRules /></ProtectedRoute>} />
         
         {/* 404 Catch-all Route */}
         <Route path="*" element={<NotFound />} />

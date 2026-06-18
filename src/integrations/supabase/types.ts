@@ -431,16 +431,66 @@ export type Database = {
         }
         Relationships: []
       }
+      kirimchat_rules: {
+        Row: {
+          case_sensitive: boolean
+          created_at: string
+          delay_seconds: number
+          event_type: string
+          id: string
+          is_active: boolean
+          keyword: string | null
+          match_mode: string
+          name: string
+          priority: number
+          template_language: string
+          template_name: string
+          updated_at: string
+        }
+        Insert: {
+          case_sensitive?: boolean
+          created_at?: string
+          delay_seconds?: number
+          event_type?: string
+          id?: string
+          is_active?: boolean
+          keyword?: string | null
+          match_mode?: string
+          name: string
+          priority?: number
+          template_language?: string
+          template_name: string
+          updated_at?: string
+        }
+        Update: {
+          case_sensitive?: boolean
+          created_at?: string
+          delay_seconds?: number
+          event_type?: string
+          id?: string
+          is_active?: boolean
+          keyword?: string | null
+          match_mode?: string
+          name?: string
+          priority?: number
+          template_language?: string
+          template_name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       kirimchat_webhook_events: {
         Row: {
           channel: string | null
           error_message: string | null
           event_type: string
           id: string
+          matched_rule_id: string | null
           message_id: string | null
           payload: Json
           phone_number: string | null
           received_at: string
+          rule_action: string | null
           status: string | null
           template_name: string | null
         }
@@ -449,10 +499,12 @@ export type Database = {
           error_message?: string | null
           event_type?: string
           id?: string
+          matched_rule_id?: string | null
           message_id?: string | null
           payload: Json
           phone_number?: string | null
           received_at?: string
+          rule_action?: string | null
           status?: string | null
           template_name?: string | null
         }
@@ -461,14 +513,24 @@ export type Database = {
           error_message?: string | null
           event_type?: string
           id?: string
+          matched_rule_id?: string | null
           message_id?: string | null
           payload?: Json
           phone_number?: string | null
           received_at?: string
+          rule_action?: string | null
           status?: string | null
           template_name?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "kirimchat_webhook_events_matched_rule_id_fkey"
+            columns: ["matched_rule_id"]
+            isOneToOne: false
+            referencedRelation: "kirimchat_rules"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       kledo_auth_tokens: {
         Row: {
