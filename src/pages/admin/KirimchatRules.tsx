@@ -40,8 +40,20 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { Pencil, Plus, Trash2, Zap } from "lucide-react";
+import { Pencil, Plus, Trash2, Zap, ScrollText, RefreshCw, ChevronDown, ChevronRight } from "lucide-react";
 import { z } from "zod";
+
+interface WebhookEvent {
+  id: string;
+  event_type: string;
+  phone_number: string | null;
+  template_name: string | null;
+  status: string | null;
+  error_message: string | null;
+  rule_action: string | null;
+  payload: any;
+  received_at: string;
+}
 
 interface Rule {
   id: string;
