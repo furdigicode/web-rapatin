@@ -301,6 +301,7 @@ serve(async (req) => {
         const rawVars: string[] = Array.isArray(matched.body_variables) ? matched.body_variables : [];
         const resolvedVars = rawVars.map((v) => substitutePlaceholders(v, ctx));
 
+        const dispatchedAt = new Date().toISOString();
         const result = await sendTemplate(
           normalizePhone(phone_number),
           matched.template_name,
@@ -309,12 +310,24 @@ serve(async (req) => {
           resolvedVars,
         );
 
+        let parsedResponse: any;
+        try {
+          parsedResponse = result.body ? JSON.parse(result.body) : null;
+        } catch {
+          parsedResponse = { raw: result.body };
+        }
 
         await supabase
           .from("kirimchat_webhook_events")
           .update({
             matched_rule_id: matched.id,
             rule_action: result.ok ? "sent" : "failed",
+            dispatch_request: result.request,
+            dispatch_response: parsedResponse,
+            dispatch_status_code: result.status,
+            dispatch_duration_ms: result.durationMs,
+            dispatched_at: dispatchedAt,
+            error_message: result.ok ? null : (parsedResponse?.message || parsedResponse?.error || result.body?.slice(0, 500) || null),
           })
           .eq("id", eventRowId);
       } catch (e) {
