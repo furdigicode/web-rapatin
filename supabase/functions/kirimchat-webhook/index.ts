@@ -122,11 +122,23 @@ serve(async (req) => {
     console.warn("KIRIMCHAT_WEBHOOK_SECRET not configured — accepting without verification.");
   }
 
+  const supabase = createClient(
+    Deno.env.get("SUPABASE_URL")!,
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+  );
+
   let body: any;
   try {
     body = JSON.parse(rawBody);
   } catch (e) {
     console.error("Invalid JSON body:", e);
+    // Tetap simpan jejak agar admin bisa melihat di dasbor
+    await supabase.from("kirimchat_webhook_events").insert({
+      event_type: "unknown",
+      status: "invalid_json",
+      error_message: (e as Error).message,
+      payload: { _raw: rawBody?.slice(0, 10000) ?? "" },
+    });
     return new Response(JSON.stringify({ error: "Invalid JSON" }), {
       status: 400,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -154,6 +166,12 @@ serve(async (req) => {
     "data.message.id",
   ]);
   const phone_number = pick(body, [
+    "customer_phone",
+    "customer.phone",
+    "customer.phone_number",
+    "data.customer_phone",
+    "data.customer.phone",
+    "payload.customer_phone",
     "phone_number",
     "phone",
     "from",
@@ -173,7 +191,8 @@ serve(async (req) => {
     "data.template.name",
     "message.template.name",
   ]);
-  const status = pick(body, ["status", "data.status", "message.status"]);
+  // Status mencerminkan hasil penerimaan webhook di backend kita, bukan status pesan KirimChat
+  const status = "received";
   const error_message = pick(body, [
     "error_message",
     "error.message",
@@ -181,11 +200,6 @@ serve(async (req) => {
     "data.error.message",
     "data.error",
   ]);
-
-  const supabase = createClient(
-    Deno.env.get("SUPABASE_URL")!,
-    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
-  );
 
   const { error: insertError } = await supabase
     .from("kirimchat_webhook_events")
@@ -199,6 +213,7 @@ serve(async (req) => {
       error_message,
       payload: body,
     });
+
 
   if (insertError) {
     console.error("Failed to insert webhook event:", insertError);

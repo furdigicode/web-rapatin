@@ -191,7 +191,7 @@ const KirimchatWebhooks: React.FC = () => {
               <TableHead>Channel</TableHead>
               <TableHead>Phone</TableHead>
               <TableHead>Message ID</TableHead>
-              <TableHead>Status</TableHead>
+              <TableHead>Penerimaan</TableHead>
               <TableHead className="w-20"></TableHead>
             </TableRow>
           </TableHeader>
@@ -224,7 +224,21 @@ const KirimchatWebhooks: React.FC = () => {
                   <TableCell className="text-xs font-mono max-w-[180px] truncate">
                     {ev.message_id || "-"}
                   </TableCell>
-                  <TableCell className="text-xs">{ev.status || "-"}</TableCell>
+                  <TableCell className="text-xs">
+                    {ev.status ? (
+                      <Badge
+                        variant={
+                          ev.status === "received"
+                            ? "default"
+                            : "destructive"
+                        }
+                      >
+                        {ev.status}
+                      </Badge>
+                    ) : (
+                      "-"
+                    )}
+                  </TableCell>
                   <TableCell>
                     <Button
                       variant="ghost"
@@ -301,7 +315,7 @@ const KirimchatWebhooks: React.FC = () => {
                 )}
                 {selected.status && (
                   <div>
-                    <div className="text-muted-foreground text-xs">Status</div>
+                    <div className="text-muted-foreground text-xs">Status Penerimaan</div>
                     <div>{selected.status}</div>
                   </div>
                 )}
