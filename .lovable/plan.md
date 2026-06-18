@@ -1,33 +1,36 @@
-## Tambah dukungan kirim Pesan Teks (bukan hanya Template) di Rules
+## Masalah
 
-Saat ini setiap rule selalu mengirim WhatsApp **template**. Kita tambahkan opsi "Tipe Aksi" agar rule bisa juga mengirim **pesan teks biasa** via endpoint yang sama (`message_type: "text"`, field `content`).
+Rule "Tanya admin" sudah benar di DB (`action_type = 'text'`, `text_content = 'Halo kak, ada yang bisa Damar bantu?'`, `template_name = null`), tapi dispatch terakhir (11:19:43) tetap memakai:
 
-### 1. Migration — `kirimchat_rules`
-Tambah kolom (nullable, backward-compatible):
-- `action_type text not null default 'template'` — `'template'` atau `'text'`.
-- `text_content text` — isi pesan teks; mendukung placeholder `{{customer_name}}`, `{{message_text}}`, dst seperti `body_variables`.
+```json
+{ "message_type": "template", "template": { "name": null, "language": { "code": "id" } } }
+```
 
-Kolom lama (`template_name`, `template_language`, `header_image_url`, `body_variables`) jadi opsional secara logika — hanya wajib bila `action_type = 'template'`.
+→ KirimChat balas `400 VALIDATION_ERROR: template.name expected string, received null`.
 
-### 2. Form Rule (`KirimchatRules.tsx`)
-- Tambah Select **Tipe Aksi**: "Kirim Template" / "Kirim Pesan Teks".
-- Jika `template`: tampilkan UI template seperti sekarang (pilih template, bahasa, header image, variabel).
-- Jika `text`: sembunyikan UI template, tampilkan `Textarea` "Isi Pesan" + helper placeholder yang tersedia (`{{customer_name}}`, `{{customer_phone}}`, `{{message_text}}`, `{{channel}}`, `{{event_type}}`).
-- Validasi Zod: `text` → `text_content` wajib & ≤ 4096 char; `template` → `template_name` wajib (seperti sekarang).
-- Tabel daftar rule: kolom "Template" jadi "Aksi" → tampilkan badge `Teks` + preview 40 char, atau `Template: nama_template`.
+Artinya cabang `action_type === "text"` di `kirimchat-webhook/index.ts` tidak tereksekusi pada versi yang sedang berjalan, meski kode sumber sudah punya branching tersebut. Kemungkinan terbesar: edge function belum re-deploy setelah edit terakhir, atau ada bug pada pembacaan field.
 
-### 3. Edge function `kirimchat-webhook/index.ts`
-- Saat rule cocok, baca `matched.action_type`.
-- Tambah fungsi `sendText(phone, content)` yang POST body:
-  ```json
-  { "phone_number": "...", "channel": "whatsapp", "message_type": "text", "content": "..." }
-  ```
-  Return shape sama dgn `sendTemplate` (`ok, status, body, request, durationMs`) supaya logging dispatch tidak berubah.
-- Untuk `action_type = 'text'`: resolve placeholder `text_content` dengan `substitutePlaceholders(..., ctx)` lalu panggil `sendText`.
-- Untuk `action_type = 'template'`: jalur lama tidak berubah.
-- Dialog "Lihat Log" tetap menampilkan `dispatch_request`/`dispatch_response` (otomatis berisi payload teks).
+## Rencana Perbaikan
 
-### 4. Verifikasi
-- Buat rule baru `Tipe Aksi = Teks`, isi `"Halo {{customer_name}}, pesan kamu diterima."`, trigger event `message.received` keyword `tes`.
-- Kirim "tes" via WA → Lihat Log: kolom API `200`, expand → `dispatch_request` menunjukkan `message_type: "text"` + content ter-resolve.
-- Rule template lama tetap berjalan tanpa perubahan.
+### 1. Pastikan edge function ter-deploy ulang
+Trigger redeploy `kirimchat-webhook` dengan menyentuh file (tambah komentar versi `// v2 text-action`) supaya runtime memuat ulang kode yang sudah berisi cabang `sendText`.
+
+### 2. Hardening cabang text di webhook
+Di `supabase/functions/kirimchat-webhook/index.ts`:
+- Tambah log eksplisit di awal evaluasi: `console.log("Matched rule", matched.id, "action_type=", matched.action_type)` agar mudah diverifikasi dari log.
+- Normalisasi: `const actionType = String(matched.action_type ?? "template").toLowerCase();` agar aman jika kolom dikembalikan sebagai non-string.
+- Guard tambahan: jika `actionType === "template"` tapi `!matched.template_name`, hentikan dengan `rule_action = "skipped_invalid_config"` + `error_message` jelas (mencegah request `template.name: null` ke KirimChat di masa depan).
+
+### 3. Verifikasi
+1. Buka log `kirimchat-webhook` setelah redeploy → kirim "tanya admin" via WA.
+2. Expect log: `Matched rule ... action_type= text` dan `Rule text sent to 62...`.
+3. Cek tabel `kirimchat_webhook_events`:
+   - `dispatch_request.message_type = "text"`
+   - `dispatch_request.content = "Halo kak, ada yang bisa Damar bantu?"`
+   - `dispatch_status_code = 200`, `rule_action = "sent"`.
+4. Rule template lama ("Testing", "Follow Up Quick Order") harus tetap jalan normal saat keyword cocok.
+
+## File yang diubah
+- `supabase/functions/kirimchat-webhook/index.ts` (log + normalisasi actionType + guard template kosong)
+
+Tidak ada perubahan UI dan tidak ada migration baru.
