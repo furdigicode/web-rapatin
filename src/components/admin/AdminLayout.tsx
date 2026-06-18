@@ -13,7 +13,9 @@ import {
   Vote,
   MessageSquare,
   ShoppingCart,
-  Webhook
+  Webhook,
+  MessageCircle,
+  Zap
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
