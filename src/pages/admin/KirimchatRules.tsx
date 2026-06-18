@@ -441,11 +441,21 @@ const KirimchatRules: React.FC = () => {
                       {r.keyword ? <code className="text-xs">{r.keyword}</code> : <span className="text-muted-foreground">—</span>}
                     </TableCell>
                     <TableCell>{r.delay_seconds}s</TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-1.5">
-                        <code className="text-xs">{r.template_name}</code>
-                        {varCount > 0 && <Badge variant="secondary" className="text-[10px]">{varCount} var</Badge>}
-                      </div>
+                    <TableCell className="max-w-[260px]">
+                      {r.action_type === "text" ? (
+                        <div className="flex items-center gap-1.5">
+                          <Badge variant="secondary" className="text-[10px]">Teks</Badge>
+                          <span className="text-xs text-muted-foreground truncate">
+                            {(r.text_content ?? "").slice(0, 40)}{(r.text_content ?? "").length > 40 ? "…" : ""}
+                          </span>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-1.5">
+                          <Badge variant="outline" className="text-[10px]">Template</Badge>
+                          <code className="text-xs">{r.template_name}</code>
+                          {varCount > 0 && <Badge variant="secondary" className="text-[10px]">{varCount} var</Badge>}
+                        </div>
+                      )}
                     </TableCell>
                     <TableCell>{r.priority}</TableCell>
                     <TableCell>
