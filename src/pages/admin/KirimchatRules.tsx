@@ -63,11 +63,11 @@ interface Rule {
 
 const EVENT_TYPES = [
   { value: "*", label: "Semua Event" },
-  { value: "message_received", label: "Pesan Masuk" },
-  { value: "message_sent", label: "Pesan Terkirim" },
-  { value: "message_delivered", label: "Pesan Diterima" },
-  { value: "message_read", label: "Pesan Dibaca" },
-  { value: "message_failed", label: "Pesan Gagal" },
+  { value: "message.received", label: "Pesan Masuk" },
+  { value: "message.sent", label: "Pesan Terkirim" },
+  { value: "message.delivered", label: "Pesan Diterima" },
+  { value: "message.read", label: "Pesan Dibaca" },
+  { value: "message.failed", label: "Pesan Gagal" },
 ];
 
 const MATCH_MODES = [
@@ -105,7 +105,7 @@ type RuleForm = z.infer<typeof ruleSchema>;
 const emptyForm: RuleForm = {
   name: "",
   is_active: true,
-  event_type: "message_received",
+  event_type: "message.received",
   match_mode: "contains",
   keyword: "",
   case_sensitive: false,
