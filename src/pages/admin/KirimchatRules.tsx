@@ -408,7 +408,7 @@ const KirimchatRules: React.FC = () => {
               <TableHead>Match</TableHead>
               <TableHead>Keyword</TableHead>
               <TableHead>Delay</TableHead>
-              <TableHead>Template</TableHead>
+              <TableHead>Aksi Kirim</TableHead>
               <TableHead>Prioritas</TableHead>
               <TableHead>Aktif</TableHead>
               <TableHead className="text-right">Aksi</TableHead>
