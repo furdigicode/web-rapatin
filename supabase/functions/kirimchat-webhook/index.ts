@@ -290,11 +290,23 @@ serve(async (req) => {
           return;
         }
 
+        const ctx: Record<string, string> = {
+          customer_name: pick(body, ["data.customer_name", "data.contacts.0.profile.name"]) ?? "",
+          customer_phone: phone_number ?? "",
+          customer_id: pick(body, ["data.customer_id"]) ?? "",
+          channel: channel ?? "",
+          message_text: message_text ?? "",
+          event_type: event_type ?? "",
+        };
+        const rawVars: string[] = Array.isArray(matched.body_variables) ? matched.body_variables : [];
+        const resolvedVars = rawVars.map((v) => substitutePlaceholders(v, ctx));
+
         const result = await sendTemplate(
           normalizePhone(phone_number),
           matched.template_name,
           matched.template_language || "id",
           matched.header_image_url || null,
+          resolvedVars,
         );
 
 
@@ -364,6 +376,7 @@ async function sendTemplate(
   templateName: string,
   language: string,
   headerImageUrl: string | null,
+  bodyVariables: string[],
 ): Promise<{ ok: boolean; status: number; body: string }> {
   const apiKey = Deno.env.get("KIRIMCHAT_API_KEY");
   if (!apiKey) {
@@ -375,6 +388,12 @@ async function sendTemplate(
     components.push({
       type: "header",
       parameters: [{ type: "image", image: { link: headerImageUrl } }],
+    });
+  }
+  if (bodyVariables && bodyVariables.length > 0) {
+    components.push({
+      type: "body",
+      parameters: bodyVariables.map((text) => ({ type: "text", text: text && text.length > 0 ? text : " " })),
     });
   }
   try {
@@ -393,7 +412,7 @@ async function sendTemplate(
           template: {
             name: templateName,
             language: { code: language },
-            components,
+            ...(components.length ? { components } : {}),
           },
         }),
       },
@@ -402,7 +421,7 @@ async function sendTemplate(
     if (!res.ok) {
       console.error("Rule send failed:", res.status, body);
     } else {
-      console.log("Rule template sent:", templateName, "to", phone);
+      console.log("Rule template sent:", templateName, "to", phone, "vars=", bodyVariables.length);
     }
     return { ok: res.ok, status: res.status, body };
   } catch (e) {
@@ -410,4 +429,15 @@ async function sendTemplate(
     return { ok: false, status: 0, body: (e as Error).message };
   }
 }
+
+function substitutePlaceholders(template: string, ctx: Record<string, string>): string {
+  if (!template) return "";
+  return template.replace(/\{\{\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*\}\}/g, (match, key) => {
+    if (Object.prototype.hasOwnProperty.call(ctx, key)) {
+      return ctx[key] ?? "";
+    }
+    return match;
+  });
+}
+
 

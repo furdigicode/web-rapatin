@@ -64,7 +64,7 @@ const AppSidebar = () => {
   const isVotingActive = location.pathname === '/admin/voting' || location.pathname === '/admin/voting-categories';
   const isVotingGroupOpen = isVotingActive;
 
-  const isKirimchatActive = location.pathname === '/admin/kirimchat-webhooks' || location.pathname === '/admin/kirimchat-rules';
+  const isKirimchatActive = location.pathname === '/admin/kirimchat-webhooks' || location.pathname === '/admin/kirimchat-rules' || location.pathname === '/admin/kirimchat-templates';
 
   return (
     <Sidebar>
@@ -246,6 +246,17 @@ const AppSidebar = () => {
                       <Link to="/admin/kirimchat-rules">
                         <Zap />
                         <span>Rules</span>
+                      </Link>
+                    </SidebarMenuSubButton>
+                  </SidebarMenuSubItem>
+                  <SidebarMenuSubItem>
+                    <SidebarMenuSubButton
+                      asChild
+                      isActive={location.pathname === '/admin/kirimchat-templates'}
+                    >
+                      <Link to="/admin/kirimchat-templates">
+                        <FileText />
+                        <span>Templates</span>
                       </Link>
                     </SidebarMenuSubButton>
                   </SidebarMenuSubItem>
