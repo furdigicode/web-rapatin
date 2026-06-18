@@ -292,18 +292,32 @@ const KirimchatRules: React.FC = () => {
       toast({ title: "Form tidak valid", description: first.message, variant: "destructive" });
       return;
     }
-    const variableCount = selectedTemplate?.variable_count ?? 0;
-    if (variableCount > 0) {
-      const vars = parsed.data.body_variables;
-      if (vars.length < variableCount || vars.slice(0, variableCount).some((v) => !v.trim())) {
-        toast({
-          title: "Variabel belum lengkap",
-          description: `Template ini butuh ${variableCount} variabel.`,
-          variant: "destructive",
-        });
+    const isText = parsed.data.action_type === "text";
+    const variableCount = isText ? 0 : (selectedTemplate?.variable_count ?? 0);
+
+    if (isText) {
+      if (!parsed.data.text_content?.trim()) {
+        toast({ title: "Isi pesan wajib", description: "Tulis isi pesan teks.", variant: "destructive" });
         return;
       }
+    } else {
+      if (!parsed.data.template_name?.trim()) {
+        toast({ title: "Pilih template", description: "Template wajib dipilih.", variant: "destructive" });
+        return;
+      }
+      if (variableCount > 0) {
+        const vars = parsed.data.body_variables;
+        if (vars.length < variableCount || vars.slice(0, variableCount).some((v) => !v.trim())) {
+          toast({
+            title: "Variabel belum lengkap",
+            description: `Template ini butuh ${variableCount} variabel.`,
+            variant: "destructive",
+          });
+          return;
+        }
+      }
     }
+
     const payload = {
       name: parsed.data.name,
       is_active: parsed.data.is_active,
@@ -311,10 +325,12 @@ const KirimchatRules: React.FC = () => {
       match_mode: parsed.data.match_mode,
       case_sensitive: parsed.data.case_sensitive,
       delay_seconds: parsed.data.delay_seconds,
-      template_name: parsed.data.template_name,
+      action_type: parsed.data.action_type,
+      text_content: isText ? (parsed.data.text_content?.trim() || null) : null,
+      template_name: isText ? null : (parsed.data.template_name?.trim() || null),
       template_language: parsed.data.template_language,
-      header_image_url: parsed.data.header_image_url?.trim() ? parsed.data.header_image_url.trim() : null,
-      body_variables: parsed.data.body_variables.slice(0, variableCount),
+      header_image_url: !isText && parsed.data.header_image_url?.trim() ? parsed.data.header_image_url.trim() : null,
+      body_variables: isText ? [] : parsed.data.body_variables.slice(0, variableCount),
       priority: parsed.data.priority,
       keyword: parsed.data.match_mode === "any" ? null : (parsed.data.keyword?.trim() || null),
     };
