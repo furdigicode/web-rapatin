@@ -437,6 +437,7 @@ export type Database = {
           created_at: string
           delay_seconds: number
           event_type: string
+          header_image_url: string | null
           id: string
           is_active: boolean
           keyword: string | null
@@ -452,6 +453,7 @@ export type Database = {
           created_at?: string
           delay_seconds?: number
           event_type?: string
+          header_image_url?: string | null
           id?: string
           is_active?: boolean
           keyword?: string | null
@@ -467,6 +469,7 @@ export type Database = {
           created_at?: string
           delay_seconds?: number
           event_type?: string
+          header_image_url?: string | null
           id?: string
           is_active?: boolean
           keyword?: string | null

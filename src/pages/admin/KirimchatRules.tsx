@@ -54,9 +54,11 @@ interface Rule {
   delay_seconds: number;
   template_name: string;
   template_language: string;
+  header_image_url: string | null;
   priority: number;
   created_at: string;
   updated_at: string;
+
 }
 
 const EVENT_TYPES = [
@@ -87,7 +89,15 @@ const ruleSchema = z.object({
   delay_seconds: z.number().int().min(0).max(300),
   template_name: z.string().trim().min(1, "Nama template wajib").max(100),
   template_language: z.string().trim().min(1).max(10),
+  header_image_url: z
+    .string()
+    .trim()
+    .max(2000)
+    .url("URL gambar tidak valid")
+    .optional()
+    .or(z.literal("")),
   priority: z.number().int().min(0).max(1000),
+
 });
 
 type RuleForm = z.infer<typeof ruleSchema>;
@@ -102,7 +112,9 @@ const emptyForm: RuleForm = {
   delay_seconds: 0,
   template_name: "",
   template_language: "id",
+  header_image_url: "",
   priority: 0,
+
 };
 
 const KirimchatRules: React.FC = () => {
@@ -152,7 +164,9 @@ const KirimchatRules: React.FC = () => {
       delay_seconds: r.delay_seconds,
       template_name: r.template_name,
       template_language: r.template_language,
+      header_image_url: r.header_image_url ?? "",
       priority: r.priority,
+
     });
     setDialogOpen(true);
   };
@@ -173,9 +187,11 @@ const KirimchatRules: React.FC = () => {
       delay_seconds: parsed.data.delay_seconds,
       template_name: parsed.data.template_name,
       template_language: parsed.data.template_language,
+      header_image_url: parsed.data.header_image_url?.trim() ? parsed.data.header_image_url.trim() : null,
       priority: parsed.data.priority,
       keyword: parsed.data.match_mode === "any" ? null : (parsed.data.keyword?.trim() || null),
     };
+
     if (payload.match_mode !== "any" && !payload.keyword) {
       toast({ title: "Keyword wajib", description: "Isi keyword atau pilih mode Any.", variant: "destructive" });
       return;
@@ -408,7 +424,20 @@ const KirimchatRules: React.FC = () => {
                 placeholder="id"
               />
             </div>
+
+            <div className="md:col-span-2 space-y-2">
+              <Label>URL Gambar Header (opsional)</Label>
+              <Input
+                value={form.header_image_url ?? ""}
+                onChange={(e) => setForm({ ...form, header_image_url: e.target.value })}
+                placeholder="https://example.com/promo-banner.jpg"
+              />
+              <p className="text-xs text-muted-foreground">
+                Isi hanya jika template KirimChat memiliki header berupa gambar.
+              </p>
+            </div>
           </div>
+
 
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)} disabled={saving}>

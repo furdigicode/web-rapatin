@@ -290,7 +290,9 @@ serve(async (req) => {
           normalizePhone(phone_number),
           matched.template_name,
           matched.template_language || "id",
+          matched.header_image_url || null,
         );
+
 
         await supabase
           .from("kirimchat_webhook_events")
@@ -357,11 +359,19 @@ async function sendTemplate(
   phone: string,
   templateName: string,
   language: string,
+  headerImageUrl: string | null,
 ): Promise<{ ok: boolean; status: number; body: string }> {
   const apiKey = Deno.env.get("KIRIMCHAT_API_KEY");
   if (!apiKey) {
     console.error("KIRIMCHAT_API_KEY missing; cannot send template");
     return { ok: false, status: 0, body: "missing_api_key" };
+  }
+  const components: any[] = [];
+  if (headerImageUrl) {
+    components.push({
+      type: "header",
+      parameters: [{ type: "image", image: { link: headerImageUrl } }],
+    });
   }
   try {
     const res = await fetch(
@@ -379,7 +389,7 @@ async function sendTemplate(
           template: {
             name: templateName,
             language: { code: language },
-            components: [],
+            components,
           },
         }),
       },
@@ -396,3 +406,4 @@ async function sendTemplate(
     return { ok: false, status: 0, body: (e as Error).message };
   }
 }
+
