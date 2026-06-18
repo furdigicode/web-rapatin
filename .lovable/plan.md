@@ -1,23 +1,36 @@
-## Tujuan
-Tambahkan verifikasi signature HMAC-SHA256 pada edge function `kirimchat-webhook` menggunakan secret yang baru saja dibuat di KirimChat.
+## Perbaikan Kolom Phone & Status di Riwayat Webhook KirimChat
 
-## Langkah
+### Masalah saat ini
+- **Phone** kosong karena payload KirimChat memakai key `customer_phone` (atau variannya) yang belum dipetakan.
+- **Status** saat ini mengambil `status` dari payload KirimChat (status pengiriman pesan), padahal yang dimaksud adalah status penerimaan webhook di backend kita (berhasil disimpan / gagal).
 
-1. **Simpan secret** sebagai `KIRIMCHAT_WEBHOOK_SECRET` lewat tool `secrets--add_secret` (user akan paste nilainya di form aman — jangan paste di chat).
+### Perubahan
 
-2. **Update `supabase/functions/kirimchat-webhook/index.ts`**:
-   - Baca raw body sebagai text dulu (bukan `req.json()` langsung) supaya bisa dihitung HMAC-nya.
-   - Hitung HMAC-SHA256 dari raw body pakai `KIRIMCHAT_WEBHOOK_SECRET` (Web Crypto API).
-   - Bandingkan dengan header signature dari KirimChat (kemungkinan `X-Webhook-Signature` / `X-KirimChat-Signature` — function akan memeriksa beberapa nama header umum dan menerima format `sha256=...` maupun hex polos).
-   - Constant-time compare; reject 401 jika tidak cocok.
-   - Jika `KIRIMCHAT_WEBHOOK_SECRET` tidak diset, function tetap menerima request (mode kompatibel) dan mencatat warning di log — supaya tidak putus saat rotasi.
-   - Setelah valid, parse JSON dan lanjutkan logika insert seperti sekarang.
+**1. Edge function `supabase/functions/kirimchat-webhook/index.ts`**
+- Tambah path baru pada ekstraksi `phone_number`:
+  - `customer_phone`, `customer.phone`, `data.customer_phone`, `data.customer.phone`, `payload.customer_phone`
+  - (path lama tetap dipertahankan sebagai fallback)
+- Hentikan pengisian kolom `status` dari payload KirimChat. Sebagai gantinya, set `status` berdasarkan hasil pemrosesan webhook di backend kita:
+  - `received` → payload berhasil di-parse & disimpan
+  - `invalid_signature` → 401 (tidak akan tersimpan, tetap dilog)
+  - `invalid_json` → 400 (tidak tersimpan)
+  - `insert_failed` → gagal simpan ke DB
+  
+  Karena baris hanya tercipta saat insert sukses, nilai status pada baris yang tersimpan praktis selalu `received`. Untuk tetap menyimpan jejak kegagalan, function akan tetap mencoba menyimpan baris dengan status `invalid_json` ketika body bukan JSON valid (payload disimpan sebagai `{ "_raw": "..." }`), sehingga admin tetap bisa melihatnya di dasbor.
+- Status asli dari KirimChat (mis. `delivered`, `read`) tetap tersedia di kolom `payload` (raw) dan tercermin di `event_type` (mis. `message_delivered`).
 
-3. **Tidak ada perubahan database / UI.** URL endpoint sama.
+**2. Halaman admin `src/pages/admin/KirimchatWebhooks.tsx`**
+- Ubah label kolom **Status** menjadi **Penerimaan** agar tidak rancu dengan status pesan KirimChat.
+- Render badge:
+  - `received` → hijau/default
+  - `invalid_json` / `insert_failed` → destructive
+- Detail dialog: tampilkan "Status Penerimaan" alih-alih "Status".
 
-## Catatan
-- Nama header signature KirimChat tidak terdokumentasi di project ini, jadi function akan cek daftar header umum (`x-webhook-signature`, `x-kirimchat-signature`, `x-signature`). Setelah test pertama dari KirimChat, log akan menunjukkan header mana yang dipakai dan kita bisa pertajam.
+### Tidak diubah
+- Skema tabel `kirimchat_webhook_events` (kolom `status` tetap dipakai, hanya makna isinya berubah).
+- Verifikasi HMAC, filter, pagination, dan UI lainnya.
 
-## Verifikasi
-- Test via `supabase--curl_edge_functions` tanpa signature → 401.
-- Test dengan signature valid yang dihitung dari secret → 200, baris masuk ke tabel.
+### Verifikasi
+- Kirim webhook test dengan `customer_phone` → kolom Phone terisi.
+- Baris baru menampilkan badge `received`.
+- Kirim body JSON tidak valid → muncul baris `invalid_json`.

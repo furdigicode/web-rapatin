@@ -154,6 +154,12 @@ serve(async (req) => {
     "data.message.id",
   ]);
   const phone_number = pick(body, [
+    "customer_phone",
+    "customer.phone",
+    "customer.phone_number",
+    "data.customer_phone",
+    "data.customer.phone",
+    "payload.customer_phone",
     "phone_number",
     "phone",
     "from",
@@ -173,7 +179,8 @@ serve(async (req) => {
     "data.template.name",
     "message.template.name",
   ]);
-  const status = pick(body, ["status", "data.status", "message.status"]);
+  // Status mencerminkan hasil penerimaan webhook di backend kita, bukan status pesan KirimChat
+  const status = "received";
   const error_message = pick(body, [
     "error_message",
     "error.message",
