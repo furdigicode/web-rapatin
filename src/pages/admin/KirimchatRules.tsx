@@ -660,17 +660,18 @@ const KirimchatRules: React.FC = () => {
                   <TableHead>Event</TableHead>
                   <TableHead>Phone</TableHead>
                   <TableHead>Status</TableHead>
+                  <TableHead>API</TableHead>
                   <TableHead>Error</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {logsLoading ? (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center text-muted-foreground py-6">Memuat…</TableCell>
+                    <TableCell colSpan={7} className="text-center text-muted-foreground py-6">Memuat…</TableCell>
                   </TableRow>
                 ) : logs.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center text-muted-foreground py-6">
+                    <TableCell colSpan={7} className="text-center text-muted-foreground py-6">
                       Belum ada log untuk rule ini.
                     </TableCell>
                   </TableRow>
@@ -680,6 +681,9 @@ const KirimchatRules: React.FC = () => {
                     const action = log.rule_action ?? "—";
                     const badgeVariant: "default" | "secondary" | "destructive" | "outline" =
                       action === "sent" ? "default" : action === "failed" ? "destructive" : "secondary";
+                    const sc = log.dispatch_status_code;
+                    const apiBadgeVariant: "default" | "secondary" | "destructive" =
+                      sc == null ? "secondary" : sc >= 200 && sc < 300 ? "default" : "destructive";
                     return (
                       <React.Fragment key={log.id}>
                         <TableRow
@@ -695,16 +699,49 @@ const KirimchatRules: React.FC = () => {
                           <TableCell><Badge variant="outline" className="text-xs">{log.event_type}</Badge></TableCell>
                           <TableCell className="text-xs">{log.phone_number ?? "—"}</TableCell>
                           <TableCell><Badge variant={badgeVariant} className="text-xs">{action}</Badge></TableCell>
+                          <TableCell className="text-xs whitespace-nowrap">
+                            {sc != null ? (
+                              <span className="inline-flex items-center gap-1">
+                                <Badge variant={apiBadgeVariant} className="text-xs">{sc}</Badge>
+                                {log.dispatch_duration_ms != null && (
+                                  <span className="text-muted-foreground">({log.dispatch_duration_ms}ms)</span>
+                                )}
+                              </span>
+                            ) : (
+                              <span className="text-muted-foreground">—</span>
+                            )}
+                          </TableCell>
                           <TableCell className="max-w-[200px] truncate text-xs text-muted-foreground">
                             {log.error_message ?? "—"}
                           </TableCell>
                         </TableRow>
                         {expanded && (
                           <TableRow>
-                            <TableCell colSpan={6} className="bg-muted/30 p-0">
-                              <pre className="text-[11px] p-3 overflow-x-auto max-h-[400px]">
+                            <TableCell colSpan={7} className="bg-muted/30 p-3 space-y-3">
+                              <div>
+                                <div className="text-xs font-semibold mb-1">Payload Webhook</div>
+                                <pre className="text-[11px] p-2 rounded bg-background border overflow-x-auto max-h-[300px]">
 {JSON.stringify(log.payload, null, 2)}
-                              </pre>
+                                </pre>
+                              </div>
+                              {log.dispatch_request && (
+                                <div>
+                                  <div className="text-xs font-semibold mb-1">Request ke KirimChat</div>
+                                  <pre className="text-[11px] p-2 rounded bg-background border overflow-x-auto max-h-[300px]">
+{JSON.stringify(log.dispatch_request, null, 2)}
+                                  </pre>
+                                </div>
+                              )}
+                              {log.dispatch_response && (
+                                <div>
+                                  <div className="text-xs font-semibold mb-1">
+                                    Response KirimChat {log.dispatch_status_code != null && `(HTTP ${log.dispatch_status_code})`}
+                                  </div>
+                                  <pre className="text-[11px] p-2 rounded bg-background border overflow-x-auto max-h-[300px]">
+{JSON.stringify(log.dispatch_response, null, 2)}
+                                  </pre>
+                                </div>
+                              )}
                             </TableCell>
                           </TableRow>
                         )}
@@ -715,6 +752,7 @@ const KirimchatRules: React.FC = () => {
               </TableBody>
             </Table>
           </div>
+
 
           <DialogFooter>
             <Button variant="outline" onClick={() => setLogRule(null)}>Tutup</Button>
