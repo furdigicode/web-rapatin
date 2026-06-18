@@ -379,7 +379,8 @@ const KirimchatRules: React.FC = () => {
 
   const eventLabel = (v: string) => EVENT_TYPES.find((e) => e.value === v)?.label ?? v;
   const matchLabel = (v: string) => MATCH_MODES.find((m) => m.value === v)?.label ?? v;
-  const variableCount = selectedTemplate?.variable_count ?? 0;
+  const isTextAction = form.action_type === "text";
+  const variableCount = isTextAction ? 0 : (selectedTemplate?.variable_count ?? 0);
 
   return (
     <AdminLayout title="KirimChat Rules">
