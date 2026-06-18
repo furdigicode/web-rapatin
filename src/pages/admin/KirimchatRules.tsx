@@ -112,7 +112,9 @@ const emptyForm: RuleForm = {
   delay_seconds: 0,
   template_name: "",
   template_language: "id",
+  header_image_url: "",
   priority: 0,
+
 };
 
 const KirimchatRules: React.FC = () => {
