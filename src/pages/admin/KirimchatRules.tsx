@@ -226,12 +226,11 @@ const KirimchatRules: React.FC = () => {
       <AdminPageHeader
         title="KirimChat Rules"
         description="Otomatisasi pengiriman pesan template berdasarkan event webhook dan keyword."
-        actions={
-          <Button onClick={openCreate}>
-            <Plus className="mr-2 h-4 w-4" /> Tambah Rule
-          </Button>
-        }
-      />
+      >
+        <Button onClick={openCreate}>
+          <Plus className="mr-2 h-4 w-4" /> Tambah Rule
+        </Button>
+      </AdminPageHeader>
 
       <div className="rounded-md border bg-card">
         <Table>
