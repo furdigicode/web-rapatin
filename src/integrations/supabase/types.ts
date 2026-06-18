@@ -433,6 +433,7 @@ export type Database = {
       }
       kirimchat_rules: {
         Row: {
+          body_variables: Json
           case_sensitive: boolean
           created_at: string
           delay_seconds: number
@@ -449,6 +450,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          body_variables?: Json
           case_sensitive?: boolean
           created_at?: string
           delay_seconds?: number
@@ -465,6 +467,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          body_variables?: Json
           case_sensitive?: boolean
           created_at?: string
           delay_seconds?: number
@@ -479,6 +482,69 @@ export type Database = {
           template_language?: string
           template_name?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      kirimchat_templates: {
+        Row: {
+          body_content: string | null
+          buttons: Json
+          category: string | null
+          created_at: string
+          external_id: string
+          footer_content: string | null
+          has_variables: boolean
+          header_content: string | null
+          header_type: string | null
+          id: string
+          language: string
+          raw: Json | null
+          status: string | null
+          synced_at: string
+          template_name: string
+          updated_at: string
+          variable_count: number
+          variables: Json
+        }
+        Insert: {
+          body_content?: string | null
+          buttons?: Json
+          category?: string | null
+          created_at?: string
+          external_id: string
+          footer_content?: string | null
+          has_variables?: boolean
+          header_content?: string | null
+          header_type?: string | null
+          id?: string
+          language?: string
+          raw?: Json | null
+          status?: string | null
+          synced_at?: string
+          template_name: string
+          updated_at?: string
+          variable_count?: number
+          variables?: Json
+        }
+        Update: {
+          body_content?: string | null
+          buttons?: Json
+          category?: string | null
+          created_at?: string
+          external_id?: string
+          footer_content?: string | null
+          has_variables?: boolean
+          header_content?: string | null
+          header_type?: string | null
+          id?: string
+          language?: string
+          raw?: Json | null
+          status?: string | null
+          synced_at?: string
+          template_name?: string
+          updated_at?: string
+          variable_count?: number
+          variables?: Json
         }
         Relationships: []
       }
