@@ -424,7 +424,20 @@ const KirimchatRules: React.FC = () => {
                 placeholder="id"
               />
             </div>
+
+            <div className="md:col-span-2 space-y-2">
+              <Label>URL Gambar Header (opsional)</Label>
+              <Input
+                value={form.header_image_url ?? ""}
+                onChange={(e) => setForm({ ...form, header_image_url: e.target.value })}
+                placeholder="https://example.com/promo-banner.jpg"
+              />
+              <p className="text-xs text-muted-foreground">
+                Isi hanya jika template KirimChat memiliki header berupa gambar.
+              </p>
+            </div>
           </div>
+
 
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)} disabled={saving}>
