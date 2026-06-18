@@ -551,6 +551,11 @@ export type Database = {
       kirimchat_webhook_events: {
         Row: {
           channel: string | null
+          dispatch_duration_ms: number | null
+          dispatch_request: Json | null
+          dispatch_response: Json | null
+          dispatch_status_code: number | null
+          dispatched_at: string | null
           error_message: string | null
           event_type: string
           id: string
@@ -565,6 +570,11 @@ export type Database = {
         }
         Insert: {
           channel?: string | null
+          dispatch_duration_ms?: number | null
+          dispatch_request?: Json | null
+          dispatch_response?: Json | null
+          dispatch_status_code?: number | null
+          dispatched_at?: string | null
           error_message?: string | null
           event_type?: string
           id?: string
@@ -579,6 +589,11 @@ export type Database = {
         }
         Update: {
           channel?: string | null
+          dispatch_duration_ms?: number | null
+          dispatch_request?: Json | null
+          dispatch_response?: Json | null
+          dispatch_status_code?: number | null
+          dispatched_at?: string | null
           error_message?: string | null
           event_type?: string
           id?: string
