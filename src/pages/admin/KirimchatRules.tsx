@@ -127,7 +127,9 @@ const ruleSchema = z.object({
   keyword: z.string().max(500).optional().nullable(),
   case_sensitive: z.boolean(),
   delay_seconds: z.number().int().min(0).max(300),
-  template_name: z.string().trim().min(1, "Pilih template").max(100),
+  action_type: z.enum(["template", "text"]),
+  text_content: z.string().max(4096).optional().nullable(),
+  template_name: z.string().trim().max(100).optional().nullable(),
   template_language: z.string().trim().min(1).max(10),
   header_image_url: z
     .string()
@@ -150,6 +152,8 @@ const emptyForm: RuleForm = {
   keyword: "",
   case_sensitive: false,
   delay_seconds: 0,
+  action_type: "template",
+  text_content: "",
   template_name: "",
   template_language: "id",
   header_image_url: "",
