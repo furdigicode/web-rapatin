@@ -175,7 +175,7 @@ const KirimchatRules: React.FC = () => {
     setLogsLoading(true);
     const { data, error } = await supabase
       .from("kirimchat_webhook_events")
-      .select("id, event_type, phone_number, template_name, status, error_message, rule_action, payload, received_at")
+      .select("id, event_type, phone_number, template_name, status, error_message, rule_action, payload, received_at, dispatch_request, dispatch_response, dispatch_status_code, dispatch_duration_ms, dispatched_at")
       .eq("matched_rule_id", ruleId)
       .order("received_at", { ascending: false })
       .limit(50);
