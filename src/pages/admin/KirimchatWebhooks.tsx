@@ -224,7 +224,21 @@ const KirimchatWebhooks: React.FC = () => {
                   <TableCell className="text-xs font-mono max-w-[180px] truncate">
                     {ev.message_id || "-"}
                   </TableCell>
-                  <TableCell className="text-xs">{ev.status || "-"}</TableCell>
+                  <TableCell className="text-xs">
+                    {ev.status ? (
+                      <Badge
+                        variant={
+                          ev.status === "received"
+                            ? "default"
+                            : "destructive"
+                        }
+                      >
+                        {ev.status}
+                      </Badge>
+                    ) : (
+                      "-"
+                    )}
+                  </TableCell>
                   <TableCell>
                     <Button
                       variant="ghost"
