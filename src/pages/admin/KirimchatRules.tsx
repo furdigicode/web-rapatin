@@ -165,7 +165,15 @@ const KirimchatRules: React.FC = () => {
       return;
     }
     const payload = {
-      ...parsed.data,
+      name: parsed.data.name,
+      is_active: parsed.data.is_active,
+      event_type: parsed.data.event_type,
+      match_mode: parsed.data.match_mode,
+      case_sensitive: parsed.data.case_sensitive,
+      delay_seconds: parsed.data.delay_seconds,
+      template_name: parsed.data.template_name,
+      template_language: parsed.data.template_language,
+      priority: parsed.data.priority,
       keyword: parsed.data.match_mode === "any" ? null : (parsed.data.keyword?.trim() || null),
     };
     if (payload.match_mode !== "any" && !payload.keyword) {
@@ -175,7 +183,7 @@ const KirimchatRules: React.FC = () => {
     setSaving(true);
     const { error } = editing
       ? await supabase.from("kirimchat_rules").update(payload).eq("id", editing.id)
-      : await supabase.from("kirimchat_rules").insert([payload]);
+      : await supabase.from("kirimchat_rules").insert(payload);
     setSaving(false);
     if (error) {
       toast({ title: "Gagal menyimpan", description: error.message, variant: "destructive" });
