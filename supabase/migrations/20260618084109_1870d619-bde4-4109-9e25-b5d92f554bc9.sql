@@ -1,0 +1,1 @@
+ALTER TABLE public.kirimchat_rules ADD COLUMN IF NOT EXISTS header_image_url text;
