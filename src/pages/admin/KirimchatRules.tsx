@@ -175,7 +175,7 @@ const KirimchatRules: React.FC = () => {
     setSaving(true);
     const { error } = editing
       ? await supabase.from("kirimchat_rules").update(payload).eq("id", editing.id)
-      : await supabase.from("kirimchat_rules").insert(payload);
+      : await supabase.from("kirimchat_rules").insert([payload]);
     setSaving(false);
     if (error) {
       toast({ title: "Gagal menyimpan", description: error.message, variant: "destructive" });
