@@ -191,7 +191,7 @@ const KirimchatWebhooks: React.FC = () => {
               <TableHead>Channel</TableHead>
               <TableHead>Phone</TableHead>
               <TableHead>Message ID</TableHead>
-              <TableHead>Status</TableHead>
+              <TableHead>Penerimaan</TableHead>
               <TableHead className="w-20"></TableHead>
             </TableRow>
           </TableHeader>
