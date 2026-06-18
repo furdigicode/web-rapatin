@@ -290,11 +290,23 @@ serve(async (req) => {
           return;
         }
 
+        const ctx: Record<string, string> = {
+          customer_name: pick(body, ["data.customer_name", "data.contacts.0.profile.name"]) ?? "",
+          customer_phone: phone_number ?? "",
+          customer_id: pick(body, ["data.customer_id"]) ?? "",
+          channel: channel ?? "",
+          message_text: message_text ?? "",
+          event_type: event_type ?? "",
+        };
+        const rawVars: string[] = Array.isArray(matched.body_variables) ? matched.body_variables : [];
+        const resolvedVars = rawVars.map((v) => substitutePlaceholders(v, ctx));
+
         const result = await sendTemplate(
           normalizePhone(phone_number),
           matched.template_name,
           matched.template_language || "id",
           matched.header_image_url || null,
+          resolvedVars,
         );
 
 
