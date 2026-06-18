@@ -431,6 +431,45 @@ export type Database = {
         }
         Relationships: []
       }
+      kirimchat_webhook_events: {
+        Row: {
+          channel: string | null
+          error_message: string | null
+          event_type: string
+          id: string
+          message_id: string | null
+          payload: Json
+          phone_number: string | null
+          received_at: string
+          status: string | null
+          template_name: string | null
+        }
+        Insert: {
+          channel?: string | null
+          error_message?: string | null
+          event_type?: string
+          id?: string
+          message_id?: string | null
+          payload: Json
+          phone_number?: string | null
+          received_at?: string
+          status?: string | null
+          template_name?: string | null
+        }
+        Update: {
+          channel?: string | null
+          error_message?: string | null
+          event_type?: string
+          id?: string
+          message_id?: string | null
+          payload?: Json
+          phone_number?: string | null
+          received_at?: string
+          status?: string | null
+          template_name?: string | null
+        }
+        Relationships: []
+      }
       kledo_auth_tokens: {
         Row: {
           access_token: string
