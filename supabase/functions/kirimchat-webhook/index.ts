@@ -4,9 +4,17 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
+    "authorization, x-client-info, apikey, content-type, x-webhook-signature, x-kirimchat-signature, x-signature",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
+
+const SIGNATURE_HEADERS = [
+  "x-webhook-signature",
+  "x-kirimchat-signature",
+  "x-kirim-chat-signature",
+  "x-signature",
+  "x-hub-signature-256",
+];
 
 function pick(obj: any, paths: string[]): string | null {
   for (const p of paths) {
@@ -33,6 +41,48 @@ function normalizeEventType(raw: string | null): string {
   return raw.toLowerCase().replace(/[\s-]+/g, "_");
 }
 
+function toHex(buf: ArrayBuffer): string {
+  return Array.from(new Uint8Array(buf))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+function constantTimeEqual(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) {
+    diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  }
+  return diff === 0;
+}
+
+async function computeHmacHex(secret: string, body: string): Promise<string> {
+  const key = await crypto.subtle.importKey(
+    "raw",
+    new TextEncoder().encode(secret),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"],
+  );
+  const sig = await crypto.subtle.sign(
+    "HMAC",
+    key,
+    new TextEncoder().encode(body),
+  );
+  return toHex(sig);
+}
+
+function extractProvidedSig(req: Request): { header: string; value: string } | null {
+  for (const h of SIGNATURE_HEADERS) {
+    const v = req.headers.get(h);
+    if (v) {
+      const cleaned = v.trim().replace(/^sha256=/i, "").toLowerCase();
+      return { header: h, value: cleaned };
+    }
+  }
+  return null;
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -45,9 +95,36 @@ serve(async (req) => {
     });
   }
 
+  const rawBody = await req.text();
+
+  // Signature verification
+  const secret = Deno.env.get("KIRIMCHAT_WEBHOOK_SECRET");
+  if (secret) {
+    const provided = extractProvidedSig(req);
+    if (!provided) {
+      console.error("Missing signature header. Headers seen:", [...req.headers.keys()].join(", "));
+      return new Response(JSON.stringify({ error: "Missing signature" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    const expected = await computeHmacHex(secret, rawBody);
+    if (!constantTimeEqual(provided.value, expected)) {
+      console.error(
+        `Invalid signature (header: ${provided.header}). expected_prefix=${expected.slice(0, 8)} got_prefix=${provided.value.slice(0, 8)}`,
+      );
+      return new Response(JSON.stringify({ error: "Invalid signature" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+  } else {
+    console.warn("KIRIMCHAT_WEBHOOK_SECRET not configured — accepting without verification.");
+  }
+
   let body: any;
   try {
-    body = await req.json();
+    body = JSON.parse(rawBody);
   } catch (e) {
     console.error("Invalid JSON body:", e);
     return new Response(JSON.stringify({ error: "Invalid JSON" }), {
@@ -58,9 +135,6 @@ serve(async (req) => {
 
   console.log("KirimChat webhook received:", JSON.stringify(body));
 
-  // NOTE: Signature verification belum tersedia dari KirimChat.
-  // Saat tersedia, validasi header (mis. X-KirimChat-Signature) di sini.
-
   const eventTypeRaw = pick(body, [
     "event",
     "type",
@@ -70,11 +144,7 @@ serve(async (req) => {
   ]);
   const event_type = normalizeEventType(eventTypeRaw);
 
-  const channel = pick(body, [
-    "channel",
-    "data.channel",
-    "message.channel",
-  ]);
+  const channel = pick(body, ["channel", "data.channel", "message.channel"]);
   const message_id = pick(body, [
     "message_id",
     "id",
@@ -103,11 +173,7 @@ serve(async (req) => {
     "data.template.name",
     "message.template.name",
   ]);
-  const status = pick(body, [
-    "status",
-    "data.status",
-    "message.status",
-  ]);
+  const status = pick(body, ["status", "data.status", "message.status"]);
   const error_message = pick(body, [
     "error_message",
     "error.message",
@@ -136,13 +202,10 @@ serve(async (req) => {
 
   if (insertError) {
     console.error("Failed to insert webhook event:", insertError);
-    return new Response(
-      JSON.stringify({ error: "Failed to store event" }),
-      {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      },
-    );
+    return new Response(JSON.stringify({ error: "Failed to store event" }), {
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   }
 
   return new Response(JSON.stringify({ ok: true }), {
