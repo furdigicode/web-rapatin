@@ -171,63 +171,6 @@ const BlogPost = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const generateSharingURL = (platform: string) => {
-    if (!post) return '';
-    
-    const url = encodeURIComponent(window.location.href);
-    const title = encodeURIComponent(post.title);
-    const text = encodeURIComponent(`Baca artikel menarik: ${post.title}`);
-    
-    switch (platform) {
-      case 'email':
-        return `mailto:?subject=${title}&body=${text}%0A%0A${url}`;
-      case 'whatsapp':
-        return `https://wa.me/?text=${text}%0A%0A${url}`;
-      case 'telegram':
-        return `https://t.me/share/url?url=${url}&text=${text}`;
-      case 'facebook':
-        return `https://www.facebook.com/sharer/sharer.php?u=${url}`;
-      case 'twitter':
-        return `https://twitter.com/intent/tweet?text=${text}&url=${url}`;
-      case 'threads':
-        return `https://threads.net/intent/post?text=${text}%20${url}`;
-      default:
-        return '';
-    }
-  };
-
-  const sharePost = async () => {
-    if (navigator.share && post) {
-      try {
-        await navigator.share({
-          title: post.title,
-          text: `Baca artikel menarik: ${post.title}`,
-          url: window.location.href,
-        });
-      } catch (err) {
-        // Fallback to copying URL
-        navigator.clipboard.writeText(window.location.href);
-      }
-    } else {
-      navigator.clipboard.writeText(window.location.href);
-    }
-  };
-
-  const shareToSocial = (platform: string) => {
-    const url = generateSharingURL(platform);
-    if (url) {
-      window.open(url, '_blank', 'noopener,noreferrer');
-    }
-  };
-
-  const copyURL = async () => {
-    try {
-      await navigator.clipboard.writeText(window.location.href);
-      // You could add a toast notification here
-    } catch (err) {
-      console.error('Failed to copy URL:', err);
-    }
-  };
 
   if (loading) {
     return (
