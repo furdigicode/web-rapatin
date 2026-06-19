@@ -214,6 +214,10 @@ const BlogPost = () => {
   const keywords = post.focus_keyword?.trim()
     || generateKeywords(post.title, post.category);
   const pageTitle = post.seo_title?.trim() || `${post.title} | Rapatin Blog`;
+  const articleTags = post.focus_keyword
+    ? post.focus_keyword.split(',').map((t) => t.trim()).filter(Boolean)
+    : [];
+  const wordCount = post.content.replace(/<[^>]*>/g, '').split(/\s+/).filter(Boolean).length;
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -222,13 +226,17 @@ const BlogPost = () => {
         description={metaDescription}
         keywords={keywords}
         image={post.cover_image || undefined}
+        imageAlt={post.title}
         url={currentUrl}
         canonicalUrl={currentUrl}
         type="article"
         author={post.author_data?.name || post.author}
         publishedTime={new Date(post.created_at).toISOString()}
+        modifiedTime={new Date(post.created_at).toISOString()}
         articleSection={post.category}
+        articleTags={articleTags}
       />
+      
       
       <Navbar />
       
