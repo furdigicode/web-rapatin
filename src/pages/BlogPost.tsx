@@ -436,27 +436,12 @@ const BlogPost = () => {
                     </Link>
                   </Button>
                   
-                  <div className="flex items-center gap-2">
-                    <div className="flex items-center gap-1">
-                      <Button variant="outline" size="sm" onClick={() => shareToSocial('email')} title="Bagikan via Email">
-                        <Mail size={16} />
-                      </Button>
-                      <Button variant="outline" size="sm" onClick={() => shareToSocial('whatsapp')} title="Bagikan via WhatsApp">
-                        <MessageCircle size={16} />
-                      </Button>
-                      <Button variant="outline" size="sm" onClick={() => shareToSocial('telegram')} title="Bagikan via Telegram">
-                        <Send size={16} />
-                      </Button>
-                      <Button variant="outline" size="sm" onClick={() => shareToSocial('facebook')} title="Bagikan via Facebook">
-                        <Facebook size={16} />
-                      </Button>
-                      <Button variant="outline" size="sm" onClick={() => shareToSocial('twitter')} title="Bagikan via Twitter">
-                        <Twitter size={16} />
-                      </Button>
-                      <Button variant="outline" size="sm" onClick={copyURL} title="Salin Link">
-                        <Link2 size={16} />
-                      </Button>
-                    </div>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <SocialShareBar
+                      url={currentUrl}
+                      title={post.title}
+                      description={metaDescription}
+                    />
                     <Button variant="outline" size="sm">
                       <Bookmark size={16} className="mr-2" />
                       <span className="hidden sm:inline">Simpan</span>
