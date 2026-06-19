@@ -3,14 +3,14 @@ import { useParams, Link } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import SEO from '@/components/SEO';
+import SocialShareBar from '@/components/blog/SocialShareBar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { 
-  Calendar, User, ArrowLeft, Loader2, Clock, Share2, 
-  Bookmark, Eye, ChevronRight, Home, ArrowUp, Mail, 
-  MessageCircle, Send, Facebook, Twitter, Link2 
+import {
+  Calendar, User, ArrowLeft, Loader2, Clock,
+  Bookmark, Eye, ChevronRight, Home, ArrowUp,
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { supabase } from '@/integrations/supabase/client';
@@ -171,63 +171,6 @@ const BlogPost = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const generateSharingURL = (platform: string) => {
-    if (!post) return '';
-    
-    const url = encodeURIComponent(window.location.href);
-    const title = encodeURIComponent(post.title);
-    const text = encodeURIComponent(`Baca artikel menarik: ${post.title}`);
-    
-    switch (platform) {
-      case 'email':
-        return `mailto:?subject=${title}&body=${text}%0A%0A${url}`;
-      case 'whatsapp':
-        return `https://wa.me/?text=${text}%0A%0A${url}`;
-      case 'telegram':
-        return `https://t.me/share/url?url=${url}&text=${text}`;
-      case 'facebook':
-        return `https://www.facebook.com/sharer/sharer.php?u=${url}`;
-      case 'twitter':
-        return `https://twitter.com/intent/tweet?text=${text}&url=${url}`;
-      case 'threads':
-        return `https://threads.net/intent/post?text=${text}%20${url}`;
-      default:
-        return '';
-    }
-  };
-
-  const sharePost = async () => {
-    if (navigator.share && post) {
-      try {
-        await navigator.share({
-          title: post.title,
-          text: `Baca artikel menarik: ${post.title}`,
-          url: window.location.href,
-        });
-      } catch (err) {
-        // Fallback to copying URL
-        navigator.clipboard.writeText(window.location.href);
-      }
-    } else {
-      navigator.clipboard.writeText(window.location.href);
-    }
-  };
-
-  const shareToSocial = (platform: string) => {
-    const url = generateSharingURL(platform);
-    if (url) {
-      window.open(url, '_blank', 'noopener,noreferrer');
-    }
-  };
-
-  const copyURL = async () => {
-    try {
-      await navigator.clipboard.writeText(window.location.href);
-      // You could add a toast notification here
-    } catch (err) {
-      console.error('Failed to copy URL:', err);
-    }
-  };
 
   if (loading) {
     return (
@@ -271,6 +214,10 @@ const BlogPost = () => {
   const keywords = post.focus_keyword?.trim()
     || generateKeywords(post.title, post.category);
   const pageTitle = post.seo_title?.trim() || `${post.title} | Rapatin Blog`;
+  const articleTags = post.focus_keyword
+    ? post.focus_keyword.split(',').map((t) => t.trim()).filter(Boolean)
+    : [];
+  const wordCount = post.content.replace(/<[^>]*>/g, '').split(/\s+/).filter(Boolean).length;
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -279,13 +226,17 @@ const BlogPost = () => {
         description={metaDescription}
         keywords={keywords}
         image={post.cover_image || undefined}
+        imageAlt={post.title}
         url={currentUrl}
         canonicalUrl={currentUrl}
         type="article"
         author={post.author_data?.name || post.author}
         publishedTime={new Date(post.created_at).toISOString()}
+        modifiedTime={new Date(post.created_at).toISOString()}
         articleSection={post.category}
+        articleTags={articleTags}
       />
+      
       
       <Navbar />
       
@@ -419,9 +370,24 @@ const BlogPost = () => {
               "@id": currentUrl
             },
             "articleSection": post.category,
-            "url": currentUrl
+            "keywords": articleTags.length > 0 ? articleTags.join(', ') : keywords,
+            "inLanguage": "id-ID",
+            "wordCount": wordCount,
+            "url": currentUrl,
+            "potentialAction": {
+              "@type": "ShareAction",
+              "target": currentUrl
+            }
           })}
         </script>
+
+        {/* Sticky desktop share bar */}
+        <SocialShareBar
+          variant="sticky"
+          url={currentUrl}
+          title={post.title}
+          description={metaDescription}
+        />
 
         {/* Main Content */}
         <div className="container mx-auto px-4 py-8 md:py-12 max-w-4xl">
@@ -436,27 +402,12 @@ const BlogPost = () => {
                     </Link>
                   </Button>
                   
-                  <div className="flex items-center gap-2">
-                    <div className="flex items-center gap-1">
-                      <Button variant="outline" size="sm" onClick={() => shareToSocial('email')} title="Bagikan via Email">
-                        <Mail size={16} />
-                      </Button>
-                      <Button variant="outline" size="sm" onClick={() => shareToSocial('whatsapp')} title="Bagikan via WhatsApp">
-                        <MessageCircle size={16} />
-                      </Button>
-                      <Button variant="outline" size="sm" onClick={() => shareToSocial('telegram')} title="Bagikan via Telegram">
-                        <Send size={16} />
-                      </Button>
-                      <Button variant="outline" size="sm" onClick={() => shareToSocial('facebook')} title="Bagikan via Facebook">
-                        <Facebook size={16} />
-                      </Button>
-                      <Button variant="outline" size="sm" onClick={() => shareToSocial('twitter')} title="Bagikan via Twitter">
-                        <Twitter size={16} />
-                      </Button>
-                      <Button variant="outline" size="sm" onClick={copyURL} title="Salin Link">
-                        <Link2 size={16} />
-                      </Button>
-                    </div>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <SocialShareBar
+                      url={currentUrl}
+                      title={post.title}
+                      description={metaDescription}
+                    />
                     <Button variant="outline" size="sm">
                       <Bookmark size={16} className="mr-2" />
                       <span className="hidden sm:inline">Simpan</span>
