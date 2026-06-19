@@ -370,9 +370,24 @@ const BlogPost = () => {
               "@id": currentUrl
             },
             "articleSection": post.category,
-            "url": currentUrl
+            "keywords": articleTags.length > 0 ? articleTags.join(', ') : keywords,
+            "inLanguage": "id-ID",
+            "wordCount": wordCount,
+            "url": currentUrl,
+            "potentialAction": {
+              "@type": "ShareAction",
+              "target": currentUrl
+            }
           })}
         </script>
+
+        {/* Sticky desktop share bar */}
+        <SocialShareBar
+          variant="sticky"
+          url={currentUrl}
+          title={post.title}
+          description={metaDescription}
+        />
 
         {/* Main Content */}
         <div className="container mx-auto px-4 py-8 md:py-12 max-w-4xl">
