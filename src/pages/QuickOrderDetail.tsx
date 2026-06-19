@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { useParams, Link } from "react-router-dom";
-import { Helmet } from "react-helmet-async";
+import SEO from "@/components/SEO";
 import { format, addDays, addWeeks, addMonths } from "date-fns";
 import { calculateRecurringDays, type RecurrenceType, type EndType } from "@/utils/recurringCalculation";
 import { id } from "date-fns/locale";
@@ -517,9 +517,11 @@ export default function QuickOrderDetail() {
   if (error || !order) {
     return (
       <>
-        <Helmet>
-          <title>Order Tidak Ditemukan | Rapatin</title>
-        </Helmet>
+        <SEO
+          title="Order Tidak Ditemukan — Rapatin"
+          description="Order quick order tidak ditemukan. Buat order baru di Rapatin."
+          noindex
+        />
         <Navbar />
         <main className="min-h-screen flex items-center justify-center p-4">
           <Card className="max-w-md w-full">
@@ -578,11 +580,15 @@ export default function QuickOrderDetail() {
 
   return (
     <>
-      <Helmet>
-        <title>
-          {isPaid ? "Pembayaran Berhasil" : isPending ? "Menunggu Pembayaran" : "Pembayaran Kadaluarsa"} | Rapatin
-        </title>
-      </Helmet>
+      <SEO
+        title={`Detail Pesanan${order.order_number ? ` #${order.order_number}` : ""} — Rapatin`}
+        description={`Status pembayaran ${
+          isPaid ? "lunas" : isPending ? "menunggu pembayaran" : "kadaluarsa"
+        } dan detail meeting quick order Rapatin.`}
+        url={`https://rapatin.id/quick-order/${slug}`}
+        canonicalUrl={`https://rapatin.id/quick-order/${slug}`}
+        noindex
+      />
 
       <Navbar />
 
