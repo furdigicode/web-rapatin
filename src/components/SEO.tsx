@@ -15,6 +15,7 @@ interface SEOProps {
   modifiedTime?: string;
   articleSection?: string;
   structuredData?: object;
+  noindex?: boolean;
 }
 
 const SEO: React.FC<SEOProps> = ({
@@ -29,8 +30,10 @@ const SEO: React.FC<SEOProps> = ({
   publishedTime,
   modifiedTime,
   articleSection,
-  structuredData
+  structuredData,
+  noindex = false,
 }) => {
+  const robotsContent = noindex ? "noindex, follow" : "index, follow";
   const fullImageUrl = image.startsWith('http') ? image : `https://rapatin.id${image}`;
   const pageUrl = canonicalUrl || url;
   
@@ -89,8 +92,8 @@ const SEO: React.FC<SEOProps> = ({
       {author && <meta name="twitter:creator" content={`@${author}`} />}
       
       {/* Additional SEO meta tags */}
-      <meta name="robots" content="index, follow" />
-      <meta name="googlebot" content="index, follow" />
+      <meta name="robots" content={robotsContent} />
+      <meta name="googlebot" content={robotsContent} />
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       
       {/* Structured Data */}

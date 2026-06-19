@@ -1,7 +1,7 @@
-import { Helmet } from "react-helmet-async";
 import { Video, Clock, Shield, Zap } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import SEO from "@/components/SEO";
 import { QuickOrderForm } from "@/components/quick-order/QuickOrderForm";
 import { QuickOrderFAQ } from "@/components/quick-order/QuickOrderFAQ";
 
@@ -31,15 +31,12 @@ const features = [
 export default function QuickOrder() {
   return (
     <>
-      <Helmet>
-        <title>Quick Order - Sewa Zoom Meeting Sekali Pakai | Rapatin</title>
-        <meta
-          name="description"
-          content="Sewa Zoom meeting sekali pakai tanpa perlu daftar. Bayar langsung, terima link Zoom instan. Mulai dari Rp 10.000 untuk 100 peserta."
-        />
-        <meta name="robots" content="index, follow" />
-        <link rel="canonical" href="https://rapatin.id/quick-order" />
-      </Helmet>
+      <SEO
+        title="Quick Order Zoom Meeting — Rapatin"
+        description="Sewa Zoom meeting sekali pakai tanpa perlu daftar. Bayar langsung, terima link Zoom instan ke WhatsApp & email. Mulai dari Rp 10.000."
+        url="https://rapatin.id/quick-order"
+        canonicalUrl="https://rapatin.id/quick-order"
+      />
 
       <Navbar />
 

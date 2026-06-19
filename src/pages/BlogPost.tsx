@@ -27,6 +27,9 @@ interface BlogPostData {
   author: string;
   created_at: string;
   excerpt: string | null;
+  seo_title: string | null;
+  meta_description: string | null;
+  focus_keyword: string | null;
   author_data: {
     id: string;
     name: string;
@@ -74,6 +77,7 @@ const BlogPost = () => {
           .from('blog_posts')
           .select(`
             id, title, slug, content, cover_image, category, author, created_at, excerpt,
+            seo_title, meta_description, focus_keyword,
             author_data:authors!blog_posts_author_id_fkey (
               id, name, bio, avatar_url, specialization, slug
             )
@@ -262,13 +266,16 @@ const BlogPost = () => {
   }
 
   const currentUrl = `https://rapatin.id/blog/${post.slug}`;
-  const metaDescription = generateMetaDescription(post.content, post.excerpt);
-  const keywords = generateKeywords(post.title, post.category);
+  const metaDescription = post.meta_description?.trim()
+    || generateMetaDescription(post.content, post.excerpt);
+  const keywords = post.focus_keyword?.trim()
+    || generateKeywords(post.title, post.category);
+  const pageTitle = post.seo_title?.trim() || `${post.title} | Rapatin Blog`;
 
   return (
     <div className="min-h-screen flex flex-col">
       <SEO
-        title={`${post.title} | Rapatin Blog`}
+        title={pageTitle}
         description={metaDescription}
         keywords={keywords}
         image={post.cover_image || undefined}
