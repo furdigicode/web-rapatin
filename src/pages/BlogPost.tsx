@@ -3,14 +3,14 @@ import { useParams, Link } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import SEO from '@/components/SEO';
+import SocialShareBar from '@/components/blog/SocialShareBar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { 
-  Calendar, User, ArrowLeft, Loader2, Clock, Share2, 
-  Bookmark, Eye, ChevronRight, Home, ArrowUp, Mail, 
-  MessageCircle, Send, Facebook, Twitter, Link2 
+import {
+  Calendar, User, ArrowLeft, Loader2, Clock,
+  Bookmark, Eye, ChevronRight, Home, ArrowUp,
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { supabase } from '@/integrations/supabase/client';
