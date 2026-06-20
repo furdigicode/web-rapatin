@@ -1,53 +1,58 @@
-## Konteks
+# Perbaiki Preview Sosial untuk Halaman Blog
 
-Di `src/pages/BlogPost.tsx` sebenarnya **sudah ada tombol social sharing** (Email, WhatsApp, Telegram, Facebook, Twitter, Copy Link) di header artikel. Tapi implementasinya masih minimal dan **belum dioptimalkan untuk SEO/social crawler**. Yang akan kita tingkatkan:
+## Masalah
 
-1. Memperkuat sinyal social sharing yang dibaca crawler (Open Graph + Twitter Card lengkap).
-2. Memastikan link yang dibagikan menampilkan preview kaya (judul, deskripsi, gambar, author).
-3. Menambah opsi share yang relevan + UX yang lebih baik (toast feedback, share count area, sticky share bar opsional).
-4. Menambah structured data `SocialMediaPosting` / memperkuat `Article` schema dengan `sharedContent`.
+Saat URL artikel di-share ke Facebook (juga WhatsApp / LinkedIn / Twitter / Telegram), yang muncul adalah judul situs default (`Rapatin - Jadwalkan rapat Zoom tanpa langganan`), bukan judul artikel.
 
-> Catatan penting: Social share button **tidak langsung** menaikkan ranking Google (social signals bukan ranking factor langsung). Yang berdampak ke SEO adalah:
-> - Distribusi → potensi backlink & traffic referral
-> - Rich preview yang akurat → CTR lebih tinggi saat dibagikan
-> - Structured data yang lengkap → eligibility untuk rich results
+Sebab: meta tag `og:*` per-artikel di-inject `react-helmet-async` di sisi klien. Crawler sosial **tidak menjalankan JavaScript**, jadi hanya membaca `index.html` statis. Tag OG yang sudah kita tambah tetap berguna untuk Googlebot (yang menjalankan JS).
 
-## Rencana Perubahan
+## Solusi
 
-### 1. Lengkapi meta tags untuk social sharing (`src/components/SEO.tsx`)
-Pastikan setiap artikel mengirim:
-- `og:title`, `og:description`, `og:image` (dengan dimensi `og:image:width=1200`, `og:image:height=630`, `og:image:alt`)
-- `og:type=article`, `og:site_name=Rapatin`, `og:locale=id_ID`
-- `article:published_time`, `article:modified_time`, `article:author`, `article:section`, `article:tag` (dari `focus_keyword`)
-- `twitter:card=summary_large_image`, `twitter:site=@rapatin`, `twitter:creator`, `twitter:title`, `twitter:description`, `twitter:image`, `twitter:image:alt`
+Buat edge function yang merender HTML berisi meta tag artikel. Nginx mengarahkan request dengan User-Agent crawler sosial ke function itu; user biasa tetap dilayani SPA seperti sekarang.
 
-### 2. Refactor tombol share jadi komponen baru: `src/components/blog/SocialShareBar.tsx`
-- Pindahkan tombol-tombol share dari `BlogPost.tsx` ke komponen sendiri.
-- Tambah platform: **LinkedIn** (penting untuk konten B2B/SEO), **Threads** (sudah ada handler tapi belum ada tombol).
-- Setiap link share menggunakan URL canonical artikel (bukan `window.location.href`) supaya parameter tracking tidak ikut.
-- Tambahkan `aria-label` deskriptif untuk accessibility (juga sinyal SEO).
-- Toast notification saat copy link berhasil (pakai `sonner` yang sudah terpasang).
-- Opsi: sticky floating share bar di sisi kiri untuk desktop (umum di blog SEO-friendly seperti Medium/HubSpot).
+## Yang akan dibuat / diubah
 
-### 3. Tambahkan structured data tambahan di `BlogPost.tsx`
-Perkuat JSON-LD `Article` yang sudah ada dengan:
-- `keywords` dari `focus_keyword`
-- `inLanguage: "id-ID"`
-- `wordCount` (dihitung dari content)
-- `potentialAction` tipe `ShareAction` (memberi tahu crawler bahwa artikel ini shareable)
+### 1. Edge function baru: `supabase/functions/blog-meta/index.ts`
 
-### 4. Tracking share (opsional, butuh konfirmasi)
-Jika diinginkan: kirim event ke analytics/Meta Pixel saat user klik share — berguna untuk mengukur konten mana yang paling banyak dishare. Tidak menyentuh database.
+- Input: slug artikel (dari query `?slug=` atau path).
+- Query `blog_posts` (status `published`) → ambil `title`, `meta_description` (fallback `excerpt`), `cover_image`, `published_at`, `updated_at`, `category`, `focus_keyword`, `author_name`.
+- Render HTML lengkap dengan:
+  - `<title>` = judul artikel
+  - `<meta name="description">` = meta description / excerpt
+  - `<link rel="canonical" href="https://rapatin.id/blog/{slug}">`
+  - Open Graph: `og:type=article`, `og:title`, `og:description`, `og:url`, `og:image` (1200×630, fallback ke logo Rapatin di bucket `brands` jika `cover_image` kosong), `og:site_name=Rapatin`, `og:locale=id_ID`
+  - `article:published_time`, `article:modified_time`, `article:section` (category), `article:tag` (dari `focus_keyword`)
+  - Twitter Card: `summary_large_image` + title/description/image
+  - JSON-LD `Article` schema
+  - `<meta http-equiv="refresh" content="0; url=https://rapatin.id/blog/{slug}">` + link manual → kalau ada user (bukan crawler) yang nyasar ke endpoint ini, tetap diarahkan ke halaman SPA
+- Slug tidak ketemu → 404 dengan meta fallback situs.
+- Response headers: `Content-Type: text/html; charset=utf-8`, `Cache-Control: public, max-age=300, s-maxage=600`.
 
-## File yang Disentuh
+### 2. Nginx: route crawler sosial ke edge function
 
-- `src/components/SEO.tsx` — tambah OG image dimensions, locale, twitter handle, article:tag
-- `src/components/blog/SocialShareBar.tsx` — file baru (komponen share bar)
-- `src/pages/BlogPost.tsx` — pakai `SocialShareBar`, perkuat JSON-LD, kirim `focus_keyword` sebagai `article:tag`
+Tambahkan blok (sejajar dengan proxy `generate-sitemap` yang sudah ada):
 
-## Yang Perlu Dikonfirmasi
+```text
+location ~ ^/blog/([^/]+)/?$ {
+  if ($http_user_agent ~* "facebookexternalhit|Facebot|Twitterbot|LinkedInBot|WhatsApp|TelegramBot|Slackbot|Discordbot|Pinterest|redditbot|SkypeUriPreview|Applebot|vkShare|W3C_Validator") {
+    proxy_pass https://mepznzrijuoyvjcmkspf.supabase.co/functions/v1/blog-meta?slug=$1;
+    proxy_set_header Authorization "Bearer <anon>";
+    break;
+  }
+  try_files $uri /index.html;
+}
+```
 
-1. **Sticky floating share bar di desktop** (selain tombol di header) — tambah atau cukup tombol di header saja?
-2. **Tambah LinkedIn & Threads** sebagai platform share?
-3. **Twitter handle Rapatin** — apa handle resminya (untuk `twitter:site` & `twitter:creator`)?
-4. **Tracking klik share** ke Meta Pixel — perlu atau skip dulu?
+### 3. Tidak ada perubahan di kode React
+
+`SEO.tsx` dan `BlogPost.tsx` tetap. Helmet melayani Googlebot dan user biasa; edge function melayani crawler sosial.
+
+## Konfigurasi (sudah dikonfirmasi user)
+
+- Gambar OG: pakai `cover_image` artikel. Jika kosong → fallback ke **logo Rapatin** dari bucket `brands` (URL publik Supabase Storage).
+- Canonical & og:url: `https://rapatin.id/blog/{slug}`.
+
+## Catatan setelah deploy
+
+- Facebook & WhatsApp **cache preview lama**. Force refresh: <https://developers.facebook.com/tools/debug/> → tempel URL artikel → **Scrape Again**. WhatsApp cache lebih agresif (~7 hari) — workaround: tambah query string dummy (`?v=2`) ketika test.
+- Untuk artikel baru, pastikan `cover_image` minimal 1200×630 px supaya preview Facebook tampil sebagai "large image card", bukan thumbnail kecil.
