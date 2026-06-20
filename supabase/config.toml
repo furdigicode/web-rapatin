@@ -41,3 +41,6 @@ verify_jwt = false
 
 [functions.kirimchat-webhook]
 verify_jwt = false
+
+[functions.blog-meta]
+verify_jwt = false
