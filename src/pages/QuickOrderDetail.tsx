@@ -520,7 +520,6 @@ export default function QuickOrderDetail() {
         <SEO
           title="Order Tidak Ditemukan — Rapatin"
           description="Order quick order tidak ditemukan. Buat order baru di Rapatin."
-          noindex
         />
         <Navbar />
         <main className="min-h-screen flex items-center justify-center p-4">
@@ -587,7 +586,6 @@ export default function QuickOrderDetail() {
         } dan detail meeting quick order Rapatin.`}
         url={`https://rapatin.id/quick-order/${slug}`}
         canonicalUrl={`https://rapatin.id/quick-order/${slug}`}
-        noindex
       />
 
       <Navbar />

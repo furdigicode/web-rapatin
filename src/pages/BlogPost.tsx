@@ -360,9 +360,7 @@ const BlogPost = () => {
               "@id": currentUrl
             },
             "articleSection": post.category,
-            "keywords": articleTags.length > 0 ? articleTags.join(', ') : keywords,
-            "inLanguage": "id-ID",
-            "wordCount": wordCount,
+            "keywords": keywords,
             "url": currentUrl,
             "potentialAction": {
               "@type": "ShareAction",
@@ -371,13 +369,7 @@ const BlogPost = () => {
           })}
         </script>
 
-        {/* Sticky desktop share bar */}
-        <SocialShareBar
-          variant="sticky"
-          url={currentUrl}
-          title={post.title}
-          description={metaDescription}
-        />
+
 
         {/* Main Content */}
         <div className="container mx-auto px-4 py-8 md:py-12 max-w-4xl">
@@ -393,11 +385,20 @@ const BlogPost = () => {
                   </Button>
                   
                   <div className="flex items-center gap-2 flex-wrap">
-                    <SocialShareBar
-                      url={currentUrl}
-                      title={post.title}
-                      description={metaDescription}
-                    />
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        if (navigator.share) {
+                          navigator.share({ title: post.title, url: currentUrl }).catch(() => {});
+                        } else {
+                          navigator.clipboard.writeText(currentUrl);
+                        }
+                      }}
+                    >
+                      <Share2 size={16} className="mr-2" />
+                      <span className="hidden sm:inline">Bagikan</span>
+                    </Button>
                     <Button variant="outline" size="sm">
                       <Bookmark size={16} className="mr-2" />
                       <span className="hidden sm:inline">Simpan</span>
