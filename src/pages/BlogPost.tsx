@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import SEO from '@/components/SEO';
-import SocialShareBar from '@/components/blog/SocialShareBar';
+import { Share2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -209,32 +209,22 @@ const BlogPost = () => {
   }
 
   const currentUrl = `https://rapatin.id/blog/${post.slug}`;
-  const metaDescription = post.meta_description?.trim()
-    || generateMetaDescription(post.content, post.excerpt);
-  const keywords = post.focus_keyword?.trim()
-    || generateKeywords(post.title, post.category);
-  const pageTitle = post.seo_title?.trim() || `${post.title} | Rapatin Blog`;
-  const articleTags = post.focus_keyword
-    ? post.focus_keyword.split(',').map((t) => t.trim()).filter(Boolean)
-    : [];
-  const wordCount = post.content.replace(/<[^>]*>/g, '').split(/\s+/).filter(Boolean).length;
+  const metaDescription = generateMetaDescription(post.content, post.excerpt);
+  const keywords = generateKeywords(post.title, post.category);
 
   return (
     <div className="min-h-screen flex flex-col">
       <SEO
-        title={pageTitle}
+        title={`${post.title} | Rapatin Blog`}
         description={metaDescription}
         keywords={keywords}
         image={post.cover_image || undefined}
-        imageAlt={post.title}
         url={currentUrl}
         canonicalUrl={currentUrl}
         type="article"
         author={post.author_data?.name || post.author}
         publishedTime={new Date(post.created_at).toISOString()}
         modifiedTime={new Date(post.created_at).toISOString()}
-        articleSection={post.category}
-        articleTags={articleTags}
       />
       
       
@@ -370,9 +360,7 @@ const BlogPost = () => {
               "@id": currentUrl
             },
             "articleSection": post.category,
-            "keywords": articleTags.length > 0 ? articleTags.join(', ') : keywords,
-            "inLanguage": "id-ID",
-            "wordCount": wordCount,
+            "keywords": keywords,
             "url": currentUrl,
             "potentialAction": {
               "@type": "ShareAction",
@@ -381,13 +369,7 @@ const BlogPost = () => {
           })}
         </script>
 
-        {/* Sticky desktop share bar */}
-        <SocialShareBar
-          variant="sticky"
-          url={currentUrl}
-          title={post.title}
-          description={metaDescription}
-        />
+
 
         {/* Main Content */}
         <div className="container mx-auto px-4 py-8 md:py-12 max-w-4xl">
@@ -403,11 +385,20 @@ const BlogPost = () => {
                   </Button>
                   
                   <div className="flex items-center gap-2 flex-wrap">
-                    <SocialShareBar
-                      url={currentUrl}
-                      title={post.title}
-                      description={metaDescription}
-                    />
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        if (navigator.share) {
+                          navigator.share({ title: post.title, url: currentUrl }).catch(() => {});
+                        } else {
+                          navigator.clipboard.writeText(currentUrl);
+                        }
+                      }}
+                    >
+                      <Share2 size={16} className="mr-2" />
+                      <span className="hidden sm:inline">Bagikan</span>
+                    </Button>
                     <Button variant="outline" size="sm">
                       <Bookmark size={16} className="mr-2" />
                       <span className="hidden sm:inline">Simpan</span>

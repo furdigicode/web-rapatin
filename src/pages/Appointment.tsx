@@ -1,7 +1,6 @@
 
 import React, { lazy, Suspense } from 'react';
 import Navbar from '@/components/Navbar';
-import SEO from '@/components/SEO';
 import AppointmentHero from '@/components/appointment/AppointmentHero';
 import { LazySection } from '@/components/LazySection';
 
@@ -17,12 +16,6 @@ const Footer = lazy(() => import('@/components/Footer'));
 const Appointment = () => {
   return (
     <div className="min-h-screen">
-      <SEO
-        title="Appointment Booking Online — Rapatin"
-        description="Sistem booking janji temu online untuk konsultan, dokter, dan profesional. Kelola jadwal otomatis dengan integrasi pembayaran dan reminder."
-        url="https://rapatin.id/appointment"
-        canonicalUrl="https://rapatin.id/appointment"
-      />
       <Navbar />
       <AppointmentHero />
       
