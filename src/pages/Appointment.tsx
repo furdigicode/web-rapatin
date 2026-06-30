@@ -1,7 +1,6 @@
 
 import React, { lazy, Suspense } from 'react';
 import Navbar from '@/components/Navbar';
-import SEO from '@/components/SEO';
 import AppointmentHero from '@/components/appointment/AppointmentHero';
 import { LazySection } from '@/components/LazySection';
 
