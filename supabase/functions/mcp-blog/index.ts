@@ -1,12 +1,15 @@
-// MCP Server for Blog Articles (Streamable HTTP, JSON-RPC 2.0)
-// Auth: Bearer <MCP_ADMIN_API_KEY>
+// MCP Server for Blog Articles — Streamable HTTP (spec 2025-06-18)
+// Kompatibel dengan ClickUp, Claude Desktop, Cursor, dsb.
+// Auth: Authorization: Bearer <MCP_ADMIN_API_KEY>  atau  X-API-Key: <MCP_ADMIN_API_KEY>
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, mcp-session-id, mcp-protocol-version",
-  "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
-  "Access-Control-Expose-Headers": "mcp-session-id",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Access-Control-Allow-Headers":
+    "Content-Type, Authorization, X-API-Key, Mcp-Session-Id, Mcp-Protocol-Version, Accept",
+  "Access-Control-Expose-Headers": "Mcp-Session-Id",
+  "Access-Control-Max-Age": "86400",
 };
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
@@ -186,7 +189,6 @@ async function handleTool(name: string, args: Record<string, any>) {
         return toolText({ error: "published_at is required when status=scheduled." }, true);
       }
       const slug = args.slug ? slugify(args.slug) : slugify(args.title);
-      // ensure slug uniqueness
       const { data: existing } = await supabase.from("blog_posts").select("id").eq("slug", slug).maybeSingle();
       const finalSlug = existing ? `${slug}-${Date.now().toString(36)}` : slug;
 
@@ -222,7 +224,6 @@ async function handleTool(name: string, args: Record<string, any>) {
       if (args.slug !== undefined) patch.slug = slugify(args.slug);
       if (args.content !== undefined) patch.word_count = countWords(args.content);
       if (patch.status === "published" && !patch.published_at) {
-        // set published_at if empty
         const { data: cur } = await supabase.from("blog_posts").select("published_at").eq("id", args.id).maybeSingle();
         if (!cur?.published_at) patch.published_at = new Date().toISOString();
       }
@@ -260,18 +261,19 @@ async function handleTool(name: string, args: Record<string, any>) {
 }
 
 // -------- JSON-RPC dispatcher --------
-async function dispatch(msg: any) {
+async function dispatch(msg: any, sessionId: string) {
   const { id, method, params } = msg;
   try {
     switch (method) {
       case "initialize":
         return jsonRpcResult(id, {
           protocolVersion: PROTOCOL_VERSION,
-          capabilities: { tools: {} },
+          capabilities: { tools: { listChanged: false } },
           serverInfo: { name: "rapatin-blog-mcp", version: "1.0.0" },
         });
       case "notifications/initialized":
       case "notifications/cancelled":
+      case "notifications/roots/list_changed":
         return null; // no response for notifications
       case "ping":
         return jsonRpcResult(id, {});
@@ -284,6 +286,10 @@ async function dispatch(msg: any) {
         const result = await handleTool(name, args);
         return jsonRpcResult(id, result);
       }
+      case "resources/list":
+        return jsonRpcResult(id, { resources: [] });
+      case "prompts/list":
+        return jsonRpcResult(id, { prompts: [] });
       default:
         return jsonRpcError(id, -32601, `Method not found: ${method}`);
     }
@@ -292,29 +298,64 @@ async function dispatch(msg: any) {
   }
 }
 
-Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
-
-  // Auth: Bearer <MCP_ADMIN_API_KEY>
+function verifyAuth(req: Request): boolean {
+  if (!API_KEY) return false;
   const auth = req.headers.get("authorization") || req.headers.get("Authorization") || "";
-  const token = auth.startsWith("Bearer ") ? auth.slice(7).trim() : "";
-  if (!API_KEY || token !== API_KEY) {
-    return new Response(
-      JSON.stringify({ jsonrpc: "2.0", id: null, error: { code: -32001, message: "Unauthorized" } }),
-      { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+  if (auth.startsWith("Bearer ") && auth.slice(7).trim() === API_KEY) return true;
+  const xKey = req.headers.get("x-api-key") || req.headers.get("X-API-Key") || "";
+  if (xKey && xKey === API_KEY) return true;
+  return false;
+}
+
+function unauthorizedResponse(): Response {
+  return new Response(
+    JSON.stringify({
+      jsonrpc: "2.0",
+      id: null,
+      error: {
+        code: -32001,
+        message: "Unauthorized: missing or invalid API key. Send via 'Authorization: Bearer <token>' or 'X-API-Key' header.",
+      },
+    }),
+    {
+      status: 401,
+      headers: {
+        ...corsHeaders,
+        "Content-Type": "application/json",
+        "WWW-Authenticate": 'Bearer realm="Rapatin Blog MCP"',
+      },
+    },
+  );
+}
+
+function methodNotAllowed(): Response {
+  return new Response(
+    JSON.stringify(jsonRpcError(null, -32000, "Method not allowed. Use POST.")),
+    {
+      status: 405,
+      headers: { ...corsHeaders, "Content-Type": "application/json", Allow: "POST, OPTIONS" },
+    },
+  );
+}
+
+Deno.serve(async (req) => {
+  const url = new URL(req.url);
+  console.log(`[mcp] ${req.method} ${url.pathname} accept="${req.headers.get("accept") || ""}" auth=${req.headers.get("authorization") ? "yes" : "no"} xkey=${req.headers.get("x-api-key") ? "yes" : "no"}`);
+
+  if (req.method === "OPTIONS") {
+    return new Response(null, { status: 204, headers: corsHeaders });
   }
 
-  if (req.method === "GET") {
-    // Simple health / info endpoint
-    return new Response(
-      JSON.stringify({ ok: true, server: "rapatin-blog-mcp", protocolVersion: PROTOCOL_VERSION, tools: TOOLS.map(t => t.name) }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+  if (!verifyAuth(req)) {
+    return unauthorizedResponse();
+  }
+
+  if (req.method === "GET" || req.method === "DELETE") {
+    return methodNotAllowed();
   }
 
   if (req.method !== "POST") {
-    return new Response("Method Not Allowed", { status: 405, headers: corsHeaders });
+    return methodNotAllowed();
   }
 
   let body: any;
@@ -323,24 +364,58 @@ Deno.serve(async (req) => {
   } catch {
     return new Response(
       JSON.stringify(jsonRpcError(null, -32700, "Parse error")),
-      { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   }
 
-  // Batch support
   const messages = Array.isArray(body) ? body : [body];
+  const isInitialize = messages.some((m) => m?.method === "initialize");
+  const sessionId = req.headers.get("mcp-session-id") || req.headers.get("Mcp-Session-Id") || crypto.randomUUID();
+
   const responses: any[] = [];
   for (const m of messages) {
-    const r = await dispatch(m);
+    console.log(`[mcp] rpc method=${m?.method} id=${m?.id} tool=${m?.params?.name ?? ""}`);
+    const r = await dispatch(m, sessionId);
     if (r !== null) responses.push(r);
   }
 
+  const extraHeaders: Record<string, string> = {};
+  if (isInitialize) {
+    extraHeaders["Mcp-Session-Id"] = sessionId;
+  }
+
+  // No responses (only notifications) → 202 Accepted
   if (responses.length === 0) {
-    return new Response(null, { status: 202, headers: corsHeaders });
+    return new Response(null, { status: 202, headers: { ...corsHeaders, ...extraHeaders } });
   }
 
   const payload = Array.isArray(body) ? responses : responses[0];
+
+  // Content negotiation: prefer SSE when client accepts text/event-stream
+  const accept = (req.headers.get("accept") || "").toLowerCase();
+  const wantsSSE = accept.includes("text/event-stream");
+
+  if (wantsSSE) {
+    const sseBody = `event: message\ndata: ${JSON.stringify(payload)}\n\n`;
+    return new Response(sseBody, {
+      status: 200,
+      headers: {
+        ...corsHeaders,
+        ...extraHeaders,
+        "Content-Type": "text/event-stream",
+        "Cache-Control": "no-cache, no-transform",
+        "Connection": "keep-alive",
+        "X-Accel-Buffering": "no",
+      },
+    });
+  }
+
   return new Response(JSON.stringify(payload), {
-    headers: { ...corsHeaders, "Content-Type": "application/json" },
+    status: 200,
+    headers: {
+      ...corsHeaders,
+      ...extraHeaders,
+      "Content-Type": "application/json",
+    },
   });
 });
