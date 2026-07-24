@@ -407,7 +407,46 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
     setSendingWhatsApp(false);
   };
 
+  const handleRegenerateSchedule = async () => {
+    setRegenerating(true);
+    try {
+      const force = !!order.rapatin_order_id || !!order.zoom_link;
+      const { data, error } = await supabase.functions.invoke('regenerate-rapatin-schedule', {
+        body: { orderId: order.id, force }
+      });
+
+      if (error) {
+        toast({
+          title: "Gagal regenerate",
+          description: error.message,
+          variant: "destructive"
+        });
+      } else if (data?.ok === false) {
+        toast({
+          title: "Gagal regenerate",
+          description: data.error || "Terjadi kesalahan pada Rapatin API",
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "Berhasil",
+          description: "Jadwal Rapatin berhasil dibuat ulang"
+        });
+        onUpdate?.();
+      }
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: err instanceof Error ? err.message : "Terjadi kesalahan",
+        variant: "destructive"
+      });
+    }
+    setRegenerating(false);
+    setRegenerateConfirmOpen(false);
+  };
+
   const isWhatsAppCooldown = whatsAppCooldownEnd !== null;
+  const canRegenerate = order.payment_status === 'paid' && !order.rapatin_order_id;
 
   // Cek dari order prop ATAU zoomData state (untuk immediate feedback setelah save)
   const hasZoomData = 
