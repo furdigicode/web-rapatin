@@ -117,6 +117,8 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
   const [sendingAdminNotif, setSendingAdminNotif] = useState(false);
   const [whatsAppCooldownEnd, setWhatsAppCooldownEnd] = useState<Date | null>(null);
   const [cooldownTimeLeft, setCooldownTimeLeft] = useState("");
+  const [regenerating, setRegenerating] = useState(false);
+  const [regenerateConfirmOpen, setRegenerateConfirmOpen] = useState(false);
   const [zoomData, setZoomData] = useState({
     meeting_id: '',
     zoom_passcode: '',
