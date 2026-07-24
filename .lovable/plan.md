@@ -1,32 +1,49 @@
-## Tujuan
-Menampilkan nilai `MCP_ADMIN_API_KEY` langsung di halaman `/admin/mcp-server` agar admin bisa menyalinnya tanpa harus buka dashboard Supabase.
+# Perbaiki MCP Server agar kompatibel dengan ClickUp (contek FurqanSIM)
 
-## Pendekatan
-Nilai secret hanya tersedia di sisi server (Edge Function via `Deno.env.get`). Jadi kita buat edge function admin-only yang mengembalikan key, lalu halaman admin memanggilnya dan menampilkan dengan tombol show/hide + copy.
+## Root cause
+FurqanSIM lolos di ClickUp karena pakai `mcp-tanstack-start` yang di dalamnya membungkus **@modelcontextprotocol/sdk** resmi dengan **Streamable HTTP** transport — mendukung `Accept: application/json, text/event-stream`, respons **SSE**, header `Mcp-Session-Id`, `WWW-Authenticate`, dan CORS `Expose-Headers` yang benar.
 
-## Langkah
+`mcp-blog` kita saat ini adalah JSON-RPC hand-rolled: selalu balas `application/json`, tidak ada SSE, tidak ada session id. ClickUp menolak koneksinya sebelum sempat probe `tools/list` — itulah kenapa log function hanya berisi `booted/shutdown` tanpa satu pun request masuk.
 
-1. **Edge function baru: `get-mcp-admin-key`**
-   - Path: `supabase/functions/get-mcp-admin-key/index.ts`
-   - Verifikasi caller adalah admin aktif:
-     - Ambil `Authorization: Bearer <user_jwt>` dari request.
-     - Buat Supabase client dengan service role, panggil `auth.getUser(jwt)` untuk dapat email.
-     - Cek email ada di `admin_users` (aktif) + sesi valid di `admin_sessions` (mengikuti pola `is_admin_user()` yang sudah ada).
-   - Jika lolos, kembalikan `{ key: Deno.env.get('MCP_ADMIN_API_KEY') }`.
-   - Jika tidak, `401`.
-   - Set `verify_jwt = true` di `supabase/config.toml` untuk function ini (default aman), atau verifikasi manual — pilih verifikasi manual agar konsisten dengan pola admin lain.
+## Perubahan
 
-2. **UI di `src/pages/admin/MCPServer.tsx`**
-   - Tambah section "API Key" dengan:
-     - Field readonly bertipe password (mask) + tombol mata untuk show/hide.
-     - Tombol "Salin".
-     - Tombol "Muat Ulang" untuk fetch ulang.
-   - Panggil function via `supabase.functions.invoke('get-mcp-admin-key')` saat tombol "Tampilkan" ditekan (lazy — jangan fetch otomatis saat halaman dibuka).
-   - Update contoh snippet Claude/Cursor agar otomatis menyisipkan key ketika sudah di-reveal (opsional, atau tetap placeholder).
+### 1. Refactor `supabase/functions/mcp-blog/index.ts` pakai SDK resmi
+Import SDK via Deno `npm:` specifier — pola yang sama dengan yang dipakai FurqanSIM di balik `mcp-tanstack-start`:
 
-## Catatan keamanan
-- Endpoint dibatasi hanya admin aktif; user biasa dapat 401.
-- Key tetap tidak pernah masuk ke bundle frontend — hanya dikirim on-demand ke admin yang terautentikasi.
-- Tidak menyimpan key di localStorage; hanya di state React (hilang saat refresh).
+```ts
+import { McpServer } from "npm:@modelcontextprotocol/sdk/server/mcp.js";
+import { StreamableHTTPServerTransport } from "npm:@modelcontextprotocol/sdk/server/streamableHttp.js";
+```
 
-Setuju untuk saya implementasi?
+Struktur handler baru (stateless, mengikuti pola FurqanSIM):
+- **Auth**: verifikasi `Authorization: Bearer <MCP_ADMIN_API_KEY>` atau `X-API-Key`. Jika gagal → 401 dengan header `WWW-Authenticate: Bearer realm="Rapatin Blog MCP"` + CORS.
+- **OPTIONS**: 204 dengan CORS lengkap.
+- **POST**: buat instance transport `new StreamableHTTPServerTransport({ sessionIdGenerator: undefined })` (stateless), hubungkan ke `McpServer`, panggil `transport.handleRequest(req, res, body)` — SDK sendiri yang memilih respons JSON vs SSE berdasarkan `Accept`, dan mengeluarkan header `Mcp-Session-Id`.
+- **GET & DELETE**: 405 dengan payload JSON-RPC error (identik dengan FurqanSIM).
+- **CORS headers** — persis seperti FurqanSIM:
+  ```
+  Access-Control-Allow-Origin: *
+  Access-Control-Allow-Methods: POST, OPTIONS
+  Access-Control-Allow-Headers: Content-Type, Authorization, X-API-Key, Mcp-Session-Id
+  Access-Control-Expose-Headers: Mcp-Session-Id
+  Access-Control-Max-Age: 86400
+  ```
+
+Karena `StreamableHTTPServerTransport` SDK menulis ke objek `res` ala Node, di Deno Edge Function kita adaptasi memakai helper singkat (in-memory response collector → `Response` Fetch API) — pola standar yang dipakai contoh MCP SDK untuk runtime non-Node. Jika ternyata SDK butuh polyfill Node stream yang tidak kompatibel di Deno, fallback-nya adalah menulis handler Streamable HTTP setara sendiri (SSE + session id + Accept negotiation) tanpa SDK. Keputusannya dibuat saat coding — target akhir kompatibilitas sama.
+
+Tools 6 buah tetap: `list_articles`, `get_article`, `create_article`, `update_article`, `delete_article`, `publish_article` — logika handler dipindah ke bentuk `server.tool(name, schema, handler)` SDK, memakai Zod untuk skema input (SDK butuh Zod).
+
+### 2. Update UI `/admin/mcp-server`
+- Tampilkan URL: `https://<project-ref>.supabase.co/functions/v1/mcp-blog`.
+- Konfigurasi Claude/Cursor tetap ada.
+- Perbarui contoh cURL agar menyertakan `Accept: application/json, text/event-stream` (spec MCP).
+- Tambah petunjuk singkat untuk ClickUp: pilih "Add MCP Server" → URL di atas → Auth "Bearer token" → paste API key.
+
+### 3. Dependencies
+Tambah `zod` ke `deno.lock` implicitly via `npm:zod`. Tidak ada perubahan `supabase/config.toml` (function sudah `verify_jwt = false`).
+
+## Verifikasi
+1. Deploy `mcp-blog`.
+2. cURL dengan `Accept: application/json, text/event-stream` + Bearer → pastikan `initialize` mengembalikan header `Mcp-Session-Id` dan body SSE-framed.
+3. cURL biasa (`Accept: application/json`) → JSON polos tetap jalan.
+4. User coba ulang setup di ClickUp → cek log `mcp-blog` sudah ada baris POST masuk & tools ter-load.
