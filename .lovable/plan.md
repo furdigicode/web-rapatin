@@ -1,58 +1,68 @@
-# Perbaiki Preview Sosial untuk Halaman Blog
+## Tujuan
 
-## Masalah
+1. **Pertahankan** alur input manual Zoom di dialog Detail Order (tidak diubah).
+2. **Tambah** tombol "Regenerate Jadwal Rapatin" sebagai opsi pemulihan otomatis ketika API Rapatin gagal / timeout saat webhook `paid`.
+3. **Dialog Detail Order** memakai tinggi statis (konsisten di semua kondisi konten) dengan scroll internal yang berfungsi.
 
-Saat URL artikel di-share ke Facebook (juga WhatsApp / LinkedIn / Twitter / Telegram), yang muncul adalah judul situs default (`Rapatin - Jadwalkan rapat Zoom tanpa langganan`), bukan judul artikel.
+## Konteks
 
-Sebab: meta tag `og:*` per-artikel di-inject `react-helmet-async` di sisi klien. Crawler sosial **tidak menjalankan JavaScript**, jadi hanya membaca `index.html` statis. Tag OG yang sudah kita tambah tetap berguna untuk Googlebot (yang menjalankan JS).
+- `supabase/functions/xendit-webhook/index.ts` memanggil `createRapatinSchedule` (POST `https://api.rapatin.id/schedules`) saat pembayaran `paid`. Kalau gagal / timeout, order tetap `paid` tapi `rapatin_order_id`, `zoom_link`, `meeting_id`, `zoom_passcode` kosong.
+- Sekarang admin cuma bisa isi manual di dialog (form yang sudah ada). Setelah perubahan ini, admin punya dua opsi berdampingan: **regenerate via API** atau **isi manual** seperti biasa.
+- `DialogContent` sekarang pakai `max-w-2xl max-h-[90vh] overflow-y-auto` sehingga tinggi mengikuti isi (kecil untuk order simpel, hampir 90vh untuk order recurring), dan header ikut tergulir.
 
-## Solusi
+## Rencana
 
-Buat edge function yang merender HTML berisi meta tag artikel. Nginx mengarahkan request dengan User-Agent crawler sosial ke function itu; user biasa tetap dilayani SPA seperti sekarang.
+### 1. Edge function baru: `regenerate-rapatin-schedule`
 
-## Yang akan dibuat / diubah
+File: `supabase/functions/regenerate-rapatin-schedule/index.ts`.
 
-### 1. Edge function baru: `supabase/functions/blog-meta/index.ts`
+- Input: `{ orderId: string }`, POST, CORS via `npm:@supabase/supabase-js@2/cors`.
+- Auth: batasi ke admin — panggil `is_admin_user()` RPC dengan client yang membawa JWT caller (pola yang sama dipakai fungsi admin lain; verifikasi saat implementasi dan fallback ke pengecekan `admin_users.email` bila diperlukan). Reject 401/403 kalau bukan admin.
+- Alur:
+  1. Load `guest_orders` by id (pakai service role).
+  2. Validasi `payment_status = 'paid'`. Tolak kalau bukan.
+  3. Guard: kalau `rapatin_order_id` sudah terisi → tolak (kecuali `force: true` dilempar dari UI setelah konfirmasi eksplisit).
+  4. Panggil `createRapatinSchedule` dengan parameter sesuai kolom order (topic, tanggal, jam, passcode custom/generate, semua flag meeting, semua field recurring — 1:1 dengan yang dikirim webhook). Set `AbortSignal.timeout(45_000)` agar fungsi tidak menggantung menunggu Rapatin.
+  5. Sukses → update `rapatin_order_id`, `zoom_link`, `zoom_passcode`, `meeting_id`. Return `{ ok: true, data }`.
+  6. Gagal → return `{ ok: false, error, rapatin_status }`. Jangan sentuh kolom Zoom.
+- Refactor: pindahkan `getRapatinToken`, `createRapatinSchedule`, `PARTICIPANT_TO_PRODUCT_ID`, `generatePasscode` dari `xendit-webhook` ke `supabase/functions/_shared/rapatin.ts` supaya dipakai dua fungsi tanpa duplikasi. Perilaku webhook tidak berubah.
 
-- Input: slug artikel (dari query `?slug=` atau path).
-- Query `blog_posts` (status `published`) → ambil `title`, `meta_description` (fallback `excerpt`), `cover_image`, `published_at`, `updated_at`, `category`, `focus_keyword`, `author_name`.
-- Render HTML lengkap dengan:
-  - `<title>` = judul artikel
-  - `<meta name="description">` = meta description / excerpt
-  - `<link rel="canonical" href="https://rapatin.id/blog/{slug}">`
-  - Open Graph: `og:type=article`, `og:title`, `og:description`, `og:url`, `og:image` (1200×630, fallback ke logo Rapatin di bucket `brands` jika `cover_image` kosong), `og:site_name=Rapatin`, `og:locale=id_ID`
-  - `article:published_time`, `article:modified_time`, `article:section` (category), `article:tag` (dari `focus_keyword`)
-  - Twitter Card: `summary_large_image` + title/description/image
-  - JSON-LD `Article` schema
-  - `<meta http-equiv="refresh" content="0; url=https://rapatin.id/blog/{slug}">` + link manual → kalau ada user (bukan crawler) yang nyasar ke endpoint ini, tetap diarahkan ke halaman SPA
-- Slug tidak ketemu → 404 dengan meta fallback situs.
-- Response headers: `Content-Type: text/html; charset=utf-8`, `Cache-Control: public, max-age=300, s-maxage=600`.
+### 2. UI: tombol "Regenerate Jadwal Rapatin" — mendampingi input manual
 
-### 2. Nginx: route crawler sosial ke edge function
+File: `src/components/admin/OrderDetailDialog.tsx`.
 
-Tambahkan blok (sejajar dengan proxy `generate-sitemap` yang sudah ada):
+- **Input manual TIDAK dihapus** — tetap seperti sekarang (form Meeting ID / Passcode / Link Zoom + tombol "Isi manual" / Simpan / Batal).
+- Tambah tombol baru di section Zoom (di atas atau bersebelahan dengan tombol "Isi manual"): label "Regenerate Jadwal Rapatin", icon `RefreshCw`, variant `outline`.
+- Kondisi tampil: `payment_status === 'paid'` **dan** `!rapatin_order_id`. Boleh tampil meskipun admin sudah isi zoom manual — dalam kasus itu tombol pakai variant `secondary` dan konfirmasi memperingatkan bahwa data manual akan ditimpa hasil dari Rapatin.
+- Handler: `AlertDialog` konfirmasi (menampilkan topik + tanggal + waktu + peserta) → `supabase.functions.invoke('regenerate-rapatin-schedule', { body: { orderId } })` → toast sukses/gagal → `onUpdate()` untuk refresh order.
+- Loading state pakai `Loader2`; disable tombol input manual selama regenerate berjalan.
 
-```text
-location ~ ^/blog/([^/]+)/?$ {
-  if ($http_user_agent ~* "facebookexternalhit|Facebot|Twitterbot|LinkedInBot|WhatsApp|TelegramBot|Slackbot|Discordbot|Pinterest|redditbot|SkypeUriPreview|Applebot|vkShare|W3C_Validator") {
-    proxy_pass https://mepznzrijuoyvjcmkspf.supabase.co/functions/v1/blog-meta?slug=$1;
-    proxy_set_header Authorization "Bearer <anon>";
-    break;
-  }
-  try_files $uri /index.html;
-}
+### 3. Dialog tinggi statis + scroll internal
+
+File yang sama.
+
+Ubah `DialogContent` jadi kolom tinggi tetap dengan body scrollable:
+
+```tsx
+<DialogContent className="max-w-2xl h-[85vh] p-0 flex flex-col overflow-hidden">
+  <DialogHeader className="px-6 pt-6 pb-4 border-b shrink-0"> … </DialogHeader>
+  <div className="flex-1 overflow-y-auto px-6 py-4 space-y-6">
+    {/* seluruh section konten */}
+  </div>
+</DialogContent>
 ```
 
-### 3. Tidak ada perubahan di kode React
+- Hapus `max-h-[90vh] overflow-y-auto` di root.
+- Tinggi `h-[85vh]` konsisten untuk order simpel maupun recurring panjang; verifikasi scroll dengan order recurring 20+ sesi.
+- Header (nomor order + status + tombol buka halaman publik) tetap terlihat tanpa ikut scroll.
 
-`SEO.tsx` dan `BlogPost.tsx` tetap. Helmet melayani Googlebot dan user biasa; edge function melayani crawler sosial.
+## Cakupan yang TIDAK diubah
 
-## Konfigurasi (sudah dikonfirmasi user)
+- Alur pembayaran, Kledo sync, email, WhatsApp, notifikasi admin.
+- Skema DB, RLS, GRANT.
+- Form input manual Zoom (perilaku persis sekarang).
+- Halaman lain (SEO landing, blog, KirimChat, dsb).
 
-- Gambar OG: pakai `cover_image` artikel. Jika kosong → fallback ke **logo Rapatin** dari bucket `brands` (URL publik Supabase Storage).
-- Canonical & og:url: `https://rapatin.id/blog/{slug}`.
+## Klarifikasi
 
-## Catatan setelah deploy
-
-- Facebook & WhatsApp **cache preview lama**. Force refresh: <https://developers.facebook.com/tools/debug/> → tempel URL artikel → **Scrape Again**. WhatsApp cache lebih agresif (~7 hari) — workaround: tambah query string dummy (`?v=2`) ketika test.
-- Untuk artikel baru, pastikan `cover_image` minimal 1200×630 px supaya preview Facebook tampil sebagai "large image card", bukan thumbnail kecil.
+Tinggi dialog `h-[85vh]` cocok untuk laptop 13"+. Kalau Anda mau angka spesifik lain (mis. `h-[80vh]` atau cap `min(720px, 85vh)`), sebutkan — kalau tidak, saya pakai `85vh`.
