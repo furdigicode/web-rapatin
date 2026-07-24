@@ -8,6 +8,16 @@ import {
   DialogHeader, 
   DialogTitle 
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -107,6 +117,8 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
   const [sendingAdminNotif, setSendingAdminNotif] = useState(false);
   const [whatsAppCooldownEnd, setWhatsAppCooldownEnd] = useState<Date | null>(null);
   const [cooldownTimeLeft, setCooldownTimeLeft] = useState("");
+  const [regenerating, setRegenerating] = useState(false);
+  const [regenerateConfirmOpen, setRegenerateConfirmOpen] = useState(false);
   const [zoomData, setZoomData] = useState({
     meeting_id: '',
     zoom_passcode: '',
@@ -395,7 +407,46 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
     setSendingWhatsApp(false);
   };
 
+  const handleRegenerateSchedule = async () => {
+    setRegenerating(true);
+    try {
+      const force = !!order.rapatin_order_id || !!order.zoom_link;
+      const { data, error } = await supabase.functions.invoke('regenerate-rapatin-schedule', {
+        body: { orderId: order.id, force }
+      });
+
+      if (error) {
+        toast({
+          title: "Gagal regenerate",
+          description: error.message,
+          variant: "destructive"
+        });
+      } else if (data?.ok === false) {
+        toast({
+          title: "Gagal regenerate",
+          description: data.error || "Terjadi kesalahan pada Rapatin API",
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "Berhasil",
+          description: "Jadwal Rapatin berhasil dibuat ulang"
+        });
+        onUpdate?.();
+      }
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: err instanceof Error ? err.message : "Terjadi kesalahan",
+        variant: "destructive"
+      });
+    }
+    setRegenerating(false);
+    setRegenerateConfirmOpen(false);
+  };
+
   const isWhatsAppCooldown = whatsAppCooldownEnd !== null;
+  const canRegenerate = order.payment_status === 'paid' && !order.rapatin_order_id;
 
   // Cek dari order prop ATAU zoomData state (untuk immediate feedback setelah save)
   const hasZoomData = 
@@ -416,8 +467,8 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
+      <DialogContent className="max-w-2xl h-[85vh] p-0 flex flex-col overflow-hidden gap-0">
+        <DialogHeader className="px-6 pt-6 pb-4 border-b shrink-0">
           <DialogTitle className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div className="flex flex-wrap items-center gap-2 sm:gap-3">
               <span>Detail Order</span>
@@ -444,7 +495,7 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-6">
+        <div className="flex-1 overflow-y-auto px-6 py-4 space-y-6">
           {/* Informasi Pelanggan */}
           <div className="space-y-3">
             <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">
@@ -612,25 +663,58 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
                       <div>
                         <p className="font-medium">Zoom meeting belum tersedia</p>
                         <p className="text-sm text-muted-foreground">
-                          Klik tombol di bawah untuk menambahkan detail secara manual
+                          Coba buat ulang otomatis lewat Rapatin, atau isi manual.
                         </p>
                       </div>
-                      <Button onClick={() => setIsEditing(true)}>
-                        <Plus className="h-4 w-4 mr-2" />
-                        Tambah Detail Zoom
-                      </Button>
+                      <div className="flex flex-wrap gap-2 justify-center">
+                        {canRegenerate && (
+                          <Button
+                            onClick={() => setRegenerateConfirmOpen(true)}
+                            disabled={regenerating}
+                          >
+                            {regenerating ? (
+                              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                            ) : (
+                              <RefreshCw className="h-4 w-4 mr-2" />
+                            )}
+                            Regenerate Jadwal Rapatin
+                          </Button>
+                        )}
+                        <Button variant="outline" onClick={() => setIsEditing(true)} disabled={regenerating}>
+                          <Plus className="h-4 w-4 mr-2" />
+                          Isi Manual
+                        </Button>
+                      </div>
                     </div>
                   </>
                 ) : (
                   <>
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between gap-2 flex-wrap">
                       <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">
                         Info Zoom
                       </h3>
-                      <Button variant="ghost" size="sm" onClick={() => setIsEditing(true)}>
-                        <Pencil className="h-4 w-4 mr-2" />
-                        Edit
-                      </Button>
+                      <div className="flex items-center gap-1">
+                        {canRegenerate && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setRegenerateConfirmOpen(true)}
+                            disabled={regenerating}
+                            title="Buat ulang jadwal via Rapatin (akan menimpa data manual)"
+                          >
+                            {regenerating ? (
+                              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                            ) : (
+                              <RefreshCw className="h-4 w-4 mr-2" />
+                            )}
+                            Regenerate
+                          </Button>
+                        )}
+                        <Button variant="ghost" size="sm" onClick={() => setIsEditing(true)} disabled={regenerating}>
+                          <Pencil className="h-4 w-4 mr-2" />
+                          Edit
+                        </Button>
+                      </div>
                     </div>
                     <div className="grid gap-3 p-4 bg-muted/50 rounded-lg">
                       {zoomData.meeting_id && (
@@ -1061,6 +1145,52 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
           </div>
         </div>
       </DialogContent>
+
+      <AlertDialog open={regenerateConfirmOpen} onOpenChange={setRegenerateConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Regenerate Jadwal Rapatin?</AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div className="space-y-2 text-sm">
+                <p>Sistem akan memanggil ulang API Rapatin untuk membuat jadwal berdasarkan data order berikut:</p>
+                <ul className="list-disc pl-5 space-y-0.5">
+                  <li>Topik: <span className="font-medium">{order.meeting_topic || '-'}</span></li>
+                  <li>Tanggal: <span className="font-medium">{format(new Date(order.meeting_date), "d MMM yyyy", { locale: id })}</span></li>
+                  <li>Waktu: <span className="font-medium">{order.meeting_time || '09:00'} WIB</span></li>
+                  <li>Peserta: <span className="font-medium">{order.participant_count}</span></li>
+                </ul>
+                {(order.zoom_link || order.meeting_id) && (
+                  <p className="text-destructive font-medium">
+                    Peringatan: order ini sudah memiliki data Zoom manual. Menekan Regenerate akan menimpanya dengan hasil dari Rapatin.
+                  </p>
+                )}
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={regenerating}>Batal</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => {
+                e.preventDefault();
+                handleRegenerateSchedule();
+              }}
+              disabled={regenerating}
+            >
+              {regenerating ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Memproses...
+                </>
+              ) : (
+                <>
+                  <RefreshCw className="h-4 w-4 mr-2" />
+                  Regenerate
+                </>
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Dialog>
   );
 };
