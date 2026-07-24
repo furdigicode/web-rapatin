@@ -44,3 +44,6 @@ verify_jwt = false
 
 [functions.blog-meta]
 verify_jwt = false
+
+[functions.mcp-blog]
+verify_jwt = false
