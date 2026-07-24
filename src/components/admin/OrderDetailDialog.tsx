@@ -663,25 +663,58 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
                       <div>
                         <p className="font-medium">Zoom meeting belum tersedia</p>
                         <p className="text-sm text-muted-foreground">
-                          Klik tombol di bawah untuk menambahkan detail secara manual
+                          Coba buat ulang otomatis lewat Rapatin, atau isi manual.
                         </p>
                       </div>
-                      <Button onClick={() => setIsEditing(true)}>
-                        <Plus className="h-4 w-4 mr-2" />
-                        Tambah Detail Zoom
-                      </Button>
+                      <div className="flex flex-wrap gap-2 justify-center">
+                        {canRegenerate && (
+                          <Button
+                            onClick={() => setRegenerateConfirmOpen(true)}
+                            disabled={regenerating}
+                          >
+                            {regenerating ? (
+                              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                            ) : (
+                              <RefreshCw className="h-4 w-4 mr-2" />
+                            )}
+                            Regenerate Jadwal Rapatin
+                          </Button>
+                        )}
+                        <Button variant="outline" onClick={() => setIsEditing(true)} disabled={regenerating}>
+                          <Plus className="h-4 w-4 mr-2" />
+                          Isi Manual
+                        </Button>
+                      </div>
                     </div>
                   </>
                 ) : (
                   <>
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between gap-2 flex-wrap">
                       <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">
                         Info Zoom
                       </h3>
-                      <Button variant="ghost" size="sm" onClick={() => setIsEditing(true)}>
-                        <Pencil className="h-4 w-4 mr-2" />
-                        Edit
-                      </Button>
+                      <div className="flex items-center gap-1">
+                        {canRegenerate && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setRegenerateConfirmOpen(true)}
+                            disabled={regenerating}
+                            title="Buat ulang jadwal via Rapatin (akan menimpa data manual)"
+                          >
+                            {regenerating ? (
+                              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                            ) : (
+                              <RefreshCw className="h-4 w-4 mr-2" />
+                            )}
+                            Regenerate
+                          </Button>
+                        )}
+                        <Button variant="ghost" size="sm" onClick={() => setIsEditing(true)} disabled={regenerating}>
+                          <Pencil className="h-4 w-4 mr-2" />
+                          Edit
+                        </Button>
+                      </div>
                     </div>
                     <div className="grid gap-3 p-4 bg-muted/50 rounded-lg">
                       {zoomData.meeting_id && (
