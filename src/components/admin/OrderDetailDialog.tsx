@@ -1145,6 +1145,52 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
           </div>
         </div>
       </DialogContent>
+
+      <AlertDialog open={regenerateConfirmOpen} onOpenChange={setRegenerateConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Regenerate Jadwal Rapatin?</AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div className="space-y-2 text-sm">
+                <p>Sistem akan memanggil ulang API Rapatin untuk membuat jadwal berdasarkan data order berikut:</p>
+                <ul className="list-disc pl-5 space-y-0.5">
+                  <li>Topik: <span className="font-medium">{order.meeting_topic || '-'}</span></li>
+                  <li>Tanggal: <span className="font-medium">{format(new Date(order.meeting_date), "d MMM yyyy", { locale: id })}</span></li>
+                  <li>Waktu: <span className="font-medium">{order.meeting_time || '09:00'} WIB</span></li>
+                  <li>Peserta: <span className="font-medium">{order.participant_count}</span></li>
+                </ul>
+                {(order.zoom_link || order.meeting_id) && (
+                  <p className="text-destructive font-medium">
+                    Peringatan: order ini sudah memiliki data Zoom manual. Menekan Regenerate akan menimpanya dengan hasil dari Rapatin.
+                  </p>
+                )}
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={regenerating}>Batal</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => {
+                e.preventDefault();
+                handleRegenerateSchedule();
+              }}
+              disabled={regenerating}
+            >
+              {regenerating ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Memproses...
+                </>
+              ) : (
+                <>
+                  <RefreshCw className="h-4 w-4 mr-2" />
+                  Regenerate
+                </>
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Dialog>
   );
 };
