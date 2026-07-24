@@ -47,3 +47,6 @@ verify_jwt = false
 
 [functions.mcp-blog]
 verify_jwt = false
+
+[functions.get-mcp-admin-key]
+verify_jwt = false
