@@ -1,68 +1,90 @@
-## Tujuan
 
-1. **Pertahankan** alur input manual Zoom di dialog Detail Order (tidak diubah).
-2. **Tambah** tombol "Regenerate Jadwal Rapatin" sebagai opsi pemulihan otomatis ketika API Rapatin gagal / timeout saat webhook `paid`.
-3. **Dialog Detail Order** memakai tinggi statis (konsisten di semua kondisi konten) dengan scroll internal yang berfungsi.
+# MCP Server: Blog Articles
 
-## Konteks
+Membangun MCP server (Streamable HTTP) sebagai Supabase Edge Function `mcp-blog`, diamankan dengan **API key admin** yang disimpan di secret `MCP_ADMIN_API_KEY`. Agen AI (Claude Desktop, ChatGPT, Cursor, dll) bisa terhubung ke endpoint ini dengan menyertakan header `Authorization: Bearer <API_KEY>`.
 
-- `supabase/functions/xendit-webhook/index.ts` memanggil `createRapatinSchedule` (POST `https://api.rapatin.id/schedules`) saat pembayaran `paid`. Kalau gagal / timeout, order tetap `paid` tapi `rapatin_order_id`, `zoom_link`, `meeting_id`, `zoom_passcode` kosong.
-- Sekarang admin cuma bisa isi manual di dialog (form yang sudah ada). Setelah perubahan ini, admin punya dua opsi berdampingan: **regenerate via API** atau **isi manual** seperti biasa.
-- `DialogContent` sekarang pakai `max-w-2xl max-h-[90vh] overflow-y-auto` sehingga tinggi mengikuti isi (kecil untuk order simpel, hampir 90vh untuk order recurring), dan header ikut tergulir.
+## Endpoint & Auth
 
-## Rencana
+- URL: `https://mepznzrijuoyvjcmkspf.supabase.co/functions/v1/mcp-blog`
+- Config: `verify_jwt = false` di `supabase/config.toml` (autentikasi ditangani di dalam function).
+- Setiap request diverifikasi: `Authorization: Bearer <MCP_ADMIN_API_KEY>` — kalau salah → 401.
+- Fungsi bicara ke Supabase pakai `SUPABASE_SERVICE_ROLE_KEY` (server-side saja, tidak pernah keluar dari edge function) sehingga bisa read+write `blog_posts` tanpa terhalang RLS.
 
-### 1. Edge function baru: `regenerate-rapatin-schedule`
+## Secrets
 
-File: `supabase/functions/regenerate-rapatin-schedule/index.ts`.
+- `MCP_ADMIN_API_KEY` (baru) — di-generate otomatis 48 char via `generate_secret`. Nilainya akan saya tampilkan di dashboard Supabase Secrets untuk Anda salin ke konfigurasi MCP client.
+- `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_URL` — sudah ada.
 
-- Input: `{ orderId: string }`, POST, CORS via `npm:@supabase/supabase-js@2/cors`.
-- Auth: batasi ke admin — panggil `is_admin_user()` RPC dengan client yang membawa JWT caller (pola yang sama dipakai fungsi admin lain; verifikasi saat implementasi dan fallback ke pengecekan `admin_users.email` bila diperlukan). Reject 401/403 kalau bukan admin.
-- Alur:
-  1. Load `guest_orders` by id (pakai service role).
-  2. Validasi `payment_status = 'paid'`. Tolak kalau bukan.
-  3. Guard: kalau `rapatin_order_id` sudah terisi → tolak (kecuali `force: true` dilempar dari UI setelah konfirmasi eksplisit).
-  4. Panggil `createRapatinSchedule` dengan parameter sesuai kolom order (topic, tanggal, jam, passcode custom/generate, semua flag meeting, semua field recurring — 1:1 dengan yang dikirim webhook). Set `AbortSignal.timeout(45_000)` agar fungsi tidak menggantung menunggu Rapatin.
-  5. Sukses → update `rapatin_order_id`, `zoom_link`, `zoom_passcode`, `meeting_id`. Return `{ ok: true, data }`.
-  6. Gagal → return `{ ok: false, error, rapatin_status }`. Jangan sentuh kolom Zoom.
-- Refactor: pindahkan `getRapatinToken`, `createRapatinSchedule`, `PARTICIPANT_TO_PRODUCT_ID`, `generatePasscode` dari `xendit-webhook` ke `supabase/functions/_shared/rapatin.ts` supaya dipakai dua fungsi tanpa duplikasi. Perilaku webhook tidak berubah.
+## Protocol
 
-### 2. UI: tombol "Regenerate Jadwal Rapatin" — mendampingi input manual
+Implementasi manual MCP Streamable HTTP (JSON-RPC 2.0) tanpa dependency berat, karena project pakai Deno edge function. Method yang di-handle:
 
-File: `src/components/admin/OrderDetailDialog.tsx`.
+- `initialize` — return server info + capabilities `{ tools: {} }`.
+- `tools/list` — return daftar tool di bawah.
+- `tools/call` — dispatch ke handler tool.
+- `notifications/initialized`, `ping` — no-op / pong.
 
-- **Input manual TIDAK dihapus** — tetap seperti sekarang (form Meeting ID / Passcode / Link Zoom + tombol "Isi manual" / Simpan / Batal).
-- Tambah tombol baru di section Zoom (di atas atau bersebelahan dengan tombol "Isi manual"): label "Regenerate Jadwal Rapatin", icon `RefreshCw`, variant `outline`.
-- Kondisi tampil: `payment_status === 'paid'` **dan** `!rapatin_order_id`. Boleh tampil meskipun admin sudah isi zoom manual — dalam kasus itu tombol pakai variant `secondary` dan konfirmasi memperingatkan bahwa data manual akan ditimpa hasil dari Rapatin.
-- Handler: `AlertDialog` konfirmasi (menampilkan topik + tanggal + waktu + peserta) → `supabase.functions.invoke('regenerate-rapatin-schedule', { body: { orderId } })` → toast sukses/gagal → `onUpdate()` untuk refresh order.
-- Loading state pakai `Loader2`; disable tombol input manual selama regenerate berjalan.
+Response mendukung `Accept: application/json, text/event-stream` sesuai spec (single JSON response cukup untuk tool call sederhana).
 
-### 3. Dialog tinggi statis + scroll internal
+## Tools yang di-expose
 
-File yang sama.
+1. **`list_articles`** — read
+   - Input: `{ status?: 'draft'|'published'|'scheduled', category?: string, limit?: number (default 20, max 100), search?: string }`
+   - Return ringkasan: `id, title, slug, status, category, published_at, focus_keyword, word_count`.
 
-Ubah `DialogContent` jadi kolom tinggi tetap dengan body scrollable:
+2. **`get_article`** — read
+   - Input: `{ id?: string, slug?: string }` (salah satu wajib)
+   - Return full row `blog_posts`.
 
-```tsx
-<DialogContent className="max-w-2xl h-[85vh] p-0 flex flex-col overflow-hidden">
-  <DialogHeader className="px-6 pt-6 pb-4 border-b shrink-0"> … </DialogHeader>
-  <div className="flex-1 overflow-y-auto px-6 py-4 space-y-6">
-    {/* seluruh section konten */}
-  </div>
-</DialogContent>
-```
+3. **`create_article`** — write
+   - Input: `{ title, content, excerpt?, cover_image?, category, author_id?, focus_keyword?, seo_title?, meta_description?, slug?, status?: 'draft'|'published'|'scheduled', published_at?, send_notification? }`
+   - Default `status='draft'`, `author_id` fallback ke default admin (`da51c3a0-...`) jika kosong.
+   - Slug auto-generate dari title kalau tidak diisi; word_count dihitung dari content (strip HTML) memakai logika sama seperti `src/utils/wordCount.ts`.
 
-- Hapus `max-h-[90vh] overflow-y-auto` di root.
-- Tinggi `h-[85vh]` konsisten untuk order simpel maupun recurring panjang; verifikasi scroll dengan order recurring 20+ sesi.
-- Header (nomor order + status + tombol buka halaman publik) tetap terlihat tanpa ikut scroll.
+4. **`update_article`** — write
+   - Input: `{ id: string, ...fields sama dengan create (semua opsional) }`
+   - Partial update; recompute `word_count` jika `content` berubah.
 
-## Cakupan yang TIDAK diubah
+5. **`delete_article`** — write
+   - Input: `{ id: string, confirm: true }`
+   - Guard `confirm=true` supaya agen tidak menghapus tak sengaja.
 
-- Alur pembayaran, Kledo sync, email, WhatsApp, notifikasi admin.
-- Skema DB, RLS, GRANT.
-- Form input manual Zoom (perilaku persis sekarang).
-- Halaman lain (SEO landing, blog, KirimChat, dsb).
+6. **`publish_article`** — write shortcut
+   - Input: `{ id: string, send_notification?: boolean }`
+   - Set `status='published'`, `published_at=now()`; trigger `handle_new_article_notification` akan membuat notifikasi (mekanisme existing).
 
-## Klarifikasi
+Semua tool return `{ content: [{ type: 'text', text: JSON.stringify(result) }] }` sesuai MCP spec, dan `isError: true` bila validasi gagal.
 
-Tinggi dialog `h-[85vh]` cocok untuk laptop 13"+. Kalau Anda mau angka spesifik lain (mis. `h-[80vh]` atau cap `min(720px, 85vh)`), sebutkan — kalau tidak, saya pakai `85vh`.
+## Validasi
+
+Zod (via `npm:zod`) untuk input tiap tool. Field enum `status` dibatasi ke tiga nilai valid. `slug` di-normalisasi (lowercase, dash) dan dicek unik sebelum insert/update.
+
+## Admin UI (opsional, ringan)
+
+Menambahkan halaman info `/admin/mcp-server` di sidebar bagian "Pengaturan" berisi:
+- URL endpoint MCP.
+- Instruksi konfigurasi di Claude Desktop / Cursor (`mcpServers` JSON snippet dengan `Authorization` header).
+- Tombol link ke Supabase Secrets untuk melihat/rotate `MCP_ADMIN_API_KEY`.
+
+Tidak menyimpan API key di database — hanya di Supabase Secrets.
+
+## File changes
+
+- `supabase/functions/mcp-blog/index.ts` (baru) — server MCP + tool handlers.
+- `supabase/config.toml` — tambah `[functions.mcp-blog] verify_jwt = false`.
+- `src/pages/admin/McpServerInfo.tsx` (baru) — halaman panduan konek.
+- `src/components/admin/AdminLayout.tsx` — tambah menu "MCP Server" di grup Pengaturan.
+- `src/App.tsx` — daftarkan route `/admin/mcp-server`.
+
+## Verifikasi
+
+Setelah deploy:
+1. `curl` ke endpoint dengan `Authorization: Bearer <key>` dan payload `tools/list` → harus balas 6 tools.
+2. Panggil `list_articles` dengan `limit: 3` → memastikan read jalan.
+3. Panggil `create_article` (status draft) → cek row muncul di `blog_posts` via `supabase--read_query`, lalu `delete_article` untuk cleanup.
+4. Salah API key → 401.
+
+## Catatan
+
+- Karena project pakai custom admin auth (bukan Supabase Auth), OAuth 2.1 dari `@lovable.dev/mcp-js` tidak dipakai. Pendekatan bearer API key ini setara dengan model "static access token" yang didukung MCP clients populer.
+- Jika nanti ingin per-agen token / rotasi granular, bisa ditambah tabel `mcp_api_keys` dengan hashing — di luar scope sekarang.

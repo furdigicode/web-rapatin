@@ -15,7 +15,8 @@ import {
   ShoppingCart,
   Webhook,
   MessageCircle,
-  Zap
+  Zap,
+  Server
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -270,6 +271,17 @@ const AppSidebar = () => {
                   <Link to="/admin/tracking">
                     <Settings />
                     <span>Tracking</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  asChild
+                  isActive={location.pathname === '/admin/mcp-server'}
+                >
+                  <Link to="/admin/mcp-server">
+                    <Server />
+                    <span>MCP Server</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
