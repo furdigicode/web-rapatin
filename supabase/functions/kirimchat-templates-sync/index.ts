@@ -14,6 +14,17 @@ function countVariables(body: string | null | undefined): number {
   return Math.max(...matches.map((m) => parseInt(m[1], 10)));
 }
 
+// Extract text from a Meta template component (HEADER text, BODY, FOOTER)
+function componentText(components: any[], type: string): string | null {
+  const c = components?.find((x) => (x?.type ?? "").toUpperCase() === type.toUpperCase());
+  if (!c) return null;
+  return c.text ?? null;
+}
+
+function componentByType(components: any[], type: string): any | null {
+  return components?.find((x) => (x?.type ?? "").toUpperCase() === type.toUpperCase()) ?? null;
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   if (req.method !== "POST") {
@@ -26,10 +37,11 @@ serve(async (req) => {
   const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
   const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
   const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
-  const apiKey = Deno.env.get("KIRIMCHAT_API_KEY");
+  const apiKey = Deno.env.get("KIRIMDEV_API_KEY");
+  const phoneNumberId = Deno.env.get("KIRIMDEV_PHONE_NUMBER_ID");
 
-  if (!apiKey) {
-    return new Response(JSON.stringify({ error: "KIRIMCHAT_API_KEY missing" }), {
+  if (!apiKey || !phoneNumberId) {
+    return new Response(JSON.stringify({ error: "KIRIMDEV_API_KEY / KIRIMDEV_PHONE_NUMBER_ID missing" }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
@@ -70,38 +82,46 @@ serve(async (req) => {
   }
 
   try {
-    const res = await fetch(
-      "https://api-prod.kirim.chat/api/v1/public/templates?limit=200",
-      { headers: { Authorization: `Bearer ${apiKey}` } },
-    );
+    // Kirimdev is Meta-compatible: use message_templates endpoint on the WABA/phone number.
+    const url = `https://api.kirimdev.com/v1/${phoneNumberId}/message_templates?limit=200`;
+    const res = await fetch(url, {
+      headers: { Authorization: `Bearer ${apiKey}` },
+    });
     const text = await res.text();
     if (!res.ok) {
-      console.error("KirimChat templates fetch failed", res.status, text);
+      console.error("Kirimdev templates fetch failed", res.status, text);
       return new Response(
         JSON.stringify({ error: "Upstream error", status: res.status, body: text }),
         { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
     const json = JSON.parse(text);
-    const items = Array.isArray(json?.data) ? json.data : [];
+    const items: any[] = Array.isArray(json?.data) ? json.data : [];
 
     let synced = 0;
     for (const t of items) {
-      const body_content = t.content ?? null;
+      // Meta template shape: { id, name, language, category, status, components: [{type: HEADER|BODY|FOOTER|BUTTONS, ...}] }
+      const components: any[] = Array.isArray(t.components) ? t.components : [];
+      const header = componentByType(components, "HEADER");
+      const body_content = componentText(components, "BODY");
+      const footer_content = componentText(components, "FOOTER");
+      const buttonsComp = componentByType(components, "BUTTONS");
+      const buttons = buttonsComp?.buttons ?? [];
       const variable_count = countVariables(body_content);
+
       const row = {
         external_id: t.id ?? "",
-        template_name: t.template_name,
+        template_name: t.name,
         language: t.language ?? "id",
         status: t.status ?? null,
         category: t.category ?? null,
-        header_type: t.header_type ?? null,
-        header_content: t.header_content ?? null,
+        header_type: header?.format ?? null,
+        header_content: header?.text ?? header?.example?.header_handle?.[0] ?? null,
         body_content,
-        footer_content: t.footer_content ?? null,
-        buttons: t.buttons ?? [],
-        variables: t.variables ?? [],
-        has_variables: !!t.has_variables || variable_count > 0,
+        footer_content,
+        buttons,
+        variables: [],
+        has_variables: variable_count > 0,
         variable_count,
         raw: t,
         synced_at: new Date().toISOString(),
