@@ -383,9 +383,9 @@ const KirimchatRules: React.FC = () => {
   const variableCount = isTextAction ? 0 : (selectedTemplate?.variable_count ?? 0);
 
   return (
-    <AdminLayout title="KirimChat Rules">
+    <AdminLayout title="Kirimdev Rules">
       <AdminPageHeader
-        title="KirimChat Rules"
+        title="Kirimdev Rules"
         description="Otomatisasi pengiriman pesan template berdasarkan event webhook dan keyword."
       >
         <Button onClick={openCreate}>
@@ -395,7 +395,7 @@ const KirimchatRules: React.FC = () => {
 
       {templates.length === 0 && !loading && (
         <div className="mb-4 rounded-md border border-amber-300 bg-amber-50 text-amber-900 p-3 text-sm">
-          Belum ada template di database. Buka menu <strong>Templates</strong> dan klik "Sinkron dari KirimChat" terlebih dahulu.
+          Belum ada template di database. Buka menu <strong>Templates</strong> dan klik "Sinkron dari Kirimdev" terlebih dahulu.
         </div>
       )}
 
@@ -794,7 +794,7 @@ const KirimchatRules: React.FC = () => {
                               </div>
                               {log.dispatch_request && (
                                 <div>
-                                  <div className="text-xs font-semibold mb-1">Request ke KirimChat</div>
+                                  <div className="text-xs font-semibold mb-1">Request ke Kirimdev</div>
                                   <pre className="text-[11px] p-2 rounded bg-background border overflow-x-auto max-h-[300px]">
 {JSON.stringify(log.dispatch_request, null, 2)}
                                   </pre>
@@ -803,7 +803,7 @@ const KirimchatRules: React.FC = () => {
                               {log.dispatch_response && (
                                 <div>
                                   <div className="text-xs font-semibold mb-1">
-                                    Response KirimChat {log.dispatch_status_code != null && `(HTTP ${log.dispatch_status_code})`}
+                                    Response Kirimdev {log.dispatch_status_code != null && `(HTTP ${log.dispatch_status_code})`}
                                   </div>
                                   <pre className="text-[11px] p-2 rounded bg-background border overflow-x-auto max-h-[300px]">
 {JSON.stringify(log.dispatch_response, null, 2)}

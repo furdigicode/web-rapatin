@@ -87,14 +87,14 @@ const KirimchatTemplates: React.FC = () => {
   };
 
   return (
-    <AdminLayout title="KirimChat Templates">
+    <AdminLayout title="Kirimdev Templates">
       <AdminPageHeader
-        title="KirimChat Templates"
-        description="Daftar template WhatsApp dari akun KirimChat. Sinkronkan untuk memperbarui."
+        title="Kirimdev Templates"
+        description="Daftar template WhatsApp dari akun Kirimdev. Sinkronkan untuk memperbarui."
       >
         <Button onClick={sync} disabled={syncing}>
           <RefreshCw className={`mr-2 h-4 w-4 ${syncing ? "animate-spin" : ""}`} />
-          {syncing ? "Menyinkron…" : "Sinkron dari KirimChat"}
+          {syncing ? "Menyinkron…" : "Sinkron dari Kirimdev"}
         </Button>
       </AdminPageHeader>
 
@@ -121,7 +121,7 @@ const KirimchatTemplates: React.FC = () => {
             ) : templates.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
-                  Belum ada template. Klik "Sinkron dari KirimChat" untuk mengambil.
+                  Belum ada template. Klik "Sinkron dari Kirimdev" untuk mengambil.
                 </TableCell>
               </TableRow>
             ) : (
