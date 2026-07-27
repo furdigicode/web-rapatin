@@ -86,7 +86,7 @@ serve(async (req) => {
     const kirimResponse = await kirimdevSendTemplate({
       to: ADMIN_PHONE,
       name: templateName,
-      languageCode: "id",
+      languageCode: "id_ID",
       components: [
         {
           type: "body",
