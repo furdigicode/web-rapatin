@@ -10,9 +10,9 @@ const corsHeaders = {
 // Hardcoded admin WhatsApp number
 const ADMIN_PHONE = "6282133579061";
 
-function formatRupiah(amount: number): string {
-  // Plain ASCII "Rp " + Indonesian thousand separators (dots). No NBSP.
-  return "Rp " + (amount ?? 0).toLocaleString("id-ID", { maximumFractionDigits: 0 }).replace(/\u00A0/g, " ");
+function formatAmount(amount: number): string {
+  // Template already contains "Rp " prefix. Return only the number with Indonesian thousand separators.
+  return (amount ?? 0).toLocaleString("id-ID", { maximumFractionDigits: 0 }).replace(/\u00A0/g, " ");
 }
 
 function sanitizeParam(v: unknown): string {
