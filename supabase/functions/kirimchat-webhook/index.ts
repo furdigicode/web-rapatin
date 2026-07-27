@@ -1,12 +1,13 @@
-// v2 text-action support
+// v3 kirimdev migration
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { kirimdevSendText, kirimdevSendTemplate } from "../_shared/kirimdev.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type, x-webhook-signature, x-kirimchat-signature, x-signature",
+    "authorization, x-client-info, apikey, content-type, x-webhook-signature, x-kirimchat-signature, x-signature, x-hub-signature-256",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
