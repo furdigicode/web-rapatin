@@ -92,7 +92,7 @@ serve(async (req) => {
         parameters: [
           { type: "text", text: sanitizeParam(orderNumber) },
           { type: "text", text: sanitizeParam(order.name) },
-          { type: "text", text: sanitizeParam(formatRupiah(order.price)) },
+          { type: "text", text: formatAmount(order.price) },
           { type: "text", text: sanitizeParam(order.meeting_topic || "-") },
           { type: "text", text: sanitizeParam(dateTimeStr) },
           { type: "text", text: sanitizeParam(order.participant_count) },
