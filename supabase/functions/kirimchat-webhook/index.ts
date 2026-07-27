@@ -404,7 +404,7 @@ serve(async (req) => {
           result = await sendTemplate(
             normalizePhone(phone_number),
             matched.template_name,
-            matched.template_language || "id",
+            matched.template_language || "id_ID",
             matched.header_image_url || null,
             resolvedVars,
           );
