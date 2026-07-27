@@ -77,8 +77,63 @@ async function computeHmacHex(secret: string, body: string): Promise<string> {
   return toHex(sig);
 }
 
-function extractProvidedSig(req: Request): { header: string; value: string } | null {
+function uniqueSecrets(...values: Array<string | undefined>): string[] {
+  return Array.from(new Set(values.map((v) => v?.trim()).filter(Boolean) as string[]));
+}
+
+function parseKirimdevSignature(value: string): { timestamp: number; signatures: string[] } | null {
+  const parts = value.split(",").map((part) => part.trim());
+  const timestampPart = parts.find((part) => part.startsWith("t="));
+  const signatureParts = parts
+    .filter((part) => part.startsWith("v1="))
+    .map((part) => part.slice(3).trim().toLowerCase())
+    .filter(Boolean);
+
+  if (!timestampPart || signatureParts.length === 0) return null;
+
+  const timestamp = Number(timestampPart.slice(2));
+  if (!Number.isFinite(timestamp)) return null;
+
+  return { timestamp, signatures: signatureParts };
+}
+
+async function verifyKirimdevSignature(
+  headerValue: string,
+  rawBody: string,
+  secrets: string[],
+): Promise<{ ok: boolean; reason?: string; expectedPrefix?: string; gotPrefix?: string }> {
+  const parsed = parseKirimdevSignature(headerValue);
+  if (!parsed) {
+    return { ok: false, reason: "malformed_kirimdev_signature" };
+  }
+
+  const toleranceSeconds = 5 * 60;
+  const nowSeconds = Math.floor(Date.now() / 1000);
+  if (Math.abs(nowSeconds - parsed.timestamp) > toleranceSeconds) {
+    return { ok: false, reason: "expired_kirimdev_signature", gotPrefix: `t=${parsed.timestamp}` };
+  }
+
+  let firstExpectedPrefix: string | undefined;
+  const signedPayload = `${parsed.timestamp}.${rawBody}`;
+  for (const secret of secrets) {
+    const expected = await computeHmacHex(secret, signedPayload);
+    firstExpectedPrefix ??= expected.slice(0, 8);
+    if (parsed.signatures.some((sig) => constantTimeEqual(sig, expected))) {
+      return { ok: true };
+    }
+  }
+
+  return {
+    ok: false,
+    reason: "invalid_kirimdev_signature",
+    expectedPrefix: firstExpectedPrefix,
+    gotPrefix: parsed.signatures[0]?.slice(0, 8),
+  };
+}
+
+function extractLegacySig(req: Request): { header: string; value: string } | null {
   for (const h of SIGNATURE_HEADERS) {
+    if (h === "x-kirim-signature") continue;
     const v = req.headers.get(h);
     if (v) {
       const cleaned = v.trim().replace(/^sha256=/i, "").toLowerCase();
@@ -104,22 +159,45 @@ serve(async (req) => {
 
   // Signature verification
   // Signature verification (accept Kirimdev secret, fallback to legacy KirimChat secret)
-  const secret = Deno.env.get("KIRIMDEV_WEBHOOK_SECRET") || Deno.env.get("KIRIMCHAT_WEBHOOK_SECRET");
-  if (secret) {
-    const provided = extractProvidedSig(req);
-    if (!provided) {
+  const secrets = uniqueSecrets(Deno.env.get("KIRIMDEV_WEBHOOK_SECRET"), Deno.env.get("KIRIMCHAT_WEBHOOK_SECRET"));
+  if (secrets.length > 0) {
+    const kirimSignature = req.headers.get("x-kirim-signature");
+    const legacySignature = extractLegacySig(req);
+
+    if (kirimSignature) {
+      const verified = await verifyKirimdevSignature(kirimSignature, rawBody, secrets);
+      if (!verified.ok) {
+        console.error(
+          `Invalid signature (header: x-kirim-signature, reason: ${verified.reason}). expected_prefix=${verified.expectedPrefix ?? "n/a"} got_prefix=${verified.gotPrefix ?? "n/a"}`,
+        );
+        return new Response(JSON.stringify({ error: "Invalid signature" }), {
+          status: 401,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+    } else if (legacySignature) {
+      let matched = false;
+      let firstExpectedPrefix: string | undefined;
+      for (const secret of secrets) {
+        const expected = await computeHmacHex(secret, rawBody);
+        firstExpectedPrefix ??= expected.slice(0, 8);
+        if (constantTimeEqual(legacySignature.value, expected)) {
+          matched = true;
+          break;
+        }
+      }
+      if (!matched) {
+        console.error(
+          `Invalid signature (header: ${legacySignature.header}). expected_prefix=${firstExpectedPrefix ?? "n/a"} got_prefix=${legacySignature.value.slice(0, 8)}`,
+        );
+        return new Response(JSON.stringify({ error: "Invalid signature" }), {
+          status: 401,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+    } else {
       console.error("Missing signature header. Headers seen:", [...req.headers.keys()].join(", "));
       return new Response(JSON.stringify({ error: "Missing signature" }), {
-        status: 401,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-    const expected = await computeHmacHex(secret, rawBody);
-    if (!constantTimeEqual(provided.value, expected)) {
-      console.error(
-        `Invalid signature (header: ${provided.header}). expected_prefix=${expected.slice(0, 8)} got_prefix=${provided.value.slice(0, 8)}`,
-      );
-      return new Response(JSON.stringify({ error: "Invalid signature" }), {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
