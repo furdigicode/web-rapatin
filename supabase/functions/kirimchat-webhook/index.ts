@@ -7,11 +7,12 @@ import { kirimdevSendText, kirimdevSendTemplate } from "../_shared/kirimdev.ts";
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type, x-webhook-signature, x-kirimchat-signature, x-signature, x-hub-signature-256",
+    "authorization, x-client-info, apikey, content-type, x-webhook-signature, x-kirimchat-signature, x-signature, x-hub-signature-256, x-kirim-signature, x-kirim-event, x-kirim-event-id, x-kirim-delivery-id, x-kirim-attempt, x-kirim-source",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
 const SIGNATURE_HEADERS = [
+  "x-kirim-signature",
   "x-webhook-signature",
   "x-kirimchat-signature",
   "x-kirim-chat-signature",
