@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { kirimdevSendTemplate } from "../_shared/kirimdev.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -32,9 +33,8 @@ serve(async (req) => {
       });
     }
 
-    const apiKey = Deno.env.get("KIRIMCHAT_API_KEY");
-    if (!apiKey) {
-      console.error("Missing KIRIMCHAT_API_KEY");
+    if (!Deno.env.get("KIRIMDEV_API_KEY") || !Deno.env.get("KIRIMDEV_PHONE_NUMBER_ID")) {
+      console.error("Missing Kirimdev credentials");
       return new Response(JSON.stringify({ error: "WhatsApp service not configured" }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -59,7 +59,6 @@ serve(async (req) => {
       });
     }
 
-    // Format date
     const meetingDate = new Date(order.meeting_date);
     const formattedDate = meetingDate.toLocaleDateString("id-ID", {
       day: "numeric",
@@ -70,7 +69,6 @@ serve(async (req) => {
 
     const orderNumber = order.order_number || "-";
 
-    // Determine template name based on event type
     let templateName = "";
     if (event_type === "new_order") {
       templateName = "order_new";
@@ -85,47 +83,36 @@ serve(async (req) => {
 
     console.log(`Sending admin notification (${event_type}) for order:`, order_id);
 
-    const kirimResponse = await fetch("https://api-prod.kirim.chat/api/v1/public/messages/send", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        phone_number: ADMIN_PHONE,
-        channel: "whatsapp",
-        message_type: "template",
-        template: {
-          name: templateName,
-          language: { code: "id" },
-          components: [
-            {
-              type: "body",
-              parameters: [
-                { type: "text", text: orderNumber },
-                { type: "text", text: order.name },
-                { type: "text", text: formatRupiah(order.price) },
-                { type: "text", text: order.meeting_topic || "-" },
-                { type: "text", text: dateTimeStr },
-                { type: "text", text: `${order.participant_count}` },
-              ],
-            },
-            {
-              type: "button",
-              sub_type: "url",
-              index: "0",
-              parameters: [{ type: "text", text: `${order.access_slug || ""}` }],
-            },
+    const kirimResponse = await kirimdevSendTemplate({
+      to: ADMIN_PHONE,
+      name: templateName,
+      languageCode: "id",
+      components: [
+        {
+          type: "body",
+          parameters: [
+            { type: "text", text: orderNumber },
+            { type: "text", text: order.name },
+            { type: "text", text: formatRupiah(order.price) },
+            { type: "text", text: order.meeting_topic || "-" },
+            { type: "text", text: dateTimeStr },
+            { type: "text", text: `${order.participant_count}` },
           ],
         },
-      }),
+        {
+          type: "button",
+          sub_type: "url",
+          index: "0",
+          parameters: [{ type: "text", text: `${order.access_slug || ""}` }],
+        },
+      ],
     });
 
     const kirimResult = await kirimResponse.json();
-    console.log("KirimChat response:", JSON.stringify(kirimResult));
+    console.log("Kirimdev response:", JSON.stringify(kirimResult));
 
     if (!kirimResponse.ok) {
-      console.error("KirimChat error:", kirimResult);
+      console.error("Kirimdev error:", kirimResult);
       return new Response(JSON.stringify({ error: "Failed to send admin notification" }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -140,7 +127,7 @@ serve(async (req) => {
     });
   } catch (error) {
     console.error("Error in notify-admin-order:", error);
-    return new Response(JSON.stringify({ error: "Internal server error" }), {
+    return new Response(JSON.stringify({ error: (error as Error).message || "Internal server error" }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
