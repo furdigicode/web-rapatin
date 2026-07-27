@@ -1,27 +1,50 @@
+## Penyebab
 
-## Diagnosa
+Payload yang kita kirim untuk `INV-260727-0005`:
 
-Template `order_new` & `order_paid` di Kirimdev sebenarnya `language: "id"` (bukan `id_ID` — data DB `kirimchat_templates` yang otoritatif). Jadi perubahan sebelumnya justru bikin lebih salah, dan test barusan tetap gagal `invalid_field_value / Invalid input`.
+```json
+{
+  "template": "order_new",
+  "language": "id",
+  "components": [
+    {
+      "type": "body",
+      "parameters": [
+        { "type": "text", "text": "INV-260727-0005" },   // {{1}} No. Order
+        { "type": "text", "text": "Test" },              // {{2}} Pembeli
+        { "type": "text", "text": "Rp 25.000" },         // {{3}} Jumlah  ❌
+        { "type": "text", "text": "Topik" },             // {{4}} Topik
+        { "type": "text", "text": "27 Juli 2026, 19:00 WIB" }, // {{5}} Waktu
+        { "type": "text", "text": "100" }                // {{6}} Kapasitas
+      ]
+    },
+    {
+      "type": "button", "sub_type": "url", "index": "0",
+      "parameters": [{ "type": "text", "text": "Cel44UoArig4NYFqF8maWw62" }]
+    }
+  ]
+}
+```
 
-Karena Kirimdev tidak mengembalikan `error.param`, kita tidak bisa pinpoint field. Kandidat masalah:
-- `formatRupiah` via `Intl.NumberFormat("id-ID", currency IDR)` menghasilkan `Rp` + U+00A0 (non-breaking space) di variabel body. Meta/Kirimdev kadang menolak whitespace non-standar di parameter template.
-- Payload request tidak pernah di-log, jadi kita menerka.
+Dari screenshot template Meta:
+- Body `{{3}}` sudah punya prefix `Rp` di dalam template (`Jumlah: Rp *{{3}}*`), dan **Jenis variabel = Angka**. Kita duplikasi "Rp" dan kirim string non-numerik → `invalid_field_value`.
+- Button URL `{{1}}` menggunakan base `https://rapatin.id/quick-order/{{1}}` (dinamis). Slug polos `Cel44UoArig4NYFqF8maWw62` sudah benar untuk kolom ini — tidak perlu diubah.
 
-## Perubahan
+## Perubahan (satu file)
 
-1. `supabase/functions/_shared/kirimdev.ts` — kembalikan default `languageCode` ke `"id"`.
-2. `supabase/functions/notify-admin-order/index.ts`:
-   - `languageCode: "id"` (samakan dengan template terdaftar).
-   - Ganti `formatRupiah` menjadi format manual `"Rp " + amount.toLocaleString("id-ID")` (spasi biasa, tanpa NBSP, tanpa desimal).
-   - Sanitize semua body parameter: trim, ganti newline/tab dengan spasi, collapse whitespace berlebih.
-   - Log payload request lengkap sebelum fetch, dan log `request_id` + `param` dari response error.
-3. `supabase/functions/send-whatsapp-notification/index.ts` — balik ke `languageCode: "id"` (template `akses` juga `id` di DB), samakan sanitasi & pretty rupiah tidak dipakai di sini, cukup kembalikan language.
-4. `supabase/functions/kirimchat-webhook/index.ts` — fallback `template_language` kembali ke `"id"`.
+`supabase/functions/notify-admin-order/index.ts`:
 
-Tidak ubah UI, tabel, atau logika bisnis.
+1. Ganti param `{{3}}` (Jumlah) menjadi hanya angka terformat tanpa "Rp":
+   ```
+   order.price.toLocaleString("id-ID")   // "25.000"
+   ```
+   Hapus/hentikan pemakaian `formatRupiah` untuk parameter ini.
+2. Pastikan `{{6}}` Kapasitas dikirim sebagai string angka murni: `String(order.participant_count)` tanpa sanitasi yang bisa menyisipkan spasi.
+3. Biarkan `{{1}}, {{2}}, {{4}}, {{5}}` apa adanya (`sanitizeParam` cukup) — semua tipe teks.
+4. Button URL parameter tetap `access_slug` (base URL sudah di template).
+
+Kalau setelah deploy Kirimdev masih tolak, langkah berikutnya adalah verifikasi tipe variabel `{{2}}` di preview (kemungkinan sebenarnya Teks, tapi dropdown di screenshot menunjukkan "Angka" di posisi teratas — perlu konfirmasi user). Log payload sudah aktif jadi akan langsung terlihat.
 
 ## Verifikasi
-
-- Setelah deploy, klik "Kirim Notif Admin" di dialog order INV-260727-0005.
-- Cek log `notify-admin-order`: baris "Request payload:" akan menampilkan JSON yang tepat kita kirim; jika Kirimdev masih tolak, error message + `request_id` diketahui persis untuk step berikutnya.
-- Ekspektasi utama: request berhasil (200), admin menerima WA `order_new`.
+- Deploy, klik "Kirim Notif Admin" pada order `INV-260727-0005`.
+- Cek log `notify-admin-order`: baris "Kirimdev request payload" & "Kirimdev response" — target: 200 OK, WA masuk ke admin.
