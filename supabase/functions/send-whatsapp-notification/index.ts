@@ -94,7 +94,7 @@ serve(async (req) => {
     const kirimResponse = await kirimdevSendTemplate({
       to: order.whatsapp,
       name: "akses",
-      languageCode: "id_ID",
+      languageCode: "id",
       components: [
         {
           type: "body",

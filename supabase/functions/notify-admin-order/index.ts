@@ -11,11 +11,14 @@ const corsHeaders = {
 const ADMIN_PHONE = "6282133579061";
 
 function formatRupiah(amount: number): string {
-  return new Intl.NumberFormat("id-ID", {
-    style: "currency",
-    currency: "IDR",
-    minimumFractionDigits: 0,
-  }).format(amount);
+  // Plain ASCII "Rp " + Indonesian thousand separators (dots). No NBSP.
+  return "Rp " + (amount ?? 0).toLocaleString("id-ID", { maximumFractionDigits: 0 }).replace(/\u00A0/g, " ");
+}
+
+function sanitizeParam(v: unknown): string {
+  const s = String(v ?? "");
+  // Meta rejects newlines/tabs and >4 consecutive spaces in template params.
+  return s.replace(/[\r\n\t]+/g, " ").replace(/\s{2,}/g, " ").trim();
 }
 
 serve(async (req) => {
