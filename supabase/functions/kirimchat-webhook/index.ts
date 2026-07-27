@@ -1,12 +1,13 @@
-// v2 text-action support
+// v3 kirimdev migration
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { kirimdevSendText, kirimdevSendTemplate } from "../_shared/kirimdev.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type, x-webhook-signature, x-kirimchat-signature, x-signature",
+    "authorization, x-client-info, apikey, content-type, x-webhook-signature, x-kirimchat-signature, x-signature, x-hub-signature-256",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
@@ -101,7 +102,8 @@ serve(async (req) => {
   const rawBody = await req.text();
 
   // Signature verification
-  const secret = Deno.env.get("KIRIMCHAT_WEBHOOK_SECRET");
+  // Signature verification (accept Kirimdev secret, fallback to legacy KirimChat secret)
+  const secret = Deno.env.get("KIRIMDEV_WEBHOOK_SECRET") || Deno.env.get("KIRIMCHAT_WEBHOOK_SECRET");
   if (secret) {
     const provided = extractProvidedSig(req);
     if (!provided) {
@@ -122,7 +124,7 @@ serve(async (req) => {
       });
     }
   } else {
-    console.warn("KIRIMCHAT_WEBHOOK_SECRET not configured — accepting without verification.");
+    console.warn("No webhook secret configured — accepting without verification.");
   }
 
   const supabase = createClient(
@@ -148,81 +150,77 @@ serve(async (req) => {
     });
   }
 
-  console.log("KirimChat webhook received:", JSON.stringify(body));
+  console.log("Webhook received:", JSON.stringify(body));
 
-  const eventTypeRaw = pick(body, [
-    "event",
-    "type",
-    "event_type",
-    "data.event",
-    "data.type",
-  ]);
+  // Detect & normalize Meta WhatsApp Cloud API (Kirimdev-native) payloads.
+  // Shape: { object: "whatsapp_business_account", entry: [{ changes: [{ value: { messages | statuses } }] }] }
+  const metaValue = body?.entry?.[0]?.changes?.[0]?.value;
+  const metaMessage = metaValue?.messages?.[0];
+  const metaStatus = metaValue?.statuses?.[0];
+
+  let eventTypeRaw: string | null;
+  let channel: string | null;
+  let message_id: string | null;
+  let phone_number: string | null;
+  let template_name: string | null;
+  let error_message: string | null;
+  let message_text: string;
+  let customer_name_meta: string | null = null;
+
+  if (metaMessage) {
+    eventTypeRaw = "message.received";
+    channel = "whatsapp";
+    message_id = metaMessage.id ?? null;
+    phone_number = metaMessage.from ?? null;
+    template_name = null;
+    error_message = null;
+    message_text = metaMessage.text?.body
+      ?? metaMessage.button?.text
+      ?? metaMessage.interactive?.button_reply?.title
+      ?? metaMessage.interactive?.list_reply?.title
+      ?? "";
+    customer_name_meta = metaValue?.contacts?.[0]?.profile?.name ?? null;
+  } else if (metaStatus) {
+    eventTypeRaw = `message.${metaStatus.status}`; // sent | delivered | read | failed
+    channel = "whatsapp";
+    message_id = metaStatus.id ?? null;
+    phone_number = metaStatus.recipient_id ?? null;
+    template_name = null;
+    error_message = metaStatus.errors?.[0]?.message ?? metaStatus.errors?.[0]?.title ?? null;
+    message_text = "";
+  } else {
+    // Legacy KirimChat wrapper format
+    eventTypeRaw = pick(body, ["event", "type", "event_type", "data.event", "data.type"]);
+    channel = pick(body, ["channel", "data.channel", "message.channel"]);
+    message_id = pick(body, [
+      "message_id", "id", "message.id", "data.message_id", "data.id", "data.message.id",
+    ]);
+    phone_number = pick(body, [
+      "customer_phone", "customer.phone", "customer.phone_number",
+      "data.customer_phone", "data.customer.phone", "payload.customer_phone",
+      "phone_number", "phone", "from", "to",
+      "contact.phone", "contact.phone_number",
+      "data.phone_number", "data.from", "data.to", "data.contact.phone",
+      "message.from", "message.to",
+    ]);
+    template_name = pick(body, [
+      "template_name", "template.name", "data.template.name", "message.template.name",
+    ]);
+    error_message = pick(body, [
+      "error_message", "error.message", "error", "data.error.message", "data.error",
+    ]);
+    message_text = pick(body, [
+      "message", "text", "message.text", "message.body", "message.content",
+      "data.content", "data.message", "data.text",
+      "data.message.text", "data.message.body", "data.message.content",
+      "payload.message", "payload.text", "payload.content",
+      "content", "body",
+    ]) ?? "";
+  }
+
   const event_type = normalizeEventType(eventTypeRaw);
-
-  const channel = pick(body, ["channel", "data.channel", "message.channel"]);
-  const message_id = pick(body, [
-    "message_id",
-    "id",
-    "message.id",
-    "data.message_id",
-    "data.id",
-    "data.message.id",
-  ]);
-  const phone_number = pick(body, [
-    "customer_phone",
-    "customer.phone",
-    "customer.phone_number",
-    "data.customer_phone",
-    "data.customer.phone",
-    "payload.customer_phone",
-    "phone_number",
-    "phone",
-    "from",
-    "to",
-    "contact.phone",
-    "contact.phone_number",
-    "data.phone_number",
-    "data.from",
-    "data.to",
-    "data.contact.phone",
-    "message.from",
-    "message.to",
-  ]);
-  const template_name = pick(body, [
-    "template_name",
-    "template.name",
-    "data.template.name",
-    "message.template.name",
-  ]);
-  // Status mencerminkan hasil penerimaan webhook di backend kita, bukan status pesan KirimChat
+  // Status mencerminkan hasil penerimaan webhook di backend kita, bukan status pesan.
   const status = "received";
-  const error_message = pick(body, [
-    "error_message",
-    "error.message",
-    "error",
-    "data.error.message",
-    "data.error",
-  ]);
-
-  // Extract message text for rule matching
-  const message_text = pick(body, [
-    "message",
-    "text",
-    "message.text",
-    "message.body",
-    "message.content",
-    "data.content",
-    "data.message",
-    "data.text",
-    "data.message.text",
-    "data.message.body",
-    "data.message.content",
-    "payload.message",
-    "payload.text",
-    "payload.content",
-    "content",
-    "body",
-  ]) ?? "";
 
   const { data: insertedRows, error: insertError } = await supabase
     .from("kirimchat_webhook_events")
@@ -293,7 +291,7 @@ serve(async (req) => {
         }
 
         const ctx: Record<string, string> = {
-          customer_name: pick(body, ["data.customer_name", "data.contacts.0.profile.name"]) ?? "",
+          customer_name: customer_name_meta ?? pick(body, ["data.customer_name", "data.contacts.0.profile.name"]) ?? "",
           customer_phone: phone_number ?? "",
           customer_id: pick(body, ["data.customer_id"]) ?? "",
           channel: channel ?? "",
@@ -412,30 +410,19 @@ async function sendText(
   phone: string,
   content: string,
 ): Promise<{ ok: boolean; status: number; body: string; request: any; durationMs: number }> {
-  const apiKey = Deno.env.get("KIRIMCHAT_API_KEY");
   const requestBody = {
-    phone_number: phone,
-    channel: "whatsapp",
-    message_type: "text",
-    content: content && content.length > 0 ? content : " ",
+    messaging_product: "whatsapp",
+    to: phone,
+    type: "text",
+    text: { body: content && content.length > 0 ? content : " " },
   };
-  if (!apiKey) {
-    console.error("KIRIMCHAT_API_KEY missing; cannot send text");
-    return { ok: false, status: 0, body: "missing_api_key", request: requestBody, durationMs: 0 };
+  if (!Deno.env.get("KIRIMDEV_API_KEY") || !Deno.env.get("KIRIMDEV_PHONE_NUMBER_ID")) {
+    console.error("Kirimdev credentials missing; cannot send text");
+    return { ok: false, status: 0, body: "missing_credentials", request: requestBody, durationMs: 0 };
   }
   const startedAt = Date.now();
   try {
-    const res = await fetch(
-      "https://api-prod.kirim.chat/api/v1/public/messages/send",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${apiKey}`,
-        },
-        body: JSON.stringify(requestBody),
-      },
-    );
+    const res = await kirimdevSendText(phone, content);
     const body = await res.text();
     const durationMs = Date.now() - startedAt;
     if (!res.ok) {
@@ -457,7 +444,6 @@ async function sendTemplate(
   headerImageUrl: string | null,
   bodyVariables: string[],
 ): Promise<{ ok: boolean; status: number; body: string; request: any; durationMs: number }> {
-  const apiKey = Deno.env.get("KIRIMCHAT_API_KEY");
   const components: any[] = [];
   if (headerImageUrl) {
     components.push({
@@ -472,9 +458,9 @@ async function sendTemplate(
     });
   }
   const requestBody = {
-    phone_number: phone,
-    channel: "whatsapp",
-    message_type: "template",
+    messaging_product: "whatsapp",
+    to: phone,
+    type: "template",
     template: {
       name: templateName,
       language: { code: language },
@@ -482,24 +468,19 @@ async function sendTemplate(
     },
   };
 
-  if (!apiKey) {
-    console.error("KIRIMCHAT_API_KEY missing; cannot send template");
-    return { ok: false, status: 0, body: "missing_api_key", request: requestBody, durationMs: 0 };
+  if (!Deno.env.get("KIRIMDEV_API_KEY") || !Deno.env.get("KIRIMDEV_PHONE_NUMBER_ID")) {
+    console.error("Kirimdev credentials missing; cannot send template");
+    return { ok: false, status: 0, body: "missing_credentials", request: requestBody, durationMs: 0 };
   }
 
   const startedAt = Date.now();
   try {
-    const res = await fetch(
-      "https://api-prod.kirim.chat/api/v1/public/messages/send",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${apiKey}`,
-        },
-        body: JSON.stringify(requestBody),
-      },
-    );
+    const res = await kirimdevSendTemplate({
+      to: phone,
+      name: templateName,
+      languageCode: language,
+      components: components.length ? components : undefined,
+    });
     const body = await res.text();
     const durationMs = Date.now() - startedAt;
     if (!res.ok) {

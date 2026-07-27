@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getRecurringDates, formatIndoDate } from "../_shared/recurring.ts";
+import { kirimdevSendTemplate } from "../_shared/kirimdev.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -26,9 +27,8 @@ serve(async (req) => {
       );
     }
 
-    const apiKey = Deno.env.get("KIRIMCHAT_API_KEY");
-    if (!apiKey) {
-      console.error("Missing KIRIMCHAT_API_KEY");
+    if (!Deno.env.get("KIRIMDEV_API_KEY") || !Deno.env.get("KIRIMDEV_PHONE_NUMBER_ID")) {
+      console.error("Missing Kirimdev credentials");
       return new Response(
         JSON.stringify({ error: "WhatsApp service not configured" }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -39,7 +39,6 @@ serve(async (req) => {
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Fetch order
     const { data: order, error: orderError } = await supabase
       .from("guest_orders")
       .select("*")
@@ -68,7 +67,6 @@ serve(async (req) => {
       );
     }
 
-    // Cooldown check
     if (order.whatsapp_sent_at) {
       const lastSentTime = new Date(order.whatsapp_sent_at).getTime();
       const timeSinceLastSent = Date.now() - lastSentTime;
@@ -85,72 +83,46 @@ serve(async (req) => {
       }
     }
 
-    // Format date + time for template parameter {{3}}
-    // For recurring orders, include all sessions.
     const sessionDates = getRecurringDates(order);
     const timeStr = order.meeting_time || "00:00";
     const dateTimeStr = sessionDates.length > 1
       ? sessionDates.map((d) => `${formatIndoDate(d)} - ${timeStr} WIB`).join("; ")
       : `${formatIndoDate(sessionDates[0])} - ${timeStr} WIB`;
 
-    // Format phone number to 628xxx
-    let phone = order.whatsapp.replace(/\D/g, "");
-    if (phone.startsWith("0")) {
-      phone = "62" + phone.substring(1);
-    } else if (!phone.startsWith("62")) {
-      phone = "62" + phone;
-    }
+    console.log("Sending WhatsApp via Kirimdev to order:", order_id);
 
-    console.log("Sending WhatsApp via KirimChat to:", phone);
-
-    // KirimChat API call with template "akses"
-    const kirimResponse = await fetch(
-      "https://api-prod.kirim.chat/api/v1/public/messages/send",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${apiKey}`,
+    const kirimResponse = await kirimdevSendTemplate({
+      to: order.whatsapp,
+      name: "akses",
+      languageCode: "id",
+      components: [
+        {
+          type: "body",
+          parameters: [
+            { type: "text", text: order.name },
+            { type: "text", text: order.meeting_topic || "Zoom Meeting" },
+            { type: "text", text: dateTimeStr },
+            { type: "text", text: order.zoom_link },
+            { type: "text", text: order.meeting_id },
+            { type: "text", text: order.zoom_passcode || "-" },
+          ],
         },
-        body: JSON.stringify({
-          phone_number: phone,
-          channel: "whatsapp",
-          message_type: "template",
-          template: {
-            name: "akses",
-            language: { code: "id" },
-            components: [
-              {
-                type: "body",
-                parameters: [
-                  { type: "text", text: order.name },
-                  { type: "text", text: order.meeting_topic || "Zoom Meeting" },
-                  { type: "text", text: dateTimeStr },
-                  { type: "text", text: order.zoom_link },
-                  { type: "text", text: order.meeting_id },
-                  { type: "text", text: order.zoom_passcode || "-" },
-                ],
-              },
-            ],
-          },
-        }),
-      }
-    );
+      ],
+    });
 
     const kirimResult = await kirimResponse.json();
-    console.log("KirimChat response:", JSON.stringify(kirimResult));
+    console.log("Kirimdev response:", JSON.stringify(kirimResult));
 
     if (!kirimResponse.ok) {
-      console.error("KirimChat error:", kirimResult);
+      console.error("Kirimdev error:", kirimResult);
       return new Response(
         JSON.stringify({
-          error: kirimResult.message || kirimResult.error || "Gagal mengirim WhatsApp",
+          error: kirimResult?.error?.message || kirimResult?.message || kirimResult?.error || "Gagal mengirim WhatsApp",
         }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    // Update timestamp
     const { error: updateError } = await supabase
       .from("guest_orders")
       .update({ whatsapp_sent_at: new Date().toISOString() })
@@ -173,7 +145,7 @@ serve(async (req) => {
   } catch (error) {
     console.error("Error in send-whatsapp-notification:", error);
     return new Response(
-      JSON.stringify({ error: "Internal server error" }),
+      JSON.stringify({ error: (error as Error).message || "Internal server error" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
