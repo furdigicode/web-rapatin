@@ -31,7 +31,7 @@ export async function kirimdevSendTemplate(opts: {
     type: "template",
     template: {
       name: opts.name,
-      language: { code: opts.languageCode ?? "id" },
+      language: { code: opts.languageCode ?? "id_ID" },
       ...(opts.components && opts.components.length ? { components: opts.components } : {}),
     },
   };
