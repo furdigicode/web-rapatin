@@ -344,20 +344,27 @@ serve(async (req) => {
       price: order.price,
     });
 
-    // Fire-and-forget: notify admin via WhatsApp
+    // Notify admin via WhatsApp — use waitUntil so the runtime doesn't kill
+    // the request when this function returns.
     const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
-    fetch(`${supabaseUrl}/functions/v1/notify-admin-order`, {
+    const notifyAdminPromise = fetch(`${supabaseUrl}/functions/v1/notify-admin-order`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${supabaseAnonKey}`,
       },
       body: JSON.stringify({ order_id: order.id, event_type: 'new_order' }),
-    }).then(res => {
-      console.log("Admin notification (new_order) trigger status:", res.status);
-    }).catch(err => {
+    }).then(async (res) => {
+      const body = await res.text().catch(() => '');
+      console.log("Admin notification (new_order) trigger status:", res.status, body);
+    }).catch((err) => {
       console.error("Failed to trigger admin notification:", err);
     });
+    // @ts-ignore EdgeRuntime is provided by Supabase Deno runtime
+    if (typeof EdgeRuntime !== 'undefined' && EdgeRuntime.waitUntil) {
+      // @ts-ignore
+      EdgeRuntime.waitUntil(notifyAdminPromise);
+    }
 
     return new Response(
       JSON.stringify({
