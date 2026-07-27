@@ -1,30 +1,20 @@
-## Masalah
+Rencana perbaikan webhook Kirimdev 401 `Invalid signature`:
 
-1. **Webhook Dead / 401 "Missing signature"** — Kirimdev mengirim header `x-kirim-signature` (juga `x-kirim-event`, `x-kirim-delivery-id`, dst — terlihat di log booted sebelumnya). Fungsi `kirimchat-webhook` saat ini hanya mencari header: `x-webhook-signature`, `x-kirimchat-signature`, `x-kirim-chat-signature`, `x-signature`, `x-hub-signature-256`. Karena tidak ada yang cocok, request ditolak 401 dan Kirimdev menandainya Dead.
-2. **Wording "KirimChat" di UI** sudah tidak relevan setelah migrasi ke Kirimdev.
+1. Perbaiki parser signature Kirimdev di `supabase/functions/kirimchat-webhook/index.ts`.
+   - Header Kirimdev berbentuk `X-Kirim-Signature: t=<timestamp>,v1=<hex>`.
+   - Payload yang harus di-HMAC adalah `"<timestamp>.<raw_body>"`, bukan hanya `raw_body`.
+   - Bandingkan terhadap semua nilai `v1=` agar tetap kompatibel saat secret rotation.
 
-## Rencana
+2. Tetap pertahankan kompatibilitas lama.
+   - Header legacy seperti `x-webhook-signature`, `x-kirimchat-signature`, `x-signature`, dan `x-hub-signature-256` tetap diverifikasi dengan pola lama.
+   - `x-kirim-signature` akan memakai pola resmi Kirimdev.
 
-### 1) Perbaiki verifikasi signature webhook
-Di `supabase/functions/kirimchat-webhook/index.ts`:
-- Tambah `x-kirim-signature` (dan `x-kirim-event`, dsb. untuk metadata bila perlu) ke daftar `SIGNATURE_HEADERS` dan `Access-Control-Allow-Headers`.
-- Tetap pertahankan header lama sebagai fallback (kompatibilitas).
-- Deploy ulang fungsi, lalu klik **Replay** di dashboard Kirimdev untuk verifikasi 200 OK.
+3. Tambahkan proteksi timestamp Kirimdev.
+   - Tolak signature yang terlalu lama/terlalu jauh dari waktu server, misalnya toleransi 5 menit, agar replay attack lebih aman.
+   - Log error cukup prefix/jenis error saja, tanpa membocorkan secret.
 
-Jika format signature Kirimdev bukan HMAC hex mentah (mis. `t=...,v1=...` ala Stripe), akan ditambahkan parser sederhana untuk memisahkan value sebelum bandingkan HMAC — akan dicek dari payload replay pertama.
+4. Deploy ulang edge function `kirimchat-webhook`.
 
-### 2) Rename wording UI dari "KirimChat" → "Kirimdev"
-Ubah label yang tampil ke admin (tidak mengubah nama tabel/edge function agar tidak merusak data & endpoint):
-- `AdminSidebar`: menu utama "KirimChat" → "Kirimdev"; submenu tetap (Webhook, Rules, Templates).
-- Judul halaman & heading di:
-  - `/admin/kirimchat-webhooks` → "Kirimdev Webhook"
-  - `/admin/kirimchat-rules` → "Kirimdev Rules"
-  - `/admin/kirimchat-templates` → "Kirimdev Templates"
-- Deskripsi/teks bantu yang menyebut "KirimChat" diganti "Kirimdev".
-
-**Tidak diubah** (agar tidak breaking):
-- Nama tabel `kirimchat_*`, path edge function `kirimchat-webhook`, path route `/admin/kirimchat-*`, nama secret `KIRIMCHAT_*`.
-
-### 3) Verifikasi
-- Redeploy `kirimchat-webhook`.
-- Minta user klik Replay pada delivery yang Dead → cek response 200 dan row baru di tabel `kirimchat_webhook_events`.
+5. Verifikasi setelah deploy.
+   - Replay webhook dari dashboard Kirimdev.
+   - Target hasil: response status berubah dari `401` menjadi `200`, event tersimpan di riwayat webhook admin sebagai `received`, dan rules bisa dievaluasi lagi untuk `message.sent` / event lain.
