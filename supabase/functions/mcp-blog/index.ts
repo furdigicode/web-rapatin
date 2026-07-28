@@ -2,6 +2,11 @@
 // Kompatibel dengan ClickUp, Claude Desktop, Cursor, dsb.
 // Auth: Authorization: Bearer <MCP_ADMIN_API_KEY>  atau  X-API-Key: <MCP_ADMIN_API_KEY>
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import {
+  describeTable as mysqlDescribeTable,
+  listTables as mysqlListTables,
+  runQuery as mysqlRunQuery,
+} from "../_shared/mysql.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
