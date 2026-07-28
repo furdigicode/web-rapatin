@@ -212,7 +212,6 @@ async function handleTool(name: string, args: Record<string, any>) {
         return toolText({ error: (e as Error).message }, true);
       }
     }
-  switch (name) {
     case "list_articles": {
       const limit = Math.min(Math.max(Number(args.limit) || 20, 1), 100);
       let q = supabase
