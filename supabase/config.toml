@@ -45,7 +45,7 @@ verify_jwt = false
 [functions.blog-meta]
 verify_jwt = false
 
-[functions.mcp-blog]
+[functions.mcp-rapatin]
 verify_jwt = false
 
 [functions.get-mcp-admin-key]

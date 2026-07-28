@@ -327,7 +327,7 @@ async function dispatch(msg: any, sessionId: string) {
         return jsonRpcResult(id, {
           protocolVersion: PROTOCOL_VERSION,
           capabilities: { tools: { listChanged: false } },
-          serverInfo: { name: "rapatin-blog-mcp", version: "1.0.0" },
+          serverInfo: { name: "rapatin-mcp", version: "1.0.0" },
         });
       case "notifications/initialized":
       case "notifications/cancelled":
@@ -380,7 +380,7 @@ function unauthorizedResponse(): Response {
       headers: {
         ...corsHeaders,
         "Content-Type": "application/json",
-        "WWW-Authenticate": 'Bearer realm="Rapatin Blog MCP"',
+        "WWW-Authenticate": 'Bearer realm="Rapatin MCP"',
       },
     },
   );

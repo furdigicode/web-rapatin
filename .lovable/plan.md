@@ -1,34 +1,47 @@
-## Kondisi saat ini
+## Tujuan
 
-Tools MySQL sudah terdaftar di `supabase/functions/mcp-blog/index.ts`:
-- `mysql_list_tables`
-- `mysql_describe_table`
-- `mysql_run_query` (read-only, auto LIMIT 1000, guard dari `_shared/mysql.ts`)
-
-Endpoint MCP tidak berubah — client (ClickUp, Claude, Cursor) yang sudah tersambung otomatis melihat 3 tools baru ini tanpa konfigurasi ulang.
-
-## Bug yang harus diperbaiki
-
-Baris 215 `supabase/functions/mcp-blog/index.ts` membuka `switch (name) {` **kedua** di dalam `handleTool` — masih di dalam `switch` pertama, tepat setelah `case "mysql_run_query"` tanpa `return`/`break` dari luar. Akibatnya semua tool blog (`list_articles`, `get_article`, `create_article`, `update_article`, `delete_article`, `publish_article`) tidak pernah tereksekusi karena jatuh ke inner switch yang tidak pernah match. Ini kemungkinan sudah menyebabkan tools blog gagal senyap saat dipanggil agen.
-
-Perbaikan: hapus baris `switch (name) {` kedua di sekitar baris 215 dan kurung tutup pasangannya di akhir handler, sehingga semua `case` menjadi satu switch tunggal.
+Rename total `mcp-blog` → `mcp-rapatin`. Tidak ada kata "blog" tersisa di mana pun — termasuk path file. Klien lama yang masih menggunakan URL `mcp-blog` **akan berhenti bekerja** dan wajib diupdate ke URL baru.
 
 ## Perubahan
 
-**File tunggal:** `supabase/functions/mcp-blog/index.ts`
-1. Hapus inner `switch (name) {` di sekitar baris 215.
-2. Hapus `}` penutup inner switch di akhir fungsi (biarkan `}` penutup outer switch dan `default` case yang mengembalikan "Unknown tool").
-3. Pastikan struktur akhir: satu switch dengan seluruh case (mysql_* + article tools) + `default`.
+### 1. Buat `supabase/functions/mcp-rapatin/index.ts`
+- Salin isi `supabase/functions/mcp-blog/index.ts` sepenuhnya.
+- Ganti:
+  - `serverInfo.name`: `"rapatin-blog-mcp"` → `"rapatin-mcp"`
+  - Log prefix `[mcp]` → `[mcp-rapatin]`
+  - `WWW-Authenticate realm`: `"Rapatin Blog MCP"` → `"Rapatin MCP"`
+- Tools, logic, auth, dan protokol Streamable HTTP tidak berubah.
 
-Tidak menambah tool baru — permintaan user "MCP untuk akses MySQL" sudah terpenuhi struktural; yang tersisa hanya perbaikan bug agar tools benar-benar dapat dipanggil bersamaan.
+### 2. Hapus function lama
+- Hapus folder `supabase/functions/mcp-blog/` (via `rm`).
+- Panggil `supabase--delete_edge_functions` untuk `mcp-blog` supaya endpoint lama benar-benar hilang dari runtime Supabase.
+- Hapus entri `[functions.mcp-blog]` di `supabase/config.toml` jika ada, dan tambahkan `[functions.mcp-rapatin]` dengan `verify_jwt = false`.
 
-## Deploy & uji
+### 3. Update UI admin `src/pages/admin/McpServerInfo.tsx`
+- Ganti semua URL `.../functions/v1/mcp-blog` → `.../functions/v1/mcp-rapatin`.
+- Ganti label/heading yang menyebut "Blog" → tanpa kata "blog" (mis. "MCP Server Rapatin").
+- Snippet konfigurasi Claude/Cursor/ClickUp memakai endpoint & server name baru.
 
-- Deploy `mcp-blog`.
-- Test dari agen: minta list tables lalu describe salah satu tabel, dan jalankan `SELECT` sederhana.
-- Sekaligus test satu tool blog (mis. `list_articles`) untuk memastikan bug switch bersarang beres.
+### 4. Grep sisa referensi
+- Cari string `mcp-blog` dan `rapatin-blog-mcp` di seluruh repo (sidebar, komentar user-facing, page lain, dsb). Ganti setiap kemunculan.
+- Komentar internal / dokumentasi teknis yang mengandung kata "blog" dalam konteks fitur artikel (misal deskripsi tool `list_articles`) tetap boleh — batasannya adalah kata "blog" sebagai bagian dari nama server/URL/path MCP. Nama tools artikel (`list_articles`, dll.) tidak mengandung kata "blog" dan tetap seperti sekarang.
 
-## Yang tidak dilakukan
+### 5. Deploy & uji
+- Deploy `mcp-rapatin`.
+- Test `tools/list` di endpoint baru → 9 tools.
+- Test satu tool artikel dan `mysql_list_tables`.
 
-- Tidak memisahkan MCP MySQL ke edge function baru — tetap satu server MCP untuk mengurangi jumlah endpoint yang harus dikonfigurasi di klien.
-- Tidak menambah tool tulis MySQL — hanya read-only sesuai desain gateway.
+## Konsekuensi untuk user
+
+Semua klien MCP (ClickUp, Claude Desktop, Cursor) yang sudah tersambung ke endpoint lama harus diarahkan ulang ke URL baru:
+
+```
+https://mepznzrijuoyvjcmkspf.supabase.co/functions/v1/mcp-rapatin
+```
+
+API key (`MCP_ADMIN_API_KEY`) tidak berubah.
+
+## Yang tidak berubah
+
+- `MCP_ADMIN_API_KEY`, nama & signature tools, function `get-mcp-admin-key`.
+- Tidak ada perubahan database.
