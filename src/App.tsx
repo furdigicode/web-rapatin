@@ -63,6 +63,7 @@ const KirimchatWebhooks = lazy(() => import("./pages/admin/KirimchatWebhooks"));
 const KirimchatRules = lazy(() => import("./pages/admin/KirimchatRules"));
 const KirimchatTemplates = lazy(() => import("./pages/admin/KirimchatTemplates"));
 const McpServerInfo = lazy(() => import("./pages/admin/McpServerInfo"));
+const AdminNotificationLog = lazy(() => import("./pages/admin/AdminNotificationLog"));
 
 // Sitemap page (for viewing/debugging) - Lazy loaded
 const Sitemap = lazy(() => import("./pages/Sitemap"));
@@ -142,6 +143,7 @@ const AppRoutes = () => {
         <Route path="/admin/kirimchat-rules" element={<ProtectedRoute><KirimchatRules /></ProtectedRoute>} />
         <Route path="/admin/kirimchat-templates" element={<ProtectedRoute><KirimchatTemplates /></ProtectedRoute>} />
         <Route path="/admin/mcp-server" element={<ProtectedRoute><McpServerInfo /></ProtectedRoute>} />
+        <Route path="/admin/notification-log" element={<ProtectedRoute><AdminNotificationLog /></ProtectedRoute>} />
         
         {/* 404 Catch-all Route */}
         <Route path="*" element={<NotFound />} />

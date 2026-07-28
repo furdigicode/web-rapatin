@@ -14,6 +14,54 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_notification_log: {
+        Row: {
+          attempt: number
+          created_at: string
+          duration_ms: number | null
+          error_message: string | null
+          event_type: string
+          id: string
+          order_id: string | null
+          phone_number: string | null
+          request: Json | null
+          response: Json | null
+          status: string
+          status_code: number | null
+          template_name: string | null
+        }
+        Insert: {
+          attempt?: number
+          created_at?: string
+          duration_ms?: number | null
+          error_message?: string | null
+          event_type: string
+          id?: string
+          order_id?: string | null
+          phone_number?: string | null
+          request?: Json | null
+          response?: Json | null
+          status: string
+          status_code?: number | null
+          template_name?: string | null
+        }
+        Update: {
+          attempt?: number
+          created_at?: string
+          duration_ms?: number | null
+          error_message?: string | null
+          event_type?: string
+          id?: string
+          order_id?: string | null
+          phone_number?: string | null
+          request?: Json | null
+          response?: Json | null
+          status?: string
+          status_code?: number | null
+          template_name?: string | null
+        }
+        Relationships: []
+      }
       admin_sessions: {
         Row: {
           admin_id: string
