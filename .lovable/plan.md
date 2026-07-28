@@ -1,50 +1,43 @@
-## Penyebab
+## Diagnosis
 
-Payload yang kita kirim untuk `INV-260727-0005`:
+Template `order_new` di Kirimdev (dari DB `kirimchat_templates`):
 
-```json
-{
-  "template": "order_new",
-  "language": "id",
-  "components": [
-    {
-      "type": "body",
-      "parameters": [
-        { "type": "text", "text": "INV-260727-0005" },   // {{1}} No. Order
-        { "type": "text", "text": "Test" },              // {{2}} Pembeli
-        { "type": "text", "text": "Rp 25.000" },         // {{3}} Jumlah  ❌
-        { "type": "text", "text": "Topik" },             // {{4}} Topik
-        { "type": "text", "text": "27 Juli 2026, 19:00 WIB" }, // {{5}} Waktu
-        { "type": "text", "text": "100" }                // {{6}} Kapasitas
-      ]
-    },
-    {
-      "type": "button", "sub_type": "url", "index": "0",
-      "parameters": [{ "type": "text", "text": "Cel44UoArig4NYFqF8maWw62" }]
-    }
-  ]
-}
+```
+No. Order: *{{1}}*
+Pembeli:   *{{2}}*
+Jumlah: Rp *{{3}}*        ← template SUDAH punya prefix "Rp "
+Topik:     *{{4}}*
+Waktu:     *{{5}}*
+Kapasitas: *{{6}}* peserta
+
+Button URL: https://rapatin.id/quick-order/{{1}}   ← param button = slug saja
 ```
 
-Dari screenshot template Meta:
-- Body `{{3}}` sudah punya prefix `Rp` di dalam template (`Jumlah: Rp *{{3}}*`), dan **Jenis variabel = Angka**. Kita duplikasi "Rp" dan kirim string non-numerik → `invalid_field_value`.
-- Button URL `{{1}}` menggunakan base `https://rapatin.id/quick-order/{{1}}` (dinamis). Slug polos `Cel44UoArig4NYFqF8maWw62` sudah benar untuk kolom ini — tidak perlu diubah.
+Nilai yang dikirim saat ini untuk `INV-260727-0005`:
 
-## Perubahan (satu file)
+| Var | Nilai |
+|---|---|
+| {{1}} | `INV-260727-0005` |
+| {{2}} | `Test` |
+| {{3}} | `25.000` (sudah tanpa "Rp") |
+| {{4}} | `Topik` (fallback dari `meeting_topic`) |
+| {{5}} | `27 Juli 2026, 19:00 WIB` |
+| {{6}} | `100` |
+| Button {{1}} | `Cel44UoArig4NYFqF8maWw62` |
 
-`supabase/functions/notify-admin-order/index.ts`:
+Log `notify-admin-order` kosong → kemungkinan deploy terakhir belum tereksekusi saat user retest, atau retensi log habis. Kita perlu bukti payload persis dari attempt berikutnya sebelum menebak lagi.
 
-1. Ganti param `{{3}}` (Jumlah) menjadi hanya angka terformat tanpa "Rp":
-   ```
-   order.price.toLocaleString("id-ID")   // "25.000"
-   ```
-   Hapus/hentikan pemakaian `formatRupiah` untuk parameter ini.
-2. Pastikan `{{6}}` Kapasitas dikirim sebagai string angka murni: `String(order.participant_count)` tanpa sanitasi yang bisa menyisipkan spasi.
-3. Biarkan `{{1}}, {{2}}, {{4}}, {{5}}` apa adanya (`sanitizeParam` cukup) — semua tipe teks.
-4. Button URL parameter tetap `access_slug` (base URL sudah di template).
+## Rencana
 
-Kalau setelah deploy Kirimdev masih tolak, langkah berikutnya adalah verifikasi tipe variabel `{{2}}` di preview (kemungkinan sebenarnya Teks, tapi dropdown di screenshot menunjukkan "Angka" di posisi teratas — perlu konfirmasi user). Log payload sudah aktif jadi akan langsung terlihat.
+1. **Deploy ulang** `notify-admin-order` untuk memastikan versi terbaru (dengan log payload) yang aktif.
+2. **Tingkatkan logging** di `notify-admin-order`:
+   - Log HTTP status Kirimdev + full response body (bukan hanya `console.error`).
+   - Log tiap parameter body/button beserta panjang karakternya, agar terlihat kalau ada karakter tak terlihat.
+   - Ekspos ringkasan error Kirimdev ke response 500 (bukan hanya "Failed to send") supaya toast di admin menampilkan pesan asli — memudahkan debugging tanpa perlu membuka log.
+3. **User retest** klik "Kirim Notif Admin" untuk `INV-260727-0005`, lalu kita baca log payload/response dan tentukan fix berikutnya berdasarkan pesan Kirimdev yang sebenarnya (misal: variabel bertipe angka, panjang parameter, dll).
 
-## Verifikasi
-- Deploy, klik "Kirim Notif Admin" pada order `INV-260727-0005`.
-- Cek log `notify-admin-order`: baris "Kirimdev request payload" & "Kirimdev response" — target: 200 OK, WA masuk ke admin.
+Tidak mengubah logika mapping variabel sebelum melihat error asli — perubahan buta lagi hanya akan menambah putaran.
+
+## File yang disentuh
+
+- `supabase/functions/notify-admin-order/index.ts` — tambah logging detail per-parameter + kembalikan pesan error Kirimdev ke client.
