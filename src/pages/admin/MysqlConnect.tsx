@@ -43,6 +43,9 @@ export default function MysqlConnect() {
   // Connection tab
   const [pingLoading, setPingLoading] = useState(false);
   const [pingInfo, setPingInfo] = useState<{ version: string; durationMs: number } | null>(null);
+  const [config, setConfig] = useState<{ host: string; port: string; database: string; user: string; password: string } | null>(null);
+  const [configLoading, setConfigLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   // Schema tab
   const [tables, setTables] = useState<string[]>([]);
