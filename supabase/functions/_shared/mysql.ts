@@ -177,10 +177,16 @@ export async function runQuery(sql: string, params: any[] = []): Promise<QueryRe
   const bounded = ensureLimit(sql);
   const start = Date.now();
   return await withConn(async (c) => {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), QUERY_TIMEOUT_MS);
+    let timer: ReturnType<typeof setTimeout> | undefined;
     try {
-      const [rows, fields]: any = await c.execute(bounded, params);
+      const queryPromise = c.execute(bounded, params);
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        timer = setTimeout(() => {
+          try { c.destroy(); } catch { /* ignore */ }
+          reject(new Error(`Query timeout setelah ${QUERY_TIMEOUT_MS} ms`));
+        }, QUERY_TIMEOUT_MS);
+      });
+      const [rows, fields]: any = await Promise.race([queryPromise, timeoutPromise]);
       const rowArr = Array.isArray(rows) ? rows : [];
       return {
         rows: rowArr,
@@ -190,7 +196,7 @@ export async function runQuery(sql: string, params: any[] = []): Promise<QueryRe
         truncated: rowArr.length >= MAX_ROWS,
       };
     } finally {
-      clearTimeout(timer);
+      if (timer) clearTimeout(timer);
     }
   });
 }
