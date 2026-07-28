@@ -50,3 +50,6 @@ verify_jwt = false
 
 [functions.get-mcp-admin-key]
 verify_jwt = false
+
+[functions.mysql-query]
+verify_jwt = false

@@ -748,6 +748,48 @@ export type Database = {
         }
         Relationships: []
       }
+      mysql_query_log: {
+        Row: {
+          action: string
+          admin_email: string | null
+          admin_id: string | null
+          created_at: string
+          duration_ms: number | null
+          error_message: string | null
+          id: string
+          params: Json | null
+          row_count: number | null
+          sql: string | null
+          status: string
+        }
+        Insert: {
+          action: string
+          admin_email?: string | null
+          admin_id?: string | null
+          created_at?: string
+          duration_ms?: number | null
+          error_message?: string | null
+          id?: string
+          params?: Json | null
+          row_count?: number | null
+          sql?: string | null
+          status: string
+        }
+        Update: {
+          action?: string
+          admin_email?: string | null
+          admin_id?: string | null
+          created_at?: string
+          duration_ms?: number | null
+          error_message?: string | null
+          id?: string
+          params?: Json | null
+          row_count?: number | null
+          sql?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
       rapatin_auth_tokens: {
         Row: {
           access_token: string

@@ -16,7 +16,8 @@ import {
   Webhook,
   MessageCircle,
   Zap,
-  Server
+  Server,
+  Database
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -293,6 +294,17 @@ const AppSidebar = () => {
                   <Link to="/admin/mcp-server">
                     <Server />
                     <span>MCP Server</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  asChild
+                  isActive={location.pathname === '/admin/mysql-connect'}
+                >
+                  <Link to="/admin/mysql-connect">
+                    <Database />
+                    <span>MySQL Connect</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
