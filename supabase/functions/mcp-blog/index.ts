@@ -153,11 +153,65 @@ const TOOLS = [
       },
     },
   },
+  {
+    name: "mysql_list_tables",
+    description: "List all tables in the Rapatin MySQL database (read-only).",
+    inputSchema: { type: "object", properties: {} },
+  },
+  {
+    name: "mysql_describe_table",
+    description: "Describe columns of a Rapatin MySQL table.",
+    inputSchema: {
+      type: "object",
+      required: ["table"],
+      properties: { table: { type: "string", description: "Table name (alphanumeric + underscore)." } },
+    },
+  },
+  {
+    name: "mysql_run_query",
+    description: "Run a read-only SQL query against Rapatin MySQL. Only SELECT/SHOW/DESCRIBE/EXPLAIN/WITH allowed. Auto-capped to 1000 rows.",
+    inputSchema: {
+      type: "object",
+      required: ["sql"],
+      properties: {
+        sql: { type: "string" },
+        params: { type: "array", items: {}, description: "Prepared statement params." },
+      },
+    },
+  },
 ];
 
 // -------- tool handlers --------
 async function handleTool(name: string, args: Record<string, any>) {
   args = args || {};
+  switch (name) {
+    case "mysql_list_tables": {
+      try {
+        const tables = await mysqlListTables();
+        return toolText({ count: tables.length, tables });
+      } catch (e) {
+        return toolText({ error: (e as Error).message }, true);
+      }
+    }
+    case "mysql_describe_table": {
+      if (!args.table) return toolText({ error: "table is required." }, true);
+      try {
+        const columns = await mysqlDescribeTable(args.table);
+        return toolText({ table: args.table, columns });
+      } catch (e) {
+        return toolText({ error: (e as Error).message }, true);
+      }
+    }
+    case "mysql_run_query": {
+      if (!args.sql) return toolText({ error: "sql is required." }, true);
+      try {
+        const params = Array.isArray(args.params) ? args.params : [];
+        const result = await mysqlRunQuery(args.sql, params);
+        return toolText(result);
+      } catch (e) {
+        return toolText({ error: (e as Error).message }, true);
+      }
+    }
   switch (name) {
     case "list_articles": {
       const limit = Math.min(Math.max(Number(args.limit) || 20, 1), 100);
