@@ -143,6 +143,7 @@ const AppRoutes = () => {
         <Route path="/admin/kirimchat-rules" element={<ProtectedRoute><KirimchatRules /></ProtectedRoute>} />
         <Route path="/admin/kirimchat-templates" element={<ProtectedRoute><KirimchatTemplates /></ProtectedRoute>} />
         <Route path="/admin/mcp-server" element={<ProtectedRoute><McpServerInfo /></ProtectedRoute>} />
+        <Route path="/admin/notification-log" element={<ProtectedRoute><AdminNotificationLog /></ProtectedRoute>} />
         
         {/* 404 Catch-all Route */}
         <Route path="*" element={<NotFound />} />
