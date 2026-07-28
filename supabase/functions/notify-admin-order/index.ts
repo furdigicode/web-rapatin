@@ -86,23 +86,31 @@ serve(async (req) => {
 
     console.log(`Sending admin notification (${event_type}) for order:`, order_id);
 
+    const bodyParams = [
+      { label: "{{1}} order_number", value: sanitizeParam(orderNumber) },
+      { label: "{{2}} name", value: sanitizeParam(order.name) },
+      { label: "{{3}} amount", value: formatAmount(order.price) },
+      { label: "{{4}} topic", value: sanitizeParam(order.meeting_topic || "-") },
+      { label: "{{5}} datetime", value: sanitizeParam(dateTimeStr) },
+      { label: "{{6}} participants", value: sanitizeParam(order.participant_count) },
+    ];
+    const buttonParam = sanitizeParam(order.access_slug || "");
+
+    for (const p of bodyParams) {
+      console.log(`param ${p.label}: "${p.value}" (len=${p.value.length}, codes=[${[...p.value].slice(0, 40).map((c) => c.charCodeAt(0)).join(",")}])`);
+    }
+    console.log(`param button {{1}} slug: "${buttonParam}" (len=${buttonParam.length})`);
+
     const components = [
       {
         type: "body",
-        parameters: [
-          { type: "text", text: sanitizeParam(orderNumber) },
-          { type: "text", text: sanitizeParam(order.name) },
-          { type: "text", text: formatAmount(order.price) },
-          { type: "text", text: sanitizeParam(order.meeting_topic || "-") },
-          { type: "text", text: sanitizeParam(dateTimeStr) },
-          { type: "text", text: sanitizeParam(order.participant_count) },
-        ],
+        parameters: bodyParams.map((p) => ({ type: "text", text: p.value })),
       },
       {
         type: "button",
         sub_type: "url",
         index: "0",
-        parameters: [{ type: "text", text: sanitizeParam(order.access_slug || "") }],
+        parameters: [{ type: "text", text: buttonParam }],
       },
     ];
 
@@ -115,15 +123,24 @@ serve(async (req) => {
       components,
     });
 
-    const kirimResult = await kirimResponse.json();
-    console.log("Kirimdev response:", JSON.stringify(kirimResult));
+    const kirimRaw = await kirimResponse.text();
+    let kirimResult: any = null;
+    try { kirimResult = JSON.parse(kirimRaw); } catch { /* keep raw */ }
+    console.log(`Kirimdev HTTP ${kirimResponse.status} response:`, kirimRaw);
 
     if (!kirimResponse.ok) {
-      console.error("Kirimdev error:", kirimResult);
-      return new Response(JSON.stringify({ error: "Failed to send admin notification" }), {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      console.error("Kirimdev error:", kirimRaw);
+      return new Response(
+        JSON.stringify({
+          error: "Failed to send admin notification",
+          kirimdev_status: kirimResponse.status,
+          kirimdev_response: kirimResult ?? kirimRaw,
+        }),
+        {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        },
+      );
     }
 
     console.log("Admin notification sent successfully for order:", order_id);
