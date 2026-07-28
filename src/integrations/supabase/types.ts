@@ -748,6 +748,42 @@ export type Database = {
         }
         Relationships: []
       }
+      mysql_connection_config: {
+        Row: {
+          created_at: string
+          database: string
+          host: string
+          id: string
+          password: string
+          port: number
+          updated_at: string
+          updated_by: string | null
+          username: string
+        }
+        Insert: {
+          created_at?: string
+          database?: string
+          host?: string
+          id?: string
+          password?: string
+          port?: number
+          updated_at?: string
+          updated_by?: string | null
+          username?: string
+        }
+        Update: {
+          created_at?: string
+          database?: string
+          host?: string
+          id?: string
+          password?: string
+          port?: number
+          updated_at?: string
+          updated_by?: string | null
+          username?: string
+        }
+        Relationships: []
+      }
       mysql_query_log: {
         Row: {
           action: string

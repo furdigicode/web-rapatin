@@ -43,8 +43,11 @@ export default function MysqlConnect() {
   // Connection tab
   const [pingLoading, setPingLoading] = useState(false);
   const [pingInfo, setPingInfo] = useState<{ version: string; durationMs: number } | null>(null);
-  const [config, setConfig] = useState<{ host: string; port: string; database: string; user: string; password: string } | null>(null);
+  type MysqlCfg = { host: string; port: string; database: string; user: string; password: string; updated_at?: string | null; updated_by?: string | null };
+  const [config, setConfig] = useState<MysqlCfg | null>(null);
+  const [draft, setDraft] = useState<MysqlCfg | null>(null);
   const [configLoading, setConfigLoading] = useState(false);
+  const [configSaving, setConfigSaving] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
   // Schema tab
@@ -94,10 +97,40 @@ export default function MysqlConnect() {
       if (error) throw new Error(error.message);
       if (data?.error) throw new Error(data.error);
       setConfig(data);
+      setDraft(data);
     } catch (e) {
       toast({ title: "Gagal memuat konfigurasi", description: (e as Error).message, variant: "destructive" });
     }
     setConfigLoading(false);
+  }
+
+  async function saveConfig() {
+    if (!draft) return;
+    setConfigSaving(true);
+    try {
+      const token = getAdminToken();
+      const { data, error } = await supabase.functions.invoke("update-mysql-config", {
+        body: {
+          token,
+          host: draft.host,
+          port: draft.port,
+          database: draft.database,
+          user: draft.user,
+          password: draft.password,
+        },
+      });
+      if (error) throw new Error(error.message);
+      if (data?.error) throw new Error(data.error);
+      toast({ title: "Konfigurasi disimpan", description: "Klik Test Koneksi untuk memverifikasi." });
+      await loadConfig();
+    } catch (e) {
+      toast({ title: "Gagal menyimpan", description: (e as Error).message, variant: "destructive" });
+    }
+    setConfigSaving(false);
+  }
+
+  function updateDraft(patch: Partial<MysqlCfg>) {
+    setDraft((d) => (d ? { ...d, ...patch } : d));
   }
 
   async function copyValue(label: string, value: string) {
@@ -108,6 +141,15 @@ export default function MysqlConnect() {
       toast({ title: "Gagal menyalin", variant: "destructive" });
     }
   }
+
+  const isDirty = !!(config && draft && (
+    config.host !== draft.host ||
+    config.port !== draft.port ||
+    config.database !== draft.database ||
+    config.user !== draft.user ||
+    config.password !== draft.password
+  ));
+
 
   async function testConnection() {
     setPingLoading(true);
@@ -191,53 +233,82 @@ export default function MysqlConnect() {
                 <div>
                   <CardTitle>Detail Koneksi</CardTitle>
                   <CardDescription>
-                    Nilai diambil dari Supabase Secrets. Ubah lewat Supabase dashboard jika perlu.
+                    Kredensial disimpan di database Supabase. Edit lalu klik Simpan.
                   </CardDescription>
                 </div>
                 <Button size="sm" variant="outline" onClick={loadConfig} disabled={configLoading}>
                   {configLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
                 </Button>
               </CardHeader>
-              <CardContent className="space-y-3">
-                {configLoading && !config && (
+              <CardContent className="space-y-4">
+                {configLoading && !draft && (
                   <p className="text-sm text-muted-foreground">Memuat…</p>
                 )}
-                {config && (
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    {([
-                      ["Host", config.host, "host"],
-                      ["Port", config.port, "port"],
-                      ["Database", config.database, "database"],
-                      ["Username", config.user, "user"],
-                    ] as const).map(([label, value]) => (
-                      <div key={label} className="space-y-1">
-                        <Label className="text-xs text-muted-foreground">{label}</Label>
+                {draft && (
+                  <>
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      {([
+                        ["Host", "host", draft.host],
+                        ["Port", "port", draft.port],
+                        ["Database", "database", draft.database],
+                        ["Username", "user", draft.user],
+                      ] as const).map(([label, key, value]) => (
+                        <div key={key} className="space-y-1">
+                          <Label className="text-xs text-muted-foreground">{label}</Label>
+                          <div className="flex gap-2">
+                            <Input
+                              value={value}
+                              onChange={(e) => updateDraft({ [key]: e.target.value } as Partial<MysqlCfg>)}
+                              className="font-mono text-sm"
+                              disabled={configSaving}
+                            />
+                            <Button size="icon" variant="outline" onClick={() => copyValue(label, value)}>
+                              <Copy className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                      <div className="space-y-1 sm:col-span-2">
+                        <Label className="text-xs text-muted-foreground">Password</Label>
                         <div className="flex gap-2">
-                          <Input value={value} readOnly className="font-mono text-sm" />
-                          <Button size="icon" variant="outline" onClick={() => copyValue(label, value)}>
+                          <Input
+                            type={showPassword ? "text" : "password"}
+                            value={draft.password}
+                            onChange={(e) => updateDraft({ password: e.target.value })}
+                            className="font-mono text-sm"
+                            disabled={configSaving}
+                          />
+                          <Button size="icon" variant="outline" onClick={() => setShowPassword((v) => !v)}>
+                            {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                          </Button>
+                          <Button size="icon" variant="outline" onClick={() => copyValue("Password", draft.password)}>
                             <Copy className="h-4 w-4" />
                           </Button>
                         </div>
                       </div>
-                    ))}
-                    <div className="space-y-1 sm:col-span-2">
-                      <Label className="text-xs text-muted-foreground">Password</Label>
+                    </div>
+
+                    <div className="flex items-center justify-between gap-3 pt-2 border-t">
+                      <p className="text-xs text-muted-foreground">
+                        {config?.updated_at
+                          ? `Terakhir diubah ${new Date(config.updated_at).toLocaleString("id-ID")}${config.updated_by ? ` oleh ${config.updated_by}` : ""}`
+                          : "Belum ada perubahan tercatat."}
+                      </p>
                       <div className="flex gap-2">
-                        <Input
-                          type={showPassword ? "text" : "password"}
-                          value={config.password}
-                          readOnly
-                          className="font-mono text-sm"
-                        />
-                        <Button size="icon" variant="outline" onClick={() => setShowPassword((v) => !v)}>
-                          {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        <Button
+                          variant="outline"
+                          onClick={() => setDraft(config)}
+                          disabled={!isDirty || configSaving}
+                        >
+                          Batal
                         </Button>
-                        <Button size="icon" variant="outline" onClick={() => copyValue("Password", config.password)}>
-                          <Copy className="h-4 w-4" />
+                        <Button onClick={saveConfig} disabled={!isDirty || configSaving}>
+                          {configSaving && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+                          Simpan
                         </Button>
                       </div>
                     </div>
-                  </div>
+                  </>
                 )}
               </CardContent>
             </Card>

@@ -16,8 +16,7 @@ async function verifyAdmin(token: string) {
   const now = Math.floor(Date.now() / 1000)
   if (!payload?.exp || payload.exp < now || !payload.sub || !payload.email) return null
   const { data: adminUser } = await supabase
-    .from('admin_users')
-    .select('id, email, is_active')
+    .from('admin_users').select('id, email, is_active')
     .eq('id', payload.sub).eq('email', payload.email).eq('is_active', true)
     .maybeSingle()
   if (!adminUser) return null
@@ -33,7 +32,9 @@ async function verifyAdmin(token: string) {
 serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders })
   try {
-    const { token } = await req.json().catch(() => ({ token: null }))
+    const body = await req.json().catch(() => ({}))
+    const { token, host, port, database, user, password } = body ?? {}
+
     if (!token || typeof token !== 'string') {
       return new Response(JSON.stringify({ error: 'Missing admin token' }), {
         status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -46,33 +47,39 @@ serve(async (req) => {
       })
     }
 
+    // Validate
+    if (typeof host !== 'string' || !host.trim()) throw new Error('Host wajib diisi')
+    if (typeof database !== 'string' || !database.trim()) throw new Error('Database wajib diisi')
+    if (typeof user !== 'string' || !user.trim()) throw new Error('Username wajib diisi')
+    if (typeof password !== 'string') throw new Error('Password tidak valid')
+    const portNum = parseInt(String(port ?? '3306'), 10)
+    if (!Number.isFinite(portNum) || portNum < 1 || portNum > 65535) throw new Error('Port tidak valid')
+
     const { data, error } = await supabase
       .from('mysql_connection_config')
-      .select('host, port, database, username, password, updated_at, updated_by')
-      .eq('id', 'singleton')
-      .maybeSingle()
+      .upsert({
+        id: 'singleton',
+        host: host.trim(),
+        port: portNum,
+        database: database.trim(),
+        username: user.trim(),
+        password,
+        updated_by: admin.email,
+        updated_at: new Date().toISOString(),
+      }, { onConflict: 'id' })
+      .select('updated_at, updated_by')
+      .single()
 
     if (error) throw error
 
-    // Fallback to env if row is empty (first-time deploy).
-    const host = data?.host || Deno.env.get('RAPATIN_MYSQL_HOST') || ''
-    const port = data?.port ?? parseInt(Deno.env.get('RAPATIN_MYSQL_PORT') ?? '3306', 10)
-    const database = data?.database || Deno.env.get('RAPATIN_MYSQL_DATABASE') || ''
-    const user = data?.username || Deno.env.get('RAPATIN_MYSQL_USER') || ''
-    const password = data?.password || Deno.env.get('RAPATIN_MYSQL_PASSWORD') || ''
-
     return new Response(
-      JSON.stringify({
-        host, port: String(port), database, user, password,
-        updated_at: data?.updated_at ?? null,
-        updated_by: data?.updated_by ?? null,
-      }),
+      JSON.stringify({ ok: true, updated_at: data.updated_at, updated_by: data.updated_by }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   } catch (error) {
-    console.error('get-mysql-config error:', error)
+    console.error('update-mysql-config error:', error)
     return new Response(JSON.stringify({ error: (error as Error).message ?? 'Internal error' }), {
-      status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
   }
 })
