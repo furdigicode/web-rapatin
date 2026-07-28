@@ -201,6 +201,17 @@ const AppSidebar = () => {
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
+                <SidebarMenuButton
+                  asChild
+                  isActive={location.pathname === '/admin/notification-log'}
+                >
+                  <Link to="/admin/notification-log">
+                    <Bell />
+                    <span>Log Notifikasi Admin</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
                 <SidebarMenuButton 
                   asChild 
                   isActive={location.pathname === '/admin/notifications'}
