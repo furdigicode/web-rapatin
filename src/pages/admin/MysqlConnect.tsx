@@ -150,14 +150,6 @@ export default function MysqlConnect() {
     config.password !== draft.password
   ));
 
-  async function copyValue(label: string, value: string) {
-    try {
-      await navigator.clipboard.writeText(value);
-      toast({ title: `${label} disalin` });
-    } catch {
-      toast({ title: "Gagal menyalin", variant: "destructive" });
-    }
-  }
 
   async function testConnection() {
     setPingLoading(true);
