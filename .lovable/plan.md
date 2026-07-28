@@ -1,28 +1,34 @@
-## Perbaikan `supabase/functions/_shared/mysql.ts`
+## Kondisi saat ini
 
-Terapkan tiga perbaikan berikut, sesuai rekomendasi:
+Tools MySQL sudah terdaftar di `supabase/functions/mcp-blog/index.ts`:
+- `mysql_list_tables`
+- `mysql_describe_table`
+- `mysql_run_query` (read-only, auto LIMIT 1000, guard dari `_shared/mysql.ts`)
 
-### 1. `createConn` — hapus SSL paksa, tambah error log detail
-- Hapus opsi `ssl: { rejectUnauthorized: false }`.
-- Tambah `enableKeepAlive: true`, `keepAliveInitialDelay: 0`.
-- Trim `host`, `user`, `database`.
-- Bungkus dengan try/catch: `console.error` dengan `{ message, code, errno, sqlState, syscall, address, port }`, lalu rethrow `MySQL connection failed: <code> - <message>` agar tampil di kolom SQL/Error pada tab Riwayat.
+Endpoint MCP tidak berubah — client (ClickUp, Claude, Cursor) yang sudah tersambung otomatis melihat 3 tools baru ini tanpa konfigurasi ulang.
 
-### 2. `runQuery` — timeout benar-benar menghentikan query
-Ganti `AbortController` (tidak dibaca mysql2) dengan `Promise.race` antara `c.execute()` dan timer `QUERY_TIMEOUT_MS` yang memanggil `c.destroy()` saat trigger.
+## Bug yang harus diperbaiki
 
-### 3. `ensureLimit` — jangan bungkus non-SELECT
-Ubah menjadi:
-- Bila bukan `SELECT`/`WITH`: kembalikan `stripped` apa adanya (SHOW/DESCRIBE/EXPLAIN tidak diubah).
-- Bila sudah ada `LIMIT n`: kembalikan apa adanya.
-- Selain itu: `${stripped} LIMIT ${max}` (tanpa subquery).
+Baris 215 `supabase/functions/mcp-blog/index.ts` membuka `switch (name) {` **kedua** di dalam `handleTool` — masih di dalam `switch` pertama, tepat setelah `case "mysql_run_query"` tanpa `return`/`break` dari luar. Akibatnya semua tool blog (`list_articles`, `get_article`, `create_article`, `update_article`, `delete_article`, `publish_article`) tidak pernah tereksekusi karena jatuh ke inner switch yang tidak pernah match. Ini kemungkinan sudah menyebabkan tools blog gagal senyap saat dipanggil agen.
 
-### Deploy & uji
-- Auto-deploy `mysql-query` (impor `_shared/mysql.ts`).
-- Klik **Test Koneksi** di `/admin/mysql-connect`; cek tab Riwayat untuk pesan error baru bila masih gagal.
+Perbaikan: hapus baris `switch (name) {` kedua di sekitar baris 215 dan kurung tutup pasangannya di akhir handler, sehingga semua `case` menjadi satu switch tunggal.
 
-### Catatan keamanan (di luar kode)
-Setelah koneksi berhasil, user disarankan me-`ALTER USER` password MySQL karena kredensial sudah pernah tampil di UI/chat. Ini tindakan di sisi Rapatin, bukan perubahan kode.
+## Perubahan
 
-### File yang diubah
-- `supabase/functions/_shared/mysql.ts` — hanya file ini.
+**File tunggal:** `supabase/functions/mcp-blog/index.ts`
+1. Hapus inner `switch (name) {` di sekitar baris 215.
+2. Hapus `}` penutup inner switch di akhir fungsi (biarkan `}` penutup outer switch dan `default` case yang mengembalikan "Unknown tool").
+3. Pastikan struktur akhir: satu switch dengan seluruh case (mysql_* + article tools) + `default`.
+
+Tidak menambah tool baru — permintaan user "MCP untuk akses MySQL" sudah terpenuhi struktural; yang tersisa hanya perbaikan bug agar tools benar-benar dapat dipanggil bersamaan.
+
+## Deploy & uji
+
+- Deploy `mcp-blog`.
+- Test dari agen: minta list tables lalu describe salah satu tabel, dan jalankan `SELECT` sederhana.
+- Sekaligus test satu tool blog (mis. `list_articles`) untuk memastikan bug switch bersarang beres.
+
+## Yang tidak dilakukan
+
+- Tidak memisahkan MCP MySQL ke edge function baru — tetap satu server MCP untuk mengurangi jumlah endpoint yang harus dikonfigurasi di klien.
+- Tidak menambah tool tulis MySQL — hanya read-only sesuai desain gateway.
