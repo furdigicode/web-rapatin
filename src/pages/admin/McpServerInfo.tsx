@@ -7,7 +7,7 @@ import { Copy, ExternalLink, Server, Eye, EyeOff, KeyRound } from "lucide-react"
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
-const MCP_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/mcp-blog`;
+const MCP_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/mcp-rapatin`;
 
 const TOOLS = [
   { name: "list_articles", type: "read", desc: "Daftar artikel dengan filter status/kategori/search." },
@@ -20,7 +20,7 @@ const TOOLS = [
 
 const buildClaudeConfig = (key: string) => `{
   "mcpServers": {
-    "rapatin-blog": {
+    "rapatin": {
       "transport": {
         "type": "http",
         "url": "${MCP_URL}",
@@ -92,12 +92,12 @@ const McpServerInfo: React.FC = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Server className="h-5 w-5" />
-              MCP Server untuk Blog
+              MCP Server Rapatin
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-sm text-muted-foreground">
-              Endpoint Model Context Protocol untuk agen AI (Claude Desktop, Cursor, ChatGPT dengan MCP) agar dapat membaca dan menulis artikel blog.
+              Endpoint Model Context Protocol untuk agen AI (Claude Desktop, Cursor, ChatGPT dengan MCP) agar dapat mengakses tools Rapatin (artikel, MySQL, dan lainnya).
             </p>
 
             <div className="space-y-2">
