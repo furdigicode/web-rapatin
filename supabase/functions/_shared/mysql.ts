@@ -1,23 +1,66 @@
 // Shared MySQL helpers for Rapatin read-only access.
-// Used by `mysql-query` (admin UI) and `mcp-blog` (MCP tools).
+// Config is loaded from the `mysql_connection_config` table (singleton row),
+// with a fallback to env vars for backward compatibility.
 import mysql from "npm:mysql2@3.11.3/promise";
-
-const HOST = Deno.env.get("RAPATIN_MYSQL_HOST") ?? "";
-const PORT = parseInt(Deno.env.get("RAPATIN_MYSQL_PORT") ?? "3306", 10);
-const USER = Deno.env.get("RAPATIN_MYSQL_USER") ?? "";
-const PASSWORD = Deno.env.get("RAPATIN_MYSQL_PASSWORD") ?? "";
-const DATABASE = Deno.env.get("RAPATIN_MYSQL_DATABASE") ?? "";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 export const MAX_ROWS = 1000;
 export const QUERY_TIMEOUT_MS = 15_000;
 
+interface MysqlConfig {
+  host: string;
+  port: number;
+  user: string;
+  password: string;
+  database: string;
+}
+
+let cached: { config: MysqlConfig; at: number } | null = null;
+const CACHE_MS = 30_000;
+
+export async function loadConfig(forceRefresh = false): Promise<MysqlConfig> {
+  if (!forceRefresh && cached && Date.now() - cached.at < CACHE_MS) {
+    return cached.config;
+  }
+  const supabaseUrl = Deno.env.get("SUPABASE_URL");
+  const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  let config: MysqlConfig = {
+    host: Deno.env.get("RAPATIN_MYSQL_HOST") ?? "",
+    port: parseInt(Deno.env.get("RAPATIN_MYSQL_PORT") ?? "3306", 10),
+    user: Deno.env.get("RAPATIN_MYSQL_USER") ?? "",
+    password: Deno.env.get("RAPATIN_MYSQL_PASSWORD") ?? "",
+    database: Deno.env.get("RAPATIN_MYSQL_DATABASE") ?? "",
+  };
+  if (supabaseUrl && serviceKey) {
+    try {
+      const supabase = createClient(supabaseUrl, serviceKey);
+      const { data } = await supabase
+        .from("mysql_connection_config")
+        .select("host, port, database, username, password")
+        .eq("id", "singleton")
+        .maybeSingle();
+      if (data && data.host) {
+        config = {
+          host: data.host,
+          port: data.port ?? 3306,
+          user: data.username ?? "",
+          password: data.password ?? "",
+          database: data.database ?? "",
+        };
+      }
+    } catch (e) {
+      console.error("loadConfig db error", e);
+    }
+  }
+  cached = { config, at: Date.now() };
+  return config;
+}
+
 const READONLY_PREFIXES = /^(select|show|describe|desc|explain|with)\b/i;
-// Word-boundary blacklist. `\b` before words is fine even after removing comments.
 const WRITE_KEYWORDS = /\b(insert|update|delete|drop|alter|create|truncate|grant|revoke|rename|replace|call|load|handler|lock|unlock|set|use|reset|kill|start|commit|rollback|savepoint|analyze|optimize|repair|flush)\b/i;
 
 export function assertReadOnly(sql: string): { ok: true } | { ok: false; error: string } {
   if (!sql || typeof sql !== "string") return { ok: false, error: "SQL kosong." };
-  // Strip line comments, block comments, and MySQL executable comments.
   const stripped = sql
     .replace(/\/\*[\s\S]*?\*\//g, " ")
     .replace(/--[^\n]*/g, " ")
@@ -30,7 +73,6 @@ export function assertReadOnly(sql: string): { ok: true } | { ok: false; error: 
   if (WRITE_KEYWORDS.test(stripped)) {
     return { ok: false, error: "Query mengandung keyword write/DDL yang dilarang." };
   }
-  // Disallow multiple statements.
   const trimmedNoTrailing = stripped.replace(/;+\s*$/, "");
   if (trimmedNoTrailing.includes(";")) {
     return { ok: false, error: "Multiple statement tidak diizinkan." };
@@ -41,28 +83,26 @@ export function assertReadOnly(sql: string): { ok: true } | { ok: false; error: 
 export function ensureLimit(sql: string, max = MAX_ROWS): string {
   const stripped = sql.replace(/;+\s*$/, "").trim();
   if (/\blimit\s+\d+/i.test(stripped)) return stripped;
-  // Wrap to enforce max rows without breaking ORDER BY / GROUP BY etc.
   return `SELECT * FROM ( ${stripped} ) AS _capped LIMIT ${max}`;
 }
 
-export function missingEnv(): string[] {
+export function missingConfig(c: MysqlConfig): string[] {
   const missing: string[] = [];
-  if (!HOST) missing.push("RAPATIN_MYSQL_HOST");
-  if (!USER) missing.push("RAPATIN_MYSQL_USER");
-  if (!PASSWORD) missing.push("RAPATIN_MYSQL_PASSWORD");
-  if (!DATABASE) missing.push("RAPATIN_MYSQL_DATABASE");
+  if (!c.host) missing.push("host");
+  if (!c.user) missing.push("username");
+  if (!c.password) missing.push("password");
+  if (!c.database) missing.push("database");
   return missing;
 }
 
-async function createConn() {
+async function createConn(c: MysqlConfig) {
   return await mysql.createConnection({
-    host: HOST,
-    port: PORT,
-    user: USER,
-    password: PASSWORD,
-    database: DATABASE,
+    host: c.host,
+    port: c.port,
+    user: c.user,
+    password: c.password,
+    database: c.database,
     connectTimeout: 10_000,
-    // Enable TLS if the server supports it; accept self-signed to keep setup simple.
     ssl: { rejectUnauthorized: false } as any,
     multipleStatements: false,
     dateStrings: true,
@@ -78,9 +118,10 @@ export interface QueryResult {
 }
 
 async function withConn<T>(fn: (c: any) => Promise<T>): Promise<T> {
-  const missing = missingEnv();
-  if (missing.length) throw new Error(`Env MySQL belum lengkap: ${missing.join(", ")}`);
-  const conn = await createConn();
+  const cfg = await loadConfig();
+  const missing = missingConfig(cfg);
+  if (missing.length) throw new Error(`Konfigurasi MySQL belum lengkap: ${missing.join(", ")}`);
+  const conn = await createConn(cfg);
   try {
     return await fn(conn);
   } finally {
@@ -134,3 +175,6 @@ export async function runQuery(sql: string, params: any[] = []): Promise<QueryRe
     }
   });
 }
+
+// Backward-compat alias so callers still importing missingEnv keep working.
+export function missingEnv(): string[] { return []; }
