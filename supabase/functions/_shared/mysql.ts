@@ -82,8 +82,9 @@ export function assertReadOnly(sql: string): { ok: true } | { ok: false; error: 
 
 export function ensureLimit(sql: string, max = MAX_ROWS): string {
   const stripped = sql.replace(/;+\s*$/, "").trim();
+  if (!/^(select|with)\b/i.test(stripped)) return stripped;
   if (/\blimit\s+\d+/i.test(stripped)) return stripped;
-  return `SELECT * FROM ( ${stripped} ) AS _capped LIMIT ${max}`;
+  return `${stripped} LIMIT ${max}`;
 }
 
 export function missingConfig(c: MysqlConfig): string[] {
@@ -96,18 +97,36 @@ export function missingConfig(c: MysqlConfig): string[] {
 }
 
 async function createConn(c: MysqlConfig) {
-  return await mysql.createConnection({
-    host: c.host,
-    port: c.port,
-    user: c.user,
-    password: c.password,
-    database: c.database,
-    connectTimeout: 10_000,
-    ssl: { rejectUnauthorized: false } as any,
-    multipleStatements: false,
-    dateStrings: true,
-  });
+  try {
+    return await mysql.createConnection({
+      host: c.host.trim(),
+      port: Number(c.port || 3306),
+      user: c.user.trim(),
+      password: c.password,
+      database: c.database.trim(),
+      connectTimeout: 10_000,
+      multipleStatements: false,
+      dateStrings: true,
+      enableKeepAlive: true,
+      keepAliveInitialDelay: 0,
+    });
+  } catch (error: any) {
+    console.error("MySQL connection failed", {
+      name: error?.name,
+      message: error?.message,
+      code: error?.code,
+      errno: error?.errno,
+      sqlState: error?.sqlState,
+      syscall: error?.syscall,
+      address: error?.address,
+      port: error?.port,
+    });
+    throw new Error(
+      `MySQL connection failed: ${error?.code ?? "UNKNOWN"} - ${error?.message ?? String(error)}`,
+    );
+  }
 }
+
 
 export interface QueryResult {
   rows: any[];
@@ -158,10 +177,16 @@ export async function runQuery(sql: string, params: any[] = []): Promise<QueryRe
   const bounded = ensureLimit(sql);
   const start = Date.now();
   return await withConn(async (c) => {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), QUERY_TIMEOUT_MS);
+    let timer: ReturnType<typeof setTimeout> | undefined;
     try {
-      const [rows, fields]: any = await c.execute(bounded, params);
+      const queryPromise = c.execute(bounded, params);
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        timer = setTimeout(() => {
+          try { c.destroy(); } catch { /* ignore */ }
+          reject(new Error(`Query timeout setelah ${QUERY_TIMEOUT_MS} ms`));
+        }, QUERY_TIMEOUT_MS);
+      });
+      const [rows, fields]: any = await Promise.race([queryPromise, timeoutPromise]);
       const rowArr = Array.isArray(rows) ? rows : [];
       return {
         rows: rowArr,
@@ -171,7 +196,7 @@ export async function runQuery(sql: string, params: any[] = []): Promise<QueryRe
         truncated: rowArr.length >= MAX_ROWS,
       };
     } finally {
-      clearTimeout(timer);
+      if (timer) clearTimeout(timer);
     }
   });
 }
