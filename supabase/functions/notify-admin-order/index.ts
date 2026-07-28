@@ -1,6 +1,5 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { kirimdevSendTemplate } from "../_shared/kirimdev.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -10,15 +9,12 @@ const corsHeaders = {
 // Hardcoded admin WhatsApp number
 const ADMIN_PHONE = "6282133579061";
 
-function formatAmount(amount: number): string {
-  // Template already contains "Rp " prefix. Return only the number with Indonesian thousand separators.
-  return (amount ?? 0).toLocaleString("id-ID", { maximumFractionDigits: 0 }).replace(/\u00A0/g, " ");
-}
-
-function sanitizeParam(v: unknown): string {
-  const s = String(v ?? "");
-  // Meta rejects newlines/tabs and >4 consecutive spaces in template params.
-  return s.replace(/[\r\n\t]+/g, " ").replace(/\s{2,}/g, " ").trim();
+function formatRupiah(amount: number): string {
+  return new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
+    minimumFractionDigits: 0,
+  }).format(amount);
 }
 
 serve(async (req) => {
@@ -36,8 +32,9 @@ serve(async (req) => {
       });
     }
 
-    if (!Deno.env.get("KIRIMDEV_API_KEY") || !Deno.env.get("KIRIMDEV_PHONE_NUMBER_ID")) {
-      console.error("Missing Kirimdev credentials");
+    const apiKey = Deno.env.get("KIRIMCHAT_API_KEY");
+    if (!apiKey) {
+      console.error("Missing KIRIMCHAT_API_KEY");
       return new Response(JSON.stringify({ error: "WhatsApp service not configured" }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -62,6 +59,7 @@ serve(async (req) => {
       });
     }
 
+    // Format date
     const meetingDate = new Date(order.meeting_date);
     const formattedDate = meetingDate.toLocaleDateString("id-ID", {
       day: "numeric",
@@ -72,6 +70,7 @@ serve(async (req) => {
 
     const orderNumber = order.order_number || "-";
 
+    // Determine template name based on event type
     let templateName = "";
     if (event_type === "new_order") {
       templateName = "order_new";
@@ -86,61 +85,51 @@ serve(async (req) => {
 
     console.log(`Sending admin notification (${event_type}) for order:`, order_id);
 
-    const bodyParams = [
-      { label: "{{1}} order_number", value: sanitizeParam(orderNumber) },
-      { label: "{{2}} name", value: sanitizeParam(order.name) },
-      { label: "{{3}} amount", value: formatAmount(order.price) },
-      { label: "{{4}} topic", value: sanitizeParam(order.meeting_topic || "-") },
-      { label: "{{5}} datetime", value: sanitizeParam(dateTimeStr) },
-      { label: "{{6}} participants", value: sanitizeParam(order.participant_count) },
-    ];
-    const buttonParam = sanitizeParam(order.access_slug || "");
-
-    for (const p of bodyParams) {
-      console.log(`param ${p.label}: "${p.value}" (len=${p.value.length}, codes=[${[...p.value].slice(0, 40).map((c) => c.charCodeAt(0)).join(",")}])`);
-    }
-    console.log(`param button {{1}} slug: "${buttonParam}" (len=${buttonParam.length})`);
-
-    const components = [
-      {
-        type: "body",
-        parameters: bodyParams.map((p) => ({ type: "text", text: p.value })),
+    const kirimResponse = await fetch("https://api-prod.kirim.chat/api/v1/public/messages/send", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
       },
-      {
-        type: "button",
-        sub_type: "url",
-        index: "0",
-        parameters: [{ type: "text", text: buttonParam }],
-      },
-    ];
-
-    console.log("Kirimdev request payload:", JSON.stringify({ template: templateName, language: "id", components }));
-
-    const kirimResponse = await kirimdevSendTemplate({
-      to: ADMIN_PHONE,
-      name: templateName,
-      languageCode: "id",
-      components,
+      body: JSON.stringify({
+        phone_number: ADMIN_PHONE,
+        channel: "whatsapp",
+        message_type: "template",
+        template: {
+          name: templateName,
+          language: { code: "id" },
+          components: [
+            {
+              type: "body",
+              parameters: [
+                { type: "text", text: orderNumber },
+                { type: "text", text: order.name },
+                { type: "text", text: formatRupiah(order.price) },
+                { type: "text", text: order.meeting_topic || "-" },
+                { type: "text", text: dateTimeStr },
+                { type: "text", text: `${order.participant_count}` },
+              ],
+            },
+            {
+              type: "button",
+              sub_type: "url",
+              index: "0",
+              parameters: [{ type: "text", text: `${order.access_slug || ""}` }],
+            },
+          ],
+        },
+      }),
     });
 
-    const kirimRaw = await kirimResponse.text();
-    let kirimResult: any = null;
-    try { kirimResult = JSON.parse(kirimRaw); } catch { /* keep raw */ }
-    console.log(`Kirimdev HTTP ${kirimResponse.status} response:`, kirimRaw);
+    const kirimResult = await kirimResponse.json();
+    console.log("KirimChat response:", JSON.stringify(kirimResult));
 
     if (!kirimResponse.ok) {
-      console.error("Kirimdev error:", kirimRaw);
-      return new Response(
-        JSON.stringify({
-          error: "Failed to send admin notification",
-          kirimdev_status: kirimResponse.status,
-          kirimdev_response: kirimResult ?? kirimRaw,
-        }),
-        {
-          status: 500,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        },
-      );
+      console.error("KirimChat error:", kirimResult);
+      return new Response(JSON.stringify({ error: "Failed to send admin notification" }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     console.log("Admin notification sent successfully for order:", order_id);
@@ -151,7 +140,7 @@ serve(async (req) => {
     });
   } catch (error) {
     console.error("Error in notify-admin-order:", error);
-    return new Response(JSON.stringify({ error: (error as Error).message || "Internal server error" }), {
+    return new Response(JSON.stringify({ error: "Internal server error" }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

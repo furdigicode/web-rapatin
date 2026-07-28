@@ -640,8 +640,7 @@ serve(async (req) => {
       has_rapatin_order_id: !!updateData.rapatin_order_id,
     });
 
-    // Trigger Kledo sync and admin notification for paid orders.
-    // Use EdgeRuntime.waitUntil so background fetches aren't killed on return.
+    // Trigger Kledo sync and admin notification for paid orders (non-blocking)
     if (paymentStatus === 'paid') {
       const fnUrl = Deno.env.get('SUPABASE_URL')!;
       const fnKey = Deno.env.get('SUPABASE_ANON_KEY')!;
@@ -650,35 +649,29 @@ serve(async (req) => {
         'Authorization': `Bearer ${fnKey}`,
       };
 
+      // Fire and forget - Kledo sync
       console.log("Triggering Kledo sync for order:", order.id);
-      const kledoPromise = fetch(`${fnUrl}/functions/v1/kledo-sync`, {
+      fetch(`${fnUrl}/functions/v1/kledo-sync`, {
         method: 'POST',
         headers: fnHeaders,
         body: JSON.stringify({ orderId: order.id }),
-      }).then(async (res) => {
-        const body = await res.text().catch(() => '');
-        console.log("Kledo sync triggered, response status:", res.status, body);
-      }).catch((err) => {
+      }).then(res => {
+        console.log("Kledo sync triggered, response status:", res.status);
+      }).catch(err => {
         console.error("Failed to trigger Kledo sync:", err);
       });
 
+      // Fire and forget - Admin WhatsApp notification
       console.log("Triggering admin notification (payment_success) for order:", order.id);
-      const notifyPromise = fetch(`${fnUrl}/functions/v1/notify-admin-order`, {
+      fetch(`${fnUrl}/functions/v1/notify-admin-order`, {
         method: 'POST',
         headers: fnHeaders,
         body: JSON.stringify({ order_id: order.id, event_type: 'payment_success' }),
-      }).then(async (res) => {
-        const body = await res.text().catch(() => '');
-        console.log("Admin notification (payment_success) trigger status:", res.status, body);
-      }).catch((err) => {
+      }).then(res => {
+        console.log("Admin notification (payment_success) trigger status:", res.status);
+      }).catch(err => {
         console.error("Failed to trigger admin notification:", err);
       });
-
-      // @ts-ignore EdgeRuntime provided by Supabase Deno runtime
-      if (typeof EdgeRuntime !== 'undefined' && EdgeRuntime.waitUntil) {
-        // @ts-ignore
-        EdgeRuntime.waitUntil(Promise.all([kledoPromise, notifyPromise]));
-      }
     }
 
     return new Response(

@@ -123,10 +123,10 @@ const KirimchatWebhooks: React.FC = () => {
   };
 
   return (
-    <AdminLayout title="Riwayat Webhook Kirimdev">
+    <AdminLayout title="Riwayat Webhook KirimChat">
       <AdminPageHeader
-        title="Riwayat Webhook Kirimdev"
-        description="Daftar event webhook yang diterima dari Kirimdev."
+        title="Riwayat Webhook KirimChat"
+        description="Daftar event webhook yang diterima dari KirimChat."
       >
         <Button variant="outline" onClick={fetchEvents} disabled={loading}>
           <RefreshCw className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`} />
@@ -146,7 +146,7 @@ const KirimchatWebhooks: React.FC = () => {
           </Button>
         </div>
         <p className="text-xs text-muted-foreground mt-2">
-          Tempel URL ini di dashboard Kirimdev saat membuat webhook baru. Pilih event yang ingin Anda terima.
+          Tempel URL ini di dashboard KirimChat saat membuat webhook baru. Pilih event yang ingin Anda terima.
         </p>
       </div>
 

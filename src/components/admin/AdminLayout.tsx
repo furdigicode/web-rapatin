@@ -225,7 +225,7 @@ const AppSidebar = () => {
               <SidebarMenuItem>
                 <SidebarMenuButton isActive={isKirimchatActive}>
                   <MessageCircle />
-                  <span>Kirimdev</span>
+                  <span>KirimChat</span>
                 </SidebarMenuButton>
                 <SidebarMenuSub>
                   <SidebarMenuSubItem>

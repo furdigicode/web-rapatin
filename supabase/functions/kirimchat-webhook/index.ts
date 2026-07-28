@@ -1,18 +1,16 @@
-// v3 kirimdev migration
+// v2 text-action support
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { kirimdevSendText, kirimdevSendTemplate } from "../_shared/kirimdev.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type, x-webhook-signature, x-kirimchat-signature, x-signature, x-hub-signature-256, x-kirim-signature, x-kirim-event, x-kirim-event-id, x-kirim-delivery-id, x-kirim-attempt, x-kirim-source",
+    "authorization, x-client-info, apikey, content-type, x-webhook-signature, x-kirimchat-signature, x-signature",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
 const SIGNATURE_HEADERS = [
-  "x-kirim-signature",
   "x-webhook-signature",
   "x-kirimchat-signature",
   "x-kirim-chat-signature",
@@ -77,63 +75,8 @@ async function computeHmacHex(secret: string, body: string): Promise<string> {
   return toHex(sig);
 }
 
-function uniqueSecrets(...values: Array<string | undefined>): string[] {
-  return Array.from(new Set(values.map((v) => v?.trim()).filter(Boolean) as string[]));
-}
-
-function parseKirimdevSignature(value: string): { timestamp: number; signatures: string[] } | null {
-  const parts = value.split(",").map((part) => part.trim());
-  const timestampPart = parts.find((part) => part.startsWith("t="));
-  const signatureParts = parts
-    .filter((part) => part.startsWith("v1="))
-    .map((part) => part.slice(3).trim().toLowerCase())
-    .filter(Boolean);
-
-  if (!timestampPart || signatureParts.length === 0) return null;
-
-  const timestamp = Number(timestampPart.slice(2));
-  if (!Number.isFinite(timestamp)) return null;
-
-  return { timestamp, signatures: signatureParts };
-}
-
-async function verifyKirimdevSignature(
-  headerValue: string,
-  rawBody: string,
-  secrets: string[],
-): Promise<{ ok: boolean; reason?: string; expectedPrefix?: string; gotPrefix?: string }> {
-  const parsed = parseKirimdevSignature(headerValue);
-  if (!parsed) {
-    return { ok: false, reason: "malformed_kirimdev_signature" };
-  }
-
-  const toleranceSeconds = 5 * 60;
-  const nowSeconds = Math.floor(Date.now() / 1000);
-  if (Math.abs(nowSeconds - parsed.timestamp) > toleranceSeconds) {
-    return { ok: false, reason: "expired_kirimdev_signature", gotPrefix: `t=${parsed.timestamp}` };
-  }
-
-  let firstExpectedPrefix: string | undefined;
-  const signedPayload = `${parsed.timestamp}.${rawBody}`;
-  for (const secret of secrets) {
-    const expected = await computeHmacHex(secret, signedPayload);
-    firstExpectedPrefix ??= expected.slice(0, 8);
-    if (parsed.signatures.some((sig) => constantTimeEqual(sig, expected))) {
-      return { ok: true };
-    }
-  }
-
-  return {
-    ok: false,
-    reason: "invalid_kirimdev_signature",
-    expectedPrefix: firstExpectedPrefix,
-    gotPrefix: parsed.signatures[0]?.slice(0, 8),
-  };
-}
-
-function extractLegacySig(req: Request): { header: string; value: string } | null {
+function extractProvidedSig(req: Request): { header: string; value: string } | null {
   for (const h of SIGNATURE_HEADERS) {
-    if (h === "x-kirim-signature") continue;
     const v = req.headers.get(h);
     if (v) {
       const cleaned = v.trim().replace(/^sha256=/i, "").toLowerCase();
@@ -158,52 +101,28 @@ serve(async (req) => {
   const rawBody = await req.text();
 
   // Signature verification
-  // Signature verification (accept Kirimdev secret, fallback to legacy KirimChat secret)
-  const secrets = uniqueSecrets(Deno.env.get("KIRIMDEV_WEBHOOK_SECRET"), Deno.env.get("KIRIMCHAT_WEBHOOK_SECRET"));
-  if (secrets.length > 0) {
-    const kirimSignature = req.headers.get("x-kirim-signature");
-    const legacySignature = extractLegacySig(req);
-
-    if (kirimSignature) {
-      const verified = await verifyKirimdevSignature(kirimSignature, rawBody, secrets);
-      if (!verified.ok) {
-        console.error(
-          `Invalid signature (header: x-kirim-signature, reason: ${verified.reason}). expected_prefix=${verified.expectedPrefix ?? "n/a"} got_prefix=${verified.gotPrefix ?? "n/a"}`,
-        );
-        return new Response(JSON.stringify({ error: "Invalid signature" }), {
-          status: 401,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-    } else if (legacySignature) {
-      let matched = false;
-      let firstExpectedPrefix: string | undefined;
-      for (const secret of secrets) {
-        const expected = await computeHmacHex(secret, rawBody);
-        firstExpectedPrefix ??= expected.slice(0, 8);
-        if (constantTimeEqual(legacySignature.value, expected)) {
-          matched = true;
-          break;
-        }
-      }
-      if (!matched) {
-        console.error(
-          `Invalid signature (header: ${legacySignature.header}). expected_prefix=${firstExpectedPrefix ?? "n/a"} got_prefix=${legacySignature.value.slice(0, 8)}`,
-        );
-        return new Response(JSON.stringify({ error: "Invalid signature" }), {
-          status: 401,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-    } else {
+  const secret = Deno.env.get("KIRIMCHAT_WEBHOOK_SECRET");
+  if (secret) {
+    const provided = extractProvidedSig(req);
+    if (!provided) {
       console.error("Missing signature header. Headers seen:", [...req.headers.keys()].join(", "));
       return new Response(JSON.stringify({ error: "Missing signature" }), {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+    const expected = await computeHmacHex(secret, rawBody);
+    if (!constantTimeEqual(provided.value, expected)) {
+      console.error(
+        `Invalid signature (header: ${provided.header}). expected_prefix=${expected.slice(0, 8)} got_prefix=${provided.value.slice(0, 8)}`,
+      );
+      return new Response(JSON.stringify({ error: "Invalid signature" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
   } else {
-    console.warn("No webhook secret configured — accepting without verification.");
+    console.warn("KIRIMCHAT_WEBHOOK_SECRET not configured — accepting without verification.");
   }
 
   const supabase = createClient(
@@ -229,77 +148,81 @@ serve(async (req) => {
     });
   }
 
-  console.log("Webhook received:", JSON.stringify(body));
+  console.log("KirimChat webhook received:", JSON.stringify(body));
 
-  // Detect & normalize Meta WhatsApp Cloud API (Kirimdev-native) payloads.
-  // Shape: { object: "whatsapp_business_account", entry: [{ changes: [{ value: { messages | statuses } }] }] }
-  const metaValue = body?.entry?.[0]?.changes?.[0]?.value;
-  const metaMessage = metaValue?.messages?.[0];
-  const metaStatus = metaValue?.statuses?.[0];
-
-  let eventTypeRaw: string | null;
-  let channel: string | null;
-  let message_id: string | null;
-  let phone_number: string | null;
-  let template_name: string | null;
-  let error_message: string | null;
-  let message_text: string;
-  let customer_name_meta: string | null = null;
-
-  if (metaMessage) {
-    eventTypeRaw = "message.received";
-    channel = "whatsapp";
-    message_id = metaMessage.id ?? null;
-    phone_number = metaMessage.from ?? null;
-    template_name = null;
-    error_message = null;
-    message_text = metaMessage.text?.body
-      ?? metaMessage.button?.text
-      ?? metaMessage.interactive?.button_reply?.title
-      ?? metaMessage.interactive?.list_reply?.title
-      ?? "";
-    customer_name_meta = metaValue?.contacts?.[0]?.profile?.name ?? null;
-  } else if (metaStatus) {
-    eventTypeRaw = `message.${metaStatus.status}`; // sent | delivered | read | failed
-    channel = "whatsapp";
-    message_id = metaStatus.id ?? null;
-    phone_number = metaStatus.recipient_id ?? null;
-    template_name = null;
-    error_message = metaStatus.errors?.[0]?.message ?? metaStatus.errors?.[0]?.title ?? null;
-    message_text = "";
-  } else {
-    // Legacy KirimChat wrapper format
-    eventTypeRaw = pick(body, ["event", "type", "event_type", "data.event", "data.type"]);
-    channel = pick(body, ["channel", "data.channel", "message.channel"]);
-    message_id = pick(body, [
-      "message_id", "id", "message.id", "data.message_id", "data.id", "data.message.id",
-    ]);
-    phone_number = pick(body, [
-      "customer_phone", "customer.phone", "customer.phone_number",
-      "data.customer_phone", "data.customer.phone", "payload.customer_phone",
-      "phone_number", "phone", "from", "to",
-      "contact.phone", "contact.phone_number",
-      "data.phone_number", "data.from", "data.to", "data.contact.phone",
-      "message.from", "message.to",
-    ]);
-    template_name = pick(body, [
-      "template_name", "template.name", "data.template.name", "message.template.name",
-    ]);
-    error_message = pick(body, [
-      "error_message", "error.message", "error", "data.error.message", "data.error",
-    ]);
-    message_text = pick(body, [
-      "message", "text", "message.text", "message.body", "message.content",
-      "data.content", "data.message", "data.text",
-      "data.message.text", "data.message.body", "data.message.content",
-      "payload.message", "payload.text", "payload.content",
-      "content", "body",
-    ]) ?? "";
-  }
-
+  const eventTypeRaw = pick(body, [
+    "event",
+    "type",
+    "event_type",
+    "data.event",
+    "data.type",
+  ]);
   const event_type = normalizeEventType(eventTypeRaw);
-  // Status mencerminkan hasil penerimaan webhook di backend kita, bukan status pesan.
+
+  const channel = pick(body, ["channel", "data.channel", "message.channel"]);
+  const message_id = pick(body, [
+    "message_id",
+    "id",
+    "message.id",
+    "data.message_id",
+    "data.id",
+    "data.message.id",
+  ]);
+  const phone_number = pick(body, [
+    "customer_phone",
+    "customer.phone",
+    "customer.phone_number",
+    "data.customer_phone",
+    "data.customer.phone",
+    "payload.customer_phone",
+    "phone_number",
+    "phone",
+    "from",
+    "to",
+    "contact.phone",
+    "contact.phone_number",
+    "data.phone_number",
+    "data.from",
+    "data.to",
+    "data.contact.phone",
+    "message.from",
+    "message.to",
+  ]);
+  const template_name = pick(body, [
+    "template_name",
+    "template.name",
+    "data.template.name",
+    "message.template.name",
+  ]);
+  // Status mencerminkan hasil penerimaan webhook di backend kita, bukan status pesan KirimChat
   const status = "received";
+  const error_message = pick(body, [
+    "error_message",
+    "error.message",
+    "error",
+    "data.error.message",
+    "data.error",
+  ]);
+
+  // Extract message text for rule matching
+  const message_text = pick(body, [
+    "message",
+    "text",
+    "message.text",
+    "message.body",
+    "message.content",
+    "data.content",
+    "data.message",
+    "data.text",
+    "data.message.text",
+    "data.message.body",
+    "data.message.content",
+    "payload.message",
+    "payload.text",
+    "payload.content",
+    "content",
+    "body",
+  ]) ?? "";
 
   const { data: insertedRows, error: insertError } = await supabase
     .from("kirimchat_webhook_events")
@@ -370,7 +293,7 @@ serve(async (req) => {
         }
 
         const ctx: Record<string, string> = {
-          customer_name: customer_name_meta ?? pick(body, ["data.customer_name", "data.contacts.0.profile.name"]) ?? "",
+          customer_name: pick(body, ["data.customer_name", "data.contacts.0.profile.name"]) ?? "",
           customer_phone: phone_number ?? "",
           customer_id: pick(body, ["data.customer_id"]) ?? "",
           channel: channel ?? "",
@@ -489,19 +412,30 @@ async function sendText(
   phone: string,
   content: string,
 ): Promise<{ ok: boolean; status: number; body: string; request: any; durationMs: number }> {
+  const apiKey = Deno.env.get("KIRIMCHAT_API_KEY");
   const requestBody = {
-    messaging_product: "whatsapp",
-    to: phone,
-    type: "text",
-    text: { body: content && content.length > 0 ? content : " " },
+    phone_number: phone,
+    channel: "whatsapp",
+    message_type: "text",
+    content: content && content.length > 0 ? content : " ",
   };
-  if (!Deno.env.get("KIRIMDEV_API_KEY") || !Deno.env.get("KIRIMDEV_PHONE_NUMBER_ID")) {
-    console.error("Kirimdev credentials missing; cannot send text");
-    return { ok: false, status: 0, body: "missing_credentials", request: requestBody, durationMs: 0 };
+  if (!apiKey) {
+    console.error("KIRIMCHAT_API_KEY missing; cannot send text");
+    return { ok: false, status: 0, body: "missing_api_key", request: requestBody, durationMs: 0 };
   }
   const startedAt = Date.now();
   try {
-    const res = await kirimdevSendText(phone, content);
+    const res = await fetch(
+      "https://api-prod.kirim.chat/api/v1/public/messages/send",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify(requestBody),
+      },
+    );
     const body = await res.text();
     const durationMs = Date.now() - startedAt;
     if (!res.ok) {
@@ -523,6 +457,7 @@ async function sendTemplate(
   headerImageUrl: string | null,
   bodyVariables: string[],
 ): Promise<{ ok: boolean; status: number; body: string; request: any; durationMs: number }> {
+  const apiKey = Deno.env.get("KIRIMCHAT_API_KEY");
   const components: any[] = [];
   if (headerImageUrl) {
     components.push({
@@ -537,9 +472,9 @@ async function sendTemplate(
     });
   }
   const requestBody = {
-    messaging_product: "whatsapp",
-    to: phone,
-    type: "template",
+    phone_number: phone,
+    channel: "whatsapp",
+    message_type: "template",
     template: {
       name: templateName,
       language: { code: language },
@@ -547,19 +482,24 @@ async function sendTemplate(
     },
   };
 
-  if (!Deno.env.get("KIRIMDEV_API_KEY") || !Deno.env.get("KIRIMDEV_PHONE_NUMBER_ID")) {
-    console.error("Kirimdev credentials missing; cannot send template");
-    return { ok: false, status: 0, body: "missing_credentials", request: requestBody, durationMs: 0 };
+  if (!apiKey) {
+    console.error("KIRIMCHAT_API_KEY missing; cannot send template");
+    return { ok: false, status: 0, body: "missing_api_key", request: requestBody, durationMs: 0 };
   }
 
   const startedAt = Date.now();
   try {
-    const res = await kirimdevSendTemplate({
-      to: phone,
-      name: templateName,
-      languageCode: language,
-      components: components.length ? components : undefined,
-    });
+    const res = await fetch(
+      "https://api-prod.kirim.chat/api/v1/public/messages/send",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify(requestBody),
+      },
+    );
     const body = await res.text();
     const durationMs = Date.now() - startedAt;
     if (!res.ok) {
