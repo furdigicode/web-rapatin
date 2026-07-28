@@ -43,8 +43,11 @@ export default function MysqlConnect() {
   // Connection tab
   const [pingLoading, setPingLoading] = useState(false);
   const [pingInfo, setPingInfo] = useState<{ version: string; durationMs: number } | null>(null);
-  const [config, setConfig] = useState<{ host: string; port: string; database: string; user: string; password: string } | null>(null);
+  type MysqlCfg = { host: string; port: string; database: string; user: string; password: string; updated_at?: string | null; updated_by?: string | null };
+  const [config, setConfig] = useState<MysqlCfg | null>(null);
+  const [draft, setDraft] = useState<MysqlCfg | null>(null);
   const [configLoading, setConfigLoading] = useState(false);
+  const [configSaving, setConfigSaving] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
   // Schema tab
