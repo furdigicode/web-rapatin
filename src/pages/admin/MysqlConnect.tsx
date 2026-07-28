@@ -84,7 +84,30 @@ export default function MysqlConnect() {
     setLogLoading(false);
   }
 
-  useEffect(() => { loadLog(); }, []);
+  useEffect(() => { loadLog(); loadConfig(); }, []);
+
+  async function loadConfig() {
+    setConfigLoading(true);
+    try {
+      const token = getAdminToken();
+      const { data, error } = await supabase.functions.invoke("get-mysql-config", { body: { token } });
+      if (error) throw new Error(error.message);
+      if (data?.error) throw new Error(data.error);
+      setConfig(data);
+    } catch (e) {
+      toast({ title: "Gagal memuat konfigurasi", description: (e as Error).message, variant: "destructive" });
+    }
+    setConfigLoading(false);
+  }
+
+  async function copyValue(label: string, value: string) {
+    try {
+      await navigator.clipboard.writeText(value);
+      toast({ title: `${label} disalin` });
+    } catch {
+      toast({ title: "Gagal menyalin", variant: "destructive" });
+    }
+  }
 
   async function testConnection() {
     setPingLoading(true);
