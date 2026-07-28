@@ -97,11 +97,58 @@ export default function MysqlConnect() {
       if (error) throw new Error(error.message);
       if (data?.error) throw new Error(data.error);
       setConfig(data);
+      setDraft(data);
     } catch (e) {
       toast({ title: "Gagal memuat konfigurasi", description: (e as Error).message, variant: "destructive" });
     }
     setConfigLoading(false);
   }
+
+  async function saveConfig() {
+    if (!draft) return;
+    setConfigSaving(true);
+    try {
+      const token = getAdminToken();
+      const { data, error } = await supabase.functions.invoke("update-mysql-config", {
+        body: {
+          token,
+          host: draft.host,
+          port: draft.port,
+          database: draft.database,
+          user: draft.user,
+          password: draft.password,
+        },
+      });
+      if (error) throw new Error(error.message);
+      if (data?.error) throw new Error(data.error);
+      toast({ title: "Konfigurasi disimpan", description: "Klik Test Koneksi untuk memverifikasi." });
+      await loadConfig();
+    } catch (e) {
+      toast({ title: "Gagal menyimpan", description: (e as Error).message, variant: "destructive" });
+    }
+    setConfigSaving(false);
+  }
+
+  function updateDraft(patch: Partial<MysqlCfg>) {
+    setDraft((d) => (d ? { ...d, ...patch } : d));
+  }
+
+  async function copyValue(label: string, value: string) {
+    try {
+      await navigator.clipboard.writeText(value);
+      toast({ title: `${label} disalin` });
+    } catch {
+      toast({ title: "Gagal menyalin", variant: "destructive" });
+    }
+  }
+
+  const isDirty = !!(config && draft && (
+    config.host !== draft.host ||
+    config.port !== draft.port ||
+    config.database !== draft.database ||
+    config.user !== draft.user ||
+    config.password !== draft.password
+  ));
 
   async function copyValue(label: string, value: string) {
     try {
