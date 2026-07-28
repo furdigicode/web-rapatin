@@ -176,16 +176,15 @@ const McpServerInfo: React.FC = () => {
             <CardTitle>Tools yang tersedia</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-2">
-              {TOOLS.map((t) => (
-                <div key={t.name} className="flex items-start gap-3 p-3 border rounded">
-                  <Badge variant={t.type === "write" ? "default" : "secondary"}>{t.type}</Badge>
-                  <div>
-                    <div className="font-mono text-sm font-medium">{t.name}</div>
-                    <div className="text-xs text-muted-foreground">{t.desc}</div>
-                  </div>
-                </div>
-              ))}
+            <div className="space-y-4">
+              <div>
+                <h3 className="text-sm font-semibold mb-2">Artikel Blog</h3>
+                <div className="space-y-2">{ARTICLE_TOOLS.map(renderToolItem)}</div>
+              </div>
+              <div>
+                <h3 className="text-sm font-semibold mb-2">MySQL Rapatin</h3>
+                <div className="space-y-2">{MYSQL_TOOLS.map(renderToolItem)}</div>
+              </div>
             </div>
           </CardContent>
         </Card>
