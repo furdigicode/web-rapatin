@@ -7,7 +7,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Database, Play, RefreshCw } from "lucide-react";
+import { Loader2, Database, Play, RefreshCw, Eye, EyeOff, Copy } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 interface QueryLogRow {
   id: string;
@@ -41,6 +43,9 @@ export default function MysqlConnect() {
   // Connection tab
   const [pingLoading, setPingLoading] = useState(false);
   const [pingInfo, setPingInfo] = useState<{ version: string; durationMs: number } | null>(null);
+  const [config, setConfig] = useState<{ host: string; port: string; database: string; user: string; password: string } | null>(null);
+  const [configLoading, setConfigLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   // Schema tab
   const [tables, setTables] = useState<string[]>([]);
@@ -79,7 +84,30 @@ export default function MysqlConnect() {
     setLogLoading(false);
   }
 
-  useEffect(() => { loadLog(); }, []);
+  useEffect(() => { loadLog(); loadConfig(); }, []);
+
+  async function loadConfig() {
+    setConfigLoading(true);
+    try {
+      const token = getAdminToken();
+      const { data, error } = await supabase.functions.invoke("get-mysql-config", { body: { token } });
+      if (error) throw new Error(error.message);
+      if (data?.error) throw new Error(data.error);
+      setConfig(data);
+    } catch (e) {
+      toast({ title: "Gagal memuat konfigurasi", description: (e as Error).message, variant: "destructive" });
+    }
+    setConfigLoading(false);
+  }
+
+  async function copyValue(label: string, value: string) {
+    try {
+      await navigator.clipboard.writeText(value);
+      toast({ title: `${label} disalin` });
+    } catch {
+      toast({ title: "Gagal menyalin", variant: "destructive" });
+    }
+  }
 
   async function testConnection() {
     setPingLoading(true);
@@ -157,12 +185,67 @@ export default function MysqlConnect() {
             <TabsTrigger value="log">Riwayat</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="connection">
+          <TabsContent value="connection" className="space-y-4">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <div>
+                  <CardTitle>Detail Koneksi</CardTitle>
+                  <CardDescription>
+                    Nilai diambil dari Supabase Secrets. Ubah lewat Supabase dashboard jika perlu.
+                  </CardDescription>
+                </div>
+                <Button size="sm" variant="outline" onClick={loadConfig} disabled={configLoading}>
+                  {configLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
+                </Button>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {configLoading && !config && (
+                  <p className="text-sm text-muted-foreground">Memuat…</p>
+                )}
+                {config && (
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    {([
+                      ["Host", config.host, "host"],
+                      ["Port", config.port, "port"],
+                      ["Database", config.database, "database"],
+                      ["Username", config.user, "user"],
+                    ] as const).map(([label, value]) => (
+                      <div key={label} className="space-y-1">
+                        <Label className="text-xs text-muted-foreground">{label}</Label>
+                        <div className="flex gap-2">
+                          <Input value={value} readOnly className="font-mono text-sm" />
+                          <Button size="icon" variant="outline" onClick={() => copyValue(label, value)}>
+                            <Copy className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                    <div className="space-y-1 sm:col-span-2">
+                      <Label className="text-xs text-muted-foreground">Password</Label>
+                      <div className="flex gap-2">
+                        <Input
+                          type={showPassword ? "text" : "password"}
+                          value={config.password}
+                          readOnly
+                          className="font-mono text-sm"
+                        />
+                        <Button size="icon" variant="outline" onClick={() => setShowPassword((v) => !v)}>
+                          {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        </Button>
+                        <Button size="icon" variant="outline" onClick={() => copyValue("Password", config.password)}>
+                          <Copy className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
             <Card>
               <CardHeader>
                 <CardTitle>Test Koneksi</CardTitle>
                 <CardDescription>
-                  Kredensial diambil dari Supabase secrets: RAPATIN_MYSQL_HOST / PORT / USER / PASSWORD / DATABASE.
                   Pastikan user MySQL memiliki hak <strong>SELECT saja</strong>.
                 </CardDescription>
               </CardHeader>
