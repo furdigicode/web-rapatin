@@ -9,7 +9,9 @@ import { supabase } from "@/integrations/supabase/client";
 
 const MCP_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/mcp-rapatin`;
 
-const TOOLS = [
+type Tool = { name: string; type: "read" | "write"; desc: string };
+
+const ARTICLE_TOOLS: Tool[] = [
   { name: "list_articles", type: "read", desc: "Daftar artikel dengan filter status/kategori/search." },
   { name: "get_article", type: "read", desc: "Ambil satu artikel berdasarkan id atau slug." },
   { name: "create_article", type: "write", desc: "Buat artikel baru (default status=draft)." },
@@ -17,6 +19,22 @@ const TOOLS = [
   { name: "delete_article", type: "write", desc: "Hapus artikel (butuh confirm=true)." },
   { name: "publish_article", type: "write", desc: "Publish artikel sekarang." },
 ];
+
+const MYSQL_TOOLS: Tool[] = [
+  { name: "mysql_list_tables", type: "read", desc: "Daftar semua tabel MySQL Rapatin (read-only)." },
+  { name: "mysql_describe_table", type: "read", desc: "Tampilkan kolom sebuah tabel MySQL Rapatin." },
+  { name: "mysql_run_query", type: "read", desc: "Jalankan SELECT/SHOW/DESCRIBE/EXPLAIN/WITH read-only (auto-cap 1000 baris)." },
+];
+
+const renderToolItem = (t: Tool) => (
+  <div key={t.name} className="flex items-start gap-3 p-3 border rounded">
+    <Badge variant={t.type === "write" ? "default" : "secondary"}>{t.type}</Badge>
+    <div>
+      <div className="font-mono text-sm font-medium">{t.name}</div>
+      <div className="text-xs text-muted-foreground">{t.desc}</div>
+    </div>
+  </div>
+);
 
 const buildClaudeConfig = (key: string) => `{
   "mcpServers": {
