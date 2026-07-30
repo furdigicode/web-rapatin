@@ -37,11 +37,7 @@ const LaporanPeserta = () => {
   return (
     <>
       <SEO
-        title="Laporan Peserta Meeting - Tracking Kehadiran Otomatis | Rapatin"
-        description="Laporan kehadiran otomatis dengan data partisipasi lengkap. Ekspor ke CSV/PDF, visualisasi data, filter berdasarkan tanggal dan durasi."
-        keywords="laporan peserta meeting, tracking kehadiran rapat, attendance report zoom, analisis partisipasi"
-        canonicalUrl="https://rapatin.id/fitur/laporan-peserta"
-        type="website"
+        route="/fitur/laporan-peserta"
       />
       <FeatureLayout
         title="Laporan Peserta"

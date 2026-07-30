@@ -16,10 +16,7 @@ const Index = () => {
   return (
     <div className="min-h-screen">
       <SEO
-        title="Rapatin - Platform Meeting Online Terlengkap Indonesia"
-        description="Platform lengkap untuk meeting, event, dan appointment booking. Bayar sesuai penggunaan dengan harga fleksibel. Zoom scheduling, event management, dan appointment booking dalam satu platform."
-        keywords="meeting online, zoom scheduling, event management, appointment booking, platform meeting indonesia, bayar sesuai pakai, jadwal rapat"
-        url="https://rapatin.id"
+        route="/"
       />
       <Navbar />
       <MainHeroSection />
