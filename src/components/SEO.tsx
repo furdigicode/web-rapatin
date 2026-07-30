@@ -1,10 +1,14 @@
 
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
+import { canonicalFor, getSeoRoute } from '@/config/seo-routes';
 
 interface SEOProps {
-  title: string;
-  description: string;
+  /** Path rute marketing; jika diisi, title/description/keywords/canonical
+   *  diambil dari src/config/seo-routes.ts agar identik dengan HTML statis. */
+  route?: string;
+  title?: string;
+  description?: string;
   keywords?: string;
   image?: string;
   url?: string;
@@ -17,9 +21,10 @@ interface SEOProps {
 }
 
 const SEO: React.FC<SEOProps> = ({
-  title,
-  description,
-  keywords,
+  route,
+  title: titleProp,
+  description: descriptionProp,
+  keywords: keywordsProp,
   image = "/lovable-uploads/b85c0fd2-b1c7-4ba8-8938-bf1ac3bdeb28.png",
   url = "https://rapatin.id",
   type = "website",
@@ -29,8 +34,14 @@ const SEO: React.FC<SEOProps> = ({
   modifiedTime,
   structuredData,
 }) => {
+  const routeMeta = route ? getSeoRoute(route) : undefined;
+  const title = titleProp ?? routeMeta?.title ?? "Rapatin";
+  const description = descriptionProp ?? routeMeta?.description ?? "";
+  const keywords = keywordsProp ?? routeMeta?.keywords;
+
   const fullImageUrl = image.startsWith('http') ? image : `https://rapatin.id${image}`;
-  const pageUrl = canonicalUrl || url;
+  const pageUrl = canonicalUrl || (route ? canonicalFor(route) : url);
+
 
   // Default organization structured data
   const defaultStructuredData = {
