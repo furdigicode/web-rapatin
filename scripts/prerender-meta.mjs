@@ -26,7 +26,9 @@ const DEFAULT_OG_IMAGE =
 function parseRoutes(src) {
   const start = src.indexOf("export const SEO_ROUTES");
   if (start === -1) throw new Error("SEO_ROUTES tidak ditemukan");
-  const arrayStart = src.indexOf("[", start);
+  // lewati anotasi tipe "SeoRoute[]" — cari "[" setelah tanda "="
+  const assign = src.indexOf("= [", start);
+  const arrayStart = src.indexOf("[", assign);
   let depth = 0;
   let end = arrayStart;
   for (let i = arrayStart; i < src.length; i++) {
