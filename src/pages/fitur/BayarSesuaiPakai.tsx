@@ -42,11 +42,7 @@ const BayarSesuaiPakai = () => {
   return (
     <>
       <SEO
-        title="Bayar Sesuai Pakai - Model Pricing Fleksibel Rapatin | Tanpa Langganan"
-        description="Top up saldo dan bayar hanya untuk rapat yang dijadwalkan. Tanpa langganan bulanan, harga transparan berdasarkan peserta dan durasi."
-        keywords="bayar sesuai pakai, zoom tanpa langganan, pricing fleksibel meeting, top up saldo rapat"
-        canonicalUrl="https://rapatin.id/fitur/bayar-sesuai-pakai"
-        type="website"
+        route="/fitur/bayar-sesuai-pakai"
       />
       <FeatureLayout
         title="Model Bayar Sesuai Pakai"

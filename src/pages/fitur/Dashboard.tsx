@@ -42,11 +42,7 @@ const Dashboard = () => {
   return (
     <>
       <SEO
-        title="Dashboard Meeting Online - Interface Modern Rapatin | Kelola Rapat Mudah"
-        description="Dashboard intuitif untuk penjadwalan, kustomisasi, akses rekaman, dan laporan rapat. Antarmuka modern untuk kemudahan penggunaan."
-        keywords="dashboard meeting, interface zoom, kelola jadwal rapat, laporan meeting online"
-        canonicalUrl="https://rapatin.id/fitur/dashboard"
-        type="website"
+        route="/fitur/dashboard"
       />
       <FeatureLayout
         title="Dashboard Intuitif"

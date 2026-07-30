@@ -42,11 +42,7 @@ const RekamanCloud = () => {
   return (
     <>
       <SEO
-        title="Rekaman Cloud Otomatis - Simpan & Unduh Rekaman Meeting | Rapatin"
-        description="Rekaman rapat otomatis disimpan di cloud selama 72 jam. Notifikasi email, unduh kapan saja, keamanan terjamin dengan enkripsi."
-        keywords="rekaman cloud, recording meeting otomatis, unduh rekaman zoom, cloud storage rapat"
-        canonicalUrl="https://rapatin.id/fitur/rekaman-cloud"
-        type="website"
+        route="/fitur/rekaman-cloud"
       />
       <FeatureLayout
         title="Rekaman Cloud"
