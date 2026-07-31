@@ -26,6 +26,28 @@ const MYSQL_TOOLS: Tool[] = [
   { name: "mysql_run_query", type: "read", desc: "Jalankan SELECT/SHOW/DESCRIBE/EXPLAIN/WITH read-only (auto-cap 1000 baris)." },
 ];
 
+const BIRDSEND_TOOLS: Tool[] = [
+  { name: "birdsend_account", type: "read", desc: "Info akun BirdSend yang terhubung." },
+  { name: "birdsend_list_broadcasts", type: "read", desc: "Daftar broadcast (pagination, keyword, sort)." },
+  { name: "birdsend_get_broadcast", type: "read", desc: "Detail satu broadcast berdasarkan broadcast_id." },
+  { name: "birdsend_create_broadcast", type: "write", desc: "Buat broadcast baru (name, email, recipients, schedule)." },
+  { name: "birdsend_update_broadcast", type: "write", desc: "Update sebagian field broadcast." },
+  { name: "birdsend_delete_broadcast", type: "write", desc: "Hapus broadcast (butuh confirm=true)." },
+  { name: "birdsend_list_contacts", type: "read", desc: "Daftar kontak BirdSend." },
+  { name: "birdsend_get_contact", type: "read", desc: "Detail satu kontak berdasarkan contact_id." },
+  { name: "birdsend_create_contact", type: "write", desc: "Buat kontak baru (email, nama, tags, custom fields)." },
+  { name: "birdsend_update_contact", type: "write", desc: "Update sebagian data kontak." },
+  { name: "birdsend_delete_contact", type: "write", desc: "Hapus kontak (butuh confirm=true)." },
+  { name: "birdsend_add_contact_tags", type: "write", desc: "Tambah satu atau beberapa tag ke kontak." },
+  { name: "birdsend_remove_contact_tag", type: "write", desc: "Hapus tag dari kontak." },
+  { name: "birdsend_subscribe_contact", type: "write", desc: "Subscribe ulang kontak." },
+  { name: "birdsend_unsubscribe_contact", type: "write", desc: "Unsubscribe kontak." },
+  { name: "birdsend_list_tags", type: "read", desc: "Daftar tag BirdSend." },
+  { name: "birdsend_list_fields", type: "read", desc: "Daftar custom field BirdSend." },
+  { name: "birdsend_list_forms", type: "read", desc: "Daftar form BirdSend." },
+  { name: "birdsend_list_sequences", type: "read", desc: "Daftar sequence/automation BirdSend." },
+];
+
 const renderToolItem = (t: Tool) => (
   <div key={t.name} className="flex items-start gap-3 p-3 border rounded">
     <Badge variant={t.type === "write" ? "default" : "secondary"}>{t.type}</Badge>
@@ -184,6 +206,13 @@ const McpServerInfo: React.FC = () => {
               <div>
                 <h3 className="text-sm font-semibold mb-2">MySQL Rapatin</h3>
                 <div className="space-y-2">{MYSQL_TOOLS.map(renderToolItem)}</div>
+              </div>
+              <div>
+                <h3 className="text-sm font-semibold mb-2">BirdSend (Email Marketing)</h3>
+                <p className="text-xs text-muted-foreground mb-2">
+                  Membutuhkan secret <code className="px-1 bg-muted rounded">BIRDSEND_API_TOKEN</code> (access token dari BirdSend Developer area).
+                </p>
+                <div className="space-y-2">{BIRDSEND_TOOLS.map(renderToolItem)}</div>
               </div>
             </div>
           </CardContent>
