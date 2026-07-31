@@ -7,6 +7,7 @@ import {
   listTables as mysqlListTables,
   runQuery as mysqlRunQuery,
 } from "../_shared/mysql.ts";
+import { birdsendFetch } from "../_shared/birdsend.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -179,11 +180,319 @@ const TOOLS = [
       },
     },
   },
+  // ---- BirdSend (https://api.birdsend.co/v1) ----
+  {
+    name: "birdsend_account",
+    description: "Get the connected BirdSend user account info.",
+    inputSchema: { type: "object", properties: {} },
+  },
+  {
+    name: "birdsend_list_broadcasts",
+    description: "List BirdSend broadcasts (email campaigns) with pagination/search.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        page: { type: "number" },
+        per_page: { type: "number" },
+        keyword: { type: "string" },
+        search_by: { type: "string", enum: ["name", "status"] },
+        order_by: { type: "string", enum: ["name", "created_at"] },
+        sort: { type: "string", enum: ["asc", "desc"] },
+      },
+    },
+  },
+  {
+    name: "birdsend_get_broadcast",
+    description: "Get a single BirdSend broadcast by broadcast_id.",
+    inputSchema: {
+      type: "object",
+      required: ["broadcast_id"],
+      properties: { broadcast_id: { type: "number" } },
+    },
+  },
+  {
+    name: "birdsend_create_broadcast",
+    description: "Create a BirdSend broadcast. Pass the payload fields per BirdSend API (name, email{subject,body}, recipients, sender, schedule, footer).",
+    inputSchema: {
+      type: "object",
+      required: ["name", "email"],
+      properties: {
+        name: { type: "string" },
+        email: { type: "object", description: "{ subject, body }" },
+        recipients: { type: "object", description: "{ match, conditions[] }" },
+        sender: { type: "object", description: "{ email, name, company, address }" },
+        schedule: { type: "object", description: "{ type, datetime, timezone }" },
+        footer: { type: "string" },
+      },
+    },
+  },
+  {
+    name: "birdsend_update_broadcast",
+    description: "Partially update a BirdSend broadcast by broadcast_id.",
+    inputSchema: {
+      type: "object",
+      required: ["broadcast_id"],
+      properties: {
+        broadcast_id: { type: "number" },
+        name: { type: "string" },
+        email: { type: "object" },
+        recipients: { type: "object" },
+        sender: { type: "object" },
+        schedule: { type: "object" },
+        footer: { type: "string" },
+      },
+    },
+  },
+  {
+    name: "birdsend_delete_broadcast",
+    description: "Delete a BirdSend broadcast. Requires confirm=true.",
+    inputSchema: {
+      type: "object",
+      required: ["broadcast_id", "confirm"],
+      properties: { broadcast_id: { type: "number" }, confirm: { type: "boolean" } },
+    },
+  },
+  {
+    name: "birdsend_list_contacts",
+    description: "List BirdSend contacts with pagination/search.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        page: { type: "number" },
+        per_page: { type: "number" },
+        keyword: { type: "string" },
+        search_by: { type: "string" },
+        order_by: { type: "string" },
+        sort: { type: "string", enum: ["asc", "desc"] },
+      },
+    },
+  },
+  {
+    name: "birdsend_get_contact",
+    description: "Get a single BirdSend contact by contact_id.",
+    inputSchema: {
+      type: "object",
+      required: ["contact_id"],
+      properties: { contact_id: { type: "number" } },
+    },
+  },
+  {
+    name: "birdsend_create_contact",
+    description: "Create a BirdSend contact. Optionally attach tags and custom fields.",
+    inputSchema: {
+      type: "object",
+      required: ["email"],
+      properties: {
+        email: { type: "string" },
+        first_name: { type: "string" },
+        last_name: { type: "string" },
+        tags: { type: "array", items: {}, description: "Array of tag ids or names." },
+        fields: { type: "object", description: "Custom field values." },
+      },
+    },
+  },
+  {
+    name: "birdsend_update_contact",
+    description: "Partially update a BirdSend contact by contact_id.",
+    inputSchema: {
+      type: "object",
+      required: ["contact_id"],
+      properties: {
+        contact_id: { type: "number" },
+        email: { type: "string" },
+        first_name: { type: "string" },
+        last_name: { type: "string" },
+        fields: { type: "object" },
+      },
+    },
+  },
+  {
+    name: "birdsend_delete_contact",
+    description: "Delete a BirdSend contact. Requires confirm=true.",
+    inputSchema: {
+      type: "object",
+      required: ["contact_id", "confirm"],
+      properties: { contact_id: { type: "number" }, confirm: { type: "boolean" } },
+    },
+  },
+  {
+    name: "birdsend_add_contact_tags",
+    description: "Add one or more tags to a BirdSend contact.",
+    inputSchema: {
+      type: "object",
+      required: ["contact_id", "tags"],
+      properties: { contact_id: { type: "number" }, tags: { type: "array", items: {} } },
+    },
+  },
+  {
+    name: "birdsend_remove_contact_tag",
+    description: "Remove a tag from a BirdSend contact.",
+    inputSchema: {
+      type: "object",
+      required: ["contact_id", "tag_id"],
+      properties: { contact_id: { type: "number" }, tag_id: { type: "number" } },
+    },
+  },
+  {
+    name: "birdsend_subscribe_contact",
+    description: "Subscribe a BirdSend contact (re-activate).",
+    inputSchema: {
+      type: "object",
+      required: ["contact_id"],
+      properties: { contact_id: { type: "number" } },
+    },
+  },
+  {
+    name: "birdsend_unsubscribe_contact",
+    description: "Unsubscribe a BirdSend contact.",
+    inputSchema: {
+      type: "object",
+      required: ["contact_id"],
+      properties: { contact_id: { type: "number" } },
+    },
+  },
+  {
+    name: "birdsend_list_tags",
+    description: "List BirdSend tags.",
+    inputSchema: {
+      type: "object",
+      properties: { page: { type: "number" }, per_page: { type: "number" }, keyword: { type: "string" } },
+    },
+  },
+  {
+    name: "birdsend_list_fields",
+    description: "List BirdSend custom fields.",
+    inputSchema: {
+      type: "object",
+      properties: { page: { type: "number" }, per_page: { type: "number" } },
+    },
+  },
+  {
+    name: "birdsend_list_forms",
+    description: "List BirdSend forms.",
+    inputSchema: {
+      type: "object",
+      properties: { page: { type: "number" }, per_page: { type: "number" } },
+    },
+  },
+  {
+    name: "birdsend_list_sequences",
+    description: "List BirdSend sequences (automations).",
+    inputSchema: {
+      type: "object",
+      properties: { page: { type: "number" }, per_page: { type: "number" } },
+    },
+  },
 ];
 
 // -------- tool handlers --------
 async function handleTool(name: string, args: Record<string, any>) {
   args = args || {};
+
+  // ---- BirdSend tools ----
+  if (name.startsWith("birdsend_")) {
+    try {
+      const pick = (keys: string[]) => {
+        const o: Record<string, unknown> = {};
+        for (const k of keys) if (args[k] !== undefined) o[k] = args[k];
+        return o;
+      };
+      const listQuery = pick(["page", "per_page", "keyword", "search_by", "order_by", "sort"]);
+      let r;
+      switch (name) {
+        case "birdsend_account":
+          r = await birdsendFetch("GET", "/account");
+          break;
+        case "birdsend_list_broadcasts":
+          r = await birdsendFetch("GET", "/broadcasts", { query: listQuery });
+          break;
+        case "birdsend_get_broadcast":
+          if (!args.broadcast_id) return toolText({ error: "broadcast_id is required." }, true);
+          r = await birdsendFetch("GET", `/broadcasts/${args.broadcast_id}`);
+          break;
+        case "birdsend_create_broadcast":
+          if (!args.name || !args.email) return toolText({ error: "name and email are required." }, true);
+          r = await birdsendFetch("POST", "/broadcasts", {
+            body: pick(["name", "email", "recipients", "sender", "schedule", "footer"]),
+          });
+          break;
+        case "birdsend_update_broadcast":
+          if (!args.broadcast_id) return toolText({ error: "broadcast_id is required." }, true);
+          r = await birdsendFetch("PATCH", `/broadcasts/${args.broadcast_id}`, {
+            body: pick(["name", "email", "recipients", "sender", "schedule", "footer"]),
+          });
+          break;
+        case "birdsend_delete_broadcast":
+          if (!args.broadcast_id) return toolText({ error: "broadcast_id is required." }, true);
+          if (args.confirm !== true) return toolText({ error: "confirm must be true to delete." }, true);
+          r = await birdsendFetch("DELETE", `/broadcasts/${args.broadcast_id}`);
+          break;
+        case "birdsend_list_contacts":
+          r = await birdsendFetch("GET", "/contacts", { query: listQuery });
+          break;
+        case "birdsend_get_contact":
+          if (!args.contact_id) return toolText({ error: "contact_id is required." }, true);
+          r = await birdsendFetch("GET", `/contacts/${args.contact_id}`);
+          break;
+        case "birdsend_create_contact":
+          if (!args.email) return toolText({ error: "email is required." }, true);
+          r = await birdsendFetch("POST", "/contacts", {
+            body: pick(["email", "first_name", "last_name", "tags", "fields"]),
+          });
+          break;
+        case "birdsend_update_contact":
+          if (!args.contact_id) return toolText({ error: "contact_id is required." }, true);
+          r = await birdsendFetch("PATCH", `/contacts/${args.contact_id}`, {
+            body: pick(["email", "first_name", "last_name", "fields"]),
+          });
+          break;
+        case "birdsend_delete_contact":
+          if (!args.contact_id) return toolText({ error: "contact_id is required." }, true);
+          if (args.confirm !== true) return toolText({ error: "confirm must be true to delete." }, true);
+          r = await birdsendFetch("DELETE", `/contacts/${args.contact_id}`);
+          break;
+        case "birdsend_add_contact_tags":
+          if (!args.contact_id || !Array.isArray(args.tags)) {
+            return toolText({ error: "contact_id and tags[] are required." }, true);
+          }
+          r = await birdsendFetch("POST", `/contacts/${args.contact_id}/tags`, { body: { tags: args.tags } });
+          break;
+        case "birdsend_remove_contact_tag":
+          if (!args.contact_id || !args.tag_id) {
+            return toolText({ error: "contact_id and tag_id are required." }, true);
+          }
+          r = await birdsendFetch("DELETE", `/contacts/${args.contact_id}/tags/${args.tag_id}`);
+          break;
+        case "birdsend_subscribe_contact":
+          if (!args.contact_id) return toolText({ error: "contact_id is required." }, true);
+          r = await birdsendFetch("POST", `/contacts/${args.contact_id}/subscribe`);
+          break;
+        case "birdsend_unsubscribe_contact":
+          if (!args.contact_id) return toolText({ error: "contact_id is required." }, true);
+          r = await birdsendFetch("DELETE", `/contacts/${args.contact_id}/unsubscribe`);
+          break;
+        case "birdsend_list_tags":
+          r = await birdsendFetch("GET", "/tags", { query: listQuery });
+          break;
+        case "birdsend_list_fields":
+          r = await birdsendFetch("GET", "/fields", { query: listQuery });
+          break;
+        case "birdsend_list_forms":
+          r = await birdsendFetch("GET", "/forms", { query: listQuery });
+          break;
+        case "birdsend_list_sequences":
+          r = await birdsendFetch("GET", "/sequences", { query: listQuery });
+          break;
+        default:
+          return toolText({ error: `Unknown tool: ${name}` }, true);
+      }
+      if (!r.ok) return toolText({ error: "BirdSend API error", status: r.status, details: r.data }, true);
+      return toolText(r.data);
+    } catch (e) {
+      return toolText({ error: (e as Error).message }, true);
+    }
+  }
+
   switch (name) {
     case "mysql_list_tables": {
       try {
