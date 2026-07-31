@@ -1,36 +1,33 @@
-## Tujuan
+# BirdSend MCP
 
-Agar `<title>`, `meta description`, canonical, dan Open Graph setiap halaman marketing benar-benar ada di **HTML mentah** (bukan hanya di-inject JS lewat Helmet), sehingga Google dan crawler sosial selalu membaca judul yang benar — termasuk `/sewa-zoom-harian` yang sempat tampil dengan judul homepage.
+Tujuan: agen AI (Claude/Cursor/ClickUp) bisa membaca & mengelola akun BirdSend Anda lewat MCP server yang sudah ada (`mcp-rapatin`), bukan server baru — jadi satu endpoint & satu API key saja.
 
-Arsitektur tetap SPA (Vite + React Router). Tidak ada migrasi framework, risiko regresi minimal.
+## Yang sudah ada (terverifikasi)
+- `supabase/functions/mcp-rapatin/index.ts` — MCP Streamable HTTP, auth `MCP_ADMIN_API_KEY`, tools artikel blog + MySQL.
+- Tools didaftarkan di array `TOOLS` dan dieksekusi di `handleTool()`.
+- Halaman admin `/admin/mcp-server` menampilkan daftar tools per kategori.
 
-## Cara kerja
+## API BirdSend
+- Base URL: `https://api.birdsend.co/v1`
+- Auth: header `Authorization: Bearer <access_token>` (token dibuat di developer area BirdSend).
+- Endpoint relevan: `/account`, `/broadcasts` (list/get/create/update/delete), `/contacts` (+tags, subscribe/unsubscribe), `/fields`, `/forms`, `/tags`, `/sequences`.
 
-Saat build, sebuah script menghasilkan satu file HTML per rute marketing dari `dist/index.html`, dengan blok `<head>` yang sudah diganti sesuai halaman:
+## Rencana implementasi
 
-```text
-dist/index.html                      -> meta homepage
-dist/sewa-zoom-harian/index.html     -> meta "Sewa Zoom Harian ..."
-dist/fitur/bayar-sesuai-pakai/index.html
-dist/fitur/dashboard/index.html
-dist/fitur/rekaman-cloud/index.html
-dist/fitur/laporan-peserta/index.html
-```
+1. **Secret**: minta `BIRDSEND_API_TOKEN` lewat form secret aman (setelah Anda konfirmasi). Token diambil dari BirdSend Developer area (buat aplikasi → access token).
 
-Semua file memuat bundle JS yang sama, jadi aplikasi tetap berjalan normal; hanya bagian `<head>` yang berbeda per URL. Crawler yang tidak menjalankan JS langsung melihat meta yang benar; browser pengguna tetap mendapat SPA penuh.
+2. **`supabase/functions/_shared/birdsend.ts`** — helper `birdsendFetch(method, path, {query, body})`: pasang base URL + Bearer token, kembalikan status + body apa adanya bila error (biar agen lihat pesan asli BirdSend).
 
-## Langkah implementasi
+3. **Tools baru di `mcp-rapatin`** (prefix `birdsend_`):
+   - Read: `birdsend_account`, `birdsend_list_broadcasts`, `birdsend_get_broadcast`, `birdsend_list_contacts`, `birdsend_get_contact`, `birdsend_list_tags`, `birdsend_list_fields`, `birdsend_list_forms`, `birdsend_list_sequences`
+   - Write: `birdsend_create_broadcast`, `birdsend_update_broadcast`, `birdsend_create_contact`, `birdsend_update_contact`, `birdsend_add_contact_tags`, `birdsend_remove_contact_tag`, `birdsend_subscribe_contact`, `birdsend_unsubscribe_contact`
+   - Destruktif (`birdsend_delete_broadcast`, `birdsend_delete_contact`) wajib `confirm: true`, mengikuti pola `delete_article`.
+   - Setiap tool punya `inputSchema` sesuai parameter dokumentasi (pagination `page`/`per_page`, `keyword`, `sort`, dll).
 
-1. **Sumber data meta terpusat** — buat `scripts/seo-routes.ts` berisi daftar rute marketing beserta `title`, `description`, `canonical`, `ogTitle/ogDescription`, dan `ogImage`. Nilainya disalin dari komponen `<SEO>` yang sudah ada di tiap halaman agar tidak berubah dari kondisi yang sudah ranking.
-2. **Script prerender** — `scripts/prerender-meta.ts` membaca `dist/index.html`, mengganti tag head (title, description, canonical, og:*, twitter:*) per rute, lalu menulis `dist/<path>/index.html`. Ada konstanta batas jumlah halaman agar output build tetap kecil.
-3. **Wiring build** — tambahkan `postbuild` di `package.json` supaya script berjalan otomatis setelah `vite build`.
-4. **Sinkronisasi Helmet** — komponen `<SEO>` tetap dipakai (untuk navigasi client-side), tapi nilai title/description halaman marketing diambil dari sumber yang sama agar tidak ada perbedaan antara HTML statis dan hasil render JS (perbedaan bisa memicu Google menampilkan judul lain).
-5. **Canonical & og:url self-referencing** — pastikan setiap halaman menunjuk URL-nya sendiri (`https://rapatin.id/sewa-zoom-harian`), bukan homepage. Ini penyebab umum Google memilih judul homepage.
-6. **Sitemap** — pastikan seluruh rute yang di-prerender ada di sitemap.
-7. **Verifikasi** — setelah build, cek `curl` HTML mentah tiap rute untuk memastikan title/description sudah benar tanpa JS.
+4. **Halaman admin**: tambah section "BirdSend" di `src/pages/admin/McpServerInfo.tsx` dengan badge read/write, plus catatan bila `BIRDSEND_API_TOKEN` belum diset (tool akan balas error jelas).
 
-## Catatan teknis
+5. **Deploy & uji**: deploy `mcp-rapatin`, cek `tools/list` dan panggil `birdsend_account` + `birdsend_list_broadcasts` untuk memastikan token valid.
 
-- Halaman dinamis (`/blog/:slug`, `/quick-order/:slug`, `/voting/:slug`) **tidak** termasuk cakupan ini sesuai pilihan Anda; halaman tersebut tetap mengandalkan Helmet (Googlebot merender JS, tapi preview Facebook/LinkedIn masih memakai meta default). Bisa ditangani terpisah nanti.
-- Tidak ada dependency berat baru (tanpa headless browser); hanya script Node kecil.
-- Setelah deploy, hasil di Google butuh waktu — minta re-crawl lewat URL Inspection di Search Console untuk mempercepat.
+## Catatan
+- Tidak ada perubahan database; semua data diambil langsung dari API BirdSend saat dipanggil.
+- Endpoint MCP tetap `.../functions/v1/mcp-rapatin` dengan API key yang sama.
