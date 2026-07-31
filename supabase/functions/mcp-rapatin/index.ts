@@ -179,6 +179,209 @@ const TOOLS = [
       },
     },
   },
+  // ---- BirdSend (https://api.birdsend.co/v1) ----
+  {
+    name: "birdsend_account",
+    description: "Get the connected BirdSend user account info.",
+    inputSchema: { type: "object", properties: {} },
+  },
+  {
+    name: "birdsend_list_broadcasts",
+    description: "List BirdSend broadcasts (email campaigns) with pagination/search.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        page: { type: "number" },
+        per_page: { type: "number" },
+        keyword: { type: "string" },
+        search_by: { type: "string", enum: ["name", "status"] },
+        order_by: { type: "string", enum: ["name", "created_at"] },
+        sort: { type: "string", enum: ["asc", "desc"] },
+      },
+    },
+  },
+  {
+    name: "birdsend_get_broadcast",
+    description: "Get a single BirdSend broadcast by broadcast_id.",
+    inputSchema: {
+      type: "object",
+      required: ["broadcast_id"],
+      properties: { broadcast_id: { type: "number" } },
+    },
+  },
+  {
+    name: "birdsend_create_broadcast",
+    description: "Create a BirdSend broadcast. Pass the payload fields per BirdSend API (name, email{subject,body}, recipients, sender, schedule, footer).",
+    inputSchema: {
+      type: "object",
+      required: ["name", "email"],
+      properties: {
+        name: { type: "string" },
+        email: { type: "object", description: "{ subject, body }" },
+        recipients: { type: "object", description: "{ match, conditions[] }" },
+        sender: { type: "object", description: "{ email, name, company, address }" },
+        schedule: { type: "object", description: "{ type, datetime, timezone }" },
+        footer: { type: "string" },
+      },
+    },
+  },
+  {
+    name: "birdsend_update_broadcast",
+    description: "Partially update a BirdSend broadcast by broadcast_id.",
+    inputSchema: {
+      type: "object",
+      required: ["broadcast_id"],
+      properties: {
+        broadcast_id: { type: "number" },
+        name: { type: "string" },
+        email: { type: "object" },
+        recipients: { type: "object" },
+        sender: { type: "object" },
+        schedule: { type: "object" },
+        footer: { type: "string" },
+      },
+    },
+  },
+  {
+    name: "birdsend_delete_broadcast",
+    description: "Delete a BirdSend broadcast. Requires confirm=true.",
+    inputSchema: {
+      type: "object",
+      required: ["broadcast_id", "confirm"],
+      properties: { broadcast_id: { type: "number" }, confirm: { type: "boolean" } },
+    },
+  },
+  {
+    name: "birdsend_list_contacts",
+    description: "List BirdSend contacts with pagination/search.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        page: { type: "number" },
+        per_page: { type: "number" },
+        keyword: { type: "string" },
+        search_by: { type: "string" },
+        order_by: { type: "string" },
+        sort: { type: "string", enum: ["asc", "desc"] },
+      },
+    },
+  },
+  {
+    name: "birdsend_get_contact",
+    description: "Get a single BirdSend contact by contact_id.",
+    inputSchema: {
+      type: "object",
+      required: ["contact_id"],
+      properties: { contact_id: { type: "number" } },
+    },
+  },
+  {
+    name: "birdsend_create_contact",
+    description: "Create a BirdSend contact. Optionally attach tags and custom fields.",
+    inputSchema: {
+      type: "object",
+      required: ["email"],
+      properties: {
+        email: { type: "string" },
+        first_name: { type: "string" },
+        last_name: { type: "string" },
+        tags: { type: "array", items: {}, description: "Array of tag ids or names." },
+        fields: { type: "object", description: "Custom field values." },
+      },
+    },
+  },
+  {
+    name: "birdsend_update_contact",
+    description: "Partially update a BirdSend contact by contact_id.",
+    inputSchema: {
+      type: "object",
+      required: ["contact_id"],
+      properties: {
+        contact_id: { type: "number" },
+        email: { type: "string" },
+        first_name: { type: "string" },
+        last_name: { type: "string" },
+        fields: { type: "object" },
+      },
+    },
+  },
+  {
+    name: "birdsend_delete_contact",
+    description: "Delete a BirdSend contact. Requires confirm=true.",
+    inputSchema: {
+      type: "object",
+      required: ["contact_id", "confirm"],
+      properties: { contact_id: { type: "number" }, confirm: { type: "boolean" } },
+    },
+  },
+  {
+    name: "birdsend_add_contact_tags",
+    description: "Add one or more tags to a BirdSend contact.",
+    inputSchema: {
+      type: "object",
+      required: ["contact_id", "tags"],
+      properties: { contact_id: { type: "number" }, tags: { type: "array", items: {} } },
+    },
+  },
+  {
+    name: "birdsend_remove_contact_tag",
+    description: "Remove a tag from a BirdSend contact.",
+    inputSchema: {
+      type: "object",
+      required: ["contact_id", "tag_id"],
+      properties: { contact_id: { type: "number" }, tag_id: { type: "number" } },
+    },
+  },
+  {
+    name: "birdsend_subscribe_contact",
+    description: "Subscribe a BirdSend contact (re-activate).",
+    inputSchema: {
+      type: "object",
+      required: ["contact_id"],
+      properties: { contact_id: { type: "number" } },
+    },
+  },
+  {
+    name: "birdsend_unsubscribe_contact",
+    description: "Unsubscribe a BirdSend contact.",
+    inputSchema: {
+      type: "object",
+      required: ["contact_id"],
+      properties: { contact_id: { type: "number" } },
+    },
+  },
+  {
+    name: "birdsend_list_tags",
+    description: "List BirdSend tags.",
+    inputSchema: {
+      type: "object",
+      properties: { page: { type: "number" }, per_page: { type: "number" }, keyword: { type: "string" } },
+    },
+  },
+  {
+    name: "birdsend_list_fields",
+    description: "List BirdSend custom fields.",
+    inputSchema: {
+      type: "object",
+      properties: { page: { type: "number" }, per_page: { type: "number" } },
+    },
+  },
+  {
+    name: "birdsend_list_forms",
+    description: "List BirdSend forms.",
+    inputSchema: {
+      type: "object",
+      properties: { page: { type: "number" }, per_page: { type: "number" } },
+    },
+  },
+  {
+    name: "birdsend_list_sequences",
+    description: "List BirdSend sequences (automations).",
+    inputSchema: {
+      type: "object",
+      properties: { page: { type: "number" }, per_page: { type: "number" } },
+    },
+  },
 ];
 
 // -------- tool handlers --------
