@@ -7,6 +7,7 @@ import {
   listTables as mysqlListTables,
   runQuery as mysqlRunQuery,
 } from "../_shared/mysql.ts";
+import { birdsendFetch } from "../_shared/birdsend.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -387,6 +388,111 @@ const TOOLS = [
 // -------- tool handlers --------
 async function handleTool(name: string, args: Record<string, any>) {
   args = args || {};
+
+  // ---- BirdSend tools ----
+  if (name.startsWith("birdsend_")) {
+    try {
+      const pick = (keys: string[]) => {
+        const o: Record<string, unknown> = {};
+        for (const k of keys) if (args[k] !== undefined) o[k] = args[k];
+        return o;
+      };
+      const listQuery = pick(["page", "per_page", "keyword", "search_by", "order_by", "sort"]);
+      let r;
+      switch (name) {
+        case "birdsend_account":
+          r = await birdsendFetch("GET", "/account");
+          break;
+        case "birdsend_list_broadcasts":
+          r = await birdsendFetch("GET", "/broadcasts", { query: listQuery });
+          break;
+        case "birdsend_get_broadcast":
+          if (!args.broadcast_id) return toolText({ error: "broadcast_id is required." }, true);
+          r = await birdsendFetch("GET", `/broadcasts/${args.broadcast_id}`);
+          break;
+        case "birdsend_create_broadcast":
+          if (!args.name || !args.email) return toolText({ error: "name and email are required." }, true);
+          r = await birdsendFetch("POST", "/broadcasts", {
+            body: pick(["name", "email", "recipients", "sender", "schedule", "footer"]),
+          });
+          break;
+        case "birdsend_update_broadcast":
+          if (!args.broadcast_id) return toolText({ error: "broadcast_id is required." }, true);
+          r = await birdsendFetch("PATCH", `/broadcasts/${args.broadcast_id}`, {
+            body: pick(["name", "email", "recipients", "sender", "schedule", "footer"]),
+          });
+          break;
+        case "birdsend_delete_broadcast":
+          if (!args.broadcast_id) return toolText({ error: "broadcast_id is required." }, true);
+          if (args.confirm !== true) return toolText({ error: "confirm must be true to delete." }, true);
+          r = await birdsendFetch("DELETE", `/broadcasts/${args.broadcast_id}`);
+          break;
+        case "birdsend_list_contacts":
+          r = await birdsendFetch("GET", "/contacts", { query: listQuery });
+          break;
+        case "birdsend_get_contact":
+          if (!args.contact_id) return toolText({ error: "contact_id is required." }, true);
+          r = await birdsendFetch("GET", `/contacts/${args.contact_id}`);
+          break;
+        case "birdsend_create_contact":
+          if (!args.email) return toolText({ error: "email is required." }, true);
+          r = await birdsendFetch("POST", "/contacts", {
+            body: pick(["email", "first_name", "last_name", "tags", "fields"]),
+          });
+          break;
+        case "birdsend_update_contact":
+          if (!args.contact_id) return toolText({ error: "contact_id is required." }, true);
+          r = await birdsendFetch("PATCH", `/contacts/${args.contact_id}`, {
+            body: pick(["email", "first_name", "last_name", "fields"]),
+          });
+          break;
+        case "birdsend_delete_contact":
+          if (!args.contact_id) return toolText({ error: "contact_id is required." }, true);
+          if (args.confirm !== true) return toolText({ error: "confirm must be true to delete." }, true);
+          r = await birdsendFetch("DELETE", `/contacts/${args.contact_id}`);
+          break;
+        case "birdsend_add_contact_tags":
+          if (!args.contact_id || !Array.isArray(args.tags)) {
+            return toolText({ error: "contact_id and tags[] are required." }, true);
+          }
+          r = await birdsendFetch("POST", `/contacts/${args.contact_id}/tags`, { body: { tags: args.tags } });
+          break;
+        case "birdsend_remove_contact_tag":
+          if (!args.contact_id || !args.tag_id) {
+            return toolText({ error: "contact_id and tag_id are required." }, true);
+          }
+          r = await birdsendFetch("DELETE", `/contacts/${args.contact_id}/tags/${args.tag_id}`);
+          break;
+        case "birdsend_subscribe_contact":
+          if (!args.contact_id) return toolText({ error: "contact_id is required." }, true);
+          r = await birdsendFetch("POST", `/contacts/${args.contact_id}/subscribe`);
+          break;
+        case "birdsend_unsubscribe_contact":
+          if (!args.contact_id) return toolText({ error: "contact_id is required." }, true);
+          r = await birdsendFetch("DELETE", `/contacts/${args.contact_id}/unsubscribe`);
+          break;
+        case "birdsend_list_tags":
+          r = await birdsendFetch("GET", "/tags", { query: listQuery });
+          break;
+        case "birdsend_list_fields":
+          r = await birdsendFetch("GET", "/fields", { query: listQuery });
+          break;
+        case "birdsend_list_forms":
+          r = await birdsendFetch("GET", "/forms", { query: listQuery });
+          break;
+        case "birdsend_list_sequences":
+          r = await birdsendFetch("GET", "/sequences", { query: listQuery });
+          break;
+        default:
+          return toolText({ error: `Unknown tool: ${name}` }, true);
+      }
+      if (!r.ok) return toolText({ error: "BirdSend API error", status: r.status, details: r.data }, true);
+      return toolText(r.data);
+    } catch (e) {
+      return toolText({ error: (e as Error).message }, true);
+    }
+  }
+
   switch (name) {
     case "mysql_list_tables": {
       try {
