@@ -628,7 +628,7 @@ serve(async (req) => {
       has_rapatin_order_id: !!updateData.rapatin_order_id,
     });
 
-    // Trigger Kledo sync and admin notification for paid orders (non-blocking)
+    // Trigger email, Kledo sync and admin notification for paid orders (background)
     if (paymentStatus === 'paid') {
       const fnUrl = Deno.env.get('SUPABASE_URL')!;
       const fnKey = Deno.env.get('SUPABASE_ANON_KEY')!;
@@ -637,30 +637,75 @@ serve(async (req) => {
         'Authorization': `Bearer ${fnKey}`,
       };
 
-      // Fire and forget - Kledo sync
-      console.log("Triggering Kledo sync for order:", order.id);
-      fetch(`${fnUrl}/functions/v1/kledo-sync`, {
-        method: 'POST',
-        headers: fnHeaders,
-        body: JSON.stringify({ orderId: order.id }),
-      }).then(res => {
-        console.log("Kledo sync triggered, response status:", res.status);
-      }).catch(err => {
-        console.error("Failed to trigger Kledo sync:", err);
-      });
+      const runBackground = (task: Promise<unknown>) => {
+        try {
+          // deno-lint-ignore no-explicit-any
+          const rt = (globalThis as any).EdgeRuntime;
+          if (rt?.waitUntil) rt.waitUntil(task);
+        } catch (_e) {
+          // ignore - task still runs best-effort
+        }
+      };
 
-      // Fire and forget - Admin WhatsApp notification
+      // Order confirmation email (with retry) — only when the meeting exists
+      if (updateData.zoom_link) {
+        runBackground((async () => {
+          const delays = [0, 3000, 8000];
+          for (let attempt = 0; attempt < delays.length; attempt++) {
+            if (delays[attempt] > 0) {
+              await new Promise((r) => setTimeout(r, delays[attempt]));
+            }
+            try {
+              const res = await fetch(`${fnUrl}/functions/v1/send-order-email`, {
+                method: 'POST',
+                headers: fnHeaders,
+                body: JSON.stringify({ orderId: order.id }),
+              });
+              const body = await res.text();
+              console.log(`Email trigger attempt ${attempt + 1} status:`, res.status);
+              if (res.ok) return;
+              console.error(`Email trigger attempt ${attempt + 1} failed:`, body);
+            } catch (err) {
+              console.error(`Email trigger attempt ${attempt + 1} error:`, err);
+            }
+          }
+          console.error("All email trigger attempts failed for order:", order.id);
+        })());
+      } else {
+        console.error("Skipping confirmation email - no zoom_link for order:", order.id);
+      }
+
+      // Kledo sync
+      console.log("Triggering Kledo sync for order:", order.id);
+      runBackground(
+        fetch(`${fnUrl}/functions/v1/kledo-sync`, {
+          method: 'POST',
+          headers: fnHeaders,
+          body: JSON.stringify({ orderId: order.id }),
+        }).then(async (res) => {
+          await res.text();
+          console.log("Kledo sync triggered, response status:", res.status);
+        }).catch((err) => {
+          console.error("Failed to trigger Kledo sync:", err);
+        }),
+      );
+
+      // Admin WhatsApp notification
       console.log("Triggering admin notification (payment_success) for order:", order.id);
-      fetch(`${fnUrl}/functions/v1/notify-admin-order`, {
-        method: 'POST',
-        headers: fnHeaders,
-        body: JSON.stringify({ order_id: order.id, event_type: 'payment_success' }),
-      }).then(res => {
-        console.log("Admin notification (payment_success) trigger status:", res.status);
-      }).catch(err => {
-        console.error("Failed to trigger admin notification:", err);
-      });
+      runBackground(
+        fetch(`${fnUrl}/functions/v1/notify-admin-order`, {
+          method: 'POST',
+          headers: fnHeaders,
+          body: JSON.stringify({ order_id: order.id, event_type: 'payment_success' }),
+        }).then(async (res) => {
+          await res.text();
+          console.log("Admin notification (payment_success) trigger status:", res.status);
+        }).catch((err) => {
+          console.error("Failed to trigger admin notification:", err);
+        }),
+      );
     }
+
 
     return new Response(
       JSON.stringify({ success: true }),
