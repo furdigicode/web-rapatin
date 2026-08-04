@@ -56,6 +56,40 @@ serve(async (req) => {
 
     console.log("Order status check:", { slug: order.access_slug, orderId: order.id, status: order.payment_status });
 
+    // Safety net: paid + meeting created but confirmation email still missing
+    // more than 2 minutes after payment -> trigger it once (background).
+    if (
+      order.payment_status === 'paid' &&
+      order.zoom_link &&
+      !order.email_sent_at &&
+      order.paid_at &&
+      Date.now() - new Date(order.paid_at).getTime() > 2 * 60 * 1000
+    ) {
+      console.log("Email missing for paid order, triggering fallback send:", order.id);
+      const task = fetch(`${supabaseUrl}/functions/v1/send-order-email`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${Deno.env.get('SUPABASE_ANON_KEY')!}`,
+        },
+        body: JSON.stringify({ orderId: order.id }),
+      }).then(async (res) => {
+        await res.text();
+        console.log("Fallback email trigger status:", res.status);
+      }).catch((err) => {
+        console.error("Fallback email trigger failed:", err);
+      });
+      try {
+        // deno-lint-ignore no-explicit-any
+        const rt = (globalThis as any).EdgeRuntime;
+        if (rt?.waitUntil) rt.waitUntil(task);
+      } catch (_e) {
+        // ignore
+      }
+    }
+
+
+
     return new Response(
       JSON.stringify({
         success: true,
