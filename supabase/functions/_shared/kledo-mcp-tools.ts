@@ -906,6 +906,20 @@ export async function handleKledoTool(
           "witholding_account_id",
         ]),
       });
+    case "kledo_update_invoice":
+      return await kledoFetch("PUT", `/finance/invoices/${args.id}`, {
+        body: pick(args, [
+          "trans_date",
+          "due_date",
+          "contact_id",
+          "status_id",
+          "memo",
+          "items",
+          "additional_discount_amount",
+          "witholding_amount",
+          "witholding_account_id",
+        ]),
+      });
     case "kledo_delete_invoice":
       return await kledoFetch("DELETE", `/finance/invoices/${args.id}`);
 
