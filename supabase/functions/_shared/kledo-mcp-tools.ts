@@ -867,6 +867,10 @@ export async function handleKledoTool(
       return await kledoFetch("POST", "/finance/bankTrans", {
         body: pick(args, ["trans_date", "trans_type_id", "bank_account_id", "contact_id", "memo", "items"]),
       });
+    case "kledo_update_bank_transaction":
+      return await kledoFetch("PUT", `/finance/bankTrans/${args.id}`, {
+        body: pick(args, ["trans_date", "trans_type_id", "bank_account_id", "contact_id", "memo", "items"]),
+      });
 
     // ---- Expenses ----
     case "kledo_get_expenses":
