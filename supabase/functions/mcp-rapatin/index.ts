@@ -383,14 +383,31 @@ const TOOLS = [
       properties: { page: { type: "number" }, per_page: { type: "number" } },
     },
   },
+  ...KLEDO_TOOLS,
 ];
 
 // -------- tool handlers --------
 async function handleTool(name: string, args: Record<string, any>) {
   args = args || {};
 
+  // ---- Kledo tools ----
+  if (name.startsWith("kledo_")) {
+    try {
+      if (name.startsWith("kledo_delete_") && args.confirm !== true) {
+        return toolText({ error: "Penghapusan dibatalkan. Kirim confirm: true untuk mengeksekusi." }, true);
+      }
+      const r = await handleKledoTool(name, args);
+      if (!r) return toolText({ error: `Unknown tool: ${name}` }, true);
+      if (!r.ok) return toolText({ error: "Kledo API error", status: r.status, details: r.data }, true);
+      return toolText(r.data);
+    } catch (e) {
+      return toolText({ error: (e as Error).message }, true);
+    }
+  }
+
   // ---- BirdSend tools ----
   if (name.startsWith("birdsend_")) {
+
     try {
       const pick = (keys: string[]) => {
         const o: Record<string, unknown> = {};
