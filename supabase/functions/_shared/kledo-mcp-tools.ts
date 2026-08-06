@@ -884,6 +884,17 @@ export async function handleKledoTool(
           "items",
         ]),
       });
+    case "kledo_update_expense":
+      return await kledoFetch("PUT", `/finance/expenses/${args.id}`, {
+        body: pick(args, [
+          "trans_date",
+          "pay_from_finance_account_id",
+          "contact_id",
+          "status_id",
+          "memo",
+          "items",
+        ]),
+      });
     case "kledo_delete_expense":
       return await kledoFetch("DELETE", `/finance/expenses/${args.id}`);
 
