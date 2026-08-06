@@ -8,6 +8,8 @@ import {
   runQuery as mysqlRunQuery,
 } from "../_shared/mysql.ts";
 import { birdsendFetch } from "../_shared/birdsend.ts";
+import { KLEDO_TOOLS, handleKledoTool } from "../_shared/kledo-mcp-tools.ts";
+
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
