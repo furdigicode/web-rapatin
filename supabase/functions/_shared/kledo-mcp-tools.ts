@@ -853,6 +853,10 @@ export async function handleKledoTool(
       return await kledoFetch("POST", "/finance/contacts", {
         body: { type_id: 3, ...pick(args, ["name", "type_id", "company", "address", "phone", "email"]) },
       });
+    case "kledo_update_contact":
+      return await kledoFetch("PUT", `/finance/contacts/${args.id}`, {
+        body: pick(args, ["name", "type_id", "company", "address", "phone", "email"]),
+      });
 
     // ---- Bank transactions (Kas & Bank) ----
     case "kledo_get_bank_transactions":
