@@ -669,6 +669,145 @@ export const KLEDO_TOOLS = [
         "confirm"
       ]
     }
+  },
+  {
+    "name": "kledo_update_contact",
+    "description": "Update an existing contact in Kledo. Use to fix name, phone, email, or address.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "integer", "description": "Contact ID to update" },
+        "name": { "type": "string", "description": "Contact name" },
+        "type_id": { "type": "integer", "description": "Contact type. 3 for Rapatin users.", "default": 3 },
+        "company": { "type": "string", "description": "Company name (optional)" },
+        "address": { "type": "string", "description": "Address (optional)" },
+        "phone": { "type": "string", "description": "Phone number" },
+        "email": { "type": "string", "description": "Email address" }
+      },
+      "required": ["id", "name"]
+    }
+  },
+  {
+    "name": "kledo_update_bank_transaction",
+    "description": "Update an existing bank transaction (Terima/Kirim Dana). Replaces ALL items. Use to correct date, memo, contact, or amounts.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "integer", "description": "Bank transaction ID to update" },
+        "trans_date": { "type": "string", "format": "date", "description": "Transaction date (YYYY-MM-DD)" },
+        "trans_type_id": { "type": "integer", "enum": [11, 12], "description": "11 = Kirim Dana, 12 = Terima Dana" },
+        "bank_account_id": { "type": "integer", "description": "Bank account ID. 1 = Xendit.", "default": 1 },
+        "contact_id": { "type": "integer", "description": "Kledo contact_id" },
+        "memo": { "type": "string", "description": "Reference number" },
+        "items": {
+          "type": "array",
+          "description": "Replacement line items (replaces ALL existing items).",
+          "items": {
+            "type": "object",
+            "properties": {
+              "finance_account_id": { "type": "integer", "description": "1460 = Saldo Pelanggan, 156 = Pendapatan Lainnya" },
+              "desc": { "type": "string", "description": "Item description" },
+              "amount": { "type": "number", "description": "Amount" },
+              "amount_after_tax": { "type": "number", "description": "Amount after tax" }
+            },
+            "required": ["finance_account_id", "desc", "amount", "amount_after_tax"]
+          }
+        }
+      },
+      "required": ["id", "trans_date", "trans_type_id", "bank_account_id", "contact_id", "memo", "items"]
+    }
+  },
+  {
+    "name": "kledo_update_expense",
+    "description": "Update an existing expense in Kledo. Replaces ALL items. Use to correct Xendit fee amount, date, or memo.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "integer", "description": "Expense ID to update" },
+        "trans_date": { "type": "string", "format": "date", "description": "Transaction date (YYYY-MM-DD)" },
+        "pay_from_finance_account_id": { "type": "integer", "description": "Payment source. 1 = Xendit.", "default": 1 },
+        "contact_id": { "type": "integer", "description": "Always 3 (Xendit) for gateway fees.", "default": 3 },
+        "status_id": { "type": "integer", "description": "3 = Paid.", "default": 3 },
+        "memo": { "type": "string", "description": "Reference (order_number or #withdraw_id)" },
+        "items": {
+          "type": "array",
+          "description": "Replacement expense line items (replaces ALL existing items).",
+          "items": {
+            "type": "object",
+            "properties": {
+              "finance_account_id": { "type": "integer", "description": "1459 = Biaya Payment Gateway" },
+              "tax_id": { "type": "integer", "description": "1 = PPN 11%" },
+              "desc": { "type": "string", "description": "Item description" },
+              "amount": { "type": "number", "description": "Fee amount" },
+              "amount_after_tax": { "type": "number", "description": "Amount after tax" }
+            },
+            "required": ["finance_account_id", "desc", "amount"]
+          }
+        }
+      },
+      "required": ["id", "trans_date", "pay_from_finance_account_id", "contact_id", "status_id", "memo", "items"]
+    }
+  },
+  {
+    "name": "kledo_update_invoice",
+    "description": "Update an existing invoice in Kledo. Replaces ALL items. Use to correct amounts, discount (bonus portion), or withholding (liability portion).",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "integer", "description": "Invoice ID to update" },
+        "trans_date": { "type": "string", "format": "date", "description": "Transaction date (YYYY-MM-DD)" },
+        "due_date": { "type": "string", "format": "date", "description": "Due date" },
+        "contact_id": { "type": "integer", "description": "Kledo contact_id" },
+        "status_id": { "type": "integer", "description": "3 = LUNAS (paid).", "default": 3 },
+        "memo": { "type": "string", "description": "Reference (meeting_id / withdraw_id)" },
+        "items": {
+          "type": "array",
+          "description": "Replacement invoice line items (replaces ALL existing items).",
+          "items": {
+            "type": "object",
+            "properties": {
+              "finance_account_id": { "type": "integer", "description": "Revenue account: 3,4,5,6 = Meeting tiers, 7 = Rapatin Fee" },
+              "desc": { "type": "string", "description": "Description" },
+              "qty": { "type": "integer", "description": "Quantity", "default": 1 },
+              "price": { "type": "number", "description": "Price per unit" },
+              "amount": { "type": "number", "description": "Total amount (qty * price)" },
+              "unit_id": { "type": "integer", "description": "2 = Slot, 3 = Trx" }
+            },
+            "required": ["finance_account_id", "desc", "qty", "price", "amount", "unit_id"]
+          }
+        },
+        "additional_discount_amount": { "type": "number", "description": "Portion paid from bonus/non-liability." },
+        "witholding_amount": { "type": "number", "description": "Portion paid from liability (Saldo Pelanggan)." },
+        "witholding_account_id": { "type": "integer", "description": "1460 = Saldo Pelanggan.", "default": 1460 }
+      },
+      "required": ["id", "trans_date", "due_date", "contact_id", "status_id", "memo", "items"]
+    }
+  },
+  {
+    "name": "kledo_update_manual_journal",
+    "description": "Update an existing manual journal entry. Use to fix items or memo. Items MUST balance to zero. Replaces ALL items.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "integer", "description": "Manual journal ID to update" },
+        "trans_date": { "type": "string", "format": "date", "description": "Transaction date (YYYY-MM-DD)" },
+        "memo": { "type": "string", "description": "Memo/reference for the journal entry" },
+        "items": {
+          "type": "array",
+          "description": "Replacement journal entries. Positive = Debit, Negative = Credit. Sum must = 0.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "finance_account_id": { "type": "integer", "description": "Account ID (e.g. 1460, 121, 156)" },
+              "desc": { "type": "string", "description": "Description of the entry" },
+              "amount": { "type": "number", "description": "Positive = Debit, Negative = Credit" }
+            },
+            "required": ["finance_account_id", "desc", "amount"]
+          }
+        }
+      },
+      "required": ["id", "trans_date", "memo", "items"]
+    }
   }
 ] as const;
 
