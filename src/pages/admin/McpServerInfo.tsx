@@ -237,6 +237,14 @@ const McpServerInfo: React.FC = () => {
                 </p>
                 <div className="space-y-2">{BIRDSEND_TOOLS.map(renderToolItem)}</div>
               </div>
+              <div>
+                <h3 className="text-sm font-semibold mb-2">Kledo (Keuangan)</h3>
+                <p className="text-xs text-muted-foreground mb-2">
+                  Memakai login Kledo yang sudah ada (<code className="px-1 bg-muted rounded">KLEDO_EMAIL</code> / <code className="px-1 bg-muted rounded">KLEDO_PASSWORD</code>) dengan token ter-cache otomatis.
+                </p>
+                <div className="space-y-2">{KLEDO_TOOLS.map(renderToolItem)}</div>
+              </div>
+
             </div>
           </CardContent>
         </Card>
