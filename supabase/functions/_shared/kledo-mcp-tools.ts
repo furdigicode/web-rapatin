@@ -918,6 +918,10 @@ export async function handleKledoTool(
       return await kledoFetch("POST", "/finance/journals", {
         body: pick(args, ["trans_date", "memo", "items"]),
       });
+    case "kledo_update_manual_journal":
+      return await kledoFetch("PUT", `/finance/journals/${args.id}`, {
+        body: pick(args, ["trans_date", "memo", "items"]),
+      });
     case "kledo_delete_manual_journal":
       return await kledoFetch("DELETE", `/finance/journals/${args.id}`);
 
