@@ -48,6 +48,29 @@ const BIRDSEND_TOOLS: Tool[] = [
   { name: "birdsend_list_sequences", type: "read", desc: "Daftar sequence/automation BirdSend." },
 ];
 
+const KLEDO_TOOLS: Tool[] = [
+  { name: "kledo_get_contacts", type: "read", desc: "Cari/daftar kontak Kledo." },
+  { name: "kledo_get_contact", type: "read", desc: "Detail satu kontak berdasarkan id." },
+  { name: "kledo_create_contact", type: "write", desc: "Buat kontak baru (type_id 3 untuk user Rapatin)." },
+  { name: "kledo_get_bank_transactions", type: "read", desc: "Daftar mutasi Kas & Bank (Terima/Kirim Dana)." },
+  { name: "kledo_get_bank_transaction", type: "read", desc: "Detail satu transaksi bank." },
+  { name: "kledo_create_bank_transaction", type: "write", desc: "Buat Terima Dana (12) atau Kirim Dana (11)." },
+  { name: "kledo_get_expenses", type: "read", desc: "Daftar beban (mis. biaya Xendit)." },
+  { name: "kledo_get_expense", type: "read", desc: "Detail satu beban." },
+  { name: "kledo_create_expense", type: "write", desc: "Catat beban payment gateway / disbursement fee." },
+  { name: "kledo_get_invoices", type: "read", desc: "Daftar faktur penjualan." },
+  { name: "kledo_get_invoice", type: "read", desc: "Detail satu faktur (items, diskon, withholding)." },
+  { name: "kledo_create_invoice", type: "write", desc: "Buat faktur LUNAS (pendapatan jadwal / withdraw fee)." },
+  { name: "kledo_get_manual_journals", type: "read", desc: "Daftar jurnal manual." },
+  { name: "kledo_get_manual_journal", type: "read", desc: "Detail satu jurnal manual." },
+  { name: "kledo_create_manual_journal", type: "write", desc: "Jurnal manual (mis. reversal pendapatan refund)." },
+  { name: "kledo_get_finance_accounts", type: "read", desc: "Daftar Chart of Accounts (COA)." },
+  { name: "kledo_get_finance_account", type: "read", desc: "Detail akun termasuk saldo saat ini." },
+  { name: "kledo_delete_invoice", type: "write", desc: "Hapus faktur (butuh confirm=true)." },
+  { name: "kledo_delete_expense", type: "write", desc: "Hapus beban (butuh confirm=true)." },
+  { name: "kledo_delete_manual_journal", type: "write", desc: "Hapus jurnal manual (butuh confirm=true)." },
+];
+
 const renderToolItem = (t: Tool) => (
   <div key={t.name} className="flex items-start gap-3 p-3 border rounded">
     <Badge variant={t.type === "write" ? "default" : "secondary"}>{t.type}</Badge>
@@ -214,6 +237,14 @@ const McpServerInfo: React.FC = () => {
                 </p>
                 <div className="space-y-2">{BIRDSEND_TOOLS.map(renderToolItem)}</div>
               </div>
+              <div>
+                <h3 className="text-sm font-semibold mb-2">Kledo (Keuangan)</h3>
+                <p className="text-xs text-muted-foreground mb-2">
+                  Memakai login Kledo yang sudah ada (<code className="px-1 bg-muted rounded">KLEDO_EMAIL</code> / <code className="px-1 bg-muted rounded">KLEDO_PASSWORD</code>) dengan token ter-cache otomatis.
+                </p>
+                <div className="space-y-2">{KLEDO_TOOLS.map(renderToolItem)}</div>
+              </div>
+
             </div>
           </CardContent>
         </Card>
