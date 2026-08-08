@@ -24,7 +24,7 @@ const PseBadge: React.FC = () => {
         className="block w-full max-w-[220px] rounded-md overflow-hidden transition-opacity hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
       >
         <img
-          src={pseBadge.url}
+          src={PSE_BADGE_URL}
           alt="Rapatin terdaftar PSE Lingkup Privat Kementerian Komunikasi dan Digital RI"
           className="w-full h-auto"
           loading="lazy"
