@@ -76,6 +76,16 @@ const KLEDO_TOOLS: Tool[] = [
   { name: "kledo_update_manual_journal", type: "write", desc: "Update jurnal manual (items harus balance ke 0)." },
 ];
 
+const XENDIT_TOOLS: Tool[] = [
+  { name: "xendit_get_balance", type: "read", desc: "Saldo CASH/HOLDING, filter currency & historical timestamp." },
+  { name: "xendit_list_transactions", type: "read", desc: "Daftar transaksi dengan filter tipe/status/channel/tanggal (paginasi)." },
+  { name: "xendit_get_transaction", type: "read", desc: "Detail satu transaksi berdasarkan transaction_id." },
+  { name: "xendit_generate_report", type: "write", desc: "Generate laporan (BALANCE_HISTORY / TRANSACTIONS, CSV/XLSX)." },
+  { name: "xendit_get_report", type: "read", desc: "Cek status report & ambil URL unduhan." },
+];
+
+
+
 const renderToolItem = (t: Tool) => (
   <div key={t.name} className="flex items-start gap-3 p-3 border rounded">
     <Badge variant={t.type === "write" ? "default" : "secondary"}>{t.type}</Badge>
@@ -249,6 +259,15 @@ const McpServerInfo: React.FC = () => {
                 </p>
                 <div className="space-y-2">{KLEDO_TOOLS.map(renderToolItem)}</div>
               </div>
+              <div>
+                <h3 className="text-sm font-semibold mb-2">Xendit (Pembayaran)</h3>
+                <p className="text-xs text-muted-foreground mb-2">
+                  Memakai secret <code className="px-1 bg-muted rounded">XENDIT_SECRET_KEY</code> (Basic Auth). Read-only: tidak ada tool disbursement/payout.
+                </p>
+                <div className="space-y-2">{XENDIT_TOOLS.map(renderToolItem)}</div>
+              </div>
+
+
 
             </div>
           </CardContent>
