@@ -7,8 +7,10 @@ import {
   DialogTitle,
   DialogDescription,
 } from '@/components/ui/dialog';
-import pseBadge from '@/assets/pse-badge.png.asset.json';
-import pseCertificate from '@/assets/pse-rapatin.pdf.asset.json';
+
+const PSE_BADGE_URL = 'https://mepznzrijuoyvjcmkspf.supabase.co/storage/v1/object/public/brands/pse-rapatin.png';
+const PSE_PDF_URL = 'https://mepznzrijuoyvjcmkspf.supabase.co/storage/v1/object/public/brands/pse-rapatin.pdf';
+
 
 const PseBadge: React.FC = () => {
   const [open, setOpen] = useState(false);
@@ -22,7 +24,7 @@ const PseBadge: React.FC = () => {
         className="block w-full max-w-[220px] rounded-md overflow-hidden transition-opacity hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
       >
         <img
-          src={pseBadge.url}
+          src={PSE_BADGE_URL}
           alt="Rapatin terdaftar PSE Lingkup Privat Kementerian Komunikasi dan Digital RI"
           className="w-full h-auto"
           loading="lazy"
@@ -45,7 +47,7 @@ const PseBadge: React.FC = () => {
 
           <div className="flex-1 min-h-0 overflow-auto rounded-md border border-border bg-muted">
             <object
-              data={pseCertificate.url}
+              data={PSE_PDF_URL}
               type="application/pdf"
               className="w-full h-full min-h-[60vh]"
               aria-label="Dokumen tanda daftar PSE Rapatin"
@@ -57,7 +59,7 @@ const PseBadge: React.FC = () => {
           </div>
 
           <a
-            href={pseCertificate.url}
+            href={PSE_PDF_URL}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 text-sm text-primary hover:underline"
