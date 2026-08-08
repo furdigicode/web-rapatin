@@ -478,7 +478,7 @@ export const KLEDO_TOOLS = [
   },
   {
     "name": "kledo_create_manual_journal",
-    "description": "Create a manual journal entry. Used to reverse revenue when schedule is deleted (refund). Debit Pendapatan (121, positive amount) + Credit Saldo Pelanggan (1460, negative amount). Items MUST balance to zero. Skip if schedule was full from_bonus (no Saldo Pelanggan movement on create).",
+    "description": "Create a manual journal entry (POST /finance/manualJournals). Required: trans_date (YYYY-MM-DD), memo, items[] (each with finance_account_id, desc, amount). Positive amount = Debit, negative = Credit, and the sum of all item amounts MUST equal 0. Used to reverse revenue when schedule is deleted (refund): Debit Pendapatan (121, positive) + Credit Saldo Pelanggan (1460, negative). Skip if schedule was full from_bonus (no Saldo Pelanggan movement on create). Response returns data.id and data.ref_number (e.g. JURNAL/2026/08/07/177).",
     "inputSchema": {
       "type": "object",
       "properties": {
