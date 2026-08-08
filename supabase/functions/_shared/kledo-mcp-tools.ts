@@ -478,7 +478,7 @@ export const KLEDO_TOOLS = [
   },
   {
     "name": "kledo_create_manual_journal",
-    "description": "Create a manual journal entry. Used to reverse revenue when schedule is deleted (refund). Debit Pendapatan (121, positive amount) + Credit Saldo Pelanggan (1460, negative amount). Items MUST balance to zero. Skip if schedule was full from_bonus (no Saldo Pelanggan movement on create).",
+    "description": "Create a manual journal entry (POST /finance/manualJournals). Required: trans_date (YYYY-MM-DD), memo, items[] (each with finance_account_id, desc, amount). Positive amount = Debit, negative = Credit, and the sum of all item amounts MUST equal 0. Used to reverse revenue when schedule is deleted (refund): Debit Pendapatan (121, positive) + Credit Saldo Pelanggan (1460, negative). Skip if schedule was full from_bonus (no Saldo Pelanggan movement on create). Response returns data.id and data.ref_number (e.g. JURNAL/2026/08/07/177).",
     "inputSchema": {
       "type": "object",
       "properties": {
@@ -527,7 +527,7 @@ export const KLEDO_TOOLS = [
   },
   {
     "name": "kledo_get_manual_journals",
-    "description": "List manual journals. Use to verify refund journals or audit reversals.",
+    "description": "List manual journals (GET /finance/manualJournals). Use to verify refund journals or audit reversals. Supported filters: page, per_page, search, start_date, end_date. Response: data.data[] with id, trans_date, ref_number (e.g. JURNAL/2026/08/07/177), memo, amount.",
     "inputSchema": {
       "type": "object",
       "properties": {
@@ -556,7 +556,7 @@ export const KLEDO_TOOLS = [
   },
   {
     "name": "kledo_get_manual_journal",
-    "description": "Get detail of a single manual journal by ID.",
+    "description": "Get detail of a single manual journal by ID (GET /finance/manualJournals/{id}). Response includes ref_number, memo, and items[] with finance_account_id, desc, amount (positive = debit, negative = credit).",
     "inputSchema": {
       "type": "object",
       "properties": {
@@ -651,7 +651,7 @@ export const KLEDO_TOOLS = [
   },
   {
     "name": "kledo_delete_manual_journal",
-    "description": "Delete/void a manual journal. DESTRUCTIVE. Use only to correct erroneous entries.",
+    "description": "Delete/void a manual journal (DELETE /finance/manualJournals/{id}). DESTRUCTIVE. Requires confirm: true. Use only to correct erroneous entries.",
     "inputSchema": {
       "type": "object",
       "properties": {
@@ -785,7 +785,7 @@ export const KLEDO_TOOLS = [
   },
   {
     "name": "kledo_update_manual_journal",
-    "description": "Update an existing manual journal entry. Use to fix items or memo. Items MUST balance to zero. Replaces ALL items.",
+    "description": "Update an existing manual journal entry (PUT /finance/manualJournals/{id}). Requires id, trans_date, memo, items[]. Replaces ALL items; positive amount = Debit, negative = Credit, and the sum MUST equal 0.",
     "inputSchema": {
       "type": "object",
       "properties": {
@@ -940,19 +940,19 @@ export async function handleKledoTool(
 
     // ---- Manual journals ----
     case "kledo_get_manual_journals":
-      return await kledoFetch("GET", "/finance/journals", { query: listQuery(args) });
+      return await kledoFetch("GET", "/finance/manualJournals", { query: listQuery(args) });
     case "kledo_get_manual_journal":
-      return await kledoFetch("GET", `/finance/journals/${args.id}`);
+      return await kledoFetch("GET", `/finance/manualJournals/${args.id}`);
     case "kledo_create_manual_journal":
-      return await kledoFetch("POST", "/finance/journals", {
+      return await kledoFetch("POST", "/finance/manualJournals", {
         body: pick(args, ["trans_date", "memo", "items"]),
       });
     case "kledo_update_manual_journal":
-      return await kledoFetch("PUT", `/finance/journals/${args.id}`, {
+      return await kledoFetch("PUT", `/finance/manualJournals/${args.id}`, {
         body: pick(args, ["trans_date", "memo", "items"]),
       });
     case "kledo_delete_manual_journal":
-      return await kledoFetch("DELETE", `/finance/journals/${args.id}`);
+      return await kledoFetch("DELETE", `/finance/manualJournals/${args.id}`);
 
     // ---- Chart of accounts ----
     case "kledo_get_finance_accounts":
