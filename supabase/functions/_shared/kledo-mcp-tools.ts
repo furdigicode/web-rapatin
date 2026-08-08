@@ -478,7 +478,7 @@ export const KLEDO_TOOLS = [
   },
   {
     "name": "kledo_create_manual_journal",
-    "description": "Create a manual journal entry (POST /finance/manualJournals). Required: trans_date (YYYY-MM-DD), memo, items[] (each with finance_account_id, desc, amount). Positive amount = Debit, negative = Credit, and the sum of all item amounts MUST equal 0. Used to reverse revenue when schedule is deleted (refund): Debit Pendapatan (121, positive) + Credit Saldo Pelanggan (1460, negative). Skip if schedule was full from_bonus (no Saldo Pelanggan movement on create). Response returns data.id and data.ref_number (e.g. JURNAL/2026/08/07/177).",
+    "description": "Create a manual journal entry (POST /finance/manualJournals). Required: trans_date (YYYY-MM-DD), memo, items[] (each with finance_account_id, desc, amount). Positive amount = Debit, negative = Credit, and the sum of all item amounts MUST equal 0. Optional: ref_number, include_tax (default 1), attachment[], tags[], and per-item tax_id / amount_after_tax. Used to reverse revenue when schedule is deleted (refund): Debit Pendapatan (121, positive) + Credit Saldo Pelanggan (1460, negative). Skip if schedule was full from_bonus (no Saldo Pelanggan movement on create). Response returns data.id and data.ref_number (e.g. JURNAL/2026/08/07/177).",
     "inputSchema": {
       "type": "object",
       "properties": {
@@ -486,6 +486,26 @@ export const KLEDO_TOOLS = [
           "type": "string",
           "format": "date",
           "description": "Refund date (YYYY-MM-DD)"
+        },
+        "ref_number": {
+          "type": "string",
+          "description": "Journal reference number (optional). Kledo generates one automatically when omitted."
+        },
+        "include_tax": {
+          "type": "integer",
+          "enum": [0, 1],
+          "default": 1,
+          "description": "1 = amounts include tax, 0 = exclude tax"
+        },
+        "attachment": {
+          "type": "array",
+          "description": "Attachment file URLs (optional)",
+          "items": { "type": "string" }
+        },
+        "tags": {
+          "type": "array",
+          "description": "Tag IDs (optional)",
+          "items": { "type": "integer" }
         },
         "memo": {
           "type": "string",
@@ -508,6 +528,14 @@ export const KLEDO_TOOLS = [
               "amount": {
                 "type": "number",
                 "description": "Positive = Debit, Negative = Credit"
+              },
+              "tax_id": {
+                "type": "integer",
+                "description": "Tax ID (optional)"
+              },
+              "amount_after_tax": {
+                "type": "number",
+                "description": "Amount after tax (optional, defaults to amount when no tax)"
               }
             },
             "required": [
@@ -524,6 +552,7 @@ export const KLEDO_TOOLS = [
         "items"
       ]
     }
+
   },
   {
     "name": "kledo_get_manual_journals",
@@ -785,13 +814,25 @@ export const KLEDO_TOOLS = [
   },
   {
     "name": "kledo_update_manual_journal",
-    "description": "Update an existing manual journal entry (PUT /finance/manualJournals/{id}). Requires id, trans_date, memo, items[]. Replaces ALL items; positive amount = Debit, negative = Credit, and the sum MUST equal 0.",
+    "description": "Update an existing manual journal entry (PUT /finance/manualJournals/{id}). Requires id, trans_date, memo, items[]. This is a REPLACE operation: items[] replaces ALL existing items, positive amount = Debit, negative = Credit, and the sum MUST equal 0. Read the journal first with kledo_get_manual_journal and pass back its ref_number so the existing reference number is preserved.",
     "inputSchema": {
       "type": "object",
       "properties": {
         "id": { "type": "integer", "description": "Manual journal ID to update" },
         "trans_date": { "type": "string", "format": "date", "description": "Transaction date (YYYY-MM-DD)" },
+        "ref_number": { "type": "string", "description": "Journal reference number, e.g. JURNAL/2026/01/01/1. Pass the existing value from kledo_get_manual_journal to keep it unchanged." },
+        "include_tax": { "type": "integer", "enum": [0, 1], "default": 1, "description": "1 = amounts include tax, 0 = exclude tax" },
         "memo": { "type": "string", "description": "Memo/reference for the journal entry" },
+        "attachment": {
+          "type": "array",
+          "description": "Attachment file URLs (optional)",
+          "items": { "type": "string" }
+        },
+        "tags": {
+          "type": "array",
+          "description": "Tag IDs (optional)",
+          "items": { "type": "integer" }
+        },
         "items": {
           "type": "array",
           "description": "Replacement journal entries. Positive = Debit, Negative = Credit. Sum must = 0.",
@@ -800,7 +841,9 @@ export const KLEDO_TOOLS = [
             "properties": {
               "finance_account_id": { "type": "integer", "description": "Account ID (e.g. 1460, 121, 156)" },
               "desc": { "type": "string", "description": "Description of the entry" },
-              "amount": { "type": "number", "description": "Positive = Debit, Negative = Credit" }
+              "amount": { "type": "number", "description": "Positive = Debit, Negative = Credit" },
+              "tax_id": { "type": "integer", "description": "Tax ID (optional)" },
+              "amount_after_tax": { "type": "number", "description": "Amount after tax (optional, defaults to amount when no tax)" }
             },
             "required": ["finance_account_id", "desc", "amount"]
           }
@@ -809,6 +852,7 @@ export const KLEDO_TOOLS = [
       "required": ["id", "trans_date", "memo", "items"]
     }
   }
+
 ] as const;
 
 const LIST_KEYS = [
@@ -945,11 +989,11 @@ export async function handleKledoTool(
       return await kledoFetch("GET", `/finance/manualJournals/${args.id}`);
     case "kledo_create_manual_journal":
       return await kledoFetch("POST", "/finance/manualJournals", {
-        body: pick(args, ["trans_date", "memo", "items"]),
+        body: pick(args, ["trans_date", "include_tax", "ref_number", "memo", "attachment", "items", "tags"]),
       });
     case "kledo_update_manual_journal":
       return await kledoFetch("PUT", `/finance/manualJournals/${args.id}`, {
-        body: pick(args, ["trans_date", "memo", "items"]),
+        body: pick(args, ["trans_date", "include_tax", "ref_number", "memo", "attachment", "items", "tags"]),
       });
     case "kledo_delete_manual_journal":
       return await kledoFetch("DELETE", `/finance/manualJournals/${args.id}`);
