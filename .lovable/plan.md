@@ -1,19 +1,18 @@
 # Tambah Badge PSE Komdigi di Footer
 
 ## Tujuan
-Menampilkan informasi terdaftar PSE (Penyelenggara Sistem Elektronik) Komdigi milik Rapatin di footer, dengan deskripsi singkat dan tautan yang membuka tab baru.
+Menampilkan informasi terdaftar PSE (Penyelenggara Sistem Elektronik) Komdigi milik Rapatin di footer, dengan deskripsi singkat. Saat badge diklik, sertifikat PSE dibuka di dialog internal website (bukan tab baru), memakai file PDF yang diupload.
 
 ## Yang akan dibuat
-- Badge/logo PSE yang diupload dipasang di footer, pada kolom pertama (di bawah deskripsi Rapatin dan ikon sosial media).
-- Deskripsi singkat di bawah badge, contoh:
+- Badge/logo PSE dipasang di footer, pada kolom pertama (di bawah deskripsi Rapatin dan ikon sosial media), lebar maks ~220px agar proporsional.
+- Deskripsi singkat di bawah badge:
   "Rapatin terdaftar sebagai Penyelenggara Sistem Elektronik (PSE) Lingkup Privat pada Kementerian Komunikasi dan Digital RI — No. 028726.01/DJAI.PSE/07/2026."
-- Gambar badge dibungkus tautan ke URL tanda daftar dengan `target="_blank"` dan `rel="noopener noreferrer"`, plus `alt` deskriptif untuk SEO/aksesibilitas.
-- Layout responsif: badge dibatasi lebarnya (maks ~220px) agar tidak mendominasi kolom footer.
+- Badge menjadi tombol yang membuka dialog (modal) berisi tampilan sertifikat PSE (PDF) di dalam website, dengan judul dialog dan tombol tutup.
+- Di dalam dialog juga tersedia tautan "Buka di tab baru / Unduh PDF" sebagai fallback untuk perangkat yang tidak bisa menampilkan PDF inline (umumnya mobile).
+- Dialog responsif: tinggi tetap (~85vh) dengan area PDF yang bisa di-scroll.
 
 ## Catatan teknis
-- File: `src/components/Footer.tsx` (satu-satunya file yang diubah).
-- Gambar badge didaftarkan sebagai Lovable Asset dari file upload, lalu diimpor sebagai pointer JSON — binary tidak masuk repo.
-- Warna teks memakai token `text-muted-foreground` yang sudah ada; tidak ada warna hardcoded.
-
-## Perlu konfirmasi
-URL yang diberikan berformat `blob:https://beranda.oss.go.id/...` — URL `blob:` hanya valid di sesi browser yang membuatnya, jadi tidak bisa dibuka oleh pengunjung lain. Rencana saat ini: tautkan badge ke `https://pse.komdigi.go.id/tdpse-detail` (halaman cek PSE) atau ke URL PDF publik jika Anda punya. Jika Anda ingin tetap memakai URL blob apa adanya, saya pakai itu — tinggal beri tahu.
+- File yang diubah: `src/components/Footer.tsx`; komponen baru `src/components/PseBadge.tsx` (badge + dialog) memakai `Dialog` dari shadcn yang sudah ada.
+- Gambar badge dan file `pse-rapatin.pdf` didaftarkan sebagai Lovable Asset (pointer `.asset.json`), lalu URL-nya dipakai di komponen — binary tidak masuk repo.
+- PDF ditampilkan dengan `<iframe>` (atau `<object>`) yang menunjuk ke URL asset.
+- Warna dan tipografi memakai token desain yang ada (`text-muted-foreground`), tanpa warna hardcoded.
