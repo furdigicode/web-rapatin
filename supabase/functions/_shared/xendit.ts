@@ -6,7 +6,8 @@ export const XENDIT_API_BASE = "https://api.xendit.co";
 export type XenditResult = { ok: boolean; status: number; data: unknown };
 
 function basicAuthHeader(): string | null {
-  const key = Deno.env.get("XENDIT_SECRET_KEY");
+  // Prefer the read-only key for MCP tools; fall back to the main key.
+  const key = Deno.env.get("XENDIT_READ_SECRET_KEY") || Deno.env.get("XENDIT_SECRET_KEY");
   if (!key) return null;
   return `Basic ${btoa(`${key}:`)}`;
 }
@@ -43,7 +44,7 @@ export async function xenditFetch(
     return {
       ok: false,
       status: 500,
-      data: { error: "XENDIT_SECRET_KEY belum dikonfigurasi." },
+      data: { error: "XENDIT_READ_SECRET_KEY / XENDIT_SECRET_KEY belum dikonfigurasi." },
     };
   }
 
@@ -72,6 +73,17 @@ export async function xenditFetch(
   }
   if (!res.ok) {
     console.error(`[xendit] ${method} ${url.pathname} failed [${res.status}]: ${text.slice(0, 400)}`);
+  }
+  if (res.status === 403) {
+    return {
+      ok: false,
+      status: 403,
+      data: {
+        error:
+          "API key Xendit tidak punya izin untuk endpoint ini (Balance/Transactions/Reports). Buka Dashboard Xendit > Settings > Developers > API Keys dan beri permission READ, lalu simpan ulang di secret XENDIT_READ_SECRET_KEY.",
+        xendit_response: data,
+      },
+    };
   }
   return { ok: res.ok, status: res.status, data };
 }
