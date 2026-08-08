@@ -44,7 +44,7 @@ export async function xenditFetch(
     return {
       ok: false,
       status: 500,
-      data: { error: "XENDIT_SECRET_KEY belum dikonfigurasi." },
+      data: { error: "XENDIT_READ_SECRET_KEY / XENDIT_SECRET_KEY belum dikonfigurasi." },
     };
   }
 
