@@ -23,12 +23,14 @@ Settings > Developers > API Keys, lalu pada key yang dipakai (atau buat key baru
 
 Biarkan izin Money-in/Invoice yang sudah ada tetap seperti sekarang supaya alur pembayaran tidak rusak.
 
-## Yang saya lakukan setelah itu
+## Yang saya lakukan (secret baru khusus read)
 
-Pilih salah satu:
+1. Minta Anda memasukkan API key Xendit read-only baru lewat form aman, disimpan sebagai secret `XENDIT_READ_SECRET_KEY`. Key lama `XENDIT_SECRET_KEY` tetap utuh untuk alur pembayaran.
+2. `supabase/functions/_shared/xendit.ts`: baca `XENDIT_READ_SECRET_KEY` lebih dulu, fallback ke `XENDIT_SECRET_KEY` bila belum diisi.
+3. Deploy ulang `mcp-rapatin`, lalu uji `xendit_get_balance` dan `xendit_list_transactions` dan konfirmasi hasilnya.
 
-1. **Permission key lama ditambah** (paling sederhana) — tidak ada perubahan kode maupun secret. Saya cukup uji ulang `xendit_get_balance` dan `xendit_list_transactions` lewat MCP dan konfirmasi hasilnya.
-2. **Anda membuat key baru khusus read-only** — saya simpan sebagai secret baru `XENDIT_READ_SECRET_KEY` lewat form aman, lalu `supabase/functions/_shared/xendit.ts` membaca `XENDIT_READ_SECRET_KEY` dengan fallback ke `XENDIT_SECRET_KEY`, deploy ulang `mcp-rapatin`, lalu uji.
+Key baru dibuat di Dashboard Xendit (Settings > Developers > API Keys) dengan izin: **Balance = READ**, **Transactions = READ**, dan **Reports = READ/WRITE** bila ingin memakai `xendit_generate_report`. Tanpa izin Money-in, jadi key ini tidak bisa membuat pembayaran maupun disbursement.
+
 
 ## Perbaikan pesan error (dilakukan di kedua opsi)
 
