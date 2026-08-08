@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Instagram, Facebook, Twitter, Mail } from 'lucide-react';
 import ComingSoonModal from '@/components/ui/coming-soon-modal';
+import PseBadge from '@/components/PseBadge';
+
 
 const Footer: React.FC = () => {
   const [comingSoonOpen, setComingSoonOpen] = useState(false);
@@ -39,7 +41,9 @@ const Footer: React.FC = () => {
                 <Mail size={20} />
               </a>
             </div>
+            <PseBadge />
           </div>
+
           
           <div>
             <h3 className="text-sm font-semibold uppercase tracking-wider mb-4">Produk</h3>
