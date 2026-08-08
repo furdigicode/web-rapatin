@@ -47,7 +47,7 @@ const PseBadge: React.FC = () => {
 
           <div className="flex-1 min-h-0 overflow-auto rounded-md border border-border bg-muted">
             <object
-              data={pseCertificate.url}
+              data={PSE_PDF_URL}
               type="application/pdf"
               className="w-full h-full min-h-[60vh]"
               aria-label="Dokumen tanda daftar PSE Rapatin"
@@ -59,7 +59,7 @@ const PseBadge: React.FC = () => {
           </div>
 
           <a
-            href={pseCertificate.url}
+            href={PSE_PDF_URL}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 text-sm text-primary hover:underline"
