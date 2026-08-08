@@ -785,7 +785,7 @@ export const KLEDO_TOOLS = [
   },
   {
     "name": "kledo_update_manual_journal",
-    "description": "Update an existing manual journal entry. Use to fix items or memo. Items MUST balance to zero. Replaces ALL items.",
+    "description": "Update an existing manual journal entry (PUT /finance/manualJournals/{id}). Requires id, trans_date, memo, items[]. Replaces ALL items; positive amount = Debit, negative = Credit, and the sum MUST equal 0.",
     "inputSchema": {
       "type": "object",
       "properties": {
