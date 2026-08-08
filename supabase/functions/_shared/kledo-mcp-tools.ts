@@ -527,7 +527,7 @@ export const KLEDO_TOOLS = [
   },
   {
     "name": "kledo_get_manual_journals",
-    "description": "List manual journals. Use to verify refund journals or audit reversals.",
+    "description": "List manual journals (GET /finance/manualJournals). Use to verify refund journals or audit reversals. Supported filters: page, per_page, search, start_date, end_date. Response: data.data[] with id, trans_date, ref_number (e.g. JURNAL/2026/08/07/177), memo, amount.",
     "inputSchema": {
       "type": "object",
       "properties": {
