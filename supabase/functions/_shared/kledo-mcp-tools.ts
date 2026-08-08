@@ -785,13 +785,25 @@ export const KLEDO_TOOLS = [
   },
   {
     "name": "kledo_update_manual_journal",
-    "description": "Update an existing manual journal entry (PUT /finance/manualJournals/{id}). Requires id, trans_date, memo, items[]. Replaces ALL items; positive amount = Debit, negative = Credit, and the sum MUST equal 0.",
+    "description": "Update an existing manual journal entry (PUT /finance/manualJournals/{id}). Requires id, trans_date, memo, items[]. This is a REPLACE operation: items[] replaces ALL existing items, positive amount = Debit, negative = Credit, and the sum MUST equal 0. Read the journal first with kledo_get_manual_journal and pass back its ref_number so the existing reference number is preserved.",
     "inputSchema": {
       "type": "object",
       "properties": {
         "id": { "type": "integer", "description": "Manual journal ID to update" },
         "trans_date": { "type": "string", "format": "date", "description": "Transaction date (YYYY-MM-DD)" },
+        "ref_number": { "type": "string", "description": "Journal reference number, e.g. JURNAL/2026/01/01/1. Pass the existing value from kledo_get_manual_journal to keep it unchanged." },
+        "include_tax": { "type": "integer", "enum": [0, 1], "default": 1, "description": "1 = amounts include tax, 0 = exclude tax" },
         "memo": { "type": "string", "description": "Memo/reference for the journal entry" },
+        "attachment": {
+          "type": "array",
+          "description": "Attachment file URLs (optional)",
+          "items": { "type": "string" }
+        },
+        "tags": {
+          "type": "array",
+          "description": "Tag IDs (optional)",
+          "items": { "type": "integer" }
+        },
         "items": {
           "type": "array",
           "description": "Replacement journal entries. Positive = Debit, Negative = Credit. Sum must = 0.",
@@ -800,7 +812,9 @@ export const KLEDO_TOOLS = [
             "properties": {
               "finance_account_id": { "type": "integer", "description": "Account ID (e.g. 1460, 121, 156)" },
               "desc": { "type": "string", "description": "Description of the entry" },
-              "amount": { "type": "number", "description": "Positive = Debit, Negative = Credit" }
+              "amount": { "type": "number", "description": "Positive = Debit, Negative = Credit" },
+              "tax_id": { "type": "integer", "description": "Tax ID (optional)" },
+              "amount_after_tax": { "type": "number", "description": "Amount after tax (optional, defaults to amount when no tax)" }
             },
             "required": ["finance_account_id", "desc", "amount"]
           }
@@ -809,6 +823,7 @@ export const KLEDO_TOOLS = [
       "required": ["id", "trans_date", "memo", "items"]
     }
   }
+
 ] as const;
 
 const LIST_KEYS = [
