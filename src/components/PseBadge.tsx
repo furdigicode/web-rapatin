@@ -7,8 +7,10 @@ import {
   DialogTitle,
   DialogDescription,
 } from '@/components/ui/dialog';
-import pseBadge from '@/assets/pse-badge.png.asset.json';
-import pseCertificate from '@/assets/pse-rapatin.pdf.asset.json';
+
+const PSE_BADGE_URL = 'https://mepznzrijuoyvjcmkspf.supabase.co/storage/v1/object/public/brands/pse-rapatin.png';
+const PSE_PDF_URL = 'https://mepznzrijuoyvjcmkspf.supabase.co/storage/v1/object/public/brands/pse-rapatin.pdf';
+
 
 const PseBadge: React.FC = () => {
   const [open, setOpen] = useState(false);
