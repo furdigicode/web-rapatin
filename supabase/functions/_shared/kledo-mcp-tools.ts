@@ -989,11 +989,11 @@ export async function handleKledoTool(
       return await kledoFetch("GET", `/finance/manualJournals/${args.id}`);
     case "kledo_create_manual_journal":
       return await kledoFetch("POST", "/finance/manualJournals", {
-        body: pick(args, ["trans_date", "memo", "items"]),
+        body: pick(args, ["trans_date", "include_tax", "ref_number", "memo", "attachment", "items", "tags"]),
       });
     case "kledo_update_manual_journal":
       return await kledoFetch("PUT", `/finance/manualJournals/${args.id}`, {
-        body: pick(args, ["trans_date", "memo", "items"]),
+        body: pick(args, ["trans_date", "include_tax", "ref_number", "memo", "attachment", "items", "tags"]),
       });
     case "kledo_delete_manual_journal":
       return await kledoFetch("DELETE", `/finance/manualJournals/${args.id}`);
