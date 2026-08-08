@@ -556,7 +556,7 @@ export const KLEDO_TOOLS = [
   },
   {
     "name": "kledo_get_manual_journal",
-    "description": "Get detail of a single manual journal by ID.",
+    "description": "Get detail of a single manual journal by ID (GET /finance/manualJournals/{id}). Response includes ref_number, memo, and items[] with finance_account_id, desc, amount (positive = debit, negative = credit).",
     "inputSchema": {
       "type": "object",
       "properties": {
