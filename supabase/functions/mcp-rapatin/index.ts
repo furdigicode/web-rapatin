@@ -387,6 +387,7 @@ const TOOLS = [
     },
   },
   ...KLEDO_TOOLS,
+  ...XENDIT_TOOLS,
 ];
 
 // -------- tool handlers --------
@@ -407,6 +408,20 @@ async function handleTool(name: string, args: Record<string, any>) {
       return toolText({ error: (e as Error).message }, true);
     }
   }
+
+  // ---- Xendit tools ----
+  if (name.startsWith("xendit_")) {
+    try {
+      const r = await handleXenditTool(name, args);
+      if (!r) return toolText({ error: `Unknown tool: ${name}` }, true);
+      if (!r.ok) return toolText({ error: "Xendit API error", status: r.status, details: r.data }, true);
+      return toolText(r.data);
+    } catch (e) {
+      return toolText({ error: (e as Error).message }, true);
+    }
+  }
+
+
 
   // ---- BirdSend tools ----
   if (name.startsWith("birdsend_")) {
