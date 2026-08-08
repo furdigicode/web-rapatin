@@ -6,7 +6,8 @@ export const XENDIT_API_BASE = "https://api.xendit.co";
 export type XenditResult = { ok: boolean; status: number; data: unknown };
 
 function basicAuthHeader(): string | null {
-  const key = Deno.env.get("XENDIT_SECRET_KEY");
+  // Prefer the read-only key for MCP tools; fall back to the main key.
+  const key = Deno.env.get("XENDIT_READ_SECRET_KEY") || Deno.env.get("XENDIT_SECRET_KEY");
   if (!key) return null;
   return `Basic ${btoa(`${key}:`)}`;
 }
