@@ -74,5 +74,16 @@ export async function xenditFetch(
   if (!res.ok) {
     console.error(`[xendit] ${method} ${url.pathname} failed [${res.status}]: ${text.slice(0, 400)}`);
   }
+  if (res.status === 403) {
+    return {
+      ok: false,
+      status: 403,
+      data: {
+        error:
+          "API key Xendit tidak punya izin untuk endpoint ini (Balance/Transactions/Reports). Buka Dashboard Xendit > Settings > Developers > API Keys dan beri permission READ, lalu simpan ulang di secret XENDIT_READ_SECRET_KEY.",
+        xendit_response: data,
+      },
+    };
+  }
   return { ok: res.ok, status: res.status, data };
 }
