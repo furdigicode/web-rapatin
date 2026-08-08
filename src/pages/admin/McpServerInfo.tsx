@@ -259,6 +259,15 @@ const McpServerInfo: React.FC = () => {
                 </p>
                 <div className="space-y-2">{KLEDO_TOOLS.map(renderToolItem)}</div>
               </div>
+              <div>
+                <h3 className="text-sm font-semibold mb-2">Xendit (Pembayaran)</h3>
+                <p className="text-xs text-muted-foreground mb-2">
+                  Memakai secret <code className="px-1 bg-muted rounded">XENDIT_SECRET_KEY</code> (Basic Auth). Read-only: tidak ada tool disbursement/payout.
+                </p>
+                <div className="space-y-2">{XENDIT_TOOLS.map(renderToolItem)}</div>
+              </div>
+
+
 
             </div>
           </CardContent>
