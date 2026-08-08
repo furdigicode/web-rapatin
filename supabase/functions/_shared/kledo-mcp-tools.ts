@@ -478,7 +478,7 @@ export const KLEDO_TOOLS = [
   },
   {
     "name": "kledo_create_manual_journal",
-    "description": "Create a manual journal entry (POST /finance/manualJournals). Required: trans_date (YYYY-MM-DD), memo, items[] (each with finance_account_id, desc, amount). Positive amount = Debit, negative = Credit, and the sum of all item amounts MUST equal 0. Used to reverse revenue when schedule is deleted (refund): Debit Pendapatan (121, positive) + Credit Saldo Pelanggan (1460, negative). Skip if schedule was full from_bonus (no Saldo Pelanggan movement on create). Response returns data.id and data.ref_number (e.g. JURNAL/2026/08/07/177).",
+    "description": "Create a manual journal entry (POST /finance/manualJournals). Required: trans_date (YYYY-MM-DD), memo, items[] (each with finance_account_id, desc, amount). Positive amount = Debit, negative = Credit, and the sum of all item amounts MUST equal 0. Optional: ref_number, include_tax (default 1), attachment[], tags[], and per-item tax_id / amount_after_tax. Used to reverse revenue when schedule is deleted (refund): Debit Pendapatan (121, positive) + Credit Saldo Pelanggan (1460, negative). Skip if schedule was full from_bonus (no Saldo Pelanggan movement on create). Response returns data.id and data.ref_number (e.g. JURNAL/2026/08/07/177).",
     "inputSchema": {
       "type": "object",
       "properties": {
@@ -486,6 +486,26 @@ export const KLEDO_TOOLS = [
           "type": "string",
           "format": "date",
           "description": "Refund date (YYYY-MM-DD)"
+        },
+        "ref_number": {
+          "type": "string",
+          "description": "Journal reference number (optional). Kledo generates one automatically when omitted."
+        },
+        "include_tax": {
+          "type": "integer",
+          "enum": [0, 1],
+          "default": 1,
+          "description": "1 = amounts include tax, 0 = exclude tax"
+        },
+        "attachment": {
+          "type": "array",
+          "description": "Attachment file URLs (optional)",
+          "items": { "type": "string" }
+        },
+        "tags": {
+          "type": "array",
+          "description": "Tag IDs (optional)",
+          "items": { "type": "integer" }
         },
         "memo": {
           "type": "string",
@@ -508,6 +528,14 @@ export const KLEDO_TOOLS = [
               "amount": {
                 "type": "number",
                 "description": "Positive = Debit, Negative = Credit"
+              },
+              "tax_id": {
+                "type": "integer",
+                "description": "Tax ID (optional)"
+              },
+              "amount_after_tax": {
+                "type": "number",
+                "description": "Amount after tax (optional, defaults to amount when no tax)"
               }
             },
             "required": [
@@ -524,6 +552,7 @@ export const KLEDO_TOOLS = [
         "items"
       ]
     }
+
   },
   {
     "name": "kledo_get_manual_journals",
