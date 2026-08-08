@@ -651,7 +651,7 @@ export const KLEDO_TOOLS = [
   },
   {
     "name": "kledo_delete_manual_journal",
-    "description": "Delete/void a manual journal. DESTRUCTIVE. Use only to correct erroneous entries.",
+    "description": "Delete/void a manual journal (DELETE /finance/manualJournals/{id}). DESTRUCTIVE. Requires confirm: true. Use only to correct erroneous entries.",
     "inputSchema": {
       "type": "object",
       "properties": {
