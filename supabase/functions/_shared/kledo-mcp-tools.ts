@@ -940,19 +940,19 @@ export async function handleKledoTool(
 
     // ---- Manual journals ----
     case "kledo_get_manual_journals":
-      return await kledoFetch("GET", "/finance/journals", { query: listQuery(args) });
+      return await kledoFetch("GET", "/finance/manualJournals", { query: listQuery(args) });
     case "kledo_get_manual_journal":
-      return await kledoFetch("GET", `/finance/journals/${args.id}`);
+      return await kledoFetch("GET", `/finance/manualJournals/${args.id}`);
     case "kledo_create_manual_journal":
-      return await kledoFetch("POST", "/finance/journals", {
+      return await kledoFetch("POST", "/finance/manualJournals", {
         body: pick(args, ["trans_date", "memo", "items"]),
       });
     case "kledo_update_manual_journal":
-      return await kledoFetch("PUT", `/finance/journals/${args.id}`, {
+      return await kledoFetch("PUT", `/finance/manualJournals/${args.id}`, {
         body: pick(args, ["trans_date", "memo", "items"]),
       });
     case "kledo_delete_manual_journal":
-      return await kledoFetch("DELETE", `/finance/journals/${args.id}`);
+      return await kledoFetch("DELETE", `/finance/manualJournals/${args.id}`);
 
     // ---- Chart of accounts ----
     case "kledo_get_finance_accounts":
