@@ -1,20 +1,21 @@
-# Sinkronkan Schema Jurnal Manual MCP yang Aktif
+# Export Event Webhook KirimChat (5 Agustus – 13 Agustus 2026)
 
-## Temuan terverifikasi
+## Yang akan dihasilkan
 
-- Source `kledo_update_manual_journal` sudah memiliki `ref_number`, `include_tax`, `attachment`, `tags`, serta `tax_id` dan `amount_after_tax` pada item.
-- Handler update juga sudah meneruskan seluruh field tersebut ke `PUT /finance/manualJournals/{id}`.
-- `mcp-rapatin` mendaftarkan tools langsung dari `KLEDO_TOOLS`, sehingga respons pada screenshot menunjukkan deployment aktif atau cache schema di klien masih memakai versi lama.
+Satu file JSON berisi **1.413 event** webhook KirimChat, lengkap semua kolom termasuk `payload` mentah.
 
-## Perubahan
+- Rentang data terverifikasi: 5 Agu 2026 02:06 UTC – 13 Agu 2026 02:21 UTC
+- Sumber: tabel `kirimchat_webhook_events`
+- Ukuran perkiraan: ~1,7 MB
+- Format: JSON array, terurut dari paling lama ke paling baru
+- Kolom: `id`, `event_type`, `channel`, `message_id`, `phone_number`, `template_name`, `status`, `error_message`, `payload`, `received_at`
 
-1. Deploy ulang Edge Function `mcp-rapatin` dari source terbaru.
-2. Panggil `tools/list` langsung ke endpoint MCP dan pastikan schema `kledo_update_manual_journal` memuat `ref_number` beserta field tambahan lainnya.
-3. Uji panggilan update jurnal dengan `ref_number` yang diambil terlebih dahulu dari `kledo_get_manual_journal`, tanpa membuat data jurnal baru.
-4. Jika endpoint sudah benar tetapi agen masih menampilkan schema lama, lakukan reconnect/refresh koneksi MCP pada klien agar cache `tools/list` diperbarui.
+## Cara pengambilan
 
-## Kriteria selesai
+Karena akses `psql` langsung tidak tersedia di sesi ini, data diambil bertahap lewat query database (dipecah per blok baris), lalu digabung menjadi satu file JSON utuh dan divalidasi (jumlah baris harus 1.413, JSON harus valid).
 
-- Schema live untuk `kledo_update_manual_journal` menampilkan `id`, `trans_date`, `ref_number`, `include_tax`, `memo`, `attachment`, `items`, dan `tags`.
-- Request update tidak lagi gagal dengan pesan `Ref number diperlukan`.
-- Nomor referensi jurnal tetap sama setelah update.
+File akan tersedia untuk diunduh sebagai `kirimchat_webhook_events_2026-08-05_2026-08-13.json`.
+
+## Catatan
+
+Tidak ada perubahan pada kode aplikasi maupun database — ini murni ekspor data baca-saja.
