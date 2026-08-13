@@ -53,6 +53,3 @@ verify_jwt = false
 
 [functions.mysql-query]
 verify_jwt = false
-
-[functions.export-webhook-events]
-verify_jwt = false
