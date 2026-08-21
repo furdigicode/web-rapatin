@@ -43,6 +43,9 @@ const BlogPost = lazy(() => import("./pages/BlogPost"));
 const VotingDetail = lazy(() => import("./pages/VotingDetail"));
 const Feedback = lazy(() => import("./pages/Feedback"));
 
+// Survey Pages - Lazy loaded
+const SurveyDetail = lazy(() => import("./pages/SurveyDetail"));
+
 // Admin Pages - Lazy loaded (not critical for initial load)
 const AdminLogin = lazy(() => import("./pages/admin/Login"));
 const AdminDashboard = lazy(() => import("./pages/admin/Dashboard"));
@@ -65,6 +68,8 @@ const KirimchatTemplates = lazy(() => import("./pages/admin/KirimchatTemplates")
 const McpServerInfo = lazy(() => import("./pages/admin/McpServerInfo"));
 const AdminNotificationLog = lazy(() => import("./pages/admin/AdminNotificationLog"));
 const MysqlConnect = lazy(() => import("./pages/admin/MysqlConnect"));
+const SurveyManagement = lazy(() => import("./pages/admin/SurveyManagement"));
+const SurveyResults = lazy(() => import("./pages/admin/SurveyResults"));
 
 // Sitemap page (for viewing/debugging) - Lazy loaded
 const Sitemap = lazy(() => import("./pages/Sitemap"));
@@ -121,6 +126,9 @@ const AppRoutes = () => {
         
         {/* Feedback Page */}
         <Route path="/feedback" element={<Feedback />} />
+
+        {/* Survey Pages */}
+        <Route path="/survei/:slug" element={<SurveyDetail />} />
         
         {/* Sitemap Debug Page */}
         <Route path="/sitemap" element={<Sitemap />} />
@@ -146,6 +154,8 @@ const AppRoutes = () => {
         <Route path="/admin/mcp-server" element={<ProtectedRoute><McpServerInfo /></ProtectedRoute>} />
         <Route path="/admin/notification-log" element={<ProtectedRoute><AdminNotificationLog /></ProtectedRoute>} />
         <Route path="/admin/mysql-connect" element={<ProtectedRoute><MysqlConnect /></ProtectedRoute>} />
+        <Route path="/admin/survey" element={<ProtectedRoute><SurveyManagement /></ProtectedRoute>} />
+        <Route path="/admin/survey/:id/results" element={<ProtectedRoute><SurveyResults /></ProtectedRoute>} />
         
         {/* 404 Catch-all Route */}
         <Route path="*" element={<NotFound />} />

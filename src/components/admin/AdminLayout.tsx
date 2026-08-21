@@ -17,7 +17,8 @@ import {
   MessageCircle,
   Zap,
   Server,
-  Database
+  Database,
+  ClipboardList
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -189,6 +190,17 @@ const AppSidebar = () => {
                     </SidebarMenuSubButton>
                   </SidebarMenuSubItem>
               </SidebarMenuSub>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  asChild
+                  isActive={location.pathname.startsWith('/admin/survey')}
+                >
+                  <Link to="/admin/survey">
+                    <ClipboardList />
+                    <span>Survei</span>
+                  </Link>
+                </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton 
