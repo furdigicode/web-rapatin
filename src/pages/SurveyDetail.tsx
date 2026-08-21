@@ -302,14 +302,53 @@ const SurveyDetail: React.FC = () => {
 
             {isSubmitted ? (
               <Card>
-                <CardContent className="flex flex-col items-center gap-3 py-16 text-center">
+                <CardContent className="flex flex-col items-center gap-3 py-12 text-center">
                   <CheckCircle2 className="h-12 w-12 text-primary" />
                   <h2 className="text-xl font-semibold">Terima kasih atas partisipasi Anda</h2>
                   <p className="text-muted-foreground">
                     Jawaban Anda sudah kami terima. Anda hanya dapat mengisi survei ini satu kali.
                   </p>
+
+                  {survey.has_reward && survey.reward_code && (
+                    <div className="mt-6 w-full max-w-md space-y-4 rounded-lg border border-dashed border-primary/40 bg-primary/5 p-5 text-left">
+                      <div className="flex items-center gap-2 text-sm font-semibold text-primary">
+                        <Gift className="h-4 w-4" />
+                        {survey.reward_title || 'Hadiah untuk Anda'}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <code className="flex-1 rounded-md border bg-background px-3 py-2 text-center font-mono text-lg font-semibold tracking-widest">
+                          {survey.reward_code}
+                        </code>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="icon"
+                          onClick={handleCopyCode}
+                          aria-label="Salin kode voucher"
+                        >
+                          {isCopied ? (
+                            <Check className="h-4 w-4 text-primary" />
+                          ) : (
+                            <Copy className="h-4 w-4" />
+                          )}
+                        </Button>
+                      </div>
+                      {survey.reward_terms && (
+                        <div className="space-y-1">
+                          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                            Ketentuan
+                          </p>
+                          <div
+                            className="prose prose-sm max-w-none text-muted-foreground [&_ol]:list-decimal [&_ol]:pl-5 [&_ul]:list-disc [&_ul]:pl-5"
+                            dangerouslySetInnerHTML={{ __html: sanitizedTerms }}
+                          />
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
+
             ) : isClosed ? (
               <Card>
                 <CardContent className="py-16 text-center">
