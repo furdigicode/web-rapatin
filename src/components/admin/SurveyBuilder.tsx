@@ -16,7 +16,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { ArrowLeft, ArrowDown, ArrowUp, Loader2, Plus, Trash2, Wand2 } from 'lucide-react';
-import RichTextField from '@/components/admin/RichTextField';
+import RichTextEditor from '@/components/admin/RichTextEditor';
 
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -466,11 +466,14 @@ const SurveyBuilder: React.FC<SurveyBuilderProps> = ({ surveyId, onSaveSuccess, 
                 </div>
                 <div className="space-y-2">
                   <Label>Ketentuan hadiah</Label>
-                  <RichTextField
+                  <RichTextEditor
                     value={formData.reward_terms}
                     onChange={(html) => setFormData((prev) => ({ ...prev, reward_terms: html }))}
-                    placeholder="Tuliskan syarat & ketentuan penggunaan voucher"
+                    placeholder='Contoh: <ul><li>Berlaku sampai 31 Des</li><li><a href="https://rapatin.id">Info lengkap</a></li></ul>'
                   />
+                  <p className="text-xs text-muted-foreground">
+                    Tag yang didukung: &lt;p&gt;, &lt;strong&gt;, &lt;em&gt;, &lt;u&gt;, &lt;ul&gt;/&lt;ol&gt;&lt;li&gt;, dan &lt;a href="..."&gt; untuk tautan.
+                  </p>
                 </div>
               </div>
             )}
