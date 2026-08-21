@@ -997,7 +997,11 @@ export type Database = {
           created_at: string
           description: string | null
           end_date: string | null
+          has_reward: boolean
           id: string
+          reward_code: string | null
+          reward_terms: string | null
+          reward_title: string | null
           slug: string
           start_date: string | null
           status: string
@@ -1009,7 +1013,11 @@ export type Database = {
           created_at?: string
           description?: string | null
           end_date?: string | null
+          has_reward?: boolean
           id?: string
+          reward_code?: string | null
+          reward_terms?: string | null
+          reward_title?: string | null
           slug: string
           start_date?: string | null
           status?: string
@@ -1021,7 +1029,11 @@ export type Database = {
           created_at?: string
           description?: string | null
           end_date?: string | null
+          has_reward?: boolean
           id?: string
+          reward_code?: string | null
+          reward_terms?: string | null
+          reward_title?: string | null
           slug?: string
           start_date?: string | null
           status?: string
