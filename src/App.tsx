@@ -126,6 +126,9 @@ const AppRoutes = () => {
         
         {/* Feedback Page */}
         <Route path="/feedback" element={<Feedback />} />
+
+        {/* Survey Pages */}
+        <Route path="/survei/:slug" element={<SurveyDetail />} />
         
         {/* Sitemap Debug Page */}
         <Route path="/sitemap" element={<Sitemap />} />
