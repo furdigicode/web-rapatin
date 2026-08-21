@@ -2,9 +2,12 @@ import React from 'react';
 import { EditorContent, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
-import { Bold, Italic, List, ListOrdered, Underline as UnderlineIcon } from 'lucide-react';
+import Link from '@tiptap/extension-link';
+import { Bold, Italic, Link2, Link2Off, List, ListOrdered, Underline as UnderlineIcon } from 'lucide-react';
 import { Toggle } from '@/components/ui/toggle';
+import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+
 
 interface RichTextFieldProps {
   value: string;
@@ -20,12 +23,22 @@ const RichTextField: React.FC<RichTextFieldProps> = ({
   className,
 }) => {
   const editor = useEditor({
-    extensions: [StarterKit, Underline],
+    extensions: [
+      StarterKit,
+      Underline,
+      Link.configure({
+        openOnClick: false,
+        autolink: true,
+        protocols: ['http', 'https', 'mailto'],
+        HTMLAttributes: { target: '_blank', rel: 'noopener noreferrer nofollow' },
+      }),
+    ],
     content: value || '',
     editorProps: {
       attributes: {
         class:
-          'prose prose-sm max-w-none min-h-[140px] px-3 py-2 focus:outline-none [&_ul]:list-disc [&_ol]:list-decimal [&_ul]:pl-5 [&_ol]:pl-5',
+          'prose prose-sm max-w-none min-h-[140px] px-3 py-2 focus:outline-none [&_ul]:list-disc [&_ol]:list-decimal [&_ul]:pl-5 [&_ol]:pl-5 [&_a]:text-primary [&_a]:underline',
+
         'data-placeholder': placeholder,
       },
     },
@@ -44,7 +57,21 @@ const RichTextField: React.FC<RichTextFieldProps> = ({
     }
   }, [value, editor]);
 
+  const handleSetLink = () => {
+    if (!editor) return;
+    const previous = editor.getAttributes('link').href as string | undefined;
+    const input = window.prompt('URL tautan', previous || 'https://');
+    if (input === null) return;
+    const url = input.trim();
+    if (!url) {
+      editor.chain().focus().extendMarkRange('link').unsetLink().run();
+      return;
+    }
+    editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
+  };
+
   if (!editor) return null;
+
 
   return (
     <div className={cn('rounded-md border border-input bg-background', className)}>
@@ -89,7 +116,27 @@ const RichTextField: React.FC<RichTextFieldProps> = ({
         >
           <ListOrdered className="h-4 w-4" />
         </Toggle>
+        <Toggle
+          size="sm"
+          pressed={editor.isActive('link')}
+          onPressedChange={handleSetLink}
+          aria-label="Tautan"
+        >
+          <Link2 className="h-4 w-4" />
+        </Toggle>
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          className="h-9 px-2"
+          disabled={!editor.isActive('link')}
+          onClick={() => editor.chain().focus().extendMarkRange('link').unsetLink().run()}
+          aria-label="Hapus tautan"
+        >
+          <Link2Off className="h-4 w-4" />
+        </Button>
       </div>
+
       <EditorContent editor={editor} />
     </div>
   );
