@@ -197,6 +197,12 @@ const SurveyBuilder: React.FC<SurveyBuilderProps> = ({ surveyId, onSaveSuccess, 
       return;
     }
 
+    if (formData.has_reward && !formData.reward_code.trim()) {
+      toast({ title: 'Kode voucher wajib diisi', variant: 'destructive' });
+      return;
+    }
+
+
     setIsSaving(true);
     try {
       const payload = {
