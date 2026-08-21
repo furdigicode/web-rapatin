@@ -16,6 +16,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { ArrowLeft, ArrowDown, ArrowUp, Loader2, Plus, Trash2, Wand2 } from 'lucide-react';
+import RichTextField from '@/components/admin/RichTextField';
+
 import { useToast } from '@/hooks/use-toast';
 import {
   DraftQuestion,
@@ -109,7 +111,12 @@ const SurveyBuilder: React.FC<SurveyBuilderProps> = ({ surveyId, onSaveSuccess, 
         status: survey.status as SurveyFormData['status'],
         start_date: survey.start_date,
         end_date: survey.end_date,
+        has_reward: survey.has_reward ?? false,
+        reward_title: survey.reward_title ?? '',
+        reward_code: survey.reward_code ?? '',
+        reward_terms: survey.reward_terms ?? '',
       });
+
       setSlugTouched(true);
 
       const { data: questionRows } = await supabase
@@ -192,6 +199,12 @@ const SurveyBuilder: React.FC<SurveyBuilderProps> = ({ surveyId, onSaveSuccess, 
       return;
     }
 
+    if (formData.has_reward && !formData.reward_code.trim()) {
+      toast({ title: 'Kode voucher wajib diisi', variant: 'destructive' });
+      return;
+    }
+
+
     setIsSaving(true);
     try {
       const payload = {
@@ -201,7 +214,12 @@ const SurveyBuilder: React.FC<SurveyBuilderProps> = ({ surveyId, onSaveSuccess, 
         status: formData.status,
         start_date: formData.start_date,
         end_date: formData.end_date,
+        has_reward: formData.has_reward,
+        reward_title: formData.has_reward ? formData.reward_title.trim() || null : null,
+        reward_code: formData.has_reward ? formData.reward_code.trim() || null : null,
+        reward_terms: formData.has_reward ? formData.reward_terms.trim() || null : null,
       };
+
 
       let savedId = surveyId;
       if (surveyId) {
@@ -399,6 +417,65 @@ const SurveyBuilder: React.FC<SurveyBuilderProps> = ({ surveyId, onSaveSuccess, 
               />
             </div>
           </div>
+
+          <Separator />
+
+          <div className="space-y-4">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <Label htmlFor="survey-reward">Hadiah setelah mengisi survei</Label>
+                <p className="text-xs text-muted-foreground">
+                  Jika aktif, responden menerima kode voucher setelah mengirim jawaban.
+                </p>
+              </div>
+              <Switch
+                id="survey-reward"
+                checked={formData.has_reward}
+                onCheckedChange={(checked) =>
+                  setFormData((prev) => ({ ...prev, has_reward: checked }))
+                }
+              />
+            </div>
+
+            {formData.has_reward && (
+              <div className="space-y-4 rounded-md border border-dashed p-4">
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="reward-title">Judul hadiah (opsional)</Label>
+                    <Input
+                      id="reward-title"
+                      value={formData.reward_title}
+                      onChange={(e) =>
+                        setFormData((prev) => ({ ...prev, reward_title: e.target.value }))
+                      }
+                      placeholder="Voucher diskon 20%"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="reward-code">Kode voucher</Label>
+                    <Input
+                      id="reward-code"
+                      value={formData.reward_code}
+                      onChange={(e) =>
+                        setFormData((prev) => ({ ...prev, reward_code: e.target.value }))
+                      }
+                      placeholder="RAPATIN20"
+                      className="font-mono"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label>Ketentuan hadiah</Label>
+                  <RichTextField
+                    value={formData.reward_terms}
+                    onChange={(html) => setFormData((prev) => ({ ...prev, reward_terms: html }))}
+                    placeholder="Tuliskan syarat & ketentuan penggunaan voucher"
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+
         </CardContent>
       </Card>
 
