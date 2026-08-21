@@ -11,9 +11,14 @@ export interface Survey {
   start_date: string | null;
   end_date: string | null;
   total_responses: number;
+  has_reward: boolean;
+  reward_title: string | null;
+  reward_code: string | null;
+  reward_terms: string | null;
   created_at: string;
   updated_at: string;
 }
+
 
 export interface SurveyQuestion {
   id: string;
