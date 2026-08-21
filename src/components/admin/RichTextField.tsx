@@ -2,9 +2,12 @@ import React from 'react';
 import { EditorContent, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
-import { Bold, Italic, List, ListOrdered, Underline as UnderlineIcon } from 'lucide-react';
+import Link from '@tiptap/extension-link';
+import { Bold, Italic, Link2, Link2Off, List, ListOrdered, Underline as UnderlineIcon } from 'lucide-react';
 import { Toggle } from '@/components/ui/toggle';
+import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+
 
 interface RichTextFieldProps {
   value: string;
