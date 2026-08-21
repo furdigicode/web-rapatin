@@ -272,7 +272,7 @@ const SurveyDetail: React.FC = () => {
       />
       <Navbar />
 
-      <main className="container mx-auto max-w-3xl px-4 py-12 md:px-6">
+      <main className="container mx-auto max-w-3xl px-4 pt-24 pb-12 md:px-6 md:pt-32 md:pb-16">
         {isLoading ? (
           <div className="flex items-center justify-center py-24">
             <Loader2 className="h-6 w-6 animate-spin text-primary" />
@@ -289,8 +289,8 @@ const SurveyDetail: React.FC = () => {
         ) : (
           <div className="space-y-6">
             <Card>
-              <CardHeader>
-                <CardTitle className="text-3xl">{survey.title}</CardTitle>
+              <CardHeader className="space-y-3">
+                <CardTitle className="text-2xl leading-snug md:text-3xl">{survey.title}</CardTitle>
                 {survey.description && <CardDescription>{survey.description}</CardDescription>}
                 {survey.end_date && (
                   <Badge variant="outline" className="w-fit">
