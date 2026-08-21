@@ -33,6 +33,31 @@ const SurveyDetail: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [notFound, setNotFound] = useState(false);
+  const [isCopied, setIsCopied] = useState(false);
+
+  const sanitizedTerms = useMemo(
+    () =>
+      survey?.reward_terms
+        ? DOMPurify.sanitize(survey.reward_terms, {
+            ALLOWED_TAGS: ['p', 'br', 'strong', 'b', 'em', 'i', 'u', 's', 'ul', 'ol', 'li', 'a'],
+            ALLOWED_ATTR: ['href', 'target', 'rel'],
+          })
+        : '',
+    [survey?.reward_terms]
+  );
+
+  const handleCopyCode = async () => {
+    if (!survey?.reward_code) return;
+    try {
+      await navigator.clipboard.writeText(survey.reward_code);
+      setIsCopied(true);
+      toast({ title: 'Kode disalin' });
+      setTimeout(() => setIsCopied(false), 2000);
+    } catch {
+      toast({ title: 'Gagal menyalin kode', variant: 'destructive' });
+    }
+  };
+
 
   useEffect(() => {
     const load = async () => {
