@@ -229,7 +229,7 @@ const SurveyDetail: React.FC = () => {
                 <div key={option} className="flex items-center gap-3">
                   <Checkbox
                     id={`${question.id}-${option}`}
-                    className="h-5 w-5 rounded-sm border-2"
+                    className="h-5 w-5 rounded-none border-2"
                     checked={selected.includes(option)}
                     onCheckedChange={(checked) =>
                       setAnswer(question.id, {
