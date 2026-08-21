@@ -206,7 +206,12 @@ const SurveyBuilder: React.FC<SurveyBuilderProps> = ({ surveyId, onSaveSuccess, 
         status: formData.status,
         start_date: formData.start_date,
         end_date: formData.end_date,
+        has_reward: formData.has_reward,
+        reward_title: formData.has_reward ? formData.reward_title.trim() || null : null,
+        reward_code: formData.has_reward ? formData.reward_code.trim() || null : null,
+        reward_terms: formData.has_reward ? formData.reward_terms.trim() || null : null,
       };
+
 
       let savedId = surveyId;
       if (surveyId) {
