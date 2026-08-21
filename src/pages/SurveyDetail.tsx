@@ -12,10 +12,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle2, Loader2 } from 'lucide-react';
+import { Check, CheckCircle2, Copy, Gift, Loader2 } from 'lucide-react';
+import DOMPurify from 'dompurify';
 import { useToast } from '@/hooks/use-toast';
 import { Survey, SurveyQuestion } from '@/types/SurveyTypes';
 import { getSurveyUserIdentifier } from '@/utils/markdownSurveyParser';
+
 
 type AnswerValue = { text?: string; options?: string[]; number?: number };
 
