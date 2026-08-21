@@ -106,8 +106,6 @@ serve(async (req) => {
       if (answer?.question_id) answerMap.set(answer.question_id, answer);
     }
 
-    const rowsToInsert: Omit<AnswerInput, 'question_id'> &
-      { question_id: string; response_id?: string }[] = [] as any;
     const prepared: Array<{
       question_id: string;
       answer_text: string | null;
