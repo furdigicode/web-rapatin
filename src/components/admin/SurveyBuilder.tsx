@@ -16,6 +16,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { ArrowLeft, ArrowDown, ArrowUp, Loader2, Plus, Trash2, Wand2 } from 'lucide-react';
+import RichTextField from '@/components/admin/RichTextField';
+
 import { useToast } from '@/hooks/use-toast';
 import {
   DraftQuestion,
