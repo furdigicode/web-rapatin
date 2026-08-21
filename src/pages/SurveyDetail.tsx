@@ -13,7 +13,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { Check, CheckCircle2, Copy, Gift, Loader2 } from 'lucide-react';
-import DOMPurify from 'dompurify';
+import { sanitizeHtml } from '@/utils/sanitizeHtml';
 import { useToast } from '@/hooks/use-toast';
 import { Survey, SurveyQuestion } from '@/types/SurveyTypes';
 import { getSurveyUserIdentifier } from '@/utils/markdownSurveyParser';
@@ -36,13 +36,7 @@ const SurveyDetail: React.FC = () => {
   const [isCopied, setIsCopied] = useState(false);
 
   const sanitizedTerms = useMemo(
-    () =>
-      survey?.reward_terms
-        ? DOMPurify.sanitize(survey.reward_terms, {
-            ALLOWED_TAGS: ['p', 'br', 'strong', 'b', 'em', 'i', 'u', 's', 'ul', 'ol', 'li', 'a'],
-            ALLOWED_ATTR: ['href', 'target', 'rel'],
-          })
-        : '',
+    () => (survey?.reward_terms ? sanitizeHtml(survey.reward_terms) : ''),
     [survey?.reward_terms]
   );
 
