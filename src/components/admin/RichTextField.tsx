@@ -57,7 +57,21 @@ const RichTextField: React.FC<RichTextFieldProps> = ({
     }
   }, [value, editor]);
 
+  const handleSetLink = () => {
+    if (!editor) return;
+    const previous = editor.getAttributes('link').href as string | undefined;
+    const input = window.prompt('URL tautan', previous || 'https://');
+    if (input === null) return;
+    const url = input.trim();
+    if (!url) {
+      editor.chain().focus().extendMarkRange('link').unsetLink().run();
+      return;
+    }
+    editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
+  };
+
   if (!editor) return null;
+
 
   return (
     <div className={cn('rounded-md border border-input bg-background', className)}>
