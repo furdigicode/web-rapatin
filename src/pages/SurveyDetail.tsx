@@ -226,9 +226,10 @@ const SurveyDetail: React.FC = () => {
             {question.options.map((option) => {
               const selected = answer.options ?? [];
               return (
-                <div key={option} className="flex items-center gap-2">
+                <div key={option} className="flex items-center gap-3">
                   <Checkbox
                     id={`${question.id}-${option}`}
+                    className="h-5 w-5 rounded-none border-2"
                     checked={selected.includes(option)}
                     onCheckedChange={(checked) =>
                       setAnswer(question.id, {
