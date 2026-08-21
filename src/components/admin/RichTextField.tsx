@@ -116,7 +116,27 @@ const RichTextField: React.FC<RichTextFieldProps> = ({
         >
           <ListOrdered className="h-4 w-4" />
         </Toggle>
+        <Toggle
+          size="sm"
+          pressed={editor.isActive('link')}
+          onPressedChange={handleSetLink}
+          aria-label="Tautan"
+        >
+          <Link2 className="h-4 w-4" />
+        </Toggle>
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          className="h-9 px-2"
+          disabled={!editor.isActive('link')}
+          onClick={() => editor.chain().focus().extendMarkRange('link').unsetLink().run()}
+          aria-label="Hapus tautan"
+        >
+          <Link2Off className="h-4 w-4" />
+        </Button>
       </div>
+
       <EditorContent editor={editor} />
     </div>
   );
