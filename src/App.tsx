@@ -43,6 +43,9 @@ const BlogPost = lazy(() => import("./pages/BlogPost"));
 const VotingDetail = lazy(() => import("./pages/VotingDetail"));
 const Feedback = lazy(() => import("./pages/Feedback"));
 
+// Survey Pages - Lazy loaded
+const SurveyDetail = lazy(() => import("./pages/SurveyDetail"));
+
 // Admin Pages - Lazy loaded (not critical for initial load)
 const AdminLogin = lazy(() => import("./pages/admin/Login"));
 const AdminDashboard = lazy(() => import("./pages/admin/Dashboard"));
