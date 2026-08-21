@@ -154,6 +154,8 @@ const AppRoutes = () => {
         <Route path="/admin/mcp-server" element={<ProtectedRoute><McpServerInfo /></ProtectedRoute>} />
         <Route path="/admin/notification-log" element={<ProtectedRoute><AdminNotificationLog /></ProtectedRoute>} />
         <Route path="/admin/mysql-connect" element={<ProtectedRoute><MysqlConnect /></ProtectedRoute>} />
+        <Route path="/admin/survey" element={<ProtectedRoute><SurveyManagement /></ProtectedRoute>} />
+        <Route path="/admin/survey/:id/results" element={<ProtectedRoute><SurveyResults /></ProtectedRoute>} />
         
         {/* 404 Catch-all Route */}
         <Route path="*" element={<NotFound />} />
