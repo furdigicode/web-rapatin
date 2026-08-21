@@ -56,7 +56,12 @@ export interface SurveyFormData {
   status: SurveyStatus;
   start_date: string | null;
   end_date: string | null;
+  has_reward: boolean;
+  reward_title: string;
+  reward_code: string;
+  reward_terms: string;
 }
+
 
 export interface SurveyResponse {
   id: string;
