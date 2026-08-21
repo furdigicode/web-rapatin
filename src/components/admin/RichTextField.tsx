@@ -23,12 +23,22 @@ const RichTextField: React.FC<RichTextFieldProps> = ({
   className,
 }) => {
   const editor = useEditor({
-    extensions: [StarterKit, Underline],
+    extensions: [
+      StarterKit,
+      Underline,
+      Link.configure({
+        openOnClick: false,
+        autolink: true,
+        protocols: ['http', 'https', 'mailto'],
+        HTMLAttributes: { target: '_blank', rel: 'noopener noreferrer nofollow' },
+      }),
+    ],
     content: value || '',
     editorProps: {
       attributes: {
         class:
-          'prose prose-sm max-w-none min-h-[140px] px-3 py-2 focus:outline-none [&_ul]:list-disc [&_ol]:list-decimal [&_ul]:pl-5 [&_ol]:pl-5',
+          'prose prose-sm max-w-none min-h-[140px] px-3 py-2 focus:outline-none [&_ul]:list-disc [&_ol]:list-decimal [&_ul]:pl-5 [&_ol]:pl-5 [&_a]:text-primary [&_a]:underline',
+
         'data-placeholder': placeholder,
       },
     },
