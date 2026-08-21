@@ -1,32 +1,30 @@
-# Memperbaiki `git pull` yang Gagal di Server Self-Hosted
+## Plan: Bedakan Elemen Pilihan Tunggal vs Pilihan Ganda pada Survei
 
-## Apa yang terjadi
+### Goal
+Membuat perbedaan visual yang jelas antara pertanyaan tipe **single choice** (pilihan tunggal) dan **multiple choice** (pilihan ganda) di halaman formulir survei, agar pengguna tidak bingung.
 
-`git pull origin main` ditolak bukan karena masalah kode, tapi karena di server ada perubahan lokal pada `package-lock.json` (kemungkinan hasil `npm install` sebelumnya). Git menolak menimpa file yang berubah, jadi merge dibatalkan.
+- **Single choice** tetap menggunakan elemen berbentuk lingkaran (radio button).
+- **Multiple choice** menggunakan elemen berbentuk kotak centang (checkbox) yang lebih terlihat sebagai kotak.
 
-Kabar baiknya: di repo ini `RichTextField.tsx` sudah tidak ada dan tidak ada lagi referensi Tiptap, jadi setelah pull berhasil, build seharusnya lolos.
+### Scope
+Perubahan hanya pada tampilan publik formulir survei: `src/pages/SurveyDetail.tsx`.
 
-## Langkah di server (jalankan manual via Termius)
+Tidak mengubah:
+- Struktur data (`survey_questions.question_type` tetap `radio` dan `checkbox`).
+- Logika penyimpanan jawaban.
+- Admin builder.
 
-Di `/var/www/app-landing`:
+### Implementation
+1. Update `src/pages/SurveyDetail.tsx`:
+   - Untuk `question_type === 'radio'`, gunakan `RadioGroup`/`RadioGroupItem` seperti sekarang, dan pastikan tampilannya membulat penuh (lingkaran).
+   - Untuk `question_type === 'checkbox'`, ganti/gaya checkbox agar terlihat jelas sebagai **kotak**:
+     - Bentuk sudut lebih tajam (`rounded-sm` atau `rounded-md`) sehingga tidak tampak seperti lingkaran.
+     - Ukuran sedikit lebih besar agar bentuknya lebih mudah dibedakan.
+     - Tetap menampilkan ikon centang saat dipilih.
+2. Verifikasi visual dengan membuka halaman `/survei/:slug` yang memiliki pertanyaan radio dan checkbox, lalu periksa bentuk elemen masing-masing.
 
-```bash
-# 1. Buang perubahan lokal pada lockfile (aman, versi repo yang dipakai)
-git checkout -- package-lock.json
-
-# 2. Ambil update terbaru
-git pull origin main
-
-# 3. Sinkronkan dependency sesuai lockfile
-npm ci   # kalau gagal/lama, pakai: npm install
-
-# 4. Build
-npm run build
-```
-
-Jika masih ada file lain yang diprotes git, cek dulu dengan `git status`, lalu `git stash` untuk menyimpan sementara atau `git checkout -- <file>` bila memang tidak diperlukan.
-
-## Catatan
-
-- `npm ci` menghapus `node_modules` dan menginstal ulang persis sesuai lockfile — ini mencegah lockfile berubah lagi dan menghindari error "failed to resolve import" di masa depan.
-- Tidak ada perubahan kode yang perlu saya lakukan untuk ini; ini murni langkah operasional di server. Kalau mau, saya bisa tambahkan skrip `deploy.sh` di repo yang menjalankan urutan di atas supaya tinggal `./deploy.sh` setiap kali update.
+### Acceptance Criteria
+- [ ] Radio item tampil sebagai lingkaran kosong dengan titik saat dipilih.
+- [ ] Checkbox item tampil sebagai kotak dengan centang saat dipilih.
+- [ ] Dari jauh/di layar kecil bentuk keduanya sudah tidak lagi terlihat sama.
+- [ ] Tidak ada perubahan perilaku submit atau validasi.
