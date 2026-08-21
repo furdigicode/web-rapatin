@@ -68,6 +68,8 @@ const KirimchatTemplates = lazy(() => import("./pages/admin/KirimchatTemplates")
 const McpServerInfo = lazy(() => import("./pages/admin/McpServerInfo"));
 const AdminNotificationLog = lazy(() => import("./pages/admin/AdminNotificationLog"));
 const MysqlConnect = lazy(() => import("./pages/admin/MysqlConnect"));
+const SurveyManagement = lazy(() => import("./pages/admin/SurveyManagement"));
+const SurveyResults = lazy(() => import("./pages/admin/SurveyResults"));
 
 // Sitemap page (for viewing/debugging) - Lazy loaded
 const Sitemap = lazy(() => import("./pages/Sitemap"));
