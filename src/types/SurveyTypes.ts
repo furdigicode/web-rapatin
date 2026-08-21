@@ -97,4 +97,9 @@ export const defaultSurveyFormData: SurveyFormData = {
   status: 'draft',
   start_date: null,
   end_date: null,
+  has_reward: false,
+  reward_title: '',
+  reward_code: '',
+  reward_terms: '',
 };
+
