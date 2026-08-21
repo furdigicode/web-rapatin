@@ -109,7 +109,12 @@ const SurveyBuilder: React.FC<SurveyBuilderProps> = ({ surveyId, onSaveSuccess, 
         status: survey.status as SurveyFormData['status'],
         start_date: survey.start_date,
         end_date: survey.end_date,
+        has_reward: survey.has_reward ?? false,
+        reward_title: survey.reward_title ?? '',
+        reward_code: survey.reward_code ?? '',
+        reward_terms: survey.reward_terms ?? '',
       });
+
       setSlugTouched(true);
 
       const { data: questionRows } = await supabase
