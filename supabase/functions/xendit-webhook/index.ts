@@ -660,7 +660,7 @@ serve(async (req) => {
       const typedOrder = order as GuestOrder;
       
       // Step 1: Get Rapatin token (with caching)
-      const rapatinToken = await getRapatinToken(supabase);
+      const rapatinToken = await getRapatinToken(supabase, order.id);
       
       if (rapatinToken) {
         // Step 2: Map participant count to product ID
