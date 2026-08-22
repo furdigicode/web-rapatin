@@ -960,6 +960,40 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
             </>
           )}
 
+          {/* Response API Rapatin - raw JSON log */}
+          {rapatinApiLog.length > 0 && (
+            <>
+              <Separator />
+              <div className="space-y-3">
+                <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide flex items-center gap-2">
+                  <Video className="h-4 w-4" />
+                  Response API Rapatin
+                </h3>
+                <div className="space-y-2 p-4 bg-muted/50 rounded-lg">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-muted-foreground">
+                      {rapatinApiLog.length} entri tercatat
+                    </span>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-7"
+                      onClick={() => copyToClipboard(JSON.stringify(rapatinApiLog, null, 2), 'Log API Rapatin')}
+                    >
+                      <Copy className="h-3 w-3 mr-1" />
+                      Copy JSON
+                    </Button>
+                  </div>
+                  <pre className="text-[11px] leading-relaxed bg-background rounded p-3 max-h-64 overflow-auto whitespace-pre-wrap break-words">
+{JSON.stringify(rapatinApiLog, null, 2)}
+                  </pre>
+                </div>
+              </div>
+            </>
+          )}
+
+
+
           {/* Email Konfirmasi Section - only for paid orders */}
           {order.payment_status === 'paid' && (
             <>
