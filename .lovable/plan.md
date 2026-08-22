@@ -11,19 +11,19 @@ Data order tersebut:
 
 Request dan response Rapatin hanya ditulis ke `console.log` di edge function `xendit-webhook`. Log edge function punya retensi pendek, dan query log untuk 18 Juli 2026 sudah kosong — jadi penyebab persis kegagalan hari itu tidak bisa lagi ditelusuri.
 
-## Yang akan dibuat: log permanen API Rapatin
+## Yang akan dibuat: simpan raw JSON di tabel order
 
-Mengikuti pola yang sudah dipakai `admin_notification_log`.
+Tanpa tabel baru — cukup satu kolom baru di `guest_orders`.
 
-1. Tabel baru `rapatin_api_log` menyimpan setiap panggilan ke Rapatin: order terkait, jenis aksi (login / create schedule / regenerate), sumber pemanggil, request body, response body, HTTP status, durasi, pesan error, dan waktu.
-2. `xendit-webhook` menulis log untuk login token maupun pembuatan jadwal — baik sukses maupun gagal — tanpa mengubah alur pembayaran yang ada.
-3. `regenerate-rapatin-schedule` menulis log dengan cara yang sama, sehingga percobaan ulang admin ikut tercatat.
-4. Di dialog detail order admin: bagian "Riwayat API Rapatin" berisi daftar percobaan (waktu, status, ringkasan error) dengan opsi lihat payload lengkap, mirip tombol "Lihat Log" di KirimChat Rules.
+1. Kolom `rapatin_api_log` (JSONB, default array kosong) di `guest_orders`. Setiap panggilan ke Rapatin menambah satu entri raw JSON berisi: waktu, aksi (login / create_schedule / regenerate), sumber pemanggil, HTTP status, request body, response mentah, dan pesan error bila ada.
+2. `xendit-webhook` menambahkan entri saat pembayaran diterima — baik jadwal berhasil dibuat maupun gagal — tanpa mengubah alur pembayaran.
+3. `regenerate-rapatin-schedule` menambahkan entri dengan format yang sama, jadi percobaan ulang admin ikut tercatat berurutan.
+4. Di dialog detail order admin: bagian "Response API Rapatin" menampilkan raw JSON (blok kode yang bisa di-scroll dan di-copy), sehingga langsung terlihat apakah Rapatin membalas error, timeout, atau sukses.
 
 ## Catatan teknis
 
-- Migrasi: `CREATE TABLE public.rapatin_api_log` + `GRANT` (`SELECT` untuk `authenticated`, `ALL` untuk `service_role`), aktifkan RLS, policy baca via `is_custom_admin_user()`, tulis hanya lewat service role (edge function).
-- Index pada `order_id` dan `created_at desc`.
-- Password/token Rapatin di-redaksi sebelum disimpan; hanya `Bearer` yang dipotong, kredensial login tidak pernah ditulis.
-- Penulisan log bersifat best-effort (dibungkus try/catch) supaya kegagalan log tidak pernah menggagalkan proses pembayaran.
-- Data historis tidak bisa direkonstruksi; log akan berlaku untuk order mulai setelah perubahan ini aktif.
+- Migrasi: `ALTER TABLE public.guest_orders ADD COLUMN rapatin_api_log jsonb NOT NULL DEFAULT '[]'::jsonb`. Tidak ada tabel baru, RLS dan grant `guest_orders` yang ada tetap berlaku.
+- Penambahan entri dilakukan dengan menggabungkan array yang sudah ada di dalam edge function (service role), append di akhir; entri terlama dipangkas jika melebihi 20 agar baris tidak membengkak.
+- Kredensial di-redaksi: password login dan nilai `Authorization` tidak pernah ditulis ke JSON.
+- Penulisan log best-effort (try/catch) supaya kegagalan log tidak pernah menggagalkan proses pembayaran.
+- Data historis tidak bisa direkonstruksi; log berlaku untuk order setelah perubahan ini aktif.
