@@ -252,7 +252,11 @@ interface RapatinScheduleResponse {
   meeting_id?: string;
 }
 
-async function createRapatinSchedule(params: CreateScheduleParams): Promise<RapatinScheduleResponse | null> {
+async function createRapatinSchedule(
+  params: CreateScheduleParams,
+  supabase?: SupabaseClient,
+  orderId?: string | null,
+): Promise<RapatinScheduleResponse | null> {
   console.log("Creating Rapatin schedule:", {
     productId: params.productId,
     topic: params.topic,
