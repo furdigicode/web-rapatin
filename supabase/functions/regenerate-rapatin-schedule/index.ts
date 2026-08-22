@@ -160,7 +160,9 @@ interface RapatinScheduleResponse {
 }
 
 async function createRapatinSchedule(
-  params: CreateScheduleParams
+  params: CreateScheduleParams,
+  supabase?: SupabaseClient,
+  orderId?: string | null,
 ): Promise<{ ok: true; data: RapatinScheduleResponse } | { ok: false; status: number | null; error: string }> {
   const requestBody: Record<string, unknown> = {
     product_id: params.productId,
