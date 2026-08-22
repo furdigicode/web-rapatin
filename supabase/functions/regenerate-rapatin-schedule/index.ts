@@ -375,7 +375,7 @@ serve(async (req) => {
       endType: order.end_type,
       endDate: order.recurrence_end_date,
       endAfterCount: order.recurrence_count,
-    });
+    }, supabase, orderId);
 
     if (!result.ok) {
       return new Response(
