@@ -447,6 +447,7 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
 
   const isWhatsAppCooldown = whatsAppCooldownEnd !== null;
   const canRegenerate = order.payment_status === 'paid' && !order.rapatin_order_id;
+  const rapatinApiLog = Array.isArray(order.rapatin_api_log) ? order.rapatin_api_log : [];
 
   // Cek dari order prop ATAU zoomData state (untuk immediate feedback setelah save)
   const hasZoomData = 
