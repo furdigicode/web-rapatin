@@ -267,9 +267,8 @@ async function createRapatinSchedule(
     repeatInterval: params.repeatInterval,
   });
 
-  try {
-    // Build request body
-    const requestBody: Record<string, unknown> = {
+  // Build request body (declared outside try so the catch can log it)
+  const requestBody: Record<string, unknown> = {
       product_id: params.productId,
       topic: params.topic,
       passcode: params.passcode,
