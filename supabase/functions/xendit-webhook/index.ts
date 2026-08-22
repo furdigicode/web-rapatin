@@ -313,6 +313,7 @@ async function createRapatinSchedule(
     }
 
     console.log("Rapatin API request body:", JSON.stringify(requestBody));
+    const startedAt = Date.now();
 
     const response = await fetch('https://api.rapatin.id/schedules', {
       method: 'POST',
@@ -324,16 +325,41 @@ async function createRapatinSchedule(
       body: JSON.stringify(requestBody),
     });
 
+    const rawText = await response.text();
+    const parsed = parseMaybeJson(rawText);
+
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error("Rapatin create schedule failed:", response.status, errorText);
+      console.error("Rapatin create schedule failed:", response.status, rawText);
+      if (supabase) {
+        await appendRapatinLog(supabase, orderId, {
+          action: 'create_schedule',
+          source: 'xendit-webhook',
+          ok: false,
+          status: response.status,
+          request: requestBody,
+          response: parsed,
+          error: `HTTP ${response.status}`,
+          duration_ms: Date.now() - startedAt,
+        });
+      }
       return null;
     }
 
-    const result = await response.json();
-    console.log("Rapatin create schedule response:", JSON.stringify(result));
+    const result = parsed as any;
+    console.log("Rapatin create schedule response:", rawText);
 
-    if (result.data) {
+    if (result?.data) {
+      if (supabase) {
+        await appendRapatinLog(supabase, orderId, {
+          action: 'create_schedule',
+          source: 'xendit-webhook',
+          ok: true,
+          status: response.status,
+          request: requestBody,
+          response: parsed,
+          duration_ms: Date.now() - startedAt,
+        });
+      }
       return {
         id: result.data.id?.toString(),
         join_url: result.data.join_url,
@@ -342,9 +368,31 @@ async function createRapatinSchedule(
       };
     }
 
+    if (supabase) {
+      await appendRapatinLog(supabase, orderId, {
+        action: 'create_schedule',
+        source: 'xendit-webhook',
+        ok: false,
+        status: response.status,
+        request: requestBody,
+        response: parsed,
+        error: 'Response missing data field',
+        duration_ms: Date.now() - startedAt,
+      });
+    }
     return null;
   } catch (error) {
-    console.error("Rapatin create schedule error:", error);
+    const msg = error instanceof Error ? error.message : String(error);
+    console.error("Rapatin create schedule error:", msg);
+    if (supabase) {
+      await appendRapatinLog(supabase, orderId, {
+        action: 'create_schedule',
+        source: 'xendit-webhook',
+        ok: false,
+        request: requestBody,
+        error: msg,
+      });
+    }
     return null;
   }
 }
