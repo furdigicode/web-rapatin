@@ -1,5 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { appendRapatinLog, parseMaybeJson } from "../_shared/rapatin-log.ts";
+
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -20,13 +22,17 @@ function generatePasscode(): string {
   return Math.random().toString().slice(2, 8).padStart(6, '0');
 }
 
-async function loginToRapatin(): Promise<string | null> {
+async function loginToRapatin(
+  supabase?: SupabaseClient,
+  orderId?: string | null,
+): Promise<string | null> {
   const email = Deno.env.get('RAPATIN_EMAIL');
   const password = Deno.env.get('RAPATIN_PASSWORD');
   if (!email || !password) {
     console.error("RAPATIN_EMAIL or RAPATIN_PASSWORD not configured");
     return null;
   }
+  const startedAt = Date.now();
   try {
     const response = await fetch('https://api.rapatin.id/auth/login', {
       method: 'POST',
@@ -34,23 +40,70 @@ async function loginToRapatin(): Promise<string | null> {
       body: JSON.stringify({ email, password, device: 'regenerate' }),
       signal: AbortSignal.timeout(RAPATIN_TIMEOUT_MS),
     });
+    const rawText = await response.text();
+    const parsed = parseMaybeJson(rawText);
     if (!response.ok) {
-      console.error("Rapatin login failed:", response.status, await response.text());
+      console.error("Rapatin login failed:", response.status, rawText);
+      if (supabase) {
+        await appendRapatinLog(supabase, orderId, {
+          action: 'login',
+          source: 'regenerate-rapatin-schedule',
+          ok: false,
+          status: response.status,
+          response: parsed,
+          error: `HTTP ${response.status}`,
+          duration_ms: Date.now() - startedAt,
+        });
+      }
       return null;
     }
-    const result = await response.json();
-    if (result.response?.status === 'success' && result.data?.token) {
+    const result = parsed as any;
+    if (result?.response?.status === 'success' && result?.data?.token) {
+      if (supabase) {
+        await appendRapatinLog(supabase, orderId, {
+          action: 'login',
+          source: 'regenerate-rapatin-schedule',
+          ok: true,
+          status: response.status,
+          response: { response: result.response, data: { token: '[redacted]' } },
+          duration_ms: Date.now() - startedAt,
+        });
+      }
       return result.data.token;
     }
-    console.error("Rapatin login response missing token:", JSON.stringify(result));
+    console.error("Rapatin login response missing token:", rawText);
+    if (supabase) {
+      await appendRapatinLog(supabase, orderId, {
+        action: 'login',
+        source: 'regenerate-rapatin-schedule',
+        ok: false,
+        status: response.status,
+        response: parsed,
+        error: 'Response missing token',
+        duration_ms: Date.now() - startedAt,
+      });
+    }
     return null;
   } catch (error) {
-    console.error("Rapatin login error:", error);
+    const msg = error instanceof Error ? error.message : String(error);
+    console.error("Rapatin login error:", msg);
+    if (supabase) {
+      await appendRapatinLog(supabase, orderId, {
+        action: 'login',
+        source: 'regenerate-rapatin-schedule',
+        ok: false,
+        error: msg,
+        duration_ms: Date.now() - startedAt,
+      });
+    }
     return null;
   }
 }
 
-async function getRapatinToken(supabase: SupabaseClient): Promise<string | null> {
+async function getRapatinToken(
+  supabase: SupabaseClient,
+  orderId?: string | null,
+): Promise<string | null> {
   const { data: existingToken } = await supabase
     .from('rapatin_auth_tokens')
     .select('access_token, expires_at')
@@ -63,7 +116,8 @@ async function getRapatinToken(supabase: SupabaseClient): Promise<string | null>
     return existingToken.access_token;
   }
 
-  const token = await loginToRapatin();
+  const token = await loginToRapatin(supabase, orderId);
+
   if (!token) return null;
 
   const expiresAt = new Date();
@@ -106,7 +160,9 @@ interface RapatinScheduleResponse {
 }
 
 async function createRapatinSchedule(
-  params: CreateScheduleParams
+  params: CreateScheduleParams,
+  supabase?: SupabaseClient,
+  orderId?: string | null,
 ): Promise<{ ok: true; data: RapatinScheduleResponse } | { ok: false; status: number | null; error: string }> {
   const requestBody: Record<string, unknown> = {
     product_id: params.productId,
@@ -142,6 +198,7 @@ async function createRapatinSchedule(
   }
 
   console.log("Rapatin regenerate request body:", JSON.stringify(requestBody));
+  const startedAt = Date.now();
 
   try {
     const response = await fetch('https://api.rapatin.id/schedules', {
@@ -156,16 +213,40 @@ async function createRapatinSchedule(
     });
 
     const rawText = await response.text();
+    const parsed = parseMaybeJson(rawText);
+
     if (!response.ok) {
       console.error("Rapatin create schedule failed:", response.status, rawText);
+      if (supabase) {
+        await appendRapatinLog(supabase, orderId, {
+          action: 'create_schedule',
+          source: 'regenerate-rapatin-schedule',
+          ok: false,
+          status: response.status,
+          request: requestBody,
+          response: parsed,
+          error: rawText || `HTTP ${response.status}`,
+          duration_ms: Date.now() - startedAt,
+        });
+      }
       return { ok: false, status: response.status, error: rawText || `HTTP ${response.status}` };
     }
 
-    let result: any;
-    try { result = JSON.parse(rawText); } catch { result = null; }
+    const result = parsed as any;
     console.log("Rapatin response:", rawText);
 
     if (result?.data) {
+      if (supabase) {
+        await appendRapatinLog(supabase, orderId, {
+          action: 'create_schedule',
+          source: 'regenerate-rapatin-schedule',
+          ok: true,
+          status: response.status,
+          request: requestBody,
+          response: parsed,
+          duration_ms: Date.now() - startedAt,
+        });
+      }
       return {
         ok: true,
         data: {
@@ -176,10 +257,33 @@ async function createRapatinSchedule(
         },
       };
     }
+
+    if (supabase) {
+      await appendRapatinLog(supabase, orderId, {
+        action: 'create_schedule',
+        source: 'regenerate-rapatin-schedule',
+        ok: false,
+        status: response.status,
+        request: requestBody,
+        response: parsed,
+        error: 'Response missing data field',
+        duration_ms: Date.now() - startedAt,
+      });
+    }
     return { ok: false, status: response.status, error: 'Response missing data field' };
   } catch (error) {
     const msg = error instanceof Error ? error.message : String(error);
     console.error("Rapatin create schedule error:", msg);
+    if (supabase) {
+      await appendRapatinLog(supabase, orderId, {
+        action: 'create_schedule',
+        source: 'regenerate-rapatin-schedule',
+        ok: false,
+        request: requestBody,
+        error: msg,
+        duration_ms: Date.now() - startedAt,
+      });
+    }
     return { ok: false, status: null, error: msg };
   }
 }
@@ -238,7 +342,7 @@ serve(async (req) => {
       );
     }
 
-    const token = await getRapatinToken(supabase);
+    const token = await getRapatinToken(supabase, orderId);
     if (!token) {
       return new Response(
         JSON.stringify({ ok: false, error: 'Gagal login ke Rapatin API' }),
@@ -271,7 +375,7 @@ serve(async (req) => {
       endType: order.end_type,
       endDate: order.recurrence_end_date,
       endAfterCount: order.recurrence_count,
-    });
+    }, supabase, orderId);
 
     if (!result.ok) {
       return new Response(

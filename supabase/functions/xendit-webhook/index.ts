@@ -1,5 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { appendRapatinLog, parseMaybeJson } from "../_shared/rapatin-log.ts";
+
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -23,16 +25,28 @@ function generatePasscode(): string {
 }
 
 // Login to Rapatin API and get access token
-async function loginToRapatin(): Promise<string | null> {
+async function loginToRapatin(
+  supabase?: SupabaseClient,
+  orderId?: string | null,
+): Promise<string | null> {
   const email = Deno.env.get('RAPATIN_EMAIL');
   const password = Deno.env.get('RAPATIN_PASSWORD');
 
   if (!email || !password) {
     console.error("RAPATIN_EMAIL or RAPATIN_PASSWORD not configured");
+    if (supabase) {
+      await appendRapatinLog(supabase, orderId, {
+        action: 'login',
+        source: 'xendit-webhook',
+        ok: false,
+        error: 'RAPATIN_EMAIL or RAPATIN_PASSWORD not configured',
+      });
+    }
     return null;
   }
 
   console.log("Attempting to login to Rapatin API...");
+  const startedAt = Date.now();
 
   try {
     const response = await fetch('https://api.rapatin.id/auth/login', {
@@ -48,29 +62,77 @@ async function loginToRapatin(): Promise<string | null> {
       }),
     });
 
+    const rawText = await response.text();
+    const parsed = parseMaybeJson(rawText);
+
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error("Rapatin login failed:", response.status, errorText);
+      console.error("Rapatin login failed:", response.status, rawText);
+      if (supabase) {
+        await appendRapatinLog(supabase, orderId, {
+          action: 'login',
+          source: 'xendit-webhook',
+          ok: false,
+          status: response.status,
+          response: parsed,
+          error: `HTTP ${response.status}`,
+          duration_ms: Date.now() - startedAt,
+        });
+      }
       return null;
     }
 
-    const result = await response.json();
-    
-    if (result.response?.status === 'success' && result.data?.token) {
+    const result = parsed as any;
+
+    if (result?.response?.status === 'success' && result?.data?.token) {
       console.log("Rapatin login successful");
+      if (supabase) {
+        await appendRapatinLog(supabase, orderId, {
+          action: 'login',
+          source: 'xendit-webhook',
+          ok: true,
+          status: response.status,
+          response: { response: result.response, data: { token: '[redacted]' } },
+          duration_ms: Date.now() - startedAt,
+        });
+      }
       return result.data.token;
     }
 
-    console.error("Rapatin login response missing token:", JSON.stringify(result));
+    console.error("Rapatin login response missing token:", rawText);
+    if (supabase) {
+      await appendRapatinLog(supabase, orderId, {
+        action: 'login',
+        source: 'xendit-webhook',
+        ok: false,
+        status: response.status,
+        response: parsed,
+        error: 'Response missing token',
+        duration_ms: Date.now() - startedAt,
+      });
+    }
     return null;
   } catch (error) {
-    console.error("Rapatin login error:", error);
+    const msg = error instanceof Error ? error.message : String(error);
+    console.error("Rapatin login error:", msg);
+    if (supabase) {
+      await appendRapatinLog(supabase, orderId, {
+        action: 'login',
+        source: 'xendit-webhook',
+        ok: false,
+        error: msg,
+        duration_ms: Date.now() - startedAt,
+      });
+    }
     return null;
   }
 }
 
 // Get Rapatin token with caching
-async function getRapatinToken(supabase: SupabaseClient): Promise<string | null> {
+async function getRapatinToken(
+  supabase: SupabaseClient,
+  orderId?: string | null,
+): Promise<string | null> {
+
   // 1. Check for valid cached token
   const { data: existingToken, error: fetchError } = await supabase
     .from('rapatin_auth_tokens')
@@ -91,7 +153,7 @@ async function getRapatinToken(supabase: SupabaseClient): Promise<string | null>
 
   // 2. No valid token, perform fresh login
   console.log("No valid cached token, logging in to Rapatin...");
-  const token = await loginToRapatin();
+  const token = await loginToRapatin(supabase, orderId);
 
   if (!token) {
     return null;
@@ -190,7 +252,11 @@ interface RapatinScheduleResponse {
   meeting_id?: string;
 }
 
-async function createRapatinSchedule(params: CreateScheduleParams): Promise<RapatinScheduleResponse | null> {
+async function createRapatinSchedule(
+  params: CreateScheduleParams,
+  supabase?: SupabaseClient,
+  orderId?: string | null,
+): Promise<RapatinScheduleResponse | null> {
   console.log("Creating Rapatin schedule:", {
     productId: params.productId,
     topic: params.topic,
@@ -201,9 +267,8 @@ async function createRapatinSchedule(params: CreateScheduleParams): Promise<Rapa
     repeatInterval: params.repeatInterval,
   });
 
-  try {
-    // Build request body
-    const requestBody: Record<string, unknown> = {
+  // Build request body (declared outside try so the catch can log it)
+  const requestBody: Record<string, unknown> = {
       product_id: params.productId,
       topic: params.topic,
       passcode: params.passcode,
@@ -246,7 +311,10 @@ async function createRapatinSchedule(params: CreateScheduleParams): Promise<Rapa
       }
     }
 
-    console.log("Rapatin API request body:", JSON.stringify(requestBody));
+  console.log("Rapatin API request body:", JSON.stringify(requestBody));
+
+  try {
+    const startedAt = Date.now();
 
     const response = await fetch('https://api.rapatin.id/schedules', {
       method: 'POST',
@@ -258,16 +326,41 @@ async function createRapatinSchedule(params: CreateScheduleParams): Promise<Rapa
       body: JSON.stringify(requestBody),
     });
 
+    const rawText = await response.text();
+    const parsed = parseMaybeJson(rawText);
+
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error("Rapatin create schedule failed:", response.status, errorText);
+      console.error("Rapatin create schedule failed:", response.status, rawText);
+      if (supabase) {
+        await appendRapatinLog(supabase, orderId, {
+          action: 'create_schedule',
+          source: 'xendit-webhook',
+          ok: false,
+          status: response.status,
+          request: requestBody,
+          response: parsed,
+          error: `HTTP ${response.status}`,
+          duration_ms: Date.now() - startedAt,
+        });
+      }
       return null;
     }
 
-    const result = await response.json();
-    console.log("Rapatin create schedule response:", JSON.stringify(result));
+    const result = parsed as any;
+    console.log("Rapatin create schedule response:", rawText);
 
-    if (result.data) {
+    if (result?.data) {
+      if (supabase) {
+        await appendRapatinLog(supabase, orderId, {
+          action: 'create_schedule',
+          source: 'xendit-webhook',
+          ok: true,
+          status: response.status,
+          request: requestBody,
+          response: parsed,
+          duration_ms: Date.now() - startedAt,
+        });
+      }
       return {
         id: result.data.id?.toString(),
         join_url: result.data.join_url,
@@ -276,9 +369,31 @@ async function createRapatinSchedule(params: CreateScheduleParams): Promise<Rapa
       };
     }
 
+    if (supabase) {
+      await appendRapatinLog(supabase, orderId, {
+        action: 'create_schedule',
+        source: 'xendit-webhook',
+        ok: false,
+        status: response.status,
+        request: requestBody,
+        response: parsed,
+        error: 'Response missing data field',
+        duration_ms: Date.now() - startedAt,
+      });
+    }
     return null;
   } catch (error) {
-    console.error("Rapatin create schedule error:", error);
+    const msg = error instanceof Error ? error.message : String(error);
+    console.error("Rapatin create schedule error:", msg);
+    if (supabase) {
+      await appendRapatinLog(supabase, orderId, {
+        action: 'create_schedule',
+        source: 'xendit-webhook',
+        ok: false,
+        request: requestBody,
+        error: msg,
+      });
+    }
     return null;
   }
 }
@@ -545,7 +660,7 @@ serve(async (req) => {
       const typedOrder = order as GuestOrder;
       
       // Step 1: Get Rapatin token (with caching)
-      const rapatinToken = await getRapatinToken(supabase);
+      const rapatinToken = await getRapatinToken(supabase, order.id);
       
       if (rapatinToken) {
         // Step 2: Map participant count to product ID
@@ -579,7 +694,7 @@ serve(async (req) => {
             endType: typedOrder.end_type,
             endDate: typedOrder.recurrence_end_date,
             endAfterCount: typedOrder.recurrence_count,
-          });
+          }, supabase, typedOrder.id);
 
           if (scheduleResult) {
             // Step 4: Save Rapatin response to database
