@@ -342,7 +342,7 @@ serve(async (req) => {
       );
     }
 
-    const token = await getRapatinToken(supabase);
+    const token = await getRapatinToken(supabase, orderId);
     if (!token) {
       return new Response(
         JSON.stringify({ ok: false, error: 'Gagal login ke Rapatin API' }),
