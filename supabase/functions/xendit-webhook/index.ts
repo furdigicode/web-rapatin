@@ -694,7 +694,7 @@ serve(async (req) => {
             endType: typedOrder.end_type,
             endDate: typedOrder.recurrence_end_date,
             endAfterCount: typedOrder.recurrence_count,
-          });
+          }, supabase, typedOrder.id);
 
           if (scheduleResult) {
             // Step 4: Save Rapatin response to database
