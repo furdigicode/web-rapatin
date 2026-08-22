@@ -367,6 +367,7 @@ export type Database = {
           payment_method: string | null
           payment_status: string
           price: number
+          rapatin_api_log: Json
           rapatin_order_id: string | null
           recurrence_count: number | null
           recurrence_end_date: string | null
@@ -414,6 +415,7 @@ export type Database = {
           payment_method?: string | null
           payment_status?: string
           price: number
+          rapatin_api_log?: Json
           rapatin_order_id?: string | null
           recurrence_count?: number | null
           recurrence_end_date?: string | null
@@ -461,6 +463,7 @@ export type Database = {
           payment_method?: string | null
           payment_status?: string
           price?: number
+          rapatin_api_log?: Json
           rapatin_order_id?: string | null
           recurrence_count?: number | null
           recurrence_end_date?: string | null

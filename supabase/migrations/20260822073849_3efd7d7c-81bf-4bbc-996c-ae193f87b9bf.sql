@@ -1,0 +1,1 @@
+ALTER TABLE public.guest_orders ADD COLUMN IF NOT EXISTS rapatin_api_log jsonb NOT NULL DEFAULT '[]'::jsonb;
