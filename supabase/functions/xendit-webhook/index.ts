@@ -311,7 +311,9 @@ async function createRapatinSchedule(
       }
     }
 
-    console.log("Rapatin API request body:", JSON.stringify(requestBody));
+  console.log("Rapatin API request body:", JSON.stringify(requestBody));
+
+  try {
     const startedAt = Date.now();
 
     const response = await fetch('https://api.rapatin.id/schedules', {
