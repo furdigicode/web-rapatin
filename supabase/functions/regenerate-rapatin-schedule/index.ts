@@ -22,13 +22,17 @@ function generatePasscode(): string {
   return Math.random().toString().slice(2, 8).padStart(6, '0');
 }
 
-async function loginToRapatin(): Promise<string | null> {
+async function loginToRapatin(
+  supabase?: SupabaseClient,
+  orderId?: string | null,
+): Promise<string | null> {
   const email = Deno.env.get('RAPATIN_EMAIL');
   const password = Deno.env.get('RAPATIN_PASSWORD');
   if (!email || !password) {
     console.error("RAPATIN_EMAIL or RAPATIN_PASSWORD not configured");
     return null;
   }
+  const startedAt = Date.now();
   try {
     const response = await fetch('https://api.rapatin.id/auth/login', {
       method: 'POST',
@@ -36,23 +40,70 @@ async function loginToRapatin(): Promise<string | null> {
       body: JSON.stringify({ email, password, device: 'regenerate' }),
       signal: AbortSignal.timeout(RAPATIN_TIMEOUT_MS),
     });
+    const rawText = await response.text();
+    const parsed = parseMaybeJson(rawText);
     if (!response.ok) {
-      console.error("Rapatin login failed:", response.status, await response.text());
+      console.error("Rapatin login failed:", response.status, rawText);
+      if (supabase) {
+        await appendRapatinLog(supabase, orderId, {
+          action: 'login',
+          source: 'regenerate-rapatin-schedule',
+          ok: false,
+          status: response.status,
+          response: parsed,
+          error: `HTTP ${response.status}`,
+          duration_ms: Date.now() - startedAt,
+        });
+      }
       return null;
     }
-    const result = await response.json();
-    if (result.response?.status === 'success' && result.data?.token) {
+    const result = parsed as any;
+    if (result?.response?.status === 'success' && result?.data?.token) {
+      if (supabase) {
+        await appendRapatinLog(supabase, orderId, {
+          action: 'login',
+          source: 'regenerate-rapatin-schedule',
+          ok: true,
+          status: response.status,
+          response: { response: result.response, data: { token: '[redacted]' } },
+          duration_ms: Date.now() - startedAt,
+        });
+      }
       return result.data.token;
     }
-    console.error("Rapatin login response missing token:", JSON.stringify(result));
+    console.error("Rapatin login response missing token:", rawText);
+    if (supabase) {
+      await appendRapatinLog(supabase, orderId, {
+        action: 'login',
+        source: 'regenerate-rapatin-schedule',
+        ok: false,
+        status: response.status,
+        response: parsed,
+        error: 'Response missing token',
+        duration_ms: Date.now() - startedAt,
+      });
+    }
     return null;
   } catch (error) {
-    console.error("Rapatin login error:", error);
+    const msg = error instanceof Error ? error.message : String(error);
+    console.error("Rapatin login error:", msg);
+    if (supabase) {
+      await appendRapatinLog(supabase, orderId, {
+        action: 'login',
+        source: 'regenerate-rapatin-schedule',
+        ok: false,
+        error: msg,
+        duration_ms: Date.now() - startedAt,
+      });
+    }
     return null;
   }
 }
 
-async function getRapatinToken(supabase: SupabaseClient): Promise<string | null> {
+async function getRapatinToken(
+  supabase: SupabaseClient,
+  orderId?: string | null,
+): Promise<string | null> {
   const { data: existingToken } = await supabase
     .from('rapatin_auth_tokens')
     .select('access_token, expires_at')
@@ -65,7 +116,8 @@ async function getRapatinToken(supabase: SupabaseClient): Promise<string | null>
     return existingToken.access_token;
   }
 
-  const token = await loginToRapatin();
+  const token = await loginToRapatin(supabase, orderId);
+
   if (!token) return null;
 
   const expiresAt = new Date();
