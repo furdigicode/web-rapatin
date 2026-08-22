@@ -153,7 +153,7 @@ async function getRapatinToken(
 
   // 2. No valid token, perform fresh login
   console.log("No valid cached token, logging in to Rapatin...");
-  const token = await loginToRapatin();
+  const token = await loginToRapatin(supabase, orderId);
 
   if (!token) {
     return null;
