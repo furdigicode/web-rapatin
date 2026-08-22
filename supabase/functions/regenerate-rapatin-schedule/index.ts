@@ -196,6 +196,7 @@ async function createRapatinSchedule(
   }
 
   console.log("Rapatin regenerate request body:", JSON.stringify(requestBody));
+  const startedAt = Date.now();
 
   try {
     const response = await fetch('https://api.rapatin.id/schedules', {
@@ -210,16 +211,40 @@ async function createRapatinSchedule(
     });
 
     const rawText = await response.text();
+    const parsed = parseMaybeJson(rawText);
+
     if (!response.ok) {
       console.error("Rapatin create schedule failed:", response.status, rawText);
+      if (supabase) {
+        await appendRapatinLog(supabase, orderId, {
+          action: 'create_schedule',
+          source: 'regenerate-rapatin-schedule',
+          ok: false,
+          status: response.status,
+          request: requestBody,
+          response: parsed,
+          error: rawText || `HTTP ${response.status}`,
+          duration_ms: Date.now() - startedAt,
+        });
+      }
       return { ok: false, status: response.status, error: rawText || `HTTP ${response.status}` };
     }
 
-    let result: any;
-    try { result = JSON.parse(rawText); } catch { result = null; }
+    const result = parsed as any;
     console.log("Rapatin response:", rawText);
 
     if (result?.data) {
+      if (supabase) {
+        await appendRapatinLog(supabase, orderId, {
+          action: 'create_schedule',
+          source: 'regenerate-rapatin-schedule',
+          ok: true,
+          status: response.status,
+          request: requestBody,
+          response: parsed,
+          duration_ms: Date.now() - startedAt,
+        });
+      }
       return {
         ok: true,
         data: {
@@ -230,10 +255,33 @@ async function createRapatinSchedule(
         },
       };
     }
+
+    if (supabase) {
+      await appendRapatinLog(supabase, orderId, {
+        action: 'create_schedule',
+        source: 'regenerate-rapatin-schedule',
+        ok: false,
+        status: response.status,
+        request: requestBody,
+        response: parsed,
+        error: 'Response missing data field',
+        duration_ms: Date.now() - startedAt,
+      });
+    }
     return { ok: false, status: response.status, error: 'Response missing data field' };
   } catch (error) {
     const msg = error instanceof Error ? error.message : String(error);
     console.error("Rapatin create schedule error:", msg);
+    if (supabase) {
+      await appendRapatinLog(supabase, orderId, {
+        action: 'create_schedule',
+        source: 'regenerate-rapatin-schedule',
+        ok: false,
+        request: requestBody,
+        error: msg,
+        duration_ms: Date.now() - startedAt,
+      });
+    }
     return { ok: false, status: null, error: msg };
   }
 }
