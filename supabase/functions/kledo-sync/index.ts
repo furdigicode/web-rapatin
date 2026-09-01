@@ -477,8 +477,30 @@ serve(async (req) => {
         );
       }
 
-      // Create expense for payment gateway fee
+      // Create expense for payment gateway fee (skip when the fee is unknown/zero)
+      if (fee <= 0) {
+        console.log("Skipping MDR expense - fee is 0 or unknown", { orderId, gateway: order.payment_gateway });
+        await supabase
+          .from('guest_orders')
+          .update({
+            kledo_invoice_id: bankTransResult.refNumber,
+            kledo_synced_at: new Date().toISOString(),
+            kledo_sync_error: null,
+          })
+          .eq('id', orderId);
+
+        return new Response(
+          JSON.stringify({
+            success: true,
+            message: 'Synced without MDR expense (fee unknown)',
+            kledo_invoice_id: bankTransResult.refNumber,
+          }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
       const expenseResult = await createExpense(token!, transDate, memo, fee, methodName);
+
       
       // Check for auth error on expense and retry if possible
       if (!expenseResult.success && expenseResult.isAuthError && retryCount < MAX_RETRIES) {
