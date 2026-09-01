@@ -340,6 +340,11 @@ export type Database = {
           access_slug: string | null
           created_at: string
           custom_passcode: string | null
+          duitku_fee: number | null
+          duitku_merchant_order_id: string | null
+          duitku_payment_code: string | null
+          duitku_payment_url: string | null
+          duitku_reference: string | null
           email: string
           email_sent_at: string | null
           end_type: string | null
@@ -364,6 +369,7 @@ export type Database = {
           order_number: string | null
           paid_at: string | null
           participant_count: number
+          payment_gateway: string
           payment_method: string | null
           payment_status: string
           price: number
@@ -388,6 +394,11 @@ export type Database = {
           access_slug?: string | null
           created_at?: string
           custom_passcode?: string | null
+          duitku_fee?: number | null
+          duitku_merchant_order_id?: string | null
+          duitku_payment_code?: string | null
+          duitku_payment_url?: string | null
+          duitku_reference?: string | null
           email: string
           email_sent_at?: string | null
           end_type?: string | null
@@ -412,6 +423,7 @@ export type Database = {
           order_number?: string | null
           paid_at?: string | null
           participant_count: number
+          payment_gateway?: string
           payment_method?: string | null
           payment_status?: string
           price: number
@@ -436,6 +448,11 @@ export type Database = {
           access_slug?: string | null
           created_at?: string
           custom_passcode?: string | null
+          duitku_fee?: number | null
+          duitku_merchant_order_id?: string | null
+          duitku_payment_code?: string | null
+          duitku_payment_url?: string | null
+          duitku_reference?: string | null
           email?: string
           email_sent_at?: string | null
           end_type?: string | null
@@ -460,6 +477,7 @@ export type Database = {
           order_number?: string | null
           paid_at?: string | null
           participant_count?: number
+          payment_gateway?: string
           payment_method?: string | null
           payment_status?: string
           price?: number
