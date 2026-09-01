@@ -814,16 +814,60 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
                   <span>{formatDateTime(order.paid_at)}</span>
                 </div>
               )}
-              {order.xendit_invoice_url && (
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">Gateway</span>
+                <span className="capitalize">{order.payment_gateway || 'xendit'}</span>
+              </div>
+              {(order.xendit_invoice_url || order.duitku_payment_url) && (
                 <div className="flex items-center justify-between">
                   <span className="text-muted-foreground">Invoice</span>
                   <Button variant="outline" size="sm" asChild>
-                    <a href={order.xendit_invoice_url} target="_blank" rel="noopener noreferrer">
+                    <a
+                      href={(order.payment_gateway === 'duitku' ? order.duitku_payment_url : order.xendit_invoice_url) || undefined}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
                       <CreditCard className="h-4 w-4 mr-2" />
                       Lihat Invoice
                     </a>
                   </Button>
                 </div>
+              )}
+
+              {/* Integrasi Duitku */}
+              {(order.duitku_merchant_order_id || order.duitku_reference || order.duitku_fee != null) && (
+                <>
+                  <Separator className="my-2" />
+                  <div className="text-xs text-muted-foreground mt-2 mb-1">Integrasi Duitku</div>
+
+                  {order.duitku_merchant_order_id && (
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">Merchant Order ID</span>
+                      <code className="text-xs bg-muted px-2 py-1 rounded">{order.duitku_merchant_order_id}</code>
+                    </div>
+                  )}
+
+                  {order.duitku_reference && (
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">Reference</span>
+                      <code className="text-xs bg-muted px-2 py-1 rounded">{order.duitku_reference}</code>
+                    </div>
+                  )}
+
+                  {order.duitku_payment_code && (
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">Payment Code</span>
+                      <code className="text-xs bg-muted px-2 py-1 rounded">{order.duitku_payment_code}</code>
+                    </div>
+                  )}
+
+                  {order.duitku_fee != null && (
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">Fee (MDR)</span>
+                      <span>{formatRupiah(order.duitku_fee)}</span>
+                    </div>
+                  )}
+                </>
               )}
               
               {/* Integrasi Xendit */}

@@ -399,8 +399,21 @@ serve(async (req) => {
     const paymentMethod = order.payment_method || 'Unknown';
 
     // Calculate payment fee
-    const { fee, methodName } = calculatePaymentFee(amount, paymentMethod);
-    console.log("Calculated fee:", { amount, paymentMethod, fee, methodName });
+    // Duitku reports the actual fee on its callback → use it as-is (no hardcoded rates).
+    // Xendit keeps the existing per-method MDR calculation.
+    let fee: number;
+    let methodName: string;
+    if (order.payment_gateway === 'duitku') {
+      fee = Number(order.duitku_fee) || 0;
+      methodName = `Duitku${paymentMethod && paymentMethod !== 'Unknown' ? ` (${paymentMethod})` : ''}`;
+      console.log("Duitku fee from callback:", { amount, fee, methodName });
+    } else {
+      const calculated = calculatePaymentFee(amount, paymentMethod);
+      fee = calculated.fee;
+      methodName = calculated.methodName;
+      console.log("Calculated fee:", { amount, paymentMethod, fee, methodName });
+    }
+
 
     // Retry mechanism for auth errors
     const MAX_RETRIES = 1;
@@ -464,8 +477,30 @@ serve(async (req) => {
         );
       }
 
-      // Create expense for payment gateway fee
+      // Create expense for payment gateway fee (skip when the fee is unknown/zero)
+      if (fee <= 0) {
+        console.log("Skipping MDR expense - fee is 0 or unknown", { orderId, gateway: order.payment_gateway });
+        await supabase
+          .from('guest_orders')
+          .update({
+            kledo_invoice_id: bankTransResult.refNumber,
+            kledo_synced_at: new Date().toISOString(),
+            kledo_sync_error: null,
+          })
+          .eq('id', orderId);
+
+        return new Response(
+          JSON.stringify({
+            success: true,
+            message: 'Synced without MDR expense (fee unknown)',
+            kledo_invoice_id: bankTransResult.refNumber,
+          }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
       const expenseResult = await createExpense(token!, transDate, memo, fee, methodName);
+
       
       // Check for auth error on expense and retry if possible
       if (!expenseResult.success && expenseResult.isAuthError && retryCount < MAX_RETRIES) {

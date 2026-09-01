@@ -1,5 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createDuitkuInvoice } from "../_shared/duitku.ts";
+
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -47,7 +49,9 @@ interface OrderRequest {
   recurrence_end_date?: string | null;
   recurrence_count?: number | null;
   total_days?: number;
+  payment_gateway?: 'xendit' | 'duitku';
 }
+
 
 serve(async (req) => {
   // Handle CORS preflight
@@ -165,110 +169,13 @@ serve(async (req) => {
     const basePrice = PRICING[participant_count].promo;
     const totalPrice = basePrice * effectiveTotalDays;
 
-    // Create Xendit Invoice
-    const xenditSecretKey = Deno.env.get("XENDIT_SECRET_KEY");
-    if (!xenditSecretKey) {
-      console.error("XENDIT_SECRET_KEY not configured");
-      return new Response(JSON.stringify({ error: "Payment gateway not configured" }), {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
+    // Determine payment gateway (default: xendit)
+    const gateway: 'xendit' | 'duitku' = requestData.payment_gateway === 'duitku' ? 'duitku' : 'xendit';
 
     // Generate secure access slug for the order
     const accessSlug = generateAccessSlug(24);
 
-    // Generate reference ID that will be used to match payment.capture webhook
-    const sessionReferenceId = `RAPATIN-${Date.now()}-${Math.random().toString(36).substring(7)}`;
-    const customerReferenceId = `cust_${Date.now()}_${Math.random().toString(36).substring(7)}`;
-    
-    // Build description with recurring info if applicable
-    let description = `Sewa Zoom Meeting - ${participant_count} Peserta - ${meeting_date}`;
-    if (is_recurring && effectiveTotalDays > 1) {
-      description = `Sewa Zoom Meeting Berulang - ${participant_count} Peserta - ${effectiveTotalDays} sesi`;
-    }
-
-    console.log("Creating Xendit session for:", { 
-      email, 
-      totalPrice, 
-      participant_count, 
-      accessSlug, 
-      sessionReferenceId,
-      is_recurring,
-      effectiveTotalDays,
-    });
-
-    const xenditResponse = await fetch("https://api.xendit.co/sessions", {
-      method: "POST",
-      headers: {
-        Authorization: `Basic ${btoa(xenditSecretKey + ":")}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        reference_id: sessionReferenceId,
-        session_type: "PAY",
-        mode: "PAYMENT_LINK",
-        amount: totalPrice,
-        currency: "IDR",
-        country: "ID",
-        customer: {
-          reference_id: customerReferenceId,
-          type: "INDIVIDUAL",
-          email: email,
-          mobile_number: cleanWhatsapp,
-          individual_detail: {
-            given_names: name,
-          },
-        },
-        items: [
-          {
-            reference_id: `item_zoom_${participant_count}_${Date.now()}`,
-            name: is_recurring && effectiveTotalDays > 1 
-              ? `Sewa Zoom ${participant_count} Peserta (${effectiveTotalDays} sesi)` 
-              : `Sewa Zoom ${participant_count} Peserta`,
-            description: `Meeting: ${meeting_topic} - ${meeting_date}`,
-            type: "DIGITAL_PRODUCT",
-            category: "SERVICE",
-            net_unit_amount: totalPrice,
-            quantity: 1,
-            currency: "IDR",
-            url: "https://rapatin.id/sewa-zoom-harian",
-          },
-        ],
-        capture_method: "AUTOMATIC",
-        locale: "id",
-        description: description,
-        success_return_url: `https://rapatin.lovable.app/quick-order/${accessSlug}`,
-        cancel_return_url: `https://rapatin.lovable.app/quick-order/${accessSlug}`,
-      }),
-    });
-
-    if (!xenditResponse.ok) {
-      const errorText = await xenditResponse.text();
-      console.error("Xendit Sessions API error:", xenditResponse.status, errorText);
-      return new Response(JSON.stringify({ error: "Gagal membuat payment session" }), {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    const xenditSession = await xenditResponse.json();
-    console.log("Xendit full response:", JSON.stringify(xenditSession));
-
-    // Xendit Sessions API returns payment_session_id, not id
-    const sessionId = xenditSession.payment_session_id;
-
-    if (!sessionId) {
-      console.error("No payment_session_id in Xendit response:", xenditSession);
-      return new Response(JSON.stringify({ error: "Invalid payment session response" }), {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    console.log("Xendit session created:", sessionId, "URL:", xenditSession.payment_link_url);
-
-    // Save order to database
+    // Supabase client (service role)
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseKey);
@@ -276,7 +183,7 @@ serve(async (req) => {
     // Generate order number with format INV-YYMMDD-XXXX
     let orderNumber: string;
     const { data: orderNumberData, error: seqError } = await supabase.rpc('generate_order_number');
-    
+
     if (seqError || !orderNumberData) {
       console.error("Failed to generate order number:", seqError);
       // Fallback: use timestamp-based
@@ -287,7 +194,144 @@ serve(async (req) => {
       orderNumber = orderNumberData;
     }
 
-    console.log("Generated order number:", orderNumber);
+    console.log("Generated order number:", orderNumber, "gateway:", gateway);
+
+    // Build description with recurring info if applicable
+    let description = `Sewa Zoom Meeting - ${participant_count} Peserta - ${meeting_date}`;
+    if (is_recurring && effectiveTotalDays > 1) {
+      description = `Sewa Zoom Meeting Berulang - ${participant_count} Peserta - ${effectiveTotalDays} sesi`;
+    }
+
+    // Gateway-specific fields for the order record
+    const gatewayData: Record<string, unknown> = { payment_gateway: gateway };
+    let paymentUrl: string;
+    let expiredAt: string;
+
+    if (gateway === 'duitku') {
+      const duitkuResult = await createDuitkuInvoice({
+        merchantOrderId: orderNumber,
+        paymentAmount: totalPrice,
+        productDetails: description,
+        customerName: name,
+        email,
+        phoneNumber: cleanWhatsapp,
+        callbackUrl: `${Deno.env.get("SUPABASE_URL")}/functions/v1/duitku-callback`,
+        returnUrl: `https://rapatin.id/quick-order/${accessSlug}`,
+        expiryPeriod: 1440,
+      });
+
+      if (!duitkuResult.ok || !duitkuResult.paymentUrl) {
+        console.error("Duitku createInvoice failed:", duitkuResult.error, duitkuResult.raw);
+        return new Response(JSON.stringify({ error: "Gagal membuat pembayaran Duitku" }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      paymentUrl = duitkuResult.paymentUrl;
+      expiredAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+      gatewayData.duitku_merchant_order_id = orderNumber;
+      gatewayData.duitku_reference = duitkuResult.reference || null;
+      gatewayData.duitku_payment_url = paymentUrl;
+    } else {
+      // Create Xendit Session (v3)
+      const xenditSecretKey = Deno.env.get("XENDIT_SECRET_KEY");
+      if (!xenditSecretKey) {
+        console.error("XENDIT_SECRET_KEY not configured");
+        return new Response(JSON.stringify({ error: "Payment gateway not configured" }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      const sessionReferenceId = `RAPATIN-${Date.now()}-${Math.random().toString(36).substring(7)}`;
+      const customerReferenceId = `cust_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+
+      console.log("Creating Xendit session for:", {
+        email,
+        totalPrice,
+        participant_count,
+        accessSlug,
+        sessionReferenceId,
+        is_recurring,
+        effectiveTotalDays,
+      });
+
+      const xenditResponse = await fetch("https://api.xendit.co/sessions", {
+        method: "POST",
+        headers: {
+          Authorization: `Basic ${btoa(xenditSecretKey + ":")}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          reference_id: sessionReferenceId,
+          session_type: "PAY",
+          mode: "PAYMENT_LINK",
+          amount: totalPrice,
+          currency: "IDR",
+          country: "ID",
+          customer: {
+            reference_id: customerReferenceId,
+            type: "INDIVIDUAL",
+            email: email,
+            mobile_number: cleanWhatsapp,
+            individual_detail: {
+              given_names: name,
+            },
+          },
+          items: [
+            {
+              reference_id: `item_zoom_${participant_count}_${Date.now()}`,
+              name: is_recurring && effectiveTotalDays > 1
+                ? `Sewa Zoom ${participant_count} Peserta (${effectiveTotalDays} sesi)`
+                : `Sewa Zoom ${participant_count} Peserta`,
+              description: `Meeting: ${meeting_topic} - ${meeting_date}`,
+              type: "DIGITAL_PRODUCT",
+              category: "SERVICE",
+              net_unit_amount: totalPrice,
+              quantity: 1,
+              currency: "IDR",
+              url: "https://rapatin.id/sewa-zoom-harian",
+            },
+          ],
+          capture_method: "AUTOMATIC",
+          locale: "id",
+          description: description,
+          success_return_url: `https://rapatin.lovable.app/quick-order/${accessSlug}`,
+          cancel_return_url: `https://rapatin.lovable.app/quick-order/${accessSlug}`,
+        }),
+      });
+
+      if (!xenditResponse.ok) {
+        const errorText = await xenditResponse.text();
+        console.error("Xendit Sessions API error:", xenditResponse.status, errorText);
+        return new Response(JSON.stringify({ error: "Gagal membuat payment session" }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      const xenditSession = await xenditResponse.json();
+      console.log("Xendit full response:", JSON.stringify(xenditSession));
+
+      const sessionId = xenditSession.payment_session_id;
+
+      if (!sessionId) {
+        console.error("No payment_session_id in Xendit response:", xenditSession);
+        return new Response(JSON.stringify({ error: "Invalid payment session response" }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      console.log("Xendit session created:", sessionId, "URL:", xenditSession.payment_link_url);
+
+      paymentUrl = xenditSession.payment_link_url;
+      expiredAt = xenditSession.expires_at || new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+      gatewayData.xendit_invoice_id = sessionId;
+      gatewayData.xendit_invoice_url = paymentUrl;
+      gatewayData.xendit_reference_id = sessionReferenceId;
+    }
 
     const orderData: Record<string, unknown> = {
       order_number: orderNumber,
@@ -299,9 +343,7 @@ serve(async (req) => {
       participant_count,
       price: totalPrice,
       payment_status: "pending",
-      xendit_invoice_id: sessionId,
-      xendit_invoice_url: xenditSession.payment_link_url,
-      expired_at: xenditSession.expires_at || new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+      expired_at: expiredAt,
       meeting_topic,
       custom_passcode: custom_passcode || null,
       is_meeting_registration: is_meeting_registration || false,
@@ -310,7 +352,7 @@ serve(async (req) => {
       is_mute_upon_entry: is_mute_upon_entry || false,
       is_req_unmute_permission: is_req_unmute_permission || false,
       access_slug: accessSlug,
-      xendit_reference_id: sessionReferenceId,
+      ...gatewayData,
       // Recurring fields
       is_recurring: is_recurring || false,
       recurrence_type: is_recurring ? recurrence_type : null,
@@ -323,6 +365,7 @@ serve(async (req) => {
       recurrence_count: is_recurring && end_type === 'end_after_type' ? recurrence_count : null,
       total_days: effectiveTotalDays,
     };
+
 
     const { data: order, error: dbError } = await supabase
       .from("guest_orders")
@@ -364,12 +407,13 @@ serve(async (req) => {
         success: true,
         order_id: order.id,
         access_slug: accessSlug,
-        session_id: sessionId,
-        invoice_url: xenditSession.payment_link_url,
-        expired_at: xenditSession.expires_at || new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+        payment_gateway: gateway,
+        invoice_url: paymentUrl,
+        expired_at: expiredAt,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
+
   } catch (error) {
     console.error("Unexpected error:", error);
     return new Response(JSON.stringify({ error: "Terjadi kesalahan server" }), {

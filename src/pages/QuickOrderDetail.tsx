@@ -60,6 +60,8 @@ interface OrderDetails {
   zoom_passcode: string | null;
   meeting_id: string | null;
   xendit_invoice_url: string | null;
+  payment_gateway: string | null;
+  duitku_payment_url: string | null;
   expired_at: string | null;
   paid_at: string | null;
   created_at: string;
@@ -367,12 +369,15 @@ export default function QuickOrderDetail() {
   // Auto-redirect to Xendit if coming from form submission
   useEffect(() => {
     if (order && order.payment_status === 'pending' && slug) {
-      const xenditUrl = sessionStorage.getItem(`xendit_url_${slug}`);
-      if (xenditUrl) {
+      const storedUrl =
+        sessionStorage.getItem(`payment_url_${slug}`) ||
+        sessionStorage.getItem(`xendit_url_${slug}`);
+      if (storedUrl) {
         // Clear the stored URL to prevent re-redirect
+        sessionStorage.removeItem(`payment_url_${slug}`);
         sessionStorage.removeItem(`xendit_url_${slug}`);
         // Auto-redirect to payment page
-        window.location.href = xenditUrl;
+        window.location.href = storedUrl;
       }
     }
   }, [order, slug]);
@@ -542,6 +547,11 @@ export default function QuickOrderDetail() {
   const isPaid = order.payment_status === "paid";
   const isPending = order.payment_status === "pending";
   const isExpired = order.payment_status === "expired" || timeLeft === "Kadaluarsa";
+  const paymentUrl =
+    order.payment_gateway === "duitku"
+      ? order.duitku_payment_url
+      : order.xendit_invoice_url;
+
 
   const getStatusConfig = () => {
     if (isPaid) {
@@ -613,9 +623,9 @@ export default function QuickOrderDetail() {
                   )}
 
                   <div className="flex flex-col sm:flex-row gap-3">
-                    {order.xendit_invoice_url && (
+                    {paymentUrl && (
                       <Button asChild className="flex-1">
-                        <a href={order.xendit_invoice_url} target="_blank" rel="noopener noreferrer">
+                        <a href={paymentUrl} target="_blank" rel="noopener noreferrer">
                           <ExternalLink className="w-4 h-4 mr-2" />
                           Lanjutkan Pembayaran
                         </a>

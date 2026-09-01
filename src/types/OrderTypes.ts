@@ -15,6 +15,12 @@ export interface GuestOrder {
   xendit_invoice_id: string | null;
   xendit_invoice_url: string | null;
   xendit_reference_id: string | null;
+  payment_gateway: string | null;
+  duitku_reference: string | null;
+  duitku_merchant_order_id: string | null;
+  duitku_payment_url: string | null;
+  duitku_payment_code: string | null;
+  duitku_fee: number | null;
   zoom_link: string | null;
   zoom_passcode: string | null;
   meeting_id: string | null;

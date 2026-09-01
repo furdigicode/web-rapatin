@@ -36,6 +36,7 @@ import { PricingSummary } from "./PricingSummary";
 import { PaymentMethods } from "./PaymentMethods";
 import { MeetingSettingsSection } from "./MeetingSettingsSection";
 import { RecurringMeetingSection } from "./RecurringMeetingSection";
+import { PaymentGatewaySelector, type PaymentGateway } from "./PaymentGatewaySelector";
 
 
 // Generate time options from 00:00 to 23:00
@@ -101,6 +102,7 @@ type FormValues = z.infer<typeof formSchema>;
 
 export function QuickOrderForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [paymentGateway, setPaymentGateway] = useState<PaymentGateway>("xendit");
   const [selectedPackage, setSelectedPackage] = useState<number>(100);
   const [recurringData, setRecurringData] = useState<{
     isRecurring: boolean;
@@ -196,6 +198,7 @@ export function QuickOrderForm() {
             : null,
           recurrence_count: values.recurrence_count,
           total_days: recurringData.totalDays,
+          payment_gateway: paymentGateway,
         },
       });
 
@@ -213,7 +216,7 @@ export function QuickOrderForm() {
       if (data?.access_slug) {
         // Store invoice URL for detail page auto-redirect
         if (data?.invoice_url) {
-          sessionStorage.setItem(`xendit_url_${data.access_slug}`, data.invoice_url);
+          sessionStorage.setItem(`payment_url_${data.access_slug}`, data.invoice_url);
         }
         
         // Navigate to order detail page with pending status
@@ -452,6 +455,12 @@ export function QuickOrderForm() {
               isRecurring={recurringData.isRecurring}
               totalDays={recurringData.totalDays}
               recurringDates={recurringData.dates}
+            />
+
+            <PaymentGatewaySelector
+              value={paymentGateway}
+              onChange={setPaymentGateway}
+              disabled={isSubmitting}
             />
 
             <Button
