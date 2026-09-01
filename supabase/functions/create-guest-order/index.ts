@@ -1,5 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createDuitkuInvoice } from "../_shared/duitku.ts";
+
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -47,7 +49,9 @@ interface OrderRequest {
   recurrence_end_date?: string | null;
   recurrence_count?: number | null;
   total_days?: number;
+  payment_gateway?: 'xendit' | 'duitku';
 }
+
 
 serve(async (req) => {
   // Handle CORS preflight
@@ -403,12 +407,13 @@ serve(async (req) => {
         success: true,
         order_id: order.id,
         access_slug: accessSlug,
-        session_id: sessionId,
-        invoice_url: xenditSession.payment_link_url,
-        expired_at: xenditSession.expires_at || new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+        payment_gateway: gateway,
+        invoice_url: paymentUrl,
+        expired_at: expiredAt,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
+
   } catch (error) {
     console.error("Unexpected error:", error);
     return new Response(JSON.stringify({ error: "Terjadi kesalahan server" }), {
