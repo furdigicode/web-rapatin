@@ -399,8 +399,21 @@ serve(async (req) => {
     const paymentMethod = order.payment_method || 'Unknown';
 
     // Calculate payment fee
-    const { fee, methodName } = calculatePaymentFee(amount, paymentMethod);
-    console.log("Calculated fee:", { amount, paymentMethod, fee, methodName });
+    // Duitku reports the actual fee on its callback → use it as-is (no hardcoded rates).
+    // Xendit keeps the existing per-method MDR calculation.
+    let fee: number;
+    let methodName: string;
+    if (order.payment_gateway === 'duitku') {
+      fee = Number(order.duitku_fee) || 0;
+      methodName = `Duitku${paymentMethod && paymentMethod !== 'Unknown' ? ` (${paymentMethod})` : ''}`;
+      console.log("Duitku fee from callback:", { amount, fee, methodName });
+    } else {
+      const calculated = calculatePaymentFee(amount, paymentMethod);
+      fee = calculated.fee;
+      methodName = calculated.methodName;
+      console.log("Calculated fee:", { amount, paymentMethod, fee, methodName });
+    }
+
 
     // Retry mechanism for auth errors
     const MAX_RETRIES = 1;
