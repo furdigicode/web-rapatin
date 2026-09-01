@@ -864,7 +864,7 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
                   {order.duitku_fee != null && (
                     <div className="flex items-center justify-between text-sm">
                       <span className="text-muted-foreground">Fee (MDR)</span>
-                      <span>{formatCurrency(order.duitku_fee)}</span>
+                      <span>{formatRupiah(order.duitku_fee)}</span>
                     </div>
                   )}
                 </>
