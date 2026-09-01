@@ -547,6 +547,11 @@ export default function QuickOrderDetail() {
   const isPaid = order.payment_status === "paid";
   const isPending = order.payment_status === "pending";
   const isExpired = order.payment_status === "expired" || timeLeft === "Kadaluarsa";
+  const paymentUrl =
+    order.payment_gateway === "duitku"
+      ? order.duitku_payment_url
+      : order.xendit_invoice_url;
+
 
   const getStatusConfig = () => {
     if (isPaid) {
