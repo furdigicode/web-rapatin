@@ -107,9 +107,41 @@ export const KLEDO_TOOLS = [
           "type": "integer",
           "description": "Kledo contact_id of the user"
         },
+        "include_tax": {
+          "type": "integer",
+          "enum": [0, 1],
+          "description": "1 jika amount item sudah termasuk pajak"
+        },
+        "ref_number": {
+          "type": "string",
+          "description": "Nomor referensi terpisah dari memo"
+        },
         "memo": {
           "type": "string",
           "description": "Reference number (order_number e.g. OR5562, or withdraw_id e.g. WD-0003-2511030013)"
+        },
+        "attachment": {
+          "type": "array",
+          "description": "Daftar lampiran (path/URL file)",
+          "items": { "type": "string" }
+        },
+        "tags": {
+          "type": "array",
+          "description": "Daftar tag ID Kledo",
+          "items": { "type": "integer" }
+        },
+        "witholdings": {
+          "type": "array",
+          "description": "Potongan/withholding pajak (opsional)",
+          "items": {
+            "type": "object",
+            "properties": {
+              "witholding_account_id": { "type": "integer", "description": "Akun withholding" },
+              "witholding_amount": { "type": "number", "description": "Nominal potongan" },
+              "witholding_percent": { "type": "number", "description": "Persen potongan" }
+            },
+            "required": ["witholding_account_id", "witholding_amount", "witholding_percent"]
+          }
         },
         "items": {
           "type": "array",
@@ -727,7 +759,32 @@ export const KLEDO_TOOLS = [
         "trans_type_id": { "type": "integer", "enum": [11, 12], "description": "11 = Kirim Dana, 12 = Terima Dana" },
         "bank_account_id": { "type": "integer", "description": "Bank account ID. 1 = Xendit.", "default": 1 },
         "contact_id": { "type": "integer", "description": "Kledo contact_id" },
+        "include_tax": { "type": "integer", "enum": [0, 1], "description": "1 jika amount item sudah termasuk pajak" },
+        "ref_number": { "type": "string", "description": "Nomor referensi terpisah dari memo" },
         "memo": { "type": "string", "description": "Reference number" },
+        "attachment": {
+          "type": "array",
+          "description": "Daftar lampiran (path/URL file)",
+          "items": { "type": "string" }
+        },
+        "tags": {
+          "type": "array",
+          "description": "Daftar tag ID Kledo",
+          "items": { "type": "integer" }
+        },
+        "witholdings": {
+          "type": "array",
+          "description": "Potongan/withholding pajak (opsional)",
+          "items": {
+            "type": "object",
+            "properties": {
+              "witholding_account_id": { "type": "integer", "description": "Akun withholding" },
+              "witholding_amount": { "type": "number", "description": "Nominal potongan" },
+              "witholding_percent": { "type": "number", "description": "Persen potongan" }
+            },
+            "required": ["witholding_account_id", "witholding_amount", "witholding_percent"]
+          }
+        },
         "items": {
           "type": "array",
           "description": "Replacement line items (replaces ALL existing items).",
@@ -735,6 +792,7 @@ export const KLEDO_TOOLS = [
             "type": "object",
             "properties": {
               "finance_account_id": { "type": "integer", "description": "1460 = Saldo Pelanggan, 156 = Pendapatan Lainnya" },
+              "tax_id": { "type": "integer", "description": "Tax ID (opsional)" },
               "desc": { "type": "string", "description": "Item description" },
               "amount": { "type": "number", "description": "Amount" },
               "amount_after_tax": { "type": "number", "description": "Amount after tax" }
