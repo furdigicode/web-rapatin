@@ -153,6 +153,10 @@ export const KLEDO_TOOLS = [
                 "type": "integer",
                 "description": "1460 = Saldo Pelanggan, 156 = Pendapatan Lainnya/Service Charge"
               },
+              "tax_id": {
+                "type": "integer",
+                "description": "Tax ID (opsional)"
+              },
               "desc": {
                 "type": "string",
                 "description": "e.g. 'Top Up Saldo', 'Payment fee QRIS', 'Withdraw Saldo Pelanggan'"
