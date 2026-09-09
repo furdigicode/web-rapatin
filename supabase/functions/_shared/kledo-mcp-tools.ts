@@ -940,6 +940,20 @@ function pick(args: Record<string, any>, keys: string[]) {
   return o;
 }
 
+const BANK_TRANS_KEYS = [
+  "trans_date",
+  "trans_type_id",
+  "bank_account_id",
+  "contact_id",
+  "include_tax",
+  "ref_number",
+  "memo",
+  "attachment",
+  "tags",
+  "witholdings",
+  "items",
+];
+
 export type KledoToolResult = { ok: boolean; status: number; data: unknown } | { error: string };
 
 /** Returns null when the tool name is not a Kledo tool. */
@@ -971,11 +985,11 @@ export async function handleKledoTool(
       return await kledoFetch("GET", `/finance/bankTrans/${args.id}`);
     case "kledo_create_bank_transaction":
       return await kledoFetch("POST", "/finance/bankTrans", {
-        body: pick(args, ["trans_date", "trans_type_id", "bank_account_id", "contact_id", "memo", "items"]),
+        body: pick(args, BANK_TRANS_KEYS),
       });
     case "kledo_update_bank_transaction":
       return await kledoFetch("PUT", `/finance/bankTrans/${args.id}`, {
-        body: pick(args, ["trans_date", "trans_type_id", "bank_account_id", "contact_id", "memo", "items"]),
+        body: pick(args, BANK_TRANS_KEYS),
       });
 
     // ---- Expenses ----
