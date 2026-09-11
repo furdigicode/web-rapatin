@@ -245,7 +245,7 @@ async function createBankTransaction(
       body: JSON.stringify({
         trans_date: transDate,
         trans_type_id: KLEDO_BANK_TRANS.trans_type_id,
-        bank_account_id: KLEDO_BANK_TRANS.bank_account_id,
+        bank_account_id: bankAccountId,
         contact_id: KLEDO_BANK_TRANS.contact_id,
         memo,
         items: [
