@@ -36,6 +36,11 @@ const KLEDO_EXPENSE = {
   finance_account_id: 1459, // Akun beban MDR
 };
 
+const KLEDO_EXPENSE_DUITKU = {
+  ...KLEDO_EXPENSE,
+  pay_from_finance_account_id: 1463, // Akun kas Duitku
+};
+
 /**
  * Calculate payment gateway fee based on payment method
  * All calculations use floor (truncate), not rounding
@@ -292,9 +297,10 @@ async function createExpense(
   transDate: string,
   memo: string,
   feeAmount: number,
-  methodName: string
+  methodName: string,
+  payFromFinanceAccountId: number
 ): Promise<{ success: boolean; id?: string; error?: string; isAuthError?: boolean }> {
-  console.log("Creating Kledo expense:", { transDate, memo, feeAmount, methodName });
+  console.log("Creating Kledo expense:", { transDate, memo, feeAmount, methodName, payFromFinanceAccountId });
 
   try {
     const response = await fetch(`${KLEDO_API_BASE}/finance/expenses`, {
@@ -305,7 +311,7 @@ async function createExpense(
       },
       body: JSON.stringify({
         trans_date: transDate,
-        pay_from_finance_account_id: KLEDO_EXPENSE.pay_from_finance_account_id,
+        pay_from_finance_account_id: payFromFinanceAccountId,
         contact_id: KLEDO_EXPENSE.contact_id,
         status_id: KLEDO_EXPENSE.status_id,
         memo,
