@@ -229,9 +229,10 @@ async function createBankTransaction(
   token: string,
   transDate: string,
   memo: string,
-  amount: number
+  amount: number,
+  financeAccountId: number
 ): Promise<{ success: boolean; refNumber?: string; error?: string; isAuthError?: boolean }> {
-  console.log("Creating Kledo bank transaction:", { transDate, memo, amount });
+  console.log("Creating Kledo bank transaction:", { transDate, memo, amount, financeAccountId });
 
   try {
     const response = await fetch(`${KLEDO_API_BASE}/finance/bankTrans`, {
