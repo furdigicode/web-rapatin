@@ -20,7 +20,12 @@ const KLEDO_BANK_TRANS = {
   trans_type_id: 12,
   bank_account_id: 1,
   contact_id: 36,
-  finance_account_id: 121, // Akun pendapatan
+  finance_account_id: 121, // Akun pendapatan (Xendit)
+};
+
+const KLEDO_BANK_TRANS_DUITKU = {
+  ...KLEDO_BANK_TRANS,
+  finance_account_id: 1463, // Akun pendapatan untuk order Duitku
 };
 
 // Expense Constants
