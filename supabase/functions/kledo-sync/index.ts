@@ -453,7 +453,10 @@ serve(async (req) => {
       }
 
       // Create bank transaction
-      const bankTransResult = await createBankTransaction(token, transDate, memo, amount);
+      const bankTransConfig = order.payment_gateway === 'duitku'
+        ? KLEDO_BANK_TRANS_DUITKU
+        : KLEDO_BANK_TRANS;
+      const bankTransResult = await createBankTransaction(token, transDate, memo, amount, bankTransConfig.finance_account_id);
       
       // Check for auth error and retry if possible
       if (!bankTransResult.success && bankTransResult.isAuthError && retryCount < MAX_RETRIES) {
