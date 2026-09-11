@@ -249,7 +249,7 @@ async function createBankTransaction(
         memo,
         items: [
           {
-            finance_account_id: KLEDO_BANK_TRANS.finance_account_id,
+            finance_account_id: financeAccountId,
             desc: 'Quick Order',
             amount,
           },
