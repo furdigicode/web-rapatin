@@ -25,7 +25,7 @@ const KLEDO_BANK_TRANS = {
 
 const KLEDO_BANK_TRANS_DUITKU = {
   ...KLEDO_BANK_TRANS,
-  finance_account_id: 1463, // Akun pendapatan untuk order Duitku
+  bank_account_id: 1463, // Akun kas Duitku (tujuan penerimaan dana)
 };
 
 // Expense Constants
