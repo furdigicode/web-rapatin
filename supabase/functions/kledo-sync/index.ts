@@ -20,7 +20,12 @@ const KLEDO_BANK_TRANS = {
   trans_type_id: 12,
   bank_account_id: 1,
   contact_id: 36,
-  finance_account_id: 121, // Akun pendapatan
+  finance_account_id: 121, // Akun pendapatan (Xendit)
+};
+
+const KLEDO_BANK_TRANS_DUITKU = {
+  ...KLEDO_BANK_TRANS,
+  finance_account_id: 1463, // Akun pendapatan untuk order Duitku
 };
 
 // Expense Constants
@@ -224,9 +229,10 @@ async function createBankTransaction(
   token: string,
   transDate: string,
   memo: string,
-  amount: number
+  amount: number,
+  financeAccountId: number
 ): Promise<{ success: boolean; refNumber?: string; error?: string; isAuthError?: boolean }> {
-  console.log("Creating Kledo bank transaction:", { transDate, memo, amount });
+  console.log("Creating Kledo bank transaction:", { transDate, memo, amount, financeAccountId });
 
   try {
     const response = await fetch(`${KLEDO_API_BASE}/finance/bankTrans`, {
@@ -243,7 +249,7 @@ async function createBankTransaction(
         memo,
         items: [
           {
-            finance_account_id: KLEDO_BANK_TRANS.finance_account_id,
+            finance_account_id: financeAccountId,
             desc: 'Quick Order',
             amount,
           },
@@ -447,7 +453,10 @@ serve(async (req) => {
       }
 
       // Create bank transaction
-      const bankTransResult = await createBankTransaction(token, transDate, memo, amount);
+      const bankTransConfig = order.payment_gateway === 'duitku'
+        ? KLEDO_BANK_TRANS_DUITKU
+        : KLEDO_BANK_TRANS;
+      const bankTransResult = await createBankTransaction(token, transDate, memo, amount, bankTransConfig.finance_account_id);
       
       // Check for auth error and retry if possible
       if (!bankTransResult.success && bankTransResult.isAuthError && retryCount < MAX_RETRIES) {

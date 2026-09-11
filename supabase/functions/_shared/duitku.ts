@@ -2,7 +2,7 @@
 // Docs: https://docs.duitku.com/api/id/#permintaan-transaksi
 
 // Switch to 'production' to go live (single place to change).
-export const DUITKU_ENVIRONMENT: 'sandbox' | 'production' = 'sandbox';
+export const DUITKU_ENVIRONMENT: 'sandbox' | 'production' = 'production';
 
 export const DUITKU_BASE_URL = DUITKU_ENVIRONMENT === 'production'
   ? 'https://api-prod.duitku.com'
