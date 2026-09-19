@@ -49,7 +49,6 @@ interface OrderRequest {
   recurrence_end_date?: string | null;
   recurrence_count?: number | null;
   total_days?: number;
-  payment_gateway?: 'xendit' | 'duitku';
 }
 
 
