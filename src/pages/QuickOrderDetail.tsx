@@ -404,7 +404,27 @@ export default function QuickOrderDetail() {
     return () => clearInterval(interval);
   }, [fetchOrder, order?.payment_status]);
 
-  // Auto-redirect to Xendit if coming from form submission
+  // Open Duitku POP popup in-page; falls back to the payment URL in a new tab.
+  const openDuitkuPopup = useCallback(async () => {
+    if (!order) return;
+    if (!order.duitku_reference) {
+      if (order.duitku_payment_url) window.open(order.duitku_payment_url, "_blank", "noopener,noreferrer");
+      return;
+    }
+    const ready = await loadDuitkuPop();
+    if (!ready || !window.checkout) {
+      if (order.duitku_payment_url) window.open(order.duitku_payment_url, "_blank", "noopener,noreferrer");
+      return;
+    }
+    window.checkout.process(order.duitku_reference, {
+      successEvent: () => fetchOrder(),
+      pendingEvent: () => fetchOrder(),
+      closeEvent: () => fetchOrder(),
+      errorEvent: (result) => console.error("Duitku POP error:", result),
+    });
+  }, [order, fetchOrder]);
+
+  // Auto-redirect to payment if coming from form submission
   useEffect(() => {
     if (order && order.payment_status === 'pending' && slug) {
       const storedUrl =
@@ -414,11 +434,16 @@ export default function QuickOrderDetail() {
         // Clear the stored URL to prevent re-redirect
         sessionStorage.removeItem(`payment_url_${slug}`);
         sessionStorage.removeItem(`xendit_url_${slug}`);
-        // Auto-redirect to payment page
-        window.location.href = storedUrl;
+        if (order.payment_gateway === 'duitku' && order.duitku_reference) {
+          // Open Duitku POP popup instead of leaving the page
+          void openDuitkuPopup();
+        } else {
+          // Auto-redirect to payment page (Xendit, or Duitku fallback)
+          window.location.href = storedUrl;
+        }
       }
     }
-  }, [order, slug]);
+  }, [order, slug, openDuitkuPopup]);
 
   // Countdown timer
   useEffect(() => {
