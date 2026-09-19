@@ -42,6 +42,43 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { generateReceipt } from "@/utils/generateReceipt";
 
+// Duitku POP JS SDK — opens payment popup in-page (no new tab).
+const DUITKU_POP_SCRIPT_URL = "https://app-prod.duitku.com/lib/js/duitku.js";
+
+interface DuitkuCheckout {
+  process: (
+    reference: string,
+    callbacks?: {
+      successEvent?: (result: unknown) => void;
+      pendingEvent?: (result: unknown) => void;
+      errorEvent?: (result: unknown) => void;
+      closeEvent?: (result: unknown) => void;
+    },
+  ) => void;
+}
+
+declare global {
+  interface Window {
+    checkout?: DuitkuCheckout;
+  }
+}
+
+let duitkuPopLoader: Promise<boolean> | null = null;
+const loadDuitkuPop = (): Promise<boolean> => {
+  if (typeof window === "undefined") return Promise.resolve(false);
+  if (window.checkout?.process) return Promise.resolve(true);
+  if (duitkuPopLoader) return duitkuPopLoader;
+  duitkuPopLoader = new Promise((resolve) => {
+    const script = document.createElement("script");
+    script.src = DUITKU_POP_SCRIPT_URL;
+    script.async = true;
+    script.onload = () => resolve(Boolean(window.checkout?.process));
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+  return duitkuPopLoader;
+};
+
 interface OrderDetails {
   id: string;
   order_number: string | null;
@@ -62,6 +99,7 @@ interface OrderDetails {
   xendit_invoice_url: string | null;
   payment_gateway: string | null;
   duitku_payment_url: string | null;
+  duitku_reference: string | null;
   expired_at: string | null;
   paid_at: string | null;
   created_at: string;
