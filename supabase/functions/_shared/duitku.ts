@@ -86,14 +86,7 @@ export async function checkDuitkuTransaction(
     return { fee: null, statusCode: null, raw: null };
   }
 
-  const signature = await callbackSignature(
-    creds.merchantCode,
-    '0', // placeholder — replaced below
-    merchantOrderId,
-    creds.apiKey,
-  );
-  // callbackSignature does MD5(merchantCode + amount + merchantOrderId + apiKey)
-  // but Check Transaction signature is MD5(merchantCode + merchantOrderId + apiKey) — no amount
+  // Check Transaction signature: MD5(merchantCode + merchantOrderId + apiKey) — no amount
   const md5 = (await import('npm:js-md5@0.8.3')).default;
   const checkSignature = md5(`${creds.merchantCode}${merchantOrderId}${creds.apiKey}`);
 
