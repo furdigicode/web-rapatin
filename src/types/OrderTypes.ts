@@ -1,3 +1,5 @@
+export type PaymentGateway = "xendit" | "duitku";
+
 export interface GuestOrder {
   id: string;
   order_number: string | null;

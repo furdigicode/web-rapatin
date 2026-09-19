@@ -36,7 +36,6 @@ import { PricingSummary } from "./PricingSummary";
 import { PaymentMethods } from "./PaymentMethods";
 import { MeetingSettingsSection } from "./MeetingSettingsSection";
 import { RecurringMeetingSection } from "./RecurringMeetingSection";
-import { PaymentGatewaySelector, type PaymentGateway } from "./PaymentGatewaySelector";
 
 
 // Generate time options from 00:00 to 23:00
@@ -102,7 +101,6 @@ type FormValues = z.infer<typeof formSchema>;
 
 export function QuickOrderForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [paymentGateway, setPaymentGateway] = useState<PaymentGateway>("duitku");
   const [selectedPackage, setSelectedPackage] = useState<number>(100);
   const [recurringData, setRecurringData] = useState<{
     isRecurring: boolean;
@@ -198,7 +196,6 @@ export function QuickOrderForm() {
             : null,
           recurrence_count: values.recurrence_count,
           total_days: recurringData.totalDays,
-          payment_gateway: paymentGateway,
         },
       });
 
@@ -457,11 +454,6 @@ export function QuickOrderForm() {
               recurringDates={recurringData.dates}
             />
 
-            <PaymentGatewaySelector
-              value={paymentGateway}
-              onChange={setPaymentGateway}
-              disabled={isSubmitting}
-            />
 
             <Button
               type="submit"
