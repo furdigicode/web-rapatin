@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { callbackSignature, getDuitkuCredentials } from "../_shared/duitku.ts";
+import { callbackSignature, checkDuitkuTransaction, getDuitkuCredentials } from "../_shared/duitku.ts";
 import { processPaidOrder } from "../_shared/post-payment.ts";
 
 const corsHeaders = {
