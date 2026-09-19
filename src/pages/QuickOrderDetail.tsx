@@ -686,14 +686,19 @@ export default function QuickOrderDetail() {
                   )}
 
                   <div className="flex flex-col sm:flex-row gap-3">
-                    {paymentUrl && (
+                    {paymentUrl && order.payment_gateway === "duitku" ? (
+                      <Button onClick={() => void openDuitkuPopup()} className="flex-1">
+                        <CreditCard className="w-4 h-4 mr-2" />
+                        Lanjutkan Pembayaran
+                      </Button>
+                    ) : paymentUrl ? (
                       <Button asChild className="flex-1">
                         <a href={paymentUrl} target="_blank" rel="noopener noreferrer">
                           <ExternalLink className="w-4 h-4 mr-2" />
                           Lanjutkan Pembayaran
                         </a>
                       </Button>
-                    )}
+                    ) : null}
                     <Button onClick={handleCheckStatus} disabled={checking} variant="outline" className="flex-1">
                       {checking ? (
                         <>
