@@ -86,9 +86,19 @@ serve(async (req) => {
     // Duitku: resultCode "00" = success, "01" = failed/pending-failed
     const isPaid = resultCode === '00';
 
-    // Fee reported by Duitku (field name varies / may be absent)
-    const rawFee = body.fee ?? body.totalFee ?? body.amountFee ?? null;
-    const duitkuFee = rawFee !== null && rawFee !== '' ? Math.round(Number(rawFee)) : null;
+    // Duitku callback payload does NOT include a fee field.
+    // Fetch the actual fee from the Check Transaction API.
+    let duitkuFee: number | null = null;
+    if (isPaid) {
+      console.log('Payment confirmed, fetching fee via Check Transaction API...');
+      const checkResult = await checkDuitkuTransaction(merchantOrderId);
+      if (checkResult.fee !== null) {
+        duitkuFee = checkResult.fee;
+        console.log('Fee from Check Transaction API:', { merchantOrderId, fee: duitkuFee });
+      } else {
+        console.warn('Could not fetch fee from Check Transaction API', { merchantOrderId, statusCode: checkResult.statusCode });
+      }
+    }
 
     const gatewayUpdate: Record<string, unknown> = {
       duitku_reference: reference || order.duitku_reference || null,
