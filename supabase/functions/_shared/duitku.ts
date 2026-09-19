@@ -60,6 +60,79 @@ export interface CreateDuitkuInvoiceParams {
   expiryPeriod?: number;
 }
 
+/**
+ * Legacy base URL for the Check Transaction API (v1).
+ * createInvoice uses DUITKU_BASE_URL (api-prod / api-sandbox),
+ * but transactionStatus lives on passport.duitku.com / sandbox.duitku.com.
+ */
+export const DUITKU_LEGACY_BASE_URL = DUITKU_ENVIRONMENT === 'production'
+  ? 'https://passport.duitku.com'
+  : 'https://sandbox.duitku.com';
+
+/**
+ * Check Transaction API — fetch actual fee reported by Duitku.
+ * Docs: https://docs.duitku.com/api/id/#cek-transaksi
+ *
+ * Body: { merchantcode, merchantOrderId, signature }
+ * Signature: MD5(merchantCode + merchantOrderId + apiKey)
+ * Response: { merchantOrderId, reference, amount, fee, statusCode, statusMessage }
+ */
+export async function checkDuitkuTransaction(
+  merchantOrderId: string,
+): Promise<{ fee: number | null; statusCode: string | null; raw: unknown }> {
+  const creds = getDuitkuCredentials();
+  if (!creds) {
+    console.error('checkDuitkuTransaction: credentials not configured');
+    return { fee: null, statusCode: null, raw: null };
+  }
+
+  // Check Transaction signature: MD5(merchantCode + merchantOrderId + apiKey) — no amount
+  const md5 = (await import('npm:js-md5@0.8.3')).default;
+  const checkSignature = md5(`${creds.merchantCode}${merchantOrderId}${creds.apiKey}`);
+
+  try {
+    const response = await fetch(`${DUITKU_LEGACY_BASE_URL}/webapi/api/merchant/transactionStatus`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        merchantcode: creds.merchantCode,
+        merchantOrderId,
+        signature: checkSignature,
+      }),
+    });
+
+    const text = await response.text();
+    let data: Record<string, unknown> = {};
+    try {
+      data = JSON.parse(text);
+    } catch (_e) {
+      data = { raw: text };
+    }
+
+    console.log('Duitku checkTransaction response:', response.status, text);
+
+    if (!response.ok) {
+      console.error('Duitku checkTransaction failed:', response.status, text);
+      return { fee: null, statusCode: null, raw: data };
+    }
+
+    const feeStr = data.fee as string | undefined;
+    const fee = feeStr !== undefined && feeStr !== ''
+      ? Math.round(Number(feeStr))
+      : null;
+
+    return {
+      fee: fee !== null && !Number.isNaN(fee) ? fee : null,
+      statusCode: (data.statusCode as string) ?? null,
+      raw: data,
+    };
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : String(error);
+    console.error('Duitku checkTransaction error:', msg);
+    return { fee: null, statusCode: null, raw: null };
+  }
+}
+
 export async function createDuitkuInvoice(
   params: CreateDuitkuInvoiceParams,
 ): Promise<DuitkuInvoiceResult> {
