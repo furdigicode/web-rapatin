@@ -32,7 +32,7 @@ serve(async (req) => {
 
     let query = supabase
       .from('guest_orders')
-      .select('id, order_number, name, email, whatsapp, meeting_date, meeting_time, meeting_topic, custom_passcode, participant_count, price, payment_status, payment_method, zoom_link, zoom_passcode, meeting_id, xendit_invoice_url, payment_gateway, duitku_payment_url, expired_at, paid_at, created_at, access_slug, is_recurring, recurrence_type, repeat_interval, weekly_days, monthly_day, monthly_week, end_type, recurrence_end_date, recurrence_count, total_days, email_sent_at, whatsapp_sent_at');
+      .select('id, order_number, name, email, whatsapp, meeting_date, meeting_time, meeting_topic, custom_passcode, participant_count, price, payment_status, payment_method, zoom_link, zoom_passcode, meeting_id, xendit_invoice_url, payment_gateway, duitku_payment_url, duitku_reference, expired_at, paid_at, created_at, access_slug, is_recurring, recurrence_type, repeat_interval, weekly_days, monthly_day, monthly_week, end_type, recurrence_end_date, recurrence_count, total_days, email_sent_at, whatsapp_sent_at');
 
     // Priority: slug > orderId > externalId
     if (slug) {
@@ -113,6 +113,7 @@ serve(async (req) => {
           xendit_invoice_url: order.xendit_invoice_url,
           payment_gateway: order.payment_gateway,
           duitku_payment_url: order.duitku_payment_url,
+          duitku_reference: order.duitku_reference,
           expired_at: order.expired_at,
           paid_at: order.paid_at,
           created_at: order.created_at,
