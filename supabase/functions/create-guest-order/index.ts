@@ -169,9 +169,6 @@ serve(async (req) => {
     const basePrice = PRICING[participant_count].promo;
     const totalPrice = basePrice * effectiveTotalDays;
 
-    // Determine payment gateway (default: xendit)
-    const gateway: 'xendit' | 'duitku' = requestData.payment_gateway === 'duitku' ? 'duitku' : 'xendit';
-
     // Generate secure access slug for the order
     const accessSlug = generateAccessSlug(24);
 
@@ -179,6 +176,21 @@ serve(async (req) => {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseKey);
+
+    // Determine payment gateway from admin settings (default: duitku)
+    let gateway: 'xendit' | 'duitku' = 'duitku';
+    const { data: pgSetting, error: pgSettingError } = await supabase
+      .from('payment_gateway_settings')
+      .select('active_gateway')
+      .eq('id', 'default')
+      .maybeSingle();
+
+    if (pgSettingError) {
+      console.error("Failed to load payment gateway setting, falling back to duitku:", pgSettingError);
+    } else if (pgSetting?.active_gateway === 'xendit') {
+      gateway = 'xendit';
+    }
+
 
     // Generate order number with format INV-YYMMDD-XXXX
     let orderNumber: string;
