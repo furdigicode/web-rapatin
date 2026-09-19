@@ -203,7 +203,7 @@ export function PricingSummary({
 
         <div className="mt-4 flex items-center gap-2 p-3 rounded-lg">
           <Shield className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
-          <p className="text-xs text-muted-foreground">Pembayaran aman dan terenkripsi via Xendit</p>
+          <p className="text-xs text-muted-foreground">Pembayaran aman dan terenkripsi via Duitku</p>
         </div>
       </CardContent>
     </Card>
