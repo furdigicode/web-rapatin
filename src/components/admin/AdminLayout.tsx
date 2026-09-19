@@ -18,7 +18,8 @@ import {
   Zap,
   Server,
   Database,
-  ClipboardList
+  ClipboardList,
+  CreditCard
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -317,6 +318,17 @@ const AppSidebar = () => {
                   <Link to="/admin/mysql-connect">
                     <Database />
                     <span>MySQL Connect</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  asChild
+                  isActive={location.pathname === '/admin/payment-settings'}
+                >
+                  <Link to="/admin/payment-settings">
+                    <CreditCard />
+                    <span>Pengaturan Pembayaran</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
