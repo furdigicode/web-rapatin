@@ -847,6 +847,30 @@ export type Database = {
         }
         Relationships: []
       }
+      payment_gateway_settings: {
+        Row: {
+          active_gateway: string
+          created_at: string
+          id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          active_gateway?: string
+          created_at?: string
+          id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          active_gateway?: string
+          created_at?: string
+          id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       rapatin_auth_tokens: {
         Row: {
           access_token: string
