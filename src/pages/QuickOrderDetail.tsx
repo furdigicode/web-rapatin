@@ -42,6 +42,43 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { generateReceipt } from "@/utils/generateReceipt";
 
+// Duitku POP JS SDK — opens payment popup in-page (no new tab).
+const DUITKU_POP_SCRIPT_URL = "https://app-prod.duitku.com/lib/js/duitku.js";
+
+interface DuitkuCheckout {
+  process: (
+    reference: string,
+    callbacks?: {
+      successEvent?: (result: unknown) => void;
+      pendingEvent?: (result: unknown) => void;
+      errorEvent?: (result: unknown) => void;
+      closeEvent?: (result: unknown) => void;
+    },
+  ) => void;
+}
+
+declare global {
+  interface Window {
+    checkout?: DuitkuCheckout;
+  }
+}
+
+let duitkuPopLoader: Promise<boolean> | null = null;
+const loadDuitkuPop = (): Promise<boolean> => {
+  if (typeof window === "undefined") return Promise.resolve(false);
+  if (window.checkout?.process) return Promise.resolve(true);
+  if (duitkuPopLoader) return duitkuPopLoader;
+  duitkuPopLoader = new Promise((resolve) => {
+    const script = document.createElement("script");
+    script.src = DUITKU_POP_SCRIPT_URL;
+    script.async = true;
+    script.onload = () => resolve(Boolean(window.checkout?.process));
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+  return duitkuPopLoader;
+};
+
 interface OrderDetails {
   id: string;
   order_number: string | null;
@@ -62,6 +99,7 @@ interface OrderDetails {
   xendit_invoice_url: string | null;
   payment_gateway: string | null;
   duitku_payment_url: string | null;
+  duitku_reference: string | null;
   expired_at: string | null;
   paid_at: string | null;
   created_at: string;
@@ -366,7 +404,27 @@ export default function QuickOrderDetail() {
     return () => clearInterval(interval);
   }, [fetchOrder, order?.payment_status]);
 
-  // Auto-redirect to Xendit if coming from form submission
+  // Open Duitku POP popup in-page; falls back to the payment URL in a new tab.
+  const openDuitkuPopup = useCallback(async () => {
+    if (!order) return;
+    if (!order.duitku_reference) {
+      if (order.duitku_payment_url) window.open(order.duitku_payment_url, "_blank", "noopener,noreferrer");
+      return;
+    }
+    const ready = await loadDuitkuPop();
+    if (!ready || !window.checkout) {
+      if (order.duitku_payment_url) window.open(order.duitku_payment_url, "_blank", "noopener,noreferrer");
+      return;
+    }
+    window.checkout.process(order.duitku_reference, {
+      successEvent: () => fetchOrder(),
+      pendingEvent: () => fetchOrder(),
+      closeEvent: () => fetchOrder(),
+      errorEvent: (result) => console.error("Duitku POP error:", result),
+    });
+  }, [order, fetchOrder]);
+
+  // Auto-redirect to payment if coming from form submission
   useEffect(() => {
     if (order && order.payment_status === 'pending' && slug) {
       const storedUrl =
@@ -376,11 +434,16 @@ export default function QuickOrderDetail() {
         // Clear the stored URL to prevent re-redirect
         sessionStorage.removeItem(`payment_url_${slug}`);
         sessionStorage.removeItem(`xendit_url_${slug}`);
-        // Auto-redirect to payment page
-        window.location.href = storedUrl;
+        if (order.payment_gateway === 'duitku' && order.duitku_reference) {
+          // Open Duitku POP popup instead of leaving the page
+          void openDuitkuPopup();
+        } else {
+          // Auto-redirect to payment page (Xendit, or Duitku fallback)
+          window.location.href = storedUrl;
+        }
       }
     }
-  }, [order, slug]);
+  }, [order, slug, openDuitkuPopup]);
 
   // Countdown timer
   useEffect(() => {
@@ -623,14 +686,19 @@ export default function QuickOrderDetail() {
                   )}
 
                   <div className="flex flex-col sm:flex-row gap-3">
-                    {paymentUrl && (
+                    {paymentUrl && order.payment_gateway === "duitku" ? (
+                      <Button onClick={() => void openDuitkuPopup()} className="flex-1">
+                        <CreditCard className="w-4 h-4 mr-2" />
+                        Lanjutkan Pembayaran
+                      </Button>
+                    ) : paymentUrl ? (
                       <Button asChild className="flex-1">
                         <a href={paymentUrl} target="_blank" rel="noopener noreferrer">
                           <ExternalLink className="w-4 h-4 mr-2" />
                           Lanjutkan Pembayaran
                         </a>
                       </Button>
-                    )}
+                    ) : null}
                     <Button onClick={handleCheckStatus} disabled={checking} variant="outline" className="flex-1">
                       {checking ? (
                         <>

@@ -102,7 +102,7 @@ type FormValues = z.infer<typeof formSchema>;
 
 export function QuickOrderForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [paymentGateway, setPaymentGateway] = useState<PaymentGateway>("xendit");
+  const [paymentGateway, setPaymentGateway] = useState<PaymentGateway>("duitku");
   const [selectedPackage, setSelectedPackage] = useState<number>(100);
   const [recurringData, setRecurringData] = useState<{
     isRecurring: boolean;
