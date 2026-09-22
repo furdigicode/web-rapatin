@@ -1028,6 +1028,10 @@ export async function handleKledoTool(
       return await kledoFetch("PUT", `/finance/bankTrans/${args.id}`, {
         body: pick(args, BANK_TRANS_KEYS),
       });
+    case "kledo_delete_bank_transaction":
+      return await kledoFetch("DELETE", `/finance/bankTrans/${args.id}`, {
+        body: args.reason !== undefined ? { reason: args.reason } : undefined,
+      });
 
     // ---- Expenses ----
     case "kledo_get_expenses":
