@@ -856,6 +856,7 @@ export const KLEDO_TOOLS = [
         "pay_from_finance_account_id": { "type": "integer", "description": "Payment source. 1 = Xendit.", "default": 1 },
         "contact_id": { "type": "integer", "description": "Always 3 (Xendit) for gateway fees.", "default": 3 },
         "status_id": { "type": "integer", "description": "3 = Paid.", "default": 3 },
+        "ref_number": { "type": "string", "description": "Existing Kledo expense reference number (e.g. EXP/2026/08/05/2857). Read the expense first with kledo_get_expense and pass back its existing ref_number when updating so the reference is preserved." },
         "memo": { "type": "string", "description": "Reference (order_number or #withdraw_id)" },
         "items": {
           "type": "array",
@@ -1056,6 +1057,7 @@ export async function handleKledoTool(
           "pay_from_finance_account_id",
           "contact_id",
           "status_id",
+          "ref_number",
           "memo",
           "items",
         ]),
