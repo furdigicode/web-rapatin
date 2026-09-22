@@ -69,6 +69,7 @@ const KLEDO_TOOLS: Tool[] = [
   { name: "kledo_delete_invoice", type: "write", desc: "Hapus faktur (butuh confirm=true)." },
   { name: "kledo_delete_expense", type: "write", desc: "Hapus beban (butuh confirm=true)." },
   { name: "kledo_delete_manual_journal", type: "write", desc: "Hapus jurnal manual (butuh confirm=true)." },
+  { name: "kledo_delete_bank_transaction", type: "write", desc: "Hapus transaksi Kas & Bank (butuh confirm=true, opsional reason)." },
   { name: "kledo_update_contact", type: "write", desc: "Update data kontak (nama, telepon, email, alamat)." },
   { name: "kledo_update_bank_transaction", type: "write", desc: "Update transaksi Kas & Bank (items menggantikan semua)." },
   { name: "kledo_update_expense", type: "write", desc: "Update beban (koreksi fee/memo, items diganti semua)." },

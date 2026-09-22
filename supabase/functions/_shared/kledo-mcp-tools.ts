@@ -715,6 +715,43 @@ export const KLEDO_TOOLS = [
     }
   },
   {
+    "name": "kledo_delete_bank_transaction",
+    "description": "Delete a bank transaction / mutasi Kas & Bank (DELETE /finance/bankTrans/{id}). DESTRUCTIVE. Requires confirm: true. Optional 'reason' object is required by Kledo for POS cash in/out: reason.id 1 = batal pesanan, 2 = salah proses, 3 = lainnya (then reason.other is mandatory).",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "description": "Bank transaction ID to delete"
+        },
+        "confirm": {
+          "type": "boolean",
+          "description": "Harus true untuk mengeksekusi penghapusan."
+        },
+        "reason": {
+          "type": "object",
+          "description": "Alasan penghapusan (wajib untuk kas masuk/keluar POS).",
+          "properties": {
+            "id": {
+              "type": "integer",
+              "enum": [1, 2, 3],
+              "description": "1 = batal pesanan, 2 = salah proses, 3 = lainnya"
+            },
+            "other": {
+              "type": "string",
+              "description": "Wajib diisi jika reason.id = 3"
+            }
+          },
+          "required": ["id"]
+        }
+      },
+      "required": [
+        "id",
+        "confirm"
+      ]
+    }
+  },
+  {
     "name": "kledo_delete_manual_journal",
     "description": "Delete/void a manual journal (DELETE /finance/manualJournals/{id}). DESTRUCTIVE. Requires confirm: true. Use only to correct erroneous entries.",
     "inputSchema": {
@@ -990,6 +1027,10 @@ export async function handleKledoTool(
     case "kledo_update_bank_transaction":
       return await kledoFetch("PUT", `/finance/bankTrans/${args.id}`, {
         body: pick(args, BANK_TRANS_KEYS),
+      });
+    case "kledo_delete_bank_transaction":
+      return await kledoFetch("DELETE", `/finance/bankTrans/${args.id}`, {
+        body: args.reason !== undefined ? { reason: args.reason } : undefined,
       });
 
     // ---- Expenses ----
