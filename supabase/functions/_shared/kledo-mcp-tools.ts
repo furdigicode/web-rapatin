@@ -257,7 +257,7 @@ export const KLEDO_TOOLS = [
         },
         "pay_from_finance_account_id": {
           "type": "integer",
-          "description": "Payment source. 1 = Xendit.",
+          "description": "Payment source. 1 = Xendit, 1463 = Duitku.",
           "default": 1
         },
         "contact_id": {
