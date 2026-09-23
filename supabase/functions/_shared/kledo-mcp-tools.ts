@@ -267,9 +267,11 @@ export const KLEDO_TOOLS = [
         },
         "status_id": {
           "type": "integer",
-          "description": "3 = Paid.",
+          "enum": [1, 2, 3],
+          "description": "Expense status: 1 = Draft, 2 = Belum Dibayar (unpaid), 3 = Dibayar (paid).",
           "default": 3
         },
+
         "memo": {
           "type": "string",
           "description": "Reference (order_number or #withdraw_id)"
@@ -348,7 +350,13 @@ export const KLEDO_TOOLS = [
         "contact_id": {
           "type": "integer",
           "description": "Filter by contact. 3 = Xendit."
+        },
+        "status_id": {
+          "type": "integer",
+          "enum": [1, 2, 3],
+          "description": "Filter by status: 1 = Draft, 2 = Belum Dibayar, 3 = Dibayar."
         }
+
       }
     }
   },
@@ -847,15 +855,16 @@ export const KLEDO_TOOLS = [
   },
   {
     "name": "kledo_update_expense",
-    "description": "Update an existing expense in Kledo. Replaces ALL items. Use to correct Xendit fee amount, date, or memo.",
+    "description": "Update an existing expense in Kledo (PUT /finance/expenses/{id}). Replaces ALL items. Use to correct amount (fee Xendit/Duitku), date, memo, or status. Read the expense first with kledo_get_expense and pass back its existing status_id / ref_number / contact_id so they are preserved unless you intend to change them.",
     "inputSchema": {
       "type": "object",
       "properties": {
         "id": { "type": "integer", "description": "Expense ID to update" },
         "trans_date": { "type": "string", "format": "date", "description": "Transaction date (YYYY-MM-DD)" },
-        "pay_from_finance_account_id": { "type": "integer", "description": "Payment source. 1 = Xendit.", "default": 1 },
-        "contact_id": { "type": "integer", "description": "Always 3 (Xendit) for gateway fees.", "default": 3 },
-        "status_id": { "type": "integer", "description": "3 = Paid.", "default": 3 },
+        "pay_from_finance_account_id": { "type": "integer", "description": "Payment source. 1 = Xendit, 1463 = Duitku.", "default": 1 },
+        "contact_id": { "type": "integer", "description": "Contact of the expense. 3 = Xendit.", "default": 3 },
+        "status_id": { "type": "integer", "enum": [1, 2, 3], "description": "Expense status: 1 = Draft, 2 = Belum Dibayar (unpaid), 3 = Dibayar (paid). Fill with the status_id returned by kledo_get_expense for this expense so the existing status is kept; only change it when the status really must change.", "default": 3 },
+
         "ref_number": { "type": "string", "description": "Existing Kledo expense reference number (e.g. EXP/2026/08/05/2857). Read the expense first with kledo_get_expense and pass back its existing ref_number when updating so the reference is preserved." },
         "memo": { "type": "string", "description": "Reference (order_number or #withdraw_id)" },
         "items": {
