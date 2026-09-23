@@ -55,7 +55,7 @@ const KLEDO_TOOLS: Tool[] = [
   { name: "kledo_get_bank_transactions", type: "read", desc: "Daftar mutasi Kas & Bank (Terima/Kirim Dana)." },
   { name: "kledo_get_bank_transaction", type: "read", desc: "Detail satu transaksi bank." },
   { name: "kledo_create_bank_transaction", type: "write", desc: "Buat Terima Dana (12) atau Kirim Dana (11)." },
-  { name: "kledo_get_expenses", type: "read", desc: "Daftar beban (mis. biaya Xendit)." },
+  { name: "kledo_get_expenses", type: "read", desc: "Daftar beban (biaya Xendit/Duitku), filter kontak & status." },
   { name: "kledo_get_expense", type: "read", desc: "Detail satu beban." },
   { name: "kledo_create_expense", type: "write", desc: "Catat beban payment gateway / disbursement fee." },
   { name: "kledo_get_invoices", type: "read", desc: "Daftar faktur penjualan." },
