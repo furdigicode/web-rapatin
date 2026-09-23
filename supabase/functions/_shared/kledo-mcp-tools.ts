@@ -852,14 +852,14 @@ export const KLEDO_TOOLS = [
   },
   {
     "name": "kledo_update_expense",
-    "description": "Update an existing expense in Kledo (PUT /finance/expenses/{id}). Replaces ALL items. Use to correct amount (fee Xendit/Duitku), date, memo, or status. Read the expense first with kledo_get_expense and pass back its existing status_id / ref_number / contact_id so they are preserved unless you intend to change them.",
+    "description": "Update an existing expense in Kledo (PUT /finance/expenses/{id}). Replaces ALL items. Use to correct amount (fee Xendit/Duitku), date, memo, or status. Read the expense first with kledo_get_expense and pass back its existing status_id / ref_number / contact_id / pay_from_finance_account_id so they are preserved unless you intend to change them. Gateway pairs: Xendit = pay_from 1 + contact 3, Duitku = pay_from 1463 + contact 1957.",
     "inputSchema": {
       "type": "object",
       "properties": {
         "id": { "type": "integer", "description": "Expense ID to update" },
         "trans_date": { "type": "string", "format": "date", "description": "Transaction date (YYYY-MM-DD)" },
-        "pay_from_finance_account_id": { "type": "integer", "description": "Payment source. 1 = Xendit, 1463 = Duitku.", "default": 1 },
-        "contact_id": { "type": "integer", "description": "Contact of the expense. 3 = Xendit.", "default": 3 },
+        "pay_from_finance_account_id": { "type": "integer", "description": "Cash/bank account the fee is paid from, matching the gateway: 1 = Xendit, 1463 = Duitku. Required — no default; take the existing value from kledo_get_expense unless the gateway really changes." },
+        "contact_id": { "type": "integer", "description": "Gateway contact: 3 = Xendit, 1957 = Duitku. Required — no default; must pair with pay_from_finance_account_id (1 with 3, 1463 with 1957)." },
         "status_id": { "type": "integer", "enum": [1, 2, 3], "description": "Expense status: 1 = Draft, 2 = Belum Dibayar (unpaid), 3 = Dibayar (paid). Fill with the status_id returned by kledo_get_expense for this expense so the existing status is kept; only change it when the status really must change.", "default": 3 },
 
         "ref_number": { "type": "string", "description": "Existing Kledo expense reference number (e.g. EXP/2026/08/05/2857). Read the expense first with kledo_get_expense and pass back its existing ref_number when updating so the reference is preserved." },
