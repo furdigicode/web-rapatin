@@ -245,7 +245,7 @@ export const KLEDO_TOOLS = [
   },
   {
     "name": "kledo_create_expense",
-    "description": "Create an expense in Kledo. Used to record Xendit fees: payment gateway fee on top-up (variable per method) or disbursement fee on withdraw (Rp 2.500 + PPN). contact_id always 3 (Xendit). Tarif: VA Rp 4.000 flat, QRIS/ShopeePay 0.63%, Dana/LinkAja 1.5%. Amount includes PPN 11% via floor(fee + fee * 0.11).",
+    "description": "Create an expense in Kledo. Used to record payment gateway fees (per-method fee on top-up) or disbursement fee on withdraw. Pick pay_from_finance_account_id and contact_id from the gateway of the order: Xendit = pay_from 1, contact 3. Duitku = pay_from 1463, contact 1957. Never assume a fixed gateway. Xendit tarif: VA Rp 4.000 flat, QRIS/ShopeePay 0.63%, Dana/LinkAja 1.5%, amount includes PPN 11% via floor(fee + fee * 0.11). Duitku fee comes from the real Duitku transaction data, not from a formula.",
     "inputSchema": {
       "type": "object",
       "properties": {
@@ -256,13 +256,11 @@ export const KLEDO_TOOLS = [
         },
         "pay_from_finance_account_id": {
           "type": "integer",
-          "description": "Payment source. 1 = Xendit, 1463 = Duitku.",
-          "default": 1
+          "description": "Cash/bank account the fee is paid from, matching the gateway: 1 = Xendit, 1463 = Duitku. Required — no default, choose per gateway."
         },
         "contact_id": {
           "type": "integer",
-          "description": "Always 3 (Xendit) for gateway fees.",
-          "default": 3
+          "description": "Gateway contact: 3 = Xendit, 1957 = Duitku. Required — no default, must match pay_from_finance_account_id (1 pairs with 3, 1463 pairs with 1957)."
         },
         "status_id": {
           "type": "integer",
@@ -291,7 +289,7 @@ export const KLEDO_TOOLS = [
               },
               "desc": {
                 "type": "string",
-                "description": "e.g. 'Biaya Xendit' or 'Disbursement Fee'"
+                "description": "e.g. 'Biaya Xendit', 'Biaya Duitku', or 'Disbursement Fee' — match the gateway used"
               },
               "amount": {
                 "type": "number",
