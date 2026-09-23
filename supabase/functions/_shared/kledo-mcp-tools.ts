@@ -803,7 +803,7 @@ export const KLEDO_TOOLS = [
         "id": { "type": "integer", "description": "Bank transaction ID to update" },
         "trans_date": { "type": "string", "format": "date", "description": "Transaction date (YYYY-MM-DD)" },
         "trans_type_id": { "type": "integer", "enum": [11, 12], "description": "11 = Kirim Dana, 12 = Terima Dana" },
-        "bank_account_id": { "type": "integer", "description": "Bank account ID. 1 = Xendit.", "default": 1 },
+        "bank_account_id": { "type": "integer", "description": "Bank/cash account ID matching the gateway: 1 = Xendit, 1463 = Duitku. Required — read the transaction first with kledo_get_bank_transaction and keep its existing account unless it must change." },
         "contact_id": { "type": "integer", "description": "Kledo contact_id" },
         "include_tax": { "type": "integer", "enum": [0, 1], "description": "1 jika amount item sudah termasuk pajak" },
         "ref_number": { "type": "string", "description": "Nomor referensi terpisah dari memo" },
