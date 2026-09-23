@@ -81,7 +81,7 @@ export const KLEDO_TOOLS = [
   },
   {
     "name": "kledo_create_bank_transaction",
-    "description": "Create a bank transaction (Terima Dana or Kirim Dana) in Kledo. trans_type_id 12 = Terima Dana (order balance top-up), trans_type_id 11 = Kirim Dana (withdraw disbursement). bank_account_id 1 = Xendit.",
+    "description": "Create a bank transaction (Terima Dana or Kirim Dana) in Kledo. trans_type_id 12 = Terima Dana (order balance top-up), trans_type_id 11 = Kirim Dana (withdraw disbursement). bank_account_id depends on the payment gateway: 1 = Xendit, 1463 = Duitku. Always pick it from the gateway of the transaction, never assume a fixed value.",
     "inputSchema": {
       "type": "object",
       "properties": {
@@ -100,8 +100,7 @@ export const KLEDO_TOOLS = [
         },
         "bank_account_id": {
           "type": "integer",
-          "description": "Bank account ID. 1 = Xendit.",
-          "default": 1
+          "description": "Bank/cash account ID, chosen from the payment gateway of this transaction: 1 = Xendit, 1463 = Duitku. Required — do not rely on a default. Use kledo_get_finance_accounts for other accounts."
         },
         "contact_id": {
           "type": "integer",
@@ -205,7 +204,7 @@ export const KLEDO_TOOLS = [
         },
         "bank_account_id": {
           "type": "integer",
-          "description": "Filter by bank account. 1 = Xendit."
+          "description": "Filter by bank/cash account: 1 = Xendit, 1463 = Duitku."
         },
         "trans_type_id": {
           "type": "integer",
@@ -246,7 +245,7 @@ export const KLEDO_TOOLS = [
   },
   {
     "name": "kledo_create_expense",
-    "description": "Create an expense in Kledo. Used to record Xendit fees: payment gateway fee on top-up (variable per method) or disbursement fee on withdraw (Rp 2.500 + PPN). contact_id always 3 (Xendit). Tarif: VA Rp 4.000 flat, QRIS/ShopeePay 0.63%, Dana/LinkAja 1.5%. Amount includes PPN 11% via floor(fee + fee * 0.11).",
+    "description": "Create an expense in Kledo. Used to record payment gateway fees (per-method fee on top-up) or disbursement fee on withdraw. Pick pay_from_finance_account_id and contact_id from the gateway of the order: Xendit = pay_from 1, contact 3. Duitku = pay_from 1463, contact 1957. Never assume a fixed gateway. Xendit tarif: VA Rp 4.000 flat, QRIS/ShopeePay 0.63%, Dana/LinkAja 1.5%, amount includes PPN 11% via floor(fee + fee * 0.11). Duitku fee comes from the real Duitku transaction data, not from a formula.",
     "inputSchema": {
       "type": "object",
       "properties": {
@@ -257,13 +256,11 @@ export const KLEDO_TOOLS = [
         },
         "pay_from_finance_account_id": {
           "type": "integer",
-          "description": "Payment source. 1 = Xendit, 1463 = Duitku.",
-          "default": 1
+          "description": "Cash/bank account the fee is paid from, matching the gateway: 1 = Xendit, 1463 = Duitku. Required — no default, choose per gateway."
         },
         "contact_id": {
           "type": "integer",
-          "description": "Always 3 (Xendit) for gateway fees.",
-          "default": 3
+          "description": "Gateway contact: 3 = Xendit, 1957 = Duitku. Required — no default, must match pay_from_finance_account_id (1 pairs with 3, 1463 pairs with 1957)."
         },
         "status_id": {
           "type": "integer",
@@ -292,7 +289,7 @@ export const KLEDO_TOOLS = [
               },
               "desc": {
                 "type": "string",
-                "description": "e.g. 'Biaya Xendit' or 'Disbursement Fee'"
+                "description": "e.g. 'Biaya Xendit', 'Biaya Duitku', or 'Disbursement Fee' — match the gateway used"
               },
               "amount": {
                 "type": "number",
@@ -323,7 +320,7 @@ export const KLEDO_TOOLS = [
   },
   {
     "name": "kledo_get_expenses",
-    "description": "List expenses. Use to verify Xendit fees are recorded or find missing expense entries.",
+    "description": "List expenses. Use to verify payment gateway fees (Xendit or Duitku) are recorded or find missing expense entries. Filter contact_id 3 for Xendit, 1957 for Duitku.",
     "inputSchema": {
       "type": "object",
       "properties": {
@@ -349,7 +346,7 @@ export const KLEDO_TOOLS = [
         },
         "contact_id": {
           "type": "integer",
-          "description": "Filter by contact. 3 = Xendit."
+          "description": "Filter by contact: 3 = Xendit, 1957 = Duitku."
         },
         "status_id": {
           "type": "integer",
@@ -806,7 +803,7 @@ export const KLEDO_TOOLS = [
         "id": { "type": "integer", "description": "Bank transaction ID to update" },
         "trans_date": { "type": "string", "format": "date", "description": "Transaction date (YYYY-MM-DD)" },
         "trans_type_id": { "type": "integer", "enum": [11, 12], "description": "11 = Kirim Dana, 12 = Terima Dana" },
-        "bank_account_id": { "type": "integer", "description": "Bank account ID. 1 = Xendit.", "default": 1 },
+        "bank_account_id": { "type": "integer", "description": "Bank/cash account ID matching the gateway: 1 = Xendit, 1463 = Duitku. Required — read the transaction first with kledo_get_bank_transaction and keep its existing account unless it must change." },
         "contact_id": { "type": "integer", "description": "Kledo contact_id" },
         "include_tax": { "type": "integer", "enum": [0, 1], "description": "1 jika amount item sudah termasuk pajak" },
         "ref_number": { "type": "string", "description": "Nomor referensi terpisah dari memo" },
@@ -855,14 +852,14 @@ export const KLEDO_TOOLS = [
   },
   {
     "name": "kledo_update_expense",
-    "description": "Update an existing expense in Kledo (PUT /finance/expenses/{id}). Replaces ALL items. Use to correct amount (fee Xendit/Duitku), date, memo, or status. Read the expense first with kledo_get_expense and pass back its existing status_id / ref_number / contact_id so they are preserved unless you intend to change them.",
+    "description": "Update an existing expense in Kledo (PUT /finance/expenses/{id}). Replaces ALL items. Use to correct amount (fee Xendit/Duitku), date, memo, or status. Read the expense first with kledo_get_expense and pass back its existing status_id / ref_number / contact_id / pay_from_finance_account_id so they are preserved unless you intend to change them. Gateway pairs: Xendit = pay_from 1 + contact 3, Duitku = pay_from 1463 + contact 1957.",
     "inputSchema": {
       "type": "object",
       "properties": {
         "id": { "type": "integer", "description": "Expense ID to update" },
         "trans_date": { "type": "string", "format": "date", "description": "Transaction date (YYYY-MM-DD)" },
-        "pay_from_finance_account_id": { "type": "integer", "description": "Payment source. 1 = Xendit, 1463 = Duitku.", "default": 1 },
-        "contact_id": { "type": "integer", "description": "Contact of the expense. 3 = Xendit.", "default": 3 },
+        "pay_from_finance_account_id": { "type": "integer", "description": "Cash/bank account the fee is paid from, matching the gateway: 1 = Xendit, 1463 = Duitku. Required — no default; take the existing value from kledo_get_expense unless the gateway really changes." },
+        "contact_id": { "type": "integer", "description": "Gateway contact: 3 = Xendit, 1957 = Duitku. Required — no default; must pair with pay_from_finance_account_id (1 with 3, 1463 with 1957)." },
         "status_id": { "type": "integer", "enum": [1, 2, 3], "description": "Expense status: 1 = Draft, 2 = Belum Dibayar (unpaid), 3 = Dibayar (paid). Fill with the status_id returned by kledo_get_expense for this expense so the existing status is kept; only change it when the status really must change.", "default": 3 },
 
         "ref_number": { "type": "string", "description": "Existing Kledo expense reference number (e.g. EXP/2026/08/05/2857). Read the expense first with kledo_get_expense and pass back its existing ref_number when updating so the reference is preserved." },

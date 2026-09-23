@@ -11,7 +11,7 @@ const corsHeaders = {
 // Duitku expense config — must match kledo-sync KLEDO_EXPENSE_DUITKU
 const KLEDO_EXPENSE_DUITKU = {
   pay_from_finance_account_id: 1463,
-  contact_id: 3,
+  contact_id: 1957,
   status_id: 3,
   finance_account_id: 1459,
 };

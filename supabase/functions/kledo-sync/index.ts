@@ -39,6 +39,7 @@ const KLEDO_EXPENSE = {
 const KLEDO_EXPENSE_DUITKU = {
   ...KLEDO_EXPENSE,
   pay_from_finance_account_id: 1463, // Akun kas Duitku
+  contact_id: 1957, // Kontak Duitku
 };
 
 /**
@@ -298,9 +299,10 @@ async function createExpense(
   memo: string,
   feeAmount: number,
   methodName: string,
-  payFromFinanceAccountId: number
+  payFromFinanceAccountId: number,
+  contactId: number = KLEDO_EXPENSE.contact_id
 ): Promise<{ success: boolean; id?: string; error?: string; isAuthError?: boolean }> {
-  console.log("Creating Kledo expense:", { transDate, memo, feeAmount, methodName, payFromFinanceAccountId });
+  console.log("Creating Kledo expense:", { transDate, memo, feeAmount, methodName, payFromFinanceAccountId, contactId });
 
   try {
     const response = await fetch(`${KLEDO_API_BASE}/finance/expenses`, {
@@ -312,7 +314,7 @@ async function createExpense(
       body: JSON.stringify({
         trans_date: transDate,
         pay_from_finance_account_id: payFromFinanceAccountId,
-        contact_id: KLEDO_EXPENSE.contact_id,
+        contact_id: contactId,
         status_id: KLEDO_EXPENSE.status_id,
         memo,
         items: [
@@ -518,7 +520,7 @@ serve(async (req) => {
       const expenseConfig = order.payment_gateway === 'duitku'
         ? KLEDO_EXPENSE_DUITKU
         : KLEDO_EXPENSE;
-      const expenseResult = await createExpense(token!, transDate, memo, fee, methodName, expenseConfig.pay_from_finance_account_id);
+      const expenseResult = await createExpense(token!, transDate, memo, fee, methodName, expenseConfig.pay_from_finance_account_id, expenseConfig.contact_id);
 
       
       // Check for auth error on expense and retry if possible
@@ -556,7 +558,7 @@ serve(async (req) => {
         }
         
         // Retry expense only
-        const retryExpenseResult = await createExpense(newToken, transDate, memo, fee, methodName, expenseConfig.pay_from_finance_account_id);
+        const retryExpenseResult = await createExpense(newToken, transDate, memo, fee, methodName, expenseConfig.pay_from_finance_account_id, expenseConfig.contact_id);
         
         if (!retryExpenseResult.success) {
           const errorMsg = `Expense failed after retry: ${retryExpenseResult.error}`;
