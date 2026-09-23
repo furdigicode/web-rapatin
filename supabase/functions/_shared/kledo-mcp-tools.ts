@@ -973,7 +973,9 @@ const LIST_KEYS = [
   "contact_id",
   "bank_account_id",
   "trans_type_id",
+  "status_id",
 ];
+
 
 function listQuery(args: Record<string, any>) {
   const q: Record<string, unknown> = {};
