@@ -314,7 +314,7 @@ async function createExpense(
       body: JSON.stringify({
         trans_date: transDate,
         pay_from_finance_account_id: payFromFinanceAccountId,
-        contact_id: KLEDO_EXPENSE.contact_id,
+        contact_id: contactId,
         status_id: KLEDO_EXPENSE.status_id,
         memo,
         items: [
@@ -520,7 +520,7 @@ serve(async (req) => {
       const expenseConfig = order.payment_gateway === 'duitku'
         ? KLEDO_EXPENSE_DUITKU
         : KLEDO_EXPENSE;
-      const expenseResult = await createExpense(token!, transDate, memo, fee, methodName, expenseConfig.pay_from_finance_account_id);
+      const expenseResult = await createExpense(token!, transDate, memo, fee, methodName, expenseConfig.pay_from_finance_account_id, expenseConfig.contact_id);
 
       
       // Check for auth error on expense and retry if possible
@@ -558,7 +558,7 @@ serve(async (req) => {
         }
         
         // Retry expense only
-        const retryExpenseResult = await createExpense(newToken, transDate, memo, fee, methodName, expenseConfig.pay_from_finance_account_id);
+        const retryExpenseResult = await createExpense(newToken, transDate, memo, fee, methodName, expenseConfig.pay_from_finance_account_id, expenseConfig.contact_id);
         
         if (!retryExpenseResult.success) {
           const errorMsg = `Expense failed after retry: ${retryExpenseResult.error}`;
