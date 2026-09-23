@@ -39,6 +39,7 @@ const KLEDO_EXPENSE = {
 const KLEDO_EXPENSE_DUITKU = {
   ...KLEDO_EXPENSE,
   pay_from_finance_account_id: 1463, // Akun kas Duitku
+  contact_id: 1957, // Kontak Duitku
 };
 
 /**
@@ -298,9 +299,10 @@ async function createExpense(
   memo: string,
   feeAmount: number,
   methodName: string,
-  payFromFinanceAccountId: number
+  payFromFinanceAccountId: number,
+  contactId: number = KLEDO_EXPENSE.contact_id
 ): Promise<{ success: boolean; id?: string; error?: string; isAuthError?: boolean }> {
-  console.log("Creating Kledo expense:", { transDate, memo, feeAmount, methodName, payFromFinanceAccountId });
+  console.log("Creating Kledo expense:", { transDate, memo, feeAmount, methodName, payFromFinanceAccountId, contactId });
 
   try {
     const response = await fetch(`${KLEDO_API_BASE}/finance/expenses`, {
