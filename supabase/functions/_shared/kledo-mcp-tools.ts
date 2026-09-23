@@ -81,7 +81,7 @@ export const KLEDO_TOOLS = [
   },
   {
     "name": "kledo_create_bank_transaction",
-    "description": "Create a bank transaction (Terima Dana or Kirim Dana) in Kledo. trans_type_id 12 = Terima Dana (order balance top-up), trans_type_id 11 = Kirim Dana (withdraw disbursement). bank_account_id 1 = Xendit.",
+    "description": "Create a bank transaction (Terima Dana or Kirim Dana) in Kledo. trans_type_id 12 = Terima Dana (order balance top-up), trans_type_id 11 = Kirim Dana (withdraw disbursement). bank_account_id depends on the payment gateway: 1 = Xendit, 1463 = Duitku. Always pick it from the gateway of the transaction, never assume a fixed value.",
     "inputSchema": {
       "type": "object",
       "properties": {
@@ -100,8 +100,7 @@ export const KLEDO_TOOLS = [
         },
         "bank_account_id": {
           "type": "integer",
-          "description": "Bank account ID. 1 = Xendit.",
-          "default": 1
+          "description": "Bank/cash account ID, chosen from the payment gateway of this transaction: 1 = Xendit, 1463 = Duitku. Required — do not rely on a default. Use kledo_get_finance_accounts for other accounts."
         },
         "contact_id": {
           "type": "integer",
@@ -205,7 +204,7 @@ export const KLEDO_TOOLS = [
         },
         "bank_account_id": {
           "type": "integer",
-          "description": "Filter by bank account. 1 = Xendit."
+          "description": "Filter by bank/cash account: 1 = Xendit, 1463 = Duitku."
         },
         "trans_type_id": {
           "type": "integer",
