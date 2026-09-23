@@ -57,7 +57,7 @@ const KLEDO_TOOLS: Tool[] = [
   { name: "kledo_create_bank_transaction", type: "write", desc: "Buat Terima Dana (12) atau Kirim Dana (11); akun kas per gateway." },
   { name: "kledo_get_expenses", type: "read", desc: "Daftar beban (biaya Xendit/Duitku), filter kontak & status." },
   { name: "kledo_get_expense", type: "read", desc: "Detail satu beban." },
-  { name: "kledo_create_expense", type: "write", desc: "Catat beban payment gateway (Xendit 1\/3, Duitku 1463\/1957)." },
+  { name: "kledo_create_expense", type: "write", desc: "Catat beban payment gateway (Xendit 1/3, Duitku 1463/1957)." },
   { name: "kledo_get_invoices", type: "read", desc: "Daftar faktur penjualan." },
   { name: "kledo_get_invoice", type: "read", desc: "Detail satu faktur (items, diskon, withholding)." },
   { name: "kledo_create_invoice", type: "write", desc: "Buat faktur LUNAS (pendapatan jadwal / withdraw fee)." },
@@ -72,7 +72,7 @@ const KLEDO_TOOLS: Tool[] = [
   { name: "kledo_delete_bank_transaction", type: "write", desc: "Hapus transaksi Kas & Bank (butuh confirm=true, opsional reason)." },
   { name: "kledo_update_contact", type: "write", desc: "Update data kontak (nama, telepon, email, alamat)." },
   { name: "kledo_update_bank_transaction", type: "write", desc: "Update transaksi Kas & Bank (items menggantikan semua)." },
-  { name: "kledo_update_expense", type: "write", desc: "Update beban (fee/memo/status_id, items diganti semua)." },
+  { name: "kledo_update_expense", type: "write", desc: "Update beban (fee/memo/status/akun & kontak gateway)." },
   { name: "kledo_update_invoice", type: "write", desc: "Update faktur (items, diskon, withholding diganti semua)." },
   { name: "kledo_update_manual_journal", type: "write", desc: "Update jurnal manual (items harus balance ke 0)." },
 ];
