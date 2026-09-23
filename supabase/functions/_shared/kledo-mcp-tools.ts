@@ -320,7 +320,7 @@ export const KLEDO_TOOLS = [
   },
   {
     "name": "kledo_get_expenses",
-    "description": "List expenses. Use to verify Xendit fees are recorded or find missing expense entries.",
+    "description": "List expenses. Use to verify payment gateway fees (Xendit or Duitku) are recorded or find missing expense entries. Filter contact_id 3 for Xendit, 1957 for Duitku.",
     "inputSchema": {
       "type": "object",
       "properties": {
@@ -346,7 +346,7 @@ export const KLEDO_TOOLS = [
         },
         "contact_id": {
           "type": "integer",
-          "description": "Filter by contact. 3 = Xendit."
+          "description": "Filter by contact: 3 = Xendit, 1957 = Duitku."
         },
         "status_id": {
           "type": "integer",
