@@ -37,7 +37,7 @@ const MainHeroSection: React.FC = () => {
             </span>
           </div>
           <h1 className="text-5xl md:text-5xl lg:text-6xl font-bold tracking-tight text-foreground text-center mb-4 max-w-4xl animate-fade-in">
-            Pay-as-you-go <Suspense fallback={<span className="text-primary">meeting</span>}>
+            Pay-per-use appointment platform <Suspense fallback={<span className="text-primary">meeting</span>}>
               <AnimatedText words={["meeting", "event", "appointment"]} className="text-primary" />
             </Suspense>{" "}
             scheduling platform
@@ -57,7 +57,7 @@ const MainHeroSection: React.FC = () => {
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-10 max-w-4xl w-full mx-auto pt-2 animate-fade-in">
             <div className="flex items-center gap-2 text-sm justify-center">
               <CreditCard size={18} className="text-primary" />
-              <span>Pay as you go</span>
+              <span>Bayar per pemakaian</span>
             </div>
             <div className="flex items-center gap-2 text-sm justify-center">
               <X size={18} className="text-primary" />
