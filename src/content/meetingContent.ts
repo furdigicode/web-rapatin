@@ -2,8 +2,8 @@
 import { HeroContent, FeatureContent, HowItWorksContent } from '@/types/ProductPageTypes';
 
 export const meetingHeroContent: HeroContent = {
-  badge: "Aplikasi penjadwalan rapat premium tanpa batas waktu",
-  title: "Jadwalkan <span class=\"text-primary\">rapat Zoom</span> tanpa langganan sendiri",
+  badge: "Rapatin Meeting - Platform video rapat asli Indonesia",
+  title: "Alternatif Zoom Meeting bayar per pemakaian. Tanpa Langganan.",
   subtitle: "Bayar hanya untuk yang kamu gunakan, dengan harga fleksibel berdasarkan jumlah peserta. Tanpa langganan bulanan, cukup isi saldo dan jadwalkan.",
   primaryCTA: {
     text: "Mulai Menjadwalkan",
