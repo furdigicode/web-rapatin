@@ -6,15 +6,15 @@ export const meetingHeroContent: HeroContent = {
   subtitle:
     "Bayar hanya untuk yang kamu gunakan, dengan harga fleksibel berdasarkan jumlah peserta. Tanpa langganan bulanan, cukup isi saldo dan jadwalkan.",
   primaryCTA: {
-    text: "Mulai Menjadwalkan",
-    href: "https://app.rapatin.id/dashboard/register",
+    text: "Coba Gratis",
+    href: "https://api.whatsapp.com/send?phone=6287788980084&text=Halo%2C%20saya%20mau%20coba%20Rapatin%20Meeting%20GRATIS",
   },
   secondaryCTA: {
     text: "Lihat Harga",
     href: "#pricing",
   },
   highlights: [
-    { icon: "BadgeDollarSign", text: "Bayar Setiap Rapat" },
+    { icon: "BadgeDollarSign", text: "Bayar per Rapat" },
     { icon: "Video", text: "Kualitas Video Full HD" },
     { icon: "Calendar", text: "Penjadwalan Mudah" },
     { icon: "Clock", text: "Durasi Tidak Terbatas" },
