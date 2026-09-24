@@ -16,7 +16,7 @@ export const meetingHeroContent: HeroContent = {
   highlights: [
     { icon: "BadgeDollarSign", text: "Bayar per Rapat" },
     { icon: "Video", text: "Kualitas Video Full HD" },
-    { icon: "Calendar", text: "Penjadwalan Mudah" },
+    { icon: "Calendar", text: "Fitur Lengkap" },
     { icon: "Clock", text: "Durasi Tidak Terbatas" },
   ],
   image: {
@@ -47,7 +47,7 @@ export const meetingFeatureContent: FeatureContent = {
     {
       icon: "CloudLightning",
       title: "Rekaman Cloud",
-      description: "Rekaman otomatis disimpan dan tersedia untuk diunduh selama 72 jam melalui dashboard Anda.",
+      description: "Rekaman otomatis disimpan dan tersedia untuk diunduh selama 30 hari melalui dashboard Anda.",
       delay: "delay-200",
     },
     {
