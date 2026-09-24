@@ -260,17 +260,17 @@ const ProductShowcase: React.FC = () => {
   const products = [
     {
       id: 'meeting',
-      title: 'Meeting Scheduling',
-      subtitle: 'Jadwalkan meeting dengan infrastruktur Zoom yang mudah',
-      description: 'Platform meeting scheduling yang terintegrasi dengan Zoom untuk meeting profesional tanpa perlu akun berbayar.',
+      title: 'Rapatin Meeting',
+      subtitle: 'Jadwalkan rapat dengan infrastruktur konferensi video yang mudah',
+      description: 'Platform konferensi video untuk rapat asli Indonesia untuk rapat online profesional tanpa perlu berlangganan.',
       mockup: <MeetingSchedulingMockup />,
       url: '/meeting-scheduling',
       isAvailable: true,
       features: [
-        { icon: Video, text: 'Unlock semua fitur Zoom Professional', description: 'Akses fitur premium Zoom tanpa langganan sendiri - recording cloud, breakout rooms, dan fitur enterprise lainnya' },
+        { icon: Video, text: 'Unlock semua fitur mirip Zoom', description: 'Akses fiturseperti Zoom - recording cloud, breakout rooms, dan fitur enterprise lainnya' },
         { icon: MonitorPlay, text: 'Kualitas video Full HD 1080p dengan audio jernih', description: 'Video berkualitas tinggi dengan teknologi noise reduction untuk meeting profesional yang sempurna' },
         { icon: Calendar, text: 'Interface scheduling yang intuitif dan mudah', description: 'Atur jadwal meeting dalam hitungan detik dengan kalender terintegrasi dan timezone otomatis' },
-        { icon: DollarSign, text: 'Hemat hingga 70% biaya langganan Zoom', description: 'Nikmati fitur premium Zoom tanpa perlu berlangganan - cukup bayar per penggunaan sesuai kebutuhan' },
+        { icon: DollarSign, text: 'Hemat hingga 70% dibanding langganan Zoom', description: 'Nikmati fitur premium Zoom tanpa perlu berlangganan - cukup bayar per penggunaan sesuai kebutuhan' },
         { icon: Shield, text: 'Keamanan tingkat enterprise dengan enkripsi end-to-end', description: 'Proteksi data meeting dengan standar keamanan bank dan compliance GDPR untuk privasi terjamin' }
       ]
     },
@@ -314,10 +314,10 @@ const ProductShowcase: React.FC = () => {
         <div className="container mx-auto px-4 md:px-6">
           <div className="max-w-3xl mx-auto text-center mb-20 animate-fade-in">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              Buat Jadwal dalam <span className="text-primary">Satu Platform</span>
+              Konferensi Video dalam <span className="text-primary">Satu Platform</span>
             </h2>
             <p className="text-lg text-muted-foreground">
-              Semua kebutuhan penjadwalan Anda tersedia dalam satu platform yang mudah digunakan
+              Semua kebutuhan konferensi video Anda tersedia dalam satu platform yang mudah digunakan
             </p>
           </div>
           
