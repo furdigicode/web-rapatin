@@ -37,11 +37,11 @@ const MainHeroSection: React.FC = () => {
             </span>
           </div>
           <h1 className="text-5xl md:text-5xl lg:text-6xl font-bold tracking-tight text-foreground text-center mb-4 max-w-4xl animate-fade-in">
-            Pay-per-use appointment platform <Suspense fallback={<span className="text-primary">meeting</span>}>
-              <AnimatedText words={["meeting", "event", "appointment"]} className="text-primary" />
+            Pay-per-use{" "}
+            <Suspense fallback={<span className="text-primary">meeting</span>}>
             </Suspense>{" "}
-            scheduling platform
-          </h1>
+            </Suspense>{" "}
+            platform
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl text-center mb-8 animate-fade-in">
             Kelola meeting, event, dan appointment dengan satu platform. Bayar sesuai penggunaan tanpa biaya
             berlangganan. Tanpa komitmen.
