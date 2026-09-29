@@ -69,6 +69,7 @@ const McpServerInfo = lazy(() => import("./pages/admin/McpServerInfo"));
 const AdminNotificationLog = lazy(() => import("./pages/admin/AdminNotificationLog"));
 const MysqlConnect = lazy(() => import("./pages/admin/MysqlConnect"));
 const PaymentSettings = lazy(() => import("./pages/admin/PaymentSettings"));
+const DuitkuCallbacks = lazy(() => import("./pages/admin/DuitkuCallbacks"));
 const SurveyManagement = lazy(() => import("./pages/admin/SurveyManagement"));
 const SurveyResults = lazy(() => import("./pages/admin/SurveyResults"));
 
@@ -156,6 +157,7 @@ const AppRoutes = () => {
         <Route path="/admin/notification-log" element={<ProtectedRoute><AdminNotificationLog /></ProtectedRoute>} />
         <Route path="/admin/mysql-connect" element={<ProtectedRoute><MysqlConnect /></ProtectedRoute>} />
         <Route path="/admin/payment-settings" element={<ProtectedRoute><PaymentSettings /></ProtectedRoute>} />
+        <Route path="/admin/duitku-callbacks" element={<ProtectedRoute><DuitkuCallbacks /></ProtectedRoute>} />
         <Route path="/admin/survey" element={<ProtectedRoute><SurveyManagement /></ProtectedRoute>} />
         <Route path="/admin/survey/:id/results" element={<ProtectedRoute><SurveyResults /></ProtectedRoute>} />
         
