@@ -332,6 +332,17 @@ const AppSidebar = () => {
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  asChild
+                  isActive={location.pathname === '/admin/duitku-callbacks'}
+                >
+                  <Link to="/admin/duitku-callbacks">
+                    <Webhook />
+                    <span>Callback Duitku</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

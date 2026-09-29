@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { callbackSignature, checkDuitkuTransaction, getDuitkuCredentials } from "../_shared/duitku.ts";
 import { processPaidOrder } from "../_shared/post-payment.ts";
+import { forwardToMember } from "../_shared/duitku-forward.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -45,21 +46,26 @@ serve(async (req) => {
     const paymentCode = body.paymentCode || body.paymentMethod || null;
     const signature = body.signature;
 
-    if (!merchantOrderId || !amount || !signature) {
-      console.error('Missing required callback fields');
-      return json({ error: 'Invalid payload' }, 400);
-    }
-
-    const expected = await callbackSignature(creds.merchantCode, amount, merchantOrderId, creds.apiKey);
-    if (signature !== expected) {
-      console.error('Invalid Duitku signature for order:', merchantOrderId);
-      return json({ error: 'Invalid signature' }, 403);
-    }
-
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL')!,
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
     );
+
+    const logCallback = async (row: Record<string, unknown>) => {
+      const { error } = await supabase.from('duitku_callback_log').insert({
+        merchant_order_id: merchantOrderId || null,
+        result_code: resultCode || null,
+        payload: body,
+        ...row,
+      });
+      if (error) console.error('Failed to write duitku_callback_log:', error);
+    };
+
+    if (!merchantOrderId || !amount || !signature) {
+      console.error('Missing required callback fields');
+      await logCallback({ destination: 'unknown', status: 'invalid', error_message: 'Missing required fields' });
+      return json({ error: 'Invalid payload' }, 400);
+    }
 
     const { data: order, error: findError } = await supabase
       .from('guest_orders')
@@ -72,10 +78,30 @@ serve(async (req) => {
       return json({ error: 'Database error' }, 500);
     }
 
+    // Not a Quick Order -> forward original payload to Member dashboard
     if (!order) {
-      console.error('Order not found for Duitku merchantOrderId:', merchantOrderId);
-      return json({ error: 'Order not found' }, 404);
+      const fwd = await forwardToMember(body);
+      console.log('Forwarded to member:', { merchantOrderId, status: fwd.status, ms: fwd.durationMs, error: fwd.error });
+      await logCallback({
+        destination: 'member',
+        status: fwd.ok ? 'success' : 'failed',
+        target_url: fwd.targetUrl,
+        response_status: fwd.status,
+        response_body: fwd.body,
+        duration_ms: fwd.durationMs,
+        error_message: fwd.error ?? null,
+      });
+      if (fwd.status === null) return json({ error: fwd.error || 'Forward failed' }, 502);
+      return new Response(fwd.body || 'OK', { status: fwd.status, headers: corsHeaders });
     }
+
+    const expected = await callbackSignature(creds.merchantCode, amount, merchantOrderId, creds.apiKey);
+    if (signature !== expected) {
+      console.error('Invalid Duitku signature for order:', merchantOrderId);
+      await logCallback({ destination: 'quick_order', status: 'invalid', error_message: 'Invalid signature' });
+      return json({ error: 'Invalid signature' }, 403);
+    }
+    await logCallback({ destination: 'quick_order', status: 'success' });
 
     // Idempotency
     if (order.payment_status === 'paid') {

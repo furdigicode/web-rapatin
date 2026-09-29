@@ -56,3 +56,9 @@ verify_jwt = false
 
 [functions.submit-survey]
 verify_jwt = false
+
+[functions.duitku-callback]
+verify_jwt = false
+
+[functions.duitku-callback-admin]
+verify_jwt = false

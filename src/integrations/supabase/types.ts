@@ -335,6 +335,54 @@ export type Database = {
           },
         ]
       }
+      duitku_callback_log: {
+        Row: {
+          created_at: string
+          destination: string
+          duration_ms: number | null
+          error_message: string | null
+          id: string
+          merchant_order_id: string | null
+          payload: Json
+          resend_count: number
+          response_body: string | null
+          response_status: number | null
+          result_code: string | null
+          status: string
+          target_url: string | null
+        }
+        Insert: {
+          created_at?: string
+          destination: string
+          duration_ms?: number | null
+          error_message?: string | null
+          id?: string
+          merchant_order_id?: string | null
+          payload?: Json
+          resend_count?: number
+          response_body?: string | null
+          response_status?: number | null
+          result_code?: string | null
+          status: string
+          target_url?: string | null
+        }
+        Update: {
+          created_at?: string
+          destination?: string
+          duration_ms?: number | null
+          error_message?: string | null
+          id?: string
+          merchant_order_id?: string | null
+          payload?: Json
+          resend_count?: number
+          response_body?: string | null
+          response_status?: number | null
+          result_code?: string | null
+          status?: string
+          target_url?: string | null
+        }
+        Relationships: []
+      }
       guest_orders: {
         Row: {
           access_slug: string | null
