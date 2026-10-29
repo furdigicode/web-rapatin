@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -43,6 +43,15 @@ const timeOptions = Array.from({ length: 24 }, (_, i) => {
   const hour = i.toString().padStart(2, '0');
   return { value: `${hour}:00`, label: `${hour}:00` };
 });
+
+// True if the given date + "HH:00" slot is not in the future
+const isPastSlot = (date: Date | undefined, time: string | undefined): boolean => {
+  if (!date || !time) return false;
+  const [h] = time.split(":").map(Number);
+  const slot = new Date(date);
+  slot.setHours(h, 0, 0, 0);
+  return slot.getTime() <= Date.now();
+};
 
 // Helper function to get next hour
 const getNextHour = (): string => {
@@ -95,6 +104,9 @@ const formSchema = z.object({
   end_type: z.enum(['end_date', 'end_after_type']).nullable().optional(),
   recurrence_end_date: z.date().nullable().optional(),
   recurrence_count: z.number().nullable().optional(),
+}).refine((v) => !isPastSlot(v.meeting_date, v.meeting_time), {
+  message: "Jam meeting sudah lewat, pilih jam lain",
+  path: ["meeting_time"],
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -235,6 +247,20 @@ export function QuickOrderForm() {
 
   // Disable dates before today
   const disabledDays = { before: new Date() };
+
+  // Auto-adjust time if selected slot is already past
+  useEffect(() => {
+    if (!watchedDate || !isPastSlot(watchedDate, watchedTime)) return;
+    const next = timeOptions.find((o) => !isPastSlot(watchedDate, o.value));
+    if (next) {
+      form.setValue("meeting_time", next.value, { shouldValidate: true });
+    } else {
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      form.setValue("meeting_date", tomorrow, { shouldValidate: true });
+      form.setValue("meeting_time", "00:00", { shouldValidate: true });
+    }
+  }, [watchedDate, watchedTime]);
 
   return (
     <FormProvider {...form}>
@@ -391,7 +417,11 @@ export function QuickOrderForm() {
                         </FormControl>
                         <SelectContent className="max-h-60">
                           {timeOptions.map((option) => (
-                            <SelectItem key={option.value} value={option.value}>
+                            <SelectItem
+                              key={option.value}
+                              value={option.value}
+                              disabled={isPastSlot(watchedDate, option.value)}
+                            >
                               {option.label}
                             </SelectItem>
                           ))}
