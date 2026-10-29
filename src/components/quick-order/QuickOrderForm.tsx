@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -104,6 +104,9 @@ const formSchema = z.object({
   end_type: z.enum(['end_date', 'end_after_type']).nullable().optional(),
   recurrence_end_date: z.date().nullable().optional(),
   recurrence_count: z.number().nullable().optional(),
+}).refine((v) => !isPastSlot(v.meeting_date, v.meeting_time), {
+  message: "Jam meeting sudah lewat, pilih jam lain",
+  path: ["meeting_time"],
 });
 
 type FormValues = z.infer<typeof formSchema>;
