@@ -9,7 +9,7 @@ const supabaseUrl = Deno.env.get('SUPABASE_URL')!
 const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 const anonKey = Deno.env.get('SUPABASE_ANON_KEY')
 const supabase = createClient(supabaseUrl, serviceKey)
-const LOOKBACK_HOURS = 3 // covers a missed run; dedup prevents double sends
+const LOOKBACK_HOURS = 24 // covers a missed run; dedup prevents double sends
 const json = (b: unknown, status = 200) =>
   new Response(JSON.stringify(b), { status, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
 
@@ -20,10 +20,21 @@ function normalizePhone(raw: string) {
   return p
 }
 
+// Accept this project's anon/service JWT (env anon key may differ in format from the one pg_cron sends)
+function isProjectKey(key?: string | null) {
+  if (!key) return false
+  if (key === anonKey || key === serviceKey) return true
+  try {
+    const p = JSON.parse(atob(key.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')))
+    const ref = new URL(supabaseUrl).hostname.split('.')[0]
+    return p.ref === ref && (p.role === 'anon' || p.role === 'service_role')
+  } catch { return false }
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders })
   const key = req.headers.get('apikey') ?? req.headers.get('Authorization')?.replace('Bearer ', '')
-  if (!anonKey || key !== anonKey) return json({ error: 'Not authorized' }, 403)
+  if (!isProjectKey(key)) return json({ error: 'Not authorized' }, 403)
   try {
     const apiKey = Deno.env.get('KIRIMCHAT_API_KEY')
     if (!apiKey) return json({ error: 'KIRIMCHAT_API_KEY belum diatur' }, 500)
