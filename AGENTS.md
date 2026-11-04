@@ -1,0 +1,2 @@
+# Architecture rules
+- Share pure Kirim.Chat text-variable parsing and component assembly in `supabase/functions/_shared/template-variables.ts`, imported by Follow Up and edge functions, so Header and Body semantics stay consistent without server-only dependencies.
