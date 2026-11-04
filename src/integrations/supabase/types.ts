@@ -383,6 +383,75 @@ export type Database = {
         }
         Relationships: []
       }
+      followup_logs: {
+        Row: {
+          created_at: string
+          email: string | null
+          error_message: string | null
+          id: string
+          is_test: boolean
+          mysql_user_id: string | null
+          name: string | null
+          phone: string
+          response: Json | null
+          status: string
+          template_name: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          error_message?: string | null
+          id?: string
+          is_test?: boolean
+          mysql_user_id?: string | null
+          name?: string | null
+          phone: string
+          response?: Json | null
+          status: string
+          template_name: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          error_message?: string | null
+          id?: string
+          is_test?: boolean
+          mysql_user_id?: string | null
+          name?: string | null
+          phone?: string
+          response?: Json | null
+          status?: string
+          template_name?: string
+        }
+        Relationships: []
+      }
+      followup_settings: {
+        Row: {
+          created_at: string
+          id: string
+          template_language: string
+          template_name: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          template_language?: string
+          template_name?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          template_language?: string
+          template_name?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       guest_orders: {
         Row: {
           access_slug: string | null

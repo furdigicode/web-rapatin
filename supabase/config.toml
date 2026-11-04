@@ -62,3 +62,6 @@ verify_jwt = false
 
 [functions.duitku-callback-admin]
 verify_jwt = false
+
+[functions.followup-admin]
+verify_jwt = false
