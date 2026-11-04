@@ -22,7 +22,12 @@ export function previewText(text: string | null | undefined, keys: string[], val
     (match, key) => values[keys.indexOf(key)] || match);
 }
 
-export function buildTextComponents(template: TemplateText, headerValues: unknown, bodyValues: unknown) {
+export function buildTextComponents(
+  template: TemplateText,
+  headerValues: unknown,
+  bodyValues: unknown,
+  options: { mirrorHeaderOnlyToBody?: boolean } = {},
+) {
   const keys = templateVariables(template);
   const components: { type: 'header' | 'body'; parameters: { type: 'text'; text: string; parameter_name?: string }[] }[] = [];
   for (const type of ['header', 'body'] as const) {
@@ -37,6 +42,15 @@ export function buildTextComponents(template: TemplateText, headerValues: unknow
         type: 'text', text: value.trim(),
         ...(/^\d+$/.test(keys[type][index]) ? {} : { parameter_name: keys[type][index] }),
       })),
+    });
+  }
+  // Kirim.Chat requires a body parameter for certain legacy header-only
+  // templates. Keep this opt-in so normal Meta component semantics stay intact.
+  if (options.mirrorHeaderOnlyToBody && keys.header.length && !keys.body.length) {
+    const header = components.find((component) => component.type === 'header');
+    if (header) components.push({
+      type: 'body',
+      parameters: header.parameters.map((parameter) => ({ ...parameter })),
     });
   }
   return components;

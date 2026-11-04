@@ -68,7 +68,9 @@ serve(async (req) => {
       if (!templateInfo) return json({ error: 'Template belum tersinkron. Sinkronkan template Kirim.Chat terlebih dahulu.' }, 400)
       let components
       try {
-        components = buildTextComponents(templateInfo, body.header_variables ?? [], body.body_variables ?? body.variables ?? [])
+        components = buildTextComponents(templateInfo, body.header_variables ?? [], body.body_variables ?? body.variables ?? [], {
+          mirrorHeaderOnlyToBody: template === 'activation_user',
+        })
       } catch (error) {
         return json({ error: (error as Error).message }, 400)
       }
@@ -76,7 +78,7 @@ serve(async (req) => {
       if (components.length) tpl.components = components
       const res = await fetch('https://api-prod.kirim.chat/api/v1/public/messages/send', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}`, 'User-Agent': 'Rapatin-FollowUp/1.0' },
         body: JSON.stringify({ phone_number: phone, channel: 'whatsapp', message_type: 'template', template: tpl }),
       })
       const result = await res.json().catch(() => ({}))
