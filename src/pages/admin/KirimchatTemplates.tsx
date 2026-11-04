@@ -4,6 +4,7 @@ import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -49,6 +50,12 @@ const KirimchatTemplates: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
   const [detail, setDetail] = useState<Template | null>(null);
+  const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const PER_PAGE = 20;
+  const filtered = templates.filter((t) => t.template_name.toLowerCase().includes(search.toLowerCase()));
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
+  const shown = filtered.slice((page - 1) * PER_PAGE, page * PER_PAGE);
 
   const load = async () => {
     setLoading(true);
@@ -98,6 +105,10 @@ const KirimchatTemplates: React.FC = () => {
         </Button>
       </AdminPageHeader>
 
+      <div className="mb-3 flex items-center justify-between gap-2">
+        <Input value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} placeholder="Cari nama template..." className="max-w-xs" />
+        <span className="text-sm text-muted-foreground">{filtered.length} template</span>
+      </div>
       <div className="rounded-md border bg-card">
         <Table>
           <TableHeader>
@@ -118,14 +129,14 @@ const KirimchatTemplates: React.FC = () => {
                   Memuat…
                 </TableCell>
               </TableRow>
-            ) : templates.length === 0 ? (
+            ) : shown.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
                   Belum ada template. Klik "Sinkron dari KirimChat" untuk mengambil.
                 </TableCell>
               </TableRow>
             ) : (
-              templates.map((t) => (
+              shown.map((t) => (
                 <TableRow
                   key={t.id}
                   className="cursor-pointer hover:bg-muted/50"
@@ -154,6 +165,14 @@ const KirimchatTemplates: React.FC = () => {
           </TableBody>
         </Table>
       </div>
+
+      {totalPages > 1 && (
+        <div className="mt-3 flex items-center justify-end gap-2">
+          <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => setPage(page - 1)}>Sebelumnya</Button>
+          <span className="text-sm text-muted-foreground">Halaman {page} / {totalPages}</span>
+          <Button variant="outline" size="sm" disabled={page >= totalPages} onClick={() => setPage(page + 1)}>Berikutnya</Button>
+        </div>
+      )}
 
       <Dialog open={!!detail} onOpenChange={(o) => !o && setDetail(null)}>
         <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
