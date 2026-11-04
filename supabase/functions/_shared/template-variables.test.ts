@@ -2,11 +2,24 @@ import { describe, expect, test } from 'bun:test';
 import { buildTextComponents, previewText, templateVariables } from './template-variables';
 
 describe('Kirim.Chat template text variables', () => {
-  test('activation_user sends its name only in the header', () => {
+  test('standard header-only templates keep their name only in the header', () => {
     const template = { header_type: 'TEXT', header_content: 'Halo kak {{1}}', body_content: 'Belum melakukan top up saldo.' };
     expect(templateVariables(template)).toEqual({ header: ['1'], body: [] });
     expect(buildTextComponents(template, ['Budi'], [])).toEqual([
       { type: 'header', parameters: [{ type: 'text', text: 'Budi' }] },
+    ]);
+  });
+  test('activation_user compatibility includes Eky in header and body', () => {
+    const template = { header_type: 'TEXT', header_content: 'Halo kak {{1}}', body_content: 'Belum melakukan top up saldo.' };
+    expect(buildTextComponents(template, ['Eky'], [], { mirrorHeaderOnlyToBody: true })).toEqual([
+      { type: 'header', parameters: [{ type: 'text', text: 'Eky' }] },
+      { type: 'body', parameters: [{ type: 'text', text: 'Eky' }] },
+    ]);
+  });
+  test('compatibility does not replace real body variables', () => {
+    expect(buildTextComponents({ header_content: '{{1}}', body_content: '{{1}}' }, ['Eky'], ['50000'], { mirrorHeaderOnlyToBody: true })).toEqual([
+      { type: 'header', parameters: [{ type: 'text', text: 'Eky' }] },
+      { type: 'body', parameters: [{ type: 'text', text: '50000' }] },
     ]);
   });
   test('header and body can each have their own variable 1', () => {
