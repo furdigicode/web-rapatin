@@ -151,10 +151,28 @@ export default function FollowUp() {
                 <Label htmlFor="phone">Nomor WhatsApp</Label>
                 <Input id="phone" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="08123456789" />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="vars">Isi variabel (opsional, pisahkan dengan |)</Label>
-                <Input id="vars" value={vars} onChange={(e) => setVars(e.target.value)} placeholder="Budi | Rapatin" />
-              </div>
+              {tplInfo === null && (
+                <p className="text-sm text-destructive">
+                  Template "{template}" ({language}) belum ada di daftar. Buka menu KirimChat → Templates lalu klik "Sinkron dari KirimChat".
+                </p>
+              )}
+              {tplInfo && tplInfo.count === 0 && (
+                <p className="text-sm text-muted-foreground">Template ini tidak memiliki variabel.</p>
+              )}
+              {tplInfo && varValues.map((v, i) => (
+                <div key={i} className="space-y-2">
+                  <Label htmlFor={`var-${i}`}>Variabel {`{{${i + 1}}}`}</Label>
+                  <Input id={`var-${i}`} value={v}
+                    onChange={(e) => setVarValues((arr) => arr.map((x, j) => (j === i ? e.target.value : x)))}
+                    placeholder={i === 0 ? "contoh: Budi" : `Isi untuk {{${i + 1}}}`} />
+                </div>
+              ))}
+              {tplInfo?.body && (
+                <div className="space-y-2">
+                  <Label>Pratinjau pesan</Label>
+                  <pre className="whitespace-pre-wrap rounded-md bg-muted p-3 text-sm font-sans">{preview}</pre>
+                </div>
+              )}
               <Button onClick={test} disabled={sending || !template.trim() || !phone.trim()}>
                 {sending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
                 Kirim Uji Coba
