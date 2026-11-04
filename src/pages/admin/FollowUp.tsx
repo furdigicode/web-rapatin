@@ -92,7 +92,7 @@ export default function FollowUp() {
     !q || [l.name, l.email, l.phone, l.template_name].some((v) => v?.toLowerCase().includes(q)));
 
   return (
-    <AdminLayout>
+    <AdminLayout title="Follow Up">
       <div className="space-y-6 p-6">
         <div>
           <h1 className="text-2xl font-bold">Follow Up</h1>
