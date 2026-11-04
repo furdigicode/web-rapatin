@@ -72,7 +72,10 @@ serve(async (req) => {
         body: JSON.stringify({ phone_number: phone, channel: 'whatsapp', message_type: 'template', template: tpl }),
       })
       const result = await res.json().catch(() => ({}))
-      const errMsg = res.ok ? null : (result?.message || result?.error || `HTTP ${res.status}`)
+      const rawErr = result?.error
+      const errMsg = res.ok ? null : (
+        (typeof rawErr === 'object' && rawErr?.message) || result?.message ||
+        (typeof rawErr === 'string' ? rawErr : null) || `HTTP ${res.status}`)
       await supabase.from('followup_logs').insert({
         name: 'Uji coba', phone, template_name: template, status: res.ok ? 'success' : 'failed',
         is_test: true, response: result, error_message: errMsg ? String(errMsg) : null,
