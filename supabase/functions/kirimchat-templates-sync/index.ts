@@ -70,20 +70,42 @@ serve(async (req) => {
   }
 
   try {
-    const res = await fetch(
-      "https://api-prod.kirim.chat/api/v1/public/templates?limit=200",
-      { headers: { Authorization: `Bearer ${apiKey}` } },
-    );
-    const text = await res.text();
-    if (!res.ok) {
-      console.error("KirimChat templates fetch failed", res.status, text);
-      return new Response(
-        JSON.stringify({ error: "Upstream error", status: res.status, body: text }),
-        { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+    const items: any[] = [];
+    const seen = new Set<string>();
+    let cursor: string | null = null;
+    for (let page = 1; page <= 50; page++) {
+      const qs = new URLSearchParams({ limit: "100", page: String(page) });
+      if (cursor) qs.set("cursor", cursor);
+      const res = await fetch(
+        `https://api-prod.kirim.chat/api/v1/public/templates?${qs}`,
+        { headers: { Authorization: `Bearer ${apiKey}` } },
       );
+      const text = await res.text();
+      if (!res.ok) {
+        console.error("KirimChat templates fetch failed", res.status, text);
+        return new Response(
+          JSON.stringify({ error: "Upstream error", status: res.status, body: text }),
+          { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        );
+      }
+      const json = JSON.parse(text);
+      if (page === 1) console.log("templates page meta:", JSON.stringify({ ...json, data: undefined }));
+      const batch: any[] = Array.isArray(json?.data) ? json.data : [];
+      let added = 0;
+      for (const t of batch) {
+        const key = t.id ?? `${t.template_name}:${t.language}`;
+        if (seen.has(key)) continue;
+        seen.add(key); items.push(t); added++;
+      }
+      const meta = json?.pagination ?? json?.meta ?? {};
+      cursor = meta.next_cursor ?? meta.nextCursor ?? json?.next_cursor ?? null;
+      const totalPages = meta.total_pages ?? meta.totalPages ?? meta.last_page;
+      const hasMore = meta.has_more ?? meta.hasMore ?? meta.hasNext ?? meta.has_next;
+      if (!batch.length || added === 0) break;
+      if (hasMore === false) break;
+      if (totalPages && page >= totalPages) break;
+      if (hasMore === undefined && !totalPages && !cursor && batch.length < 10) break;
     }
-    const json = JSON.parse(text);
-    const items = Array.isArray(json?.data) ? json.data : [];
 
     let synced = 0;
     for (const t of items) {
