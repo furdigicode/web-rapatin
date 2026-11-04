@@ -35,8 +35,24 @@ export default function FollowUp() {
   const [template, setTemplate] = useState("");
   const [language, setLanguage] = useState("id");
   const [phone, setPhone] = useState("");
-  const [vars, setVars] = useState("");
+  const [varValues, setVarValues] = useState<string[]>([]);
+  const [tplInfo, setTplInfo] = useState<{ body: string | null; count: number } | null | undefined>(undefined);
   const [logs, setLogs] = useState<LogRow[]>([]);
+
+  useEffect(() => {
+    const name = template.trim();
+    if (!name) { setTplInfo(undefined); return; }
+    const t = setTimeout(async () => {
+      const { data } = await supabase.from("kirimchat_templates")
+        .select("body_content, variable_count").eq("template_name", name).eq("language", language || "id").maybeSingle();
+      if (!data) { setTplInfo(null); return; }
+      setTplInfo({ body: data.body_content, count: data.variable_count });
+      setVarValues((v) => Array.from({ length: data.variable_count }, (_, i) => v[i] ?? ""));
+    }, 400);
+    return () => clearTimeout(t);
+  }, [template, language]);
+
+  const preview = tplInfo?.body?.replace(/\{\{\s*(\d+)\s*\}\}/g, (m, n) => varValues[Number(n) - 1] || m) ?? "";
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [sending, setSending] = useState(false);
@@ -75,7 +91,11 @@ export default function FollowUp() {
   const test = async () => {
     setSending(true);
     try {
-      const variables = vars.split("|").map((v) => v.trim()).filter(Boolean);
+      if (varValues.some((v) => !v.trim())) {
+        toast({ title: "Variabel belum lengkap", description: "Isi semua variabel template.", variant: "destructive" });
+        return;
+      }
+      const variables = varValues.map((v) => v.trim());
       const d = await call({ action: "test", template_name: template, template_language: language, phone, variables });
       if (d.ok) toast({ title: "Uji kirim berhasil", description: `Terkirim ke ${phone}` });
       else toast({ title: "Uji kirim gagal", description: String(d.error), variant: "destructive" });
