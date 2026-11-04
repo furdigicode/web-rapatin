@@ -1,18 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-};
-
-function countVariables(body: string | null | undefined): number {
-  if (!body) return 0;
-  const matches = [...body.matchAll(/\{\{\s*(\d+)\s*\}\}/g)];
-  if (matches.length === 0) return 0;
-  return Math.max(...matches.map((m) => parseInt(m[1], 10)));
-}
+import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
+import { templateVariables } from "../_shared/template-variables.ts";
 
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
@@ -23,9 +12,14 @@ serve(async (req) => {
     });
   }
 
-  const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-  const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-  const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+  const supabaseUrl = Deno.env.get("SUPABASE_URL");
+  const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  const anonKey = Deno.env.get("SUPABASE_ANON_KEY");
+  if (!supabaseUrl || !serviceKey || !anonKey) {
+    return new Response(JSON.stringify({ error: "Supabase configuration missing" }), {
+      status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
   const apiKey = Deno.env.get("KIRIMCHAT_API_KEY");
 
   if (!apiKey) {
@@ -110,7 +104,8 @@ serve(async (req) => {
     let synced = 0;
     for (const t of items) {
       const body_content = t.content ?? null;
-      const variable_count = countVariables(body_content);
+      const variableKeys = templateVariables({ header_type: t.header_type, header_content: t.header_content, body_content });
+      const variable_count = variableKeys.header.length + variableKeys.body.length;
       const row = {
         external_id: t.id ?? "",
         template_name: t.template_name,

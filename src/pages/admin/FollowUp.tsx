@@ -9,6 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, RefreshCw, Save, Send } from "lucide-react";
+import { previewText, templateVariables } from "../../../supabase/functions/_shared/template-variables";
 
 interface LogRow {
   id: string;
@@ -25,7 +26,14 @@ interface LogRow {
 async function call(body: Record<string, unknown>) {
   const token = localStorage.getItem("adminAuthToken") ?? "";
   const { data, error } = await supabase.functions.invoke("followup-admin", { body: { token, ...body } });
-  if (error) throw new Error(error.message);
+  if (error) {
+    const response = "context" in error ? error.context : null;
+    if (response instanceof Response) {
+      const details = await response.json().catch(() => null);
+      if (typeof details?.error === "string") throw new Error(details.error);
+    }
+    throw new Error(error.message);
+  }
   if (data?.error && body.action !== "test") throw new Error(data.error);
   return data;
 }
@@ -35,24 +43,34 @@ export default function FollowUp() {
   const [template, setTemplate] = useState("");
   const [language, setLanguage] = useState("id");
   const [phone, setPhone] = useState("");
-  const [varValues, setVarValues] = useState<string[]>([]);
-  const [tplInfo, setTplInfo] = useState<{ body: string | null; count: number } | null | undefined>(undefined);
+  const [headerValues, setHeaderValues] = useState<string[]>([]);
+  const [bodyValues, setBodyValues] = useState<string[]>([]);
+  const [tplInfo, setTplInfo] = useState<{ header: string | null; body: string | null; keys: { header: string[]; body: string[] } } | null | undefined>(undefined);
   const [logs, setLogs] = useState<LogRow[]>([]);
 
   useEffect(() => {
+    let cancelled = false;
+    setTplInfo(undefined);
+    setHeaderValues([]);
+    setBodyValues([]);
     const name = template.trim();
-    if (!name) { setTplInfo(undefined); return; }
+    if (!name) return;
     const t = setTimeout(async () => {
       const { data } = await supabase.from("kirimchat_templates")
-        .select("body_content, variable_count").eq("template_name", name).eq("language", language || "id").maybeSingle();
+        .select("header_type, header_content, body_content").eq("template_name", name).eq("language", language.trim() || "id").maybeSingle();
+      if (cancelled) return;
       if (!data) { setTplInfo(null); return; }
-      setTplInfo({ body: data.body_content, count: data.variable_count });
-      setVarValues((v) => Array.from({ length: data.variable_count }, (_, i) => v[i] ?? ""));
+      const keys = templateVariables(data);
+      const textHeader = !data.header_type || data.header_type.toLowerCase() === "text";
+      setTplInfo({ header: textHeader ? data.header_content : null, body: data.body_content, keys });
+      setHeaderValues(keys.header.map(() => ""));
+      setBodyValues(keys.body.map(() => ""));
     }, 400);
-    return () => clearTimeout(t);
+    return () => { cancelled = true; clearTimeout(t); };
   }, [template, language]);
 
-  const preview = tplInfo?.body?.replace(/\{\{\s*(\d+)\s*\}\}/g, (m, n) => varValues[Number(n) - 1] || m) ?? "";
+  const headerPreview = tplInfo ? previewText(tplInfo.header, tplInfo.keys.header, headerValues) : "";
+  const bodyPreview = tplInfo ? previewText(tplInfo.body, tplInfo.keys.body, bodyValues) : "";
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [sending, setSending] = useState(false);
@@ -91,12 +109,12 @@ export default function FollowUp() {
   const test = async () => {
     setSending(true);
     try {
-      if (varValues.some((v) => !v.trim())) {
+      if (!tplInfo || [...headerValues, ...bodyValues].some((v) => !v.trim())) {
         toast({ title: "Variabel belum lengkap", description: "Isi semua variabel template.", variant: "destructive" });
         return;
       }
-      const variables = varValues.map((v) => v.trim());
-      const d = await call({ action: "test", template_name: template, template_language: language, phone, variables });
+      const d = await call({ action: "test", template_name: template, template_language: language, phone,
+        header_variables: headerValues.map((v) => v.trim()), body_variables: bodyValues.map((v) => v.trim()) });
       if (d.ok) toast({ title: "Uji kirim berhasil", description: `Terkirim ke ${phone}` });
       else toast({ title: "Uji kirim gagal", description: String(d.error), variant: "destructive" });
       load();
@@ -156,24 +174,34 @@ export default function FollowUp() {
                   Template "{template}" ({language}) belum ada di daftar. Buka menu KirimChat → Templates lalu klik "Sinkron dari KirimChat".
                 </p>
               )}
-              {tplInfo && tplInfo.count === 0 && (
+              {template.trim() && tplInfo === undefined && (
+                <p className="text-sm text-muted-foreground">Memuat template…</p>
+              )}
+              {tplInfo && tplInfo.keys.header.length + tplInfo.keys.body.length === 0 && (
                 <p className="text-sm text-muted-foreground">Template ini tidak memiliki variabel.</p>
               )}
-              {tplInfo && varValues.map((v, i) => (
-                <div key={i} className="space-y-2">
-                  <Label htmlFor={`var-${i}`}>Variabel {`{{${i + 1}}}`}</Label>
-                  <Input id={`var-${i}`} value={v}
-                    onChange={(e) => setVarValues((arr) => arr.map((x, j) => (j === i ? e.target.value : x)))}
-                    placeholder={i === 0 ? "contoh: Budi" : `Isi untuk {{${i + 1}}}`} />
-                </div>
-              ))}
-              {tplInfo?.body && (
+              {tplInfo && (["header", "body"] as const).map((section) => {
+                const values = section === "header" ? headerValues : bodyValues;
+                const setValues = section === "header" ? setHeaderValues : setBodyValues;
+                return tplInfo.keys[section].map((key, i) => (
+                  <div key={`${section}-${key}`} className="space-y-2">
+                    <Label htmlFor={`var-${section}-${key}`}>Variabel {section === "header" ? "Header" : "Body"}: {`{{${key}}}`}</Label>
+                    <Input id={`var-${section}-${key}`} value={values[i] ?? ""}
+                      onChange={(e) => setValues((arr) => arr.map((x, j) => j === i ? e.target.value : x))}
+                      placeholder={i === 0 ? "contoh: Budi" : `Isi untuk {{${key}}}`} />
+                  </div>
+                ));
+              })}
+              {tplInfo && (tplInfo.header || tplInfo.body) && (
                 <div className="space-y-2">
                   <Label>Pratinjau pesan</Label>
-                  <pre className="whitespace-pre-wrap rounded-md bg-muted p-3 text-sm font-sans">{preview}</pre>
+                  <div className="space-y-2 rounded-md bg-muted p-3 text-sm break-words">
+                    {headerPreview && <p className="whitespace-pre-wrap font-semibold">{headerPreview}</p>}
+                    {bodyPreview && <p className="whitespace-pre-wrap">{bodyPreview}</p>}
+                  </div>
                 </div>
               )}
-              <Button onClick={test} disabled={sending || !template.trim() || !phone.trim()}>
+              <Button onClick={test} disabled={sending || !template.trim() || !phone.trim() || !tplInfo || [...headerValues, ...bodyValues].some((v) => !v.trim())}>
                 {sending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
                 Kirim Uji Coba
               </Button>

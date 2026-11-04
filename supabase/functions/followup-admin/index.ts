@@ -1,11 +1,12 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { corsHeaders } from 'npm:@supabase/supabase-js@2/cors'
+import { buildTextComponents } from '../_shared/template-variables.ts'
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
-const supabase = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!)
+const supabaseUrl = Deno.env.get('SUPABASE_URL')
+const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+if (!supabaseUrl || !serviceKey) throw new Error('Supabase configuration missing')
+const supabase = createClient(supabaseUrl, serviceKey)
 const json = (b: unknown, status = 200) =>
   new Response(JSON.stringify(b), { status, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
 
@@ -61,11 +62,18 @@ serve(async (req) => {
       const phone = normalizePhone(body.phone)
       const template = body.template_name.trim()
       const lang = typeof body.template_language === 'string' && body.template_language.trim() ? body.template_language.trim() : 'id'
-      const params = Array.isArray(body.variables)
-        ? body.variables.filter((v: unknown) => typeof v === 'string' && v.length).slice(0, 10)
-        : []
+      const { data: templateInfo, error: templateError } = await supabase.from('kirimchat_templates')
+        .select('header_type, header_content, body_content').eq('template_name', template).eq('language', lang).maybeSingle()
+      if (templateError) throw templateError
+      if (!templateInfo) return json({ error: 'Template belum tersinkron. Sinkronkan template Kirim.Chat terlebih dahulu.' }, 400)
+      let components
+      try {
+        components = buildTextComponents(templateInfo, body.header_variables ?? [], body.body_variables ?? body.variables ?? [])
+      } catch (error) {
+        return json({ error: (error as Error).message }, 400)
+      }
       const tpl: Record<string, unknown> = { name: template, language: { code: lang } }
-      if (params.length) tpl.components = [{ type: 'body', parameters: params.map((t: string) => ({ type: 'text', text: t })) }]
+      if (components.length) tpl.components = components
       const res = await fetch('https://api-prod.kirim.chat/api/v1/public/messages/send', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
