@@ -81,17 +81,16 @@ Deno.serve(async (req) => {
       runQuery(sql, [baseStart, baseEnd, cmpStart, cmpEnd, h3, cmpStart]),
       runQuery(originSql, [baseStart, baseEnd, baseStart, cmpStart, cmpEnd]),
     ]);
-    const baseT = new Date(baseStart.replace(" ", "T")).getTime();
     const all = r.rows.map((x: any) => {
       const months3 = Number(x.months3 ?? 0);
-      const first = x.first_at ? new Date(x.first_at).getTime() : 0;
+      const first = String(x.first_at ?? "");
       const rev_prev = Number(x.rev_prev ?? 0);
       return {
         id: Number(x.id), name: x.name, email: x.email, phone: x.phone,
         balance: Number(x.balance ?? 0), base_schedules: Number(x.jadwal_prev ?? 0),
         base_usage: rev_prev, rev_curr: x.rev_curr == null ? null : Number(x.rev_curr),
         last_schedule_at: x.last_at, first_active_at: x.first_at, months_active_3: months3,
-        segment: months3 >= 2 ? "loyal" : first >= baseT ? "bulan_pertama" : "sekali_lainnya",
+        segment: months3 >= 2 ? "loyal" : first >= baseStart ? "bulan_pertama" : "sekali_lainnya",
         high_value: rev_prev >= 100000,
       };
     });
