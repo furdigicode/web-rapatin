@@ -60,7 +60,8 @@ export default function StatistikChurn() {
       if (!res.origin || typeof res.retention_rate !== "number") throw new Error("Format data lama, silakan klik Segarkan");
       setData(res);
     } catch (e) {
-      setError((e as Error).message); setData(null);
+      // Keep the last good table on screen — a failed reload must not empty the page.
+      setError((e as Error).message);
     } finally { setLoading(false); }
   };
 
@@ -111,6 +112,11 @@ export default function StatistikChurn() {
 
           <TabsContent value="ringkasan" className="space-y-6">
             {error && <p className="text-destructive text-sm">{error}</p>}
+            {loading && !data && (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Loader2 className="h-4 w-4 animate-spin" /> Menghitung data dari database Rapatin…
+              </div>
+            )}
 
             {data && (
               <>
@@ -144,6 +150,13 @@ export default function StatistikChurn() {
                     ))}
                   </CardContent>
                 </Card>
+
+                <div className="flex flex-wrap gap-2">
+                  {([["all", `Semua (${data.churned_count})`], ["loyal", `Loyal (${segCount("loyal")})`], ["bulan_pertama", `Bulan pertama (${segCount("bulan_pertama")})`], ["sekali_lainnya", `Sekali lainnya (${segCount("sekali_lainnya")})`], ["high", `Nilai tinggi (${high.length} · ${rupiah(high.reduce((s, u) => s + u.base_usage, 0))})`]] as const).map(([k, t]) => (
+                    <Button key={k} size="sm" variant={seg === k ? "default" : "outline"} onClick={() => setSeg(k)}>{t}</Button>
+                  ))}
+                </div>
+                <ChurnUserTable data={data} filtered={filtered} page={page} totalPages={totalPages} setPage={setPage} />
               </>
             )}
           </TabsContent>
@@ -156,62 +169,70 @@ export default function StatistikChurn() {
                     <Button key={k} size="sm" variant={seg === k ? "default" : "outline"} onClick={() => setSeg(k)}>{t}</Button>
                   ))}
                 </div>
-                <Card>
-                  <CardHeader>
-                    <CardTitle>User Churn</CardTitle>
-                    <CardDescription>
-                      Aktif di {label(data.period.base)}, tidak ada jadwal di {label(data.period.compare)}. Loyal = aktif 2+ bulan dalam 3 bulan terakhir; nilai tinggi = pemakaian ≥ Rp 100.000.
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Nama</TableHead>
-                          <TableHead>Kontak</TableHead>
-                          <TableHead>Segmen</TableHead>
-                          <TableHead className="text-right">Jadwal</TableHead>
-                          <TableHead className="text-right">Pemakaian Saldo</TableHead>
-                          <TableHead>Jadwal Terakhir</TableHead>
-                          <TableHead className="text-right">Sisa Saldo</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE).map((u) => (
-                          <TableRow key={u.id}>
-                            <TableCell>{u.name ?? `#${u.id}`}</TableCell>
-                            <TableCell className="text-xs"><div>{u.phone ?? "-"}</div><div className="text-muted-foreground">{u.email ?? "-"}</div></TableCell>
-                            <TableCell>
-                              <div className="flex flex-wrap gap-1">
-                                <Badge variant="secondary">{SEGMENTS[u.segment]}</Badge>
-                                {u.high_value && <Badge>Nilai tinggi</Badge>}
-                              </div>
-                            </TableCell>
-                            <TableCell className="text-right">{u.base_schedules}</TableCell>
-                            <TableCell className="text-right">{rupiah(u.base_usage)}</TableCell>
-                            <TableCell className="text-xs">{u.last_schedule_at?.slice(0, 16) ?? "-"}</TableCell>
-                            <TableCell className="text-right">{rupiah(u.balance)}</TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                    {filtered.length > PAGE_SIZE && (
-                      <div className="flex items-center justify-between pt-4 text-sm text-muted-foreground">
-                        <span>{filtered.length} user · Halaman {page} dari {totalPages}</span>
-                        <div className="flex gap-2">
-                          <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => setPage(page - 1)}>Sebelumnya</Button>
-                          <Button variant="outline" size="sm" disabled={page >= totalPages} onClick={() => setPage(page + 1)}>Berikutnya</Button>
-                        </div>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
+                <ChurnUserTable data={data} filtered={filtered} page={page} totalPages={totalPages} setPage={setPage} />
               </>
             )}
           </TabsContent>
         </Tabs>
       </div>
     </AdminLayout>
+  );
+}
+
+function ChurnUserTable({ data, filtered, page, totalPages, setPage }: {
+  data: ChurnData; filtered: ChurnUser[]; page: number; totalPages: number; setPage: (n: number) => void;
+}) {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>User Churn</CardTitle>
+        <CardDescription>
+          Aktif di {label(data.period.base)}, tidak ada jadwal di {label(data.period.compare)}. Loyal = aktif 2+ bulan dalam 3 bulan terakhir; nilai tinggi = pemakaian ≥ Rp 100.000.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Nama</TableHead>
+              <TableHead>Kontak</TableHead>
+              <TableHead>Segmen</TableHead>
+              <TableHead className="text-right">Jadwal</TableHead>
+              <TableHead className="text-right">Pemakaian Saldo</TableHead>
+              <TableHead>Jadwal Terakhir</TableHead>
+              <TableHead className="text-right">Sisa Saldo</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE).map((u) => (
+              <TableRow key={u.id}>
+                <TableCell>{u.name ?? `#${u.id}`}</TableCell>
+                <TableCell className="text-xs"><div>{u.phone ?? "-"}</div><div className="text-muted-foreground">{u.email ?? "-"}</div></TableCell>
+                <TableCell>
+                  <div className="flex flex-wrap gap-1">
+                    <Badge variant="secondary">{SEGMENTS[u.segment]}</Badge>
+                    {u.high_value && <Badge>Nilai tinggi</Badge>}
+                  </div>
+                </TableCell>
+                <TableCell className="text-right">{u.base_schedules}</TableCell>
+                <TableCell className="text-right">{rupiah(u.base_usage)}</TableCell>
+                <TableCell className="text-xs">{u.last_schedule_at?.slice(0, 16) ?? "-"}</TableCell>
+                <TableCell className="text-right">{rupiah(u.balance)}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+        {filtered.length > PAGE_SIZE && (
+          <div className="flex items-center justify-between pt-4 text-sm text-muted-foreground">
+            <span>{filtered.length} user · Halaman {page} dari {totalPages}</span>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => setPage(page - 1)}>Sebelumnya</Button>
+              <Button variant="outline" size="sm" disabled={page >= totalPages} onClick={() => setPage(page + 1)}>Berikutnya</Button>
+            </div>
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 }
 
