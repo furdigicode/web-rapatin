@@ -47,8 +47,9 @@ Deno.serve(async (req) => {
     const end = m === 12 ? ym(y + 1, 1) : ym(y, m + 1);
     const prevKey = start.slice(0, 7);
 
-    const [funnel, speed, rev, guest] = await Promise.all([
-      runQuery(`
+    // runQuery closes its connection before resolving; await each query so
+    // one Activation request never occupies four MySQL connections at once.
+    const funnel = await runQuery(`
         SELECT DATE_FORMAT(u.created_at, '%Y-%m') AS bulan,
           COUNT(DISTINCT u.id) AS new_signups,
           COUNT(DISTINCT o.customer_id) AS deposit_users,
@@ -61,8 +62,8 @@ Deno.serve(async (req) => {
           AND s.created_at >= DATE_FORMAT(u.created_at, '%Y-%m-01')
           AND s.created_at < LAST_DAY(u.created_at) + INTERVAL 1 DAY
         WHERE u.created_at >= ? AND u.created_at < ?
-        GROUP BY bulan`, [start, end]),
-      runQuery(`
+        GROUP BY bulan`, [start, end]);
+    const speed = await runQuery(`
         SELECT DATE_FORMAT(u.created_at, '%Y-%m') AS bulan, COUNT(*) AS depositors,
           AVG(TIMESTAMPDIFF(SECOND, u.created_at, f.first_deposit_at)) / 3600 AS avg_hours,
           SUM(TIMESTAMPDIFF(SECOND, u.created_at, f.first_deposit_at) <= 86400) AS deposit_24h
@@ -72,8 +73,8 @@ Deno.serve(async (req) => {
               GROUP BY customer_id) f
           ON f.customer_id = u.id AND f.first_deposit_at < LAST_DAY(u.created_at) + INTERVAL 1 DAY
         WHERE u.created_at >= ? AND u.created_at < ?
-        GROUP BY bulan`, [start, end, start, end]),
-      runQuery(`
+        GROUP BY bulan`, [start, end, start, end]);
+    const rev = await runQuery(`
         SELECT r.bulan,
           SUM(CASE WHEN DATE_FORMAT(u.created_at, '%Y-%m') = r.bulan THEN r.amt ELSE 0 END) AS revenue_new,
           SUM(DATE_FORMAT(u.created_at, '%Y-%m') = r.bulan) AS new_paying,
@@ -84,13 +85,12 @@ Deno.serve(async (req) => {
                 AND created_at >= ? AND created_at < ?
               GROUP BY customer_id, bulan) r
         LEFT JOIN users u ON u.id = r.customer_id
-        GROUP BY r.bulan`, [start, end]),
-      runQuery(`
+        GROUP BY r.bulan`, [start, end]);
+    const guest = await runQuery(`
         SELECT DATE_FORMAT(created_at, '%Y-%m') AS bulan,
           SUM(customer_id = 14) AS guest, COUNT(*) AS total
         FROM schedules WHERE deleted_at IS NULL AND created_at >= ? AND created_at < ?
-        GROUP BY bulan`, [start, end]),
-    ]);
+        GROUP BY bulan`, [start, end]);
 
     const pick = (rows: any[], key: string) => rows.find((r) => String(r.bulan) === key) ?? {};
     const build = (key: string) => {
