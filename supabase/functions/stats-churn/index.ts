@@ -38,8 +38,45 @@ const ym = (y: number, m: number) => `${y}-${String(m).padStart(2, "0")}-01`;
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
   try {
-    const { token, month } = await req.json().catch(() => ({}));
+    const { token, month, year } = await req.json().catch(() => ({}));
     if (!(await verifyAdminToken(token))) return json({ ok: false, error: "Unauthorized" }, 401);
+    if (year !== undefined) {
+      const yr = Number(year);
+      const wibNow = new Date(Date.now() + 7 * 3600_000);
+      if (!Number.isInteger(yr) || yr < 2018 || yr > wibNow.getUTCFullYear()) return json({ ok: false, error: "Tahun tidak valid" }, 400);
+      // Last completed month of that year.
+      const lastM = yr < wibNow.getUTCFullYear() ? 12 : wibNow.getUTCMonth(); // 0 = none yet
+      if (lastM === 0) return json({ ok: true, year: yr, months: [] });
+      const end = lastM === 12 ? ym(yr + 1, 1) : ym(yr, lastM + 1);
+      const r = await runQuery(`
+        SELECT customer_id AS cid, DATE_FORMAT(created_at, '%Y-%m') AS ym, SUM(ABS(\`usage\`)) AS rev
+        FROM balance_logs
+        WHERE event = 'reduce' AND type IN ('schedule_from_liability','schedule')
+          AND customer_id IS NOT NULL AND created_at < ?
+        GROUP BY customer_id, DATE_FORMAT(created_at, '%Y-%m')
+        LIMIT 2000000`, [end]);
+      const byUser = new Map<number, Map<string, number>>();
+      for (const x of r.rows as any[]) {
+        const id = Number(x.cid);
+        if (!byUser.has(id)) byUser.set(id, new Map());
+        byUser.get(id)!.set(String(x.ym), Number(x.rev ?? 0));
+      }
+      const months = [];
+      for (let mm = 1; mm <= lastM; mm++) {
+        const key = `${yr}-${String(mm).padStart(2, "0")}`;
+        const prev = mm === 1 ? `${yr - 1}-12` : `${yr}-${String(mm - 1).padStart(2, "0")}`;
+        const o = { retained: { users: 0, revenue: 0 }, reactivated: { users: 0, revenue: 0 }, new: { users: 0, revenue: 0 } };
+        for (const ms of byUser.values()) {
+          if (!ms.has(key)) continue;
+          let k: keyof typeof o = "new";
+          if (ms.has(prev)) k = "retained";
+          else { for (const d of ms.keys()) if (d < key) { k = "reactivated"; break; } }
+          o[k].users++; o[k].revenue += ms.get(key)!;
+        }
+        months.push({ month: key, origin: o });
+      }
+      return json({ ok: true, year: yr, months, duration_ms: r.durationMs });
+    }
     if (typeof month !== "string" || !/^\d{4}-(0[1-9]|1[0-2])$/.test(month)) {
       return json({ ok: false, error: "Format bulan harus YYYY-MM" }, 400);
     }
