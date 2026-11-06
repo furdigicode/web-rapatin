@@ -58,7 +58,7 @@ export default function StatistikChurn() {
   useEffect(() => { load(month); }, [month]);
 
   return (
-    <AdminLayout>
+    <AdminLayout title="Statistik — Churn">
       <div className="space-y-6">
         <div>
           <h1 className="text-2xl font-bold">Statistik — Churn</h1>
