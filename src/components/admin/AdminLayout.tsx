@@ -341,6 +341,14 @@ const AppSidebar = () => {
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
+                <SidebarMenuButton asChild isActive={location.pathname === '/admin/statistik/activation'}>
+                  <Link to="/admin/statistik/activation">
+                    <Database />
+                    <span>Statistik · Activation</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
                 <SidebarMenuButton asChild isActive={location.pathname === '/admin/follow-up'}>
                   <Link to="/admin/follow-up">
                     <MessageCircle />
