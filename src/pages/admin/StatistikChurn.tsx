@@ -18,6 +18,7 @@ interface ChurnData {
   churn_rate: number; lost_revenue: number; churned_users: ChurnUser[];
 }
 
+const PAGE_SIZE = 20;
 const MONTHS = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
 const label = (ym: string) => { const [y, m] = ym.split("-").map(Number); return `${MONTHS[m - 1]} ${y}`; };
 const rupiah = (n: number) => `Rp ${Math.round(n).toLocaleString("id-ID")}`;
@@ -55,7 +56,10 @@ export default function StatistikChurn() {
     } finally { setLoading(false); }
   };
 
-  useEffect(() => { load(month); }, [month]);
+  const [page, setPage] = useState(1);
+  const totalPages = Math.max(1, Math.ceil((data?.churned_users.length ?? 0) / PAGE_SIZE));
+
+  useEffect(() => { setPage(1); load(month); }, [month]);
 
   return (
     <AdminLayout title="Statistik — Churn">
@@ -147,7 +151,7 @@ export default function StatistikChurn() {
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {data.churned_users.map((u) => (
+                        {data.churned_users.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE).map((u) => (
                           <TableRow key={u.id}>
                             <TableCell>{u.name ?? `#${u.id}`}</TableCell>
                             <TableCell>{u.email ?? "-"}</TableCell>
@@ -159,6 +163,15 @@ export default function StatistikChurn() {
                         ))}
                       </TableBody>
                     </Table>
+                    {data.churned_users.length > PAGE_SIZE && (
+                      <div className="flex items-center justify-between pt-4 text-sm text-muted-foreground">
+                        <span>{data.churned_users.length} user · Halaman {page} dari {totalPages}</span>
+                        <div className="flex gap-2">
+                          <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => setPage(page - 1)}>Sebelumnya</Button>
+                          <Button variant="outline" size="sm" disabled={page >= totalPages} onClick={() => setPage(page + 1)}>Berikutnya</Button>
+                        </div>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               </>
