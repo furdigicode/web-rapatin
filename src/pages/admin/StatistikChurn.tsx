@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -6,16 +6,23 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, RefreshCw, UserMinus, Wallet } from "lucide-react";
+import { Loader2, RefreshCw, UserMinus, Wallet, UserCheck, Users } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 interface ChurnUser {
   id: number; name: string | null; email: string | null; phone: string | null;
   balance: number; base_usage: number; base_schedules: number;
+  last_schedule_at: string | null; segment: Segment; high_value: boolean;
 }
+type Segment = "loyal" | "bulan_pertama" | "sekali_lainnya";
+const SEGMENTS: Record<Segment, string> = { loyal: "Loyal", bulan_pertama: "Bulan pertama", sekali_lainnya: "Sekali lainnya" };
 interface ChurnData {
   period: { base: string; compare: string };
   active_base: number; churned_count: number; retained_count: number;
-  churn_rate: number; lost_revenue: number; churned_users: ChurnUser[];
+  churn_rate: number; retention_rate: number; revenue_prev: number; lost_revenue: number;
+  retained_rev_prev: number; retained_rev_curr: number;
+  origin: Record<"retained" | "reactivated" | "new", { users: number; revenue: number }>;
+  churned_users: ChurnUser[];
 }
 
 const PAGE_SIZE = 20;
@@ -50,6 +57,7 @@ export default function StatistikChurn() {
       });
       if (error) throw new Error(error.message);
       if (!res?.ok) throw new Error(res?.error ?? "Gagal memuat data");
+      if (!res.origin || typeof res.retention_rate !== "number") throw new Error("Format data lama, silakan klik Segarkan");
       setData(res);
     } catch (e) {
       setError((e as Error).message); setData(null);
@@ -57,9 +65,15 @@ export default function StatistikChurn() {
   };
 
   const [page, setPage] = useState(1);
-  const totalPages = Math.max(1, Math.ceil((data?.churned_users.length ?? 0) / PAGE_SIZE));
+  const [seg, setSeg] = useState<"all" | Segment | "high">("all");
+  const filtered = useMemo(() => (data?.churned_users ?? []).filter((u) =>
+    seg === "all" ? true : seg === "high" ? u.high_value : u.segment === seg), [data, seg]);
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const segCount = (k: Segment) => data?.churned_users.filter((u) => u.segment === k).length ?? 0;
+  const high = data?.churned_users.filter((u) => u.high_value) ?? [];
 
   useEffect(() => { setPage(1); load(month); }, [month]);
+  useEffect(() => { setPage(1); }, [seg]);
 
   return (
     <AdminLayout title="Statistik — Churn">
@@ -67,18 +81,11 @@ export default function StatistikChurn() {
         <div>
           <h1 className="text-2xl font-bold">Statistik — Churn</h1>
           <p className="text-muted-foreground text-sm">
-            User aktif = membuat minimal 1 jadwal rapat di bulan tersebut. Bulan berjalan tidak ditampilkan.
+            User aktif = ada pemotongan saldo untuk jadwal di bulan tersebut. Bulan berjalan tidak ditampilkan.
           </p>
         </div>
 
-        <Tabs defaultValue="ringkasan">
-          <TabsList>
-            <TabsTrigger value="ringkasan">Ringkasan</TabsTrigger>
-            <TabsTrigger value="followup">Follow Up</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="ringkasan" className="space-y-6">
-            <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
               <Select value={month} onValueChange={setMonth}>
                 <SelectTrigger className="w-56"><SelectValue /></SelectTrigger>
                 <SelectContent>
@@ -96,46 +103,64 @@ export default function StatistikChurn() {
               </Button>
             </div>
 
+        <Tabs defaultValue="ringkasan">
+          <TabsList>
+            <TabsTrigger value="ringkasan">Ringkasan</TabsTrigger>
+            <TabsTrigger value="followup">Follow Up</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="ringkasan" className="space-y-6">
             {error && <p className="text-destructive text-sm">{error}</p>}
 
             {data && (
               <>
-                <div className="grid gap-4 md:grid-cols-2">
-                  <Card>
-                    <CardHeader className="flex flex-row items-center justify-between pb-2">
-                      <CardTitle className="text-sm font-medium">Churn</CardTitle>
-                      <UserMinus className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-3xl font-bold">
-                        {data.churned_count}
-                        <span className="text-base font-normal text-muted-foreground"> / {data.active_base} user aktif</span>
-                      </div>
-                      <p className="text-sm text-muted-foreground mt-1">
-                        Churn rate <span className="font-semibold text-foreground">{data.churn_rate.toFixed(1)}%</span>
-                        {" · "}{data.retained_count} user tetap aktif
-                      </p>
-                    </CardContent>
-                  </Card>
-                  <Card>
-                    <CardHeader className="flex flex-row items-center justify-between pb-2">
-                      <CardTitle className="text-sm font-medium">Potensi Revenue Hilang</CardTitle>
-                      <Wallet className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-3xl font-bold">{rupiah(data.lost_revenue)}</div>
-                      <p className="text-sm text-muted-foreground mt-1">
-                        Penggunaan saldo user churn selama {label(data.period.base)}
-                      </p>
-                    </CardContent>
-                  </Card>
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                  <Stat title="Churn" icon={<UserMinus className="h-4 w-4 text-muted-foreground" />}
+                    value={<>{data.churned_count}<span className="text-base font-normal text-muted-foreground"> / {data.active_base}</span></>}
+                    note={<>Churn rate <b className="text-foreground">{(data.churn_rate ?? 0).toFixed(1)}%</b> dari user aktif {label(data.period.base)}</>} />
+                  <Stat title="Retained" icon={<UserCheck className="h-4 w-4 text-muted-foreground" />}
+                    value={data.retained_count}
+                    note={<>Retention rate <b className="text-foreground">{(data.retention_rate ?? 0).toFixed(1)}%</b></>} />
+                  <Stat title="Potensi Revenue Hilang" icon={<Wallet className="h-4 w-4 text-muted-foreground" />}
+                    value={rupiah(data.lost_revenue)}
+                    note={<>Pemakaian saldo user churn di {label(data.period.base)} dari total {rupiah(data.revenue_prev)}</>} />
+                  <Stat title="Revenue User Retained" icon={<Wallet className="h-4 w-4 text-muted-foreground" />}
+                    value={rupiah(data.retained_rev_curr)}
+                    note={<>{label(data.period.compare)} · sebelumnya {rupiah(data.retained_rev_prev)}</>} />
                 </div>
 
                 <Card>
                   <CardHeader>
+                    <CardTitle className="flex items-center gap-2"><Users className="h-4 w-4" />Asal User Aktif {label(data.period.compare)}</CardTitle>
+                    <CardDescription>Total {data.origin.retained.users + data.origin.reactivated.users + data.origin.new.users} user aktif</CardDescription>
+                  </CardHeader>
+                  <CardContent className="grid gap-4 md:grid-cols-3">
+                    {([["retained", "Retained", "Aktif juga bulan lalu"], ["reactivated", "Reactivated", "Kembali setelah absen"], ["new", "Baru", "Aktif pertama kali"]] as const).map(([k, t, d]) => (
+                      <div key={k} className="rounded-md border p-4">
+                        <div className="text-sm text-muted-foreground">{t}</div>
+                        <div className="text-2xl font-bold">{data.origin[k].users}</div>
+                        <div className="text-xs text-muted-foreground">{d} · {rupiah(data.origin[k].revenue)}</div>
+                      </div>
+                    ))}
+                  </CardContent>
+                </Card>
+              </>
+            )}
+          </TabsContent>
+
+          <TabsContent value="followup" className="space-y-6">
+            {data && (
+              <>
+                <div className="flex flex-wrap gap-2">
+                  {([["all", `Semua (${data.churned_count})`], ["loyal", `Loyal (${segCount("loyal")})`], ["bulan_pertama", `Bulan pertama (${segCount("bulan_pertama")})`], ["sekali_lainnya", `Sekali lainnya (${segCount("sekali_lainnya")})`], ["high", `Nilai tinggi (${high.length} · ${rupiah(high.reduce((s, u) => s + u.base_usage, 0))})`]] as const).map(([k, t]) => (
+                    <Button key={k} size="sm" variant={seg === k ? "default" : "outline"} onClick={() => setSeg(k)}>{t}</Button>
+                  ))}
+                </div>
+                <Card>
+                  <CardHeader>
                     <CardTitle>User Churn</CardTitle>
                     <CardDescription>
-                      Aktif di {label(data.period.base)}, tidak membuat jadwal di {label(data.period.compare)}
+                      Aktif di {label(data.period.base)}, tidak ada jadwal di {label(data.period.compare)}. Loyal = aktif 2+ bulan dalam 3 bulan terakhir; nilai tinggi = pemakaian ≥ Rp 100.000.
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
@@ -143,29 +168,36 @@ export default function StatistikChurn() {
                       <TableHeader>
                         <TableRow>
                           <TableHead>Nama</TableHead>
-                          <TableHead>Email</TableHead>
-                          <TableHead>Telepon</TableHead>
+                          <TableHead>Kontak</TableHead>
+                          <TableHead>Segmen</TableHead>
                           <TableHead className="text-right">Jadwal</TableHead>
                           <TableHead className="text-right">Pemakaian Saldo</TableHead>
+                          <TableHead>Jadwal Terakhir</TableHead>
                           <TableHead className="text-right">Sisa Saldo</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {data.churned_users.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE).map((u) => (
+                        {filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE).map((u) => (
                           <TableRow key={u.id}>
                             <TableCell>{u.name ?? `#${u.id}`}</TableCell>
-                            <TableCell>{u.email ?? "-"}</TableCell>
-                            <TableCell>{u.phone ?? "-"}</TableCell>
+                            <TableCell className="text-xs"><div>{u.phone ?? "-"}</div><div className="text-muted-foreground">{u.email ?? "-"}</div></TableCell>
+                            <TableCell>
+                              <div className="flex flex-wrap gap-1">
+                                <Badge variant="secondary">{SEGMENTS[u.segment]}</Badge>
+                                {u.high_value && <Badge>Nilai tinggi</Badge>}
+                              </div>
+                            </TableCell>
                             <TableCell className="text-right">{u.base_schedules}</TableCell>
                             <TableCell className="text-right">{rupiah(u.base_usage)}</TableCell>
+                            <TableCell className="text-xs">{u.last_schedule_at?.slice(0, 16) ?? "-"}</TableCell>
                             <TableCell className="text-right">{rupiah(u.balance)}</TableCell>
                           </TableRow>
                         ))}
                       </TableBody>
                     </Table>
-                    {data.churned_users.length > PAGE_SIZE && (
+                    {filtered.length > PAGE_SIZE && (
                       <div className="flex items-center justify-between pt-4 text-sm text-muted-foreground">
-                        <span>{data.churned_users.length} user · Halaman {page} dari {totalPages}</span>
+                        <span>{filtered.length} user · Halaman {page} dari {totalPages}</span>
                         <div className="flex gap-2">
                           <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => setPage(page - 1)}>Sebelumnya</Button>
                           <Button variant="outline" size="sm" disabled={page >= totalPages} onClick={() => setPage(page + 1)}>Berikutnya</Button>
@@ -177,16 +209,22 @@ export default function StatistikChurn() {
               </>
             )}
           </TabsContent>
-
-          <TabsContent value="followup">
-            <Card>
-              <CardContent className="py-10 text-center text-muted-foreground">
-                Follow Up untuk user churn akan disusun berikutnya.
-              </CardContent>
-            </Card>
-          </TabsContent>
         </Tabs>
       </div>
     </AdminLayout>
+  );
+}
+
+function Stat({ title, icon, value, note }: { title: string; icon: ReactNode; value: ReactNode; note: ReactNode }) {
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between pb-2">
+        <CardTitle className="text-sm font-medium">{title}</CardTitle>{icon}
+      </CardHeader>
+      <CardContent>
+        <div className="text-2xl font-bold">{value}</div>
+        <p className="text-xs text-muted-foreground mt-1">{note}</p>
+      </CardContent>
+    </Card>
   );
 }
