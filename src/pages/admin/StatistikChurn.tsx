@@ -57,6 +57,7 @@ export default function StatistikChurn() {
       });
       if (error) throw new Error(error.message);
       if (!res?.ok) throw new Error(res?.error ?? "Gagal memuat data");
+      if (!res.origin || typeof res.retention_rate !== "number") throw new Error("Format data lama, silakan klik Segarkan");
       setData(res);
     } catch (e) {
       setError((e as Error).message); setData(null);
@@ -116,10 +117,10 @@ export default function StatistikChurn() {
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                   <Stat title="Churn" icon={<UserMinus className="h-4 w-4 text-muted-foreground" />}
                     value={<>{data.churned_count}<span className="text-base font-normal text-muted-foreground"> / {data.active_base}</span></>}
-                    note={<>Churn rate <b className="text-foreground">{data.churn_rate.toFixed(1)}%</b> dari user aktif {label(data.period.base)}</>} />
+                    note={<>Churn rate <b className="text-foreground">{(data.churn_rate ?? 0).toFixed(1)}%</b> dari user aktif {label(data.period.base)}</>} />
                   <Stat title="Retained" icon={<UserCheck className="h-4 w-4 text-muted-foreground" />}
                     value={data.retained_count}
-                    note={<>Retention rate <b className="text-foreground">{data.retention_rate.toFixed(1)}%</b></>} />
+                    note={<>Retention rate <b className="text-foreground">{(data.retention_rate ?? 0).toFixed(1)}%</b></>} />
                   <Stat title="Potensi Revenue Hilang" icon={<Wallet className="h-4 w-4 text-muted-foreground" />}
                     value={rupiah(data.lost_revenue)}
                     note={<>Pemakaian saldo user churn di {label(data.period.base)} dari total {rupiah(data.revenue_prev)}</>} />
