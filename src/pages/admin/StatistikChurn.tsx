@@ -8,6 +8,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, RefreshCw, UserMinus, Wallet, UserCheck, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent, type ChartConfig } from "@/components/ui/chart";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, LabelList } from "recharts";
 
 interface ChurnUser {
   id: number; name: string | null; email: string | null; phone: string | null;
@@ -24,6 +26,13 @@ interface ChurnData {
   origin: Record<"retained" | "reactivated" | "new", { users: number; revenue: number }>;
   churned_users: ChurnUser[];
 }
+
+const ORIGINS = ["retained", "reactivated", "new"] as const;
+const chartConfig = {
+  retained: { label: "Retained", color: "hsl(var(--primary))" },
+  reactivated: { label: "Reactivated", color: "hsl(var(--chart-2, 160 60% 45%))" },
+  new: { label: "Baru", color: "hsl(var(--chart-4, 35 90% 55%))" },
+} satisfies ChartConfig;
 
 const PAGE_SIZE = 20;
 const MONTHS = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
@@ -72,6 +81,19 @@ export default function StatistikChurn() {
   const segCount = (k: Segment) => data?.churned_users.filter((u) => u.segment === k).length ?? 0;
   const high = data?.churned_users.filter((u) => u.high_value) ?? [];
 
+  const yearNum = useMemo(() => new Date(Date.now() + 7 * 3600_000).getUTCFullYear(), []);
+  const [yearData, setYearData] = useState<{ month: string; origin: ChurnData["origin"] }[] | null>(null);
+  const [yearErr, setYearErr] = useState<string | null>(null);
+  const loadYear = async () => {
+    setYearData(null); setYearErr(null);
+    const { data: res, error } = await supabase.functions.invoke("stats-churn", {
+      body: { token: localStorage.getItem("adminAuthToken") ?? "", year: yearNum },
+    });
+    if (error || !res?.ok) setYearErr(error?.message ?? res?.error ?? "Gagal memuat data tahunan");
+    else setYearData(res.months);
+  };
+  useEffect(() => { loadYear(); }, []);
+
   useEffect(() => { setPage(1); load(month); }, [month]);
   useEffect(() => { setPage(1); }, [seg]);
 
@@ -97,7 +119,7 @@ export default function StatistikChurn() {
                   dibandingkan dengan {label(data.period.base)}
                 </span>
               )}
-              <Button variant="outline" size="sm" onClick={() => load(month)} disabled={loading}>
+              <Button variant="outline" size="sm" onClick={() => { load(month); loadYear(); }} disabled={loading}>
                 {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
                 <span className="ml-2">Segarkan</span>
               </Button>
@@ -134,14 +156,44 @@ export default function StatistikChurn() {
                     <CardTitle className="flex items-center gap-2"><Users className="h-4 w-4" />Asal User Aktif {label(data.period.compare)}</CardTitle>
                     <CardDescription>Total {data.origin.retained.users + data.origin.reactivated.users + data.origin.new.users} user aktif</CardDescription>
                   </CardHeader>
-                  <CardContent className="grid gap-4 md:grid-cols-3">
-                    {([["retained", "Retained", "Aktif juga bulan lalu"], ["reactivated", "Reactivated", "Kembali setelah absen"], ["new", "Baru", "Aktif pertama kali"]] as const).map(([k, t, d]) => (
-                      <div key={k} className="rounded-md border p-4">
-                        <div className="text-sm text-muted-foreground">{t}</div>
-                        <div className="text-2xl font-bold">{data.origin[k].users}</div>
-                        <div className="text-xs text-muted-foreground">{d} · {rupiah(data.origin[k].revenue)}</div>
+                  <CardContent className="grid gap-6 lg:grid-cols-2">
+                    <div>
+                      <div className="text-sm font-medium mb-2">{label(data.period.compare)}</div>
+                      <ChartContainer config={chartConfig} className="h-72 w-full">
+                        <BarChart data={[{ name: label(data.period.compare), ...Object.fromEntries(ORIGINS.map((k) => [k, data.origin[k].users])) }]}>
+                          <CartesianGrid vertical={false} />
+                          <XAxis dataKey="name" tickLine={false} axisLine={false} />
+                          <YAxis allowDecimals={false} />
+                          <ChartTooltip content={<ChartTooltipContent />} />
+                          <ChartLegend content={<ChartLegendContent />} />
+                          {ORIGINS.map((k) => (
+                            <Bar key={k} dataKey={k} fill={`var(--color-${k})`} radius={4}>
+                              <LabelList dataKey={k} position="top" className="fill-foreground" fontSize={12} />
+                            </Bar>
+                          ))}
+                        </BarChart>
+                      </ChartContainer>
+                      <div className="grid grid-cols-3 gap-2 text-xs text-muted-foreground mt-2">
+                        {ORIGINS.map((k) => <div key={k}>{chartConfig[k].label}: {rupiah(data.origin[k].revenue)}</div>)}
                       </div>
-                    ))}
+                    </div>
+                    <div>
+                      <div className="text-sm font-medium mb-2">Tahun {yearNum}</div>
+                      {yearErr && <p className="text-destructive text-sm">{yearErr}</p>}
+                      {!yearData && !yearErr && <div className="h-72 flex items-center justify-center"><Loader2 className="h-5 w-5 animate-spin" /></div>}
+                      {yearData && (
+                        <ChartContainer config={chartConfig} className="h-72 w-full">
+                          <BarChart data={yearData.map((x) => ({ name: MONTHS[Number(x.month.slice(5)) - 1].slice(0, 3), ...Object.fromEntries(ORIGINS.map((k) => [k, x.origin[k].users])) }))}>
+                            <CartesianGrid vertical={false} />
+                            <XAxis dataKey="name" tickLine={false} axisLine={false} />
+                            <YAxis allowDecimals={false} />
+                            <ChartTooltip content={<ChartTooltipContent />} />
+                            <ChartLegend content={<ChartLegendContent />} />
+                            {ORIGINS.map((k) => <Bar key={k} dataKey={k} fill={`var(--color-${k})`} radius={2} />)}
+                          </BarChart>
+                        </ChartContainer>
+                      )}
+                    </div>
                   </CardContent>
                 </Card>
               </>
