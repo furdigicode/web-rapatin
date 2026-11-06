@@ -66,5 +66,8 @@ verify_jwt = false
 [functions.followup-admin]
 verify_jwt = false
 
+[functions.stats-churn]
+verify_jwt = false
+
 [functions.followup-cron]
 verify_jwt = false
