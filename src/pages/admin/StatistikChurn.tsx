@@ -8,6 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, RefreshCw, UserMinus, Wallet, UserCheck, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import ChurnFollowUpSheet from "@/components/admin/ChurnFollowUpSheet";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent, type ChartConfig } from "@/components/ui/chart";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, LabelList } from "recharts";
 
@@ -74,6 +75,7 @@ export default function StatistikChurn() {
   };
 
   const [page, setPage] = useState(1);
+  const [fuUser, setFuUser] = useState<ChurnUser | null>(null);
   const [seg, setSeg] = useState<"all" | Segment | "high">("all");
   const filtered = useMemo(() => (data?.churned_users ?? []).filter((u) =>
     seg === "all" ? true : seg === "high" ? u.high_value : u.segment === seg), [data, seg]);
@@ -226,6 +228,7 @@ export default function StatistikChurn() {
                           <TableHead className="text-right">Pemakaian Saldo</TableHead>
                           <TableHead>Jadwal Terakhir</TableHead>
                           <TableHead className="text-right">Sisa Saldo</TableHead>
+                          <TableHead className="text-right">Aksi</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
@@ -243,10 +246,15 @@ export default function StatistikChurn() {
                             <TableCell className="text-right">{rupiah(u.base_usage)}</TableCell>
                             <TableCell className="text-xs">{u.last_schedule_at?.slice(0, 16) ?? "-"}</TableCell>
                             <TableCell className="text-right">{rupiah(u.balance)}</TableCell>
+                            <TableCell className="text-right">
+                              <Button size="sm" variant="outline" onClick={() => setFuUser(u)}>Follow Up</Button>
+                            </TableCell>
                           </TableRow>
                         ))}
                       </TableBody>
                     </Table>
+                    <ChurnFollowUpSheet user={fuUser} baseLabel={label(data.period.base)} compareLabel={label(data.period.compare)}
+                      onOpenChange={(o) => { if (!o) setFuUser(null); }} />
                     {filtered.length > PAGE_SIZE && (
                       <div className="flex items-center justify-between pt-4 text-sm text-muted-foreground">
                         <span>{filtered.length} user · Halaman {page} dari {totalPages}</span>
