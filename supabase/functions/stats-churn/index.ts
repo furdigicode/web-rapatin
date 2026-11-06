@@ -55,40 +55,52 @@ Deno.serve(async (req) => {
     const baseEnd = cmpStart;
 
     const h3 = (() => { let yy = y, mm = m - 3; while (mm <= 0) { mm += 12; yy -= 1; } return ym(yy, mm); })();
-    const S = "event = 'reduce' AND type IN ('schedule_from_liability','schedule') AND customer_id IS NOT NULL";
+    // Single scan of balance_logs (correlated subqueries timed out); classification in code.
     const sql = `
-      SELECT p.cid AS id, u.name, u.email, u.phone, u.balance,
-             p.jadwal_prev, p.rev_prev, p.last_at, c.rev_curr, h.first_at, h.months3
-      FROM (SELECT customer_id AS cid, COUNT(*) AS jadwal_prev, SUM(ABS(\`usage\`)) AS rev_prev, MAX(created_at) AS last_at
-            FROM balance_logs WHERE ${S} AND created_at >= ? AND created_at < ? GROUP BY customer_id) p
-      LEFT JOIN (SELECT customer_id AS cid, SUM(ABS(\`usage\`)) AS rev_curr
-            FROM balance_logs WHERE ${S} AND created_at >= ? AND created_at < ? GROUP BY customer_id) c ON c.cid = p.cid
-      LEFT JOIN (SELECT customer_id AS cid, MIN(created_at) AS first_at,
-                   COUNT(DISTINCT CASE WHEN created_at >= ? THEN DATE_FORMAT(created_at, '%Y-%m') END) AS months3
-            FROM balance_logs WHERE ${S} AND created_at < ? GROUP BY customer_id) h ON h.cid = p.cid
-      LEFT JOIN users u ON u.id = p.cid
-      ORDER BY p.rev_prev DESC`;
-    const X = "x.event = 'reduce' AND x.type IN ('schedule_from_liability','schedule') AND x.customer_id = c.cid";
-    const originSql = `
-      SELECT CASE WHEN EXISTS (SELECT 1 FROM balance_logs x WHERE ${X} AND x.created_at >= ? AND x.created_at < ?) THEN 'retained'
-                  WHEN EXISTS (SELECT 1 FROM balance_logs x WHERE ${X} AND x.created_at < ?) THEN 'reactivated'
-                  ELSE 'new' END AS asal,
-             COUNT(*) AS users, SUM(c.rev) AS revenue
-      FROM (SELECT customer_id AS cid, SUM(ABS(\`usage\`)) AS rev FROM balance_logs
-            WHERE ${S} AND created_at >= ? AND created_at < ? GROUP BY customer_id) c
-      GROUP BY asal`;
-    const [r, o] = await Promise.all([
-      runQuery(sql, [baseStart, baseEnd, cmpStart, cmpEnd, h3, cmpStart]),
-      runQuery(originSql, [baseStart, baseEnd, baseStart, cmpStart, cmpEnd]),
+      SELECT a.cid AS id, u.name, u.email, u.phone, u.balance,
+             a.jadwal_prev, a.rev_prev, a.last_at, a.rev_curr, a.in_curr, a.in_prev, a.in_older,
+             a.first_at, a.months3
+      FROM (
+        SELECT customer_id AS cid,
+          SUM(created_at >= ? AND created_at < ?) AS jadwal_prev,
+          SUM(CASE WHEN created_at >= ? AND created_at < ? THEN ABS(\`usage\`) ELSE 0 END) AS rev_prev,
+          MAX(CASE WHEN created_at >= ? AND created_at < ? THEN created_at END) AS last_at,
+          SUM(CASE WHEN created_at >= ? THEN ABS(\`usage\`) ELSE 0 END) AS rev_curr,
+          MAX(created_at >= ?) AS in_curr,
+          MAX(created_at >= ? AND created_at < ?) AS in_prev,
+          MAX(created_at < ?) AS in_older,
+          MIN(CASE WHEN created_at < ? THEN created_at END) AS first_at,
+          COUNT(DISTINCT CASE WHEN created_at >= ? AND created_at < ? THEN DATE_FORMAT(created_at, '%Y-%m') END) AS months3
+        FROM balance_logs
+        WHERE event = 'reduce' AND type IN ('schedule_from_liability','schedule')
+          AND customer_id IS NOT NULL AND created_at < ?
+        GROUP BY customer_id
+      ) a
+      LEFT JOIN users u ON u.id = a.cid
+      WHERE a.in_curr = 1 OR a.in_prev = 1
+      ORDER BY a.rev_prev DESC
+      LIMIT 100000`;
+    const r = await runQuery(sql, [
+      baseStart, baseEnd, baseStart, baseEnd, baseStart, baseEnd, cmpStart, cmpStart,
+      baseStart, baseEnd, baseStart, cmpStart, h3, cmpStart, cmpEnd,
     ]);
-    const all = r.rows.map((x: any) => {
+    const rowsAll = r.rows as any[];
+    const origin: Record<string, { users: number; revenue: number }> = {
+      retained: { users: 0, revenue: 0 }, reactivated: { users: 0, revenue: 0 }, new: { users: 0, revenue: 0 },
+    };
+    for (const x of rowsAll) {
+      if (Number(x.in_curr) !== 1) continue;
+      const k = Number(x.in_prev) === 1 ? "retained" : Number(x.in_older) === 1 ? "reactivated" : "new";
+      origin[k].users++; origin[k].revenue += Number(x.rev_curr ?? 0);
+    }
+    const all = rowsAll.filter((x) => Number(x.in_prev) === 1).map((x: any) => {
       const months3 = Number(x.months3 ?? 0);
       const first = String(x.first_at ?? "");
       const rev_prev = Number(x.rev_prev ?? 0);
       return {
         id: Number(x.id), name: x.name, email: x.email, phone: x.phone,
         balance: Number(x.balance ?? 0), base_schedules: Number(x.jadwal_prev ?? 0),
-        base_usage: rev_prev, rev_curr: x.rev_curr == null ? null : Number(x.rev_curr),
+        base_usage: rev_prev, rev_curr: Number(x.in_curr) === 1 ? Number(x.rev_curr ?? 0) : null,
         last_schedule_at: x.last_at, first_active_at: x.first_at, months_active_3: months3,
         segment: months3 >= 2 ? "loyal" : first >= baseStart ? "bulan_pertama" : "sekali_lainnya",
         high_value: rev_prev >= 100000,
@@ -98,10 +110,6 @@ Deno.serve(async (req) => {
     const retained = all.filter((x) => x.rev_curr != null);
     const sum = (a: typeof all, f: (x: typeof all[number]) => number) => a.reduce((s, x) => s + f(x), 0);
     const n = all.length;
-    const origin: Record<string, { users: number; revenue: number }> = {
-      retained: { users: 0, revenue: 0 }, reactivated: { users: 0, revenue: 0 }, new: { users: 0, revenue: 0 },
-    };
-    for (const x of o.rows as any[]) origin[x.asal] = { users: Number(x.users), revenue: Number(x.revenue ?? 0) };
     return json({
       ok: true,
       period: { base: baseStart.slice(0, 7), compare: month },
