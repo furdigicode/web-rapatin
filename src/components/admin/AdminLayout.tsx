@@ -19,7 +19,10 @@ import {
   Server,
   Database,
   ClipboardList,
-  CreditCard
+  CreditCard,
+  BarChart3,
+  TrendingDown,
+  TrendingUp
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -69,6 +72,8 @@ const AppSidebar = () => {
   const isVotingGroupOpen = isVotingActive;
 
   const isKirimchatActive = location.pathname === '/admin/kirimchat-webhooks' || location.pathname === '/admin/kirimchat-rules' || location.pathname === '/admin/kirimchat-templates';
+
+  const isStatistikActive = location.pathname === '/admin/statistik/churn' || location.pathname === '/admin/statistik/activation';
 
   return (
     <Sidebar>
@@ -333,20 +338,34 @@ const AppSidebar = () => {
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild isActive={location.pathname === '/admin/statistik/churn'}>
-                  <Link to="/admin/statistik/churn">
-                    <Database />
-                    <span>Statistik · Churn</span>
-                  </Link>
+                <SidebarMenuButton isActive={isStatistikActive}>
+                  <BarChart3 />
+                  <span>Statistik</span>
                 </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild isActive={location.pathname === '/admin/statistik/activation'}>
-                  <Link to="/admin/statistik/activation">
-                    <Database />
-                    <span>Statistik · Activation</span>
-                  </Link>
-                </SidebarMenuButton>
+                <SidebarMenuSub>
+                  <SidebarMenuSubItem>
+                    <SidebarMenuSubButton
+                      asChild
+                      isActive={location.pathname === '/admin/statistik/churn'}
+                    >
+                      <Link to="/admin/statistik/churn">
+                        <TrendingDown />
+                        <span>Churn</span>
+                      </Link>
+                    </SidebarMenuSubButton>
+                  </SidebarMenuSubItem>
+                  <SidebarMenuSubItem>
+                    <SidebarMenuSubButton
+                      asChild
+                      isActive={location.pathname === '/admin/statistik/activation'}
+                    >
+                      <Link to="/admin/statistik/activation">
+                        <TrendingUp />
+                        <span>Activation</span>
+                      </Link>
+                    </SidebarMenuSubButton>
+                  </SidebarMenuSubItem>
+                </SidebarMenuSub>
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild isActive={location.pathname === '/admin/follow-up'}>
